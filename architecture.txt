@@ -1,0 +1,40 @@
+                Server Client Architecture
+The server-client architecture is mutually exclusive in its delegations of
+various tasks.  Rendering is done only on the client side, and the server is
+the only one responsible for physics and updates to the game state.
+This approach makes the architecture well suited to single player games as the
+host machine can run both the server and client with minimal penalty. 
+For such scenarios you should make sure to make the game tick very small 
+in order to make the game updates as fast as possible.
+Since rendering is the only major task of the client, the CPU burden on the 
+clients is very small.  Things that do not affect the game state, such as 
+weather effects can (and should) be done on the client side.  As more 
+moving objects are added to the game the bandwidth usage will increase, so one
+should be mindful about frequent updates to the number of and motion of 
+objects. To mitigate the problem, the server will cull updates that are not
+viewable within the clients' camera before sending, so the problem is not as 
+bad as it may initially sound.
+
+Client
+1. Receive updates to game state
+2. Run user hooks (scripts)
+3. Render
+4. Update scene according to updates
+5. Interpolate game if necessary while waiting for next server tick.
+6. Get input and send a packet to the server if any is received.
+7. goto 1.
+
+-------------------------------------------------------------------------------
+Server
+Each "tick" the following actions are executed
+1. Receive client input 
+2. Update game state
+3. Run one tick of the game state
+4. Send clients updates.
+
+The Update Queue
+A queue of is stored on the server containing UPDATE_MEMORY_LENGTH previous
+updates.  If a client misses one or more updates, he will request multiple
+updates from the queue.  If more updates than the queue provides are needed,
+the entire game state is sent to the client.
+

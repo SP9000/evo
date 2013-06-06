@@ -1,0 +1,7 @@
+ARMATURE BLOB:
+    REQUIRE:
+        JOINTS: JOINT1
+        FRAME: BODY, BLOBA
+    PHYSICS:
+        NONE
+

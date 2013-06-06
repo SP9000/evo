@@ -1,0 +1,27 @@
+NAME:AMOEBA
+
+USE ARMATURE BLOB
+USE LIBRARY SIMPLEGEOMETRY
+
+BODY(BASE):
+    JOINTS:
+        JOINT1 @ RELPOS(X,Y,Z):             #replace X,Y,and Z with coordinates
+            CONNECT ALL IN RADIUS(SIZE/10)  #connect all vertices in radius size/10
+    END
+    GEOMETRY:
+        #simple sphere of radius SIZE
+        SPHERE(SIZE)
+    END
+END
+
+BLOBA(BODY(JOINT1)):
+    JOINTS:
+        JOINT2BODY @ RELPOS(X,Y,Z):
+            CONNECT ALL IN RADIUS(SIZE/20)  
+    END
+    GEOMETRY: 
+        #simple sphere of radius SIZE/5
+        SPHERE(SIZE/5)
+    END
+END
+

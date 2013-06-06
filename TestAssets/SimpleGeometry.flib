@@ -1,0 +1,22 @@
+#******************************************************************************
+#SIMPLEGEOMETRY.FLIB
+# Example formula library file.
+#
+#Each formula is written in the following form:
+#
+#NAME(ARGUMENT):
+#   DEFINITION
+#
+#In general, the argument will be the size of the object you wish to generate.
+#The variable "PRECISION" is defined for all these functions and is usable 
+#(and should be used) in all of them. T is also defined and is used to keep
+#track of the current element being calculated. T goes from 0 to "PRECISION" by
+#steps of 1.
+#
+#******************************************************************************
+
+SPHERE(RADIUS):
+    X = RADIUS * SIN(PI * T/PRECISION) * COS(2*PI * T/PRECISION)
+    Y = RADIUS * SIN(PI * T/PRECISION) * SIN(2*PI * T/PRECISION)
+    Z = RADIUS * COS(PI * T/PRECISION)
+
