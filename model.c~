@@ -225,7 +225,13 @@ void ModelLoadPLY(Model *m, char *file)
         }
     }
     m->numVertices = i;
-    m->primitive = GL_TRIANGLES;
+
+    /*
+    for(i = 0; i < m->numVertices; i++) {
+        printf("V %f, %f, %f\n", m->vertices[i][0], m->vertices[i][1], m->vertices[i][2]);
+        printf("C %f, %f, %f\n", m->colors[i][0], m->colors[i][0], m->colors[i][0]);
+    }
+    */
 
     free(vertexBuff);
     free(normalBuff);

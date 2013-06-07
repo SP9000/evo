@@ -75,7 +75,7 @@ int main(int argc, char **argv)
     /* TODO: delete */
     Model *m = ModelNew(100);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
-    Model *textM = GUIBakeText("HELLO WORLD");
+    Model *textM = BakeText("HELLO WORLD");
 
     /* Main game loop. */
     while(run) {

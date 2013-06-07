@@ -38,9 +38,6 @@ typedef struct tagModel {
     Normal* normals;
     Color* colors;
 
-    /* The type of primitive to render as. e.g. GL_LINES, GL_TRIANGLES... */
-    GLuint primitive;
-
     /* ID's for rendering with OpenGL-2.0+. */
     GLuint vertexVBOID, colorVBOID, normalVBOID;
     GLuint vao;

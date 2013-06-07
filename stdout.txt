@@ -1,0 +1,53 @@
+Initializing draw
+OpenGL extensions availiable
+Shader version 1.20  - Intel Build 8.15.10.2281
+in_Position: 0
+in_Color: 1
+in_Normal: 2
+in_Position: 0
+in_Color: 1
+loaded materials successfully
+Draw initialization complete
+Running Lua Initialization script
+making new model
+Starting client
+
+Connection to server succeeded.
+making new model
+making new model
+generating VBO's
+generating VBO's
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+Game terminated
+Shutting down Enet
+Shutting down SDL

@@ -333,7 +333,6 @@ Model* GUIBakeText(char *text)
         x += scale;
         text++;
     }
-    m->primitive = GL_LINES;
 
     /* buffer data */
     glGenVertexArrays(1, &m->vao);
@@ -354,6 +353,8 @@ Model* GUIBakeText(char *text)
             m->colors, GL_STATIC_DRAW);
     glVertexAttribPointer((GLuint)1, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
+
+    m->primitive = GL_LINES;
 
     /* Unbind. */
     glBindVertexArray(0);

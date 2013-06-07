@@ -111,7 +111,7 @@ void DrawMoveCamera(float x, float y, float z);
  * @param box the area to draw the text inside.
  * @param text the text to display.
  */
-Model* GUIBakeText(char *text);
+Model* GUIBakeText(Rect *box, char *text, Model* m);
 
 
 Material* GetMaterial(int id);
