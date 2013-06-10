@@ -1,14 +1,13 @@
 INCLUDE = /usr/include/lua5.2
-LIBS = -lenet -lws2_32 -lwinmm -lmingw32 -lSDLmain -lSDL -lopengl32 -lglu32 -lglew32 -ltolua -llua52 -lm -lglib-2.0 
-
-SERVERLIBS = -lenet -lws2_32 -lwinmm
+LIBS = -lenet -lSDL -lGL -lGLU -lGLEW -llua -ltolua -ldl -lm  -lglib-2.0
+SERVERLIBS = -lenet
 
 CFLAGS = `pkg-config --cflags --libs glib-2.0` 
 
 all: Client Server
     
-Client: client.o draw.o luainterface.o toluabindings.o model.o client_packet.o matrix.o collision.o guilayout.o modelgen.o
-	$(CC) $(CFLAGS) -o $@ client.o matrix.o draw.o luainterface.o toluabindings.o model.o client_packet.o collision.o guilayout.o modelgen.o $(LIBS)
+Client: client.o draw.o luainterface.o toluabindings.o model.o client_packet.o matrix.o collision.o guilayout.o
+	$(CC) $(CFLAGS) -o $@ client.o matrix.o draw.o luainterface.o toluabindings.o model.o client_packet.o collision.o guilayout.o $(LIBS)
 
 Server: server.o 
 	$(CC) $(CFLAGS) -o $@ server.o $(SERVERLIBS) -I $(INCLUDE)

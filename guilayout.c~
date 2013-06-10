@@ -1,22 +1,33 @@
 #include "guilayout.h"
 
 static void FreeWidgetRecursive(gpointer data, gpointer user_data);
+static Widget* root_widget;
 
 void GUILayoutInit()
 {
-
+    
 }
 
-void GUILayoutAddWidget(Widget* w, Widget* p)
+void GUILayoutSetRootWidget(Widget* w)
 {
-    g_slist_append(w->children, (gpointer)p);
+    root_widget = w;
+}
+
+Widget* GUILayoutGetRootWidget() 
+{
+    return root_widget;
+}
+
+void GUILayoutAddWidget(Widget* w, Widget* p, float x, float y)
+{
+    w->children = g_slist_append(w->children, (gpointer)p);
 }
 
 void GUILayoutRemoveWidget(Widget* w)
 {
     /* remove link from parent to this widget */
     if(w->parent) {
-        g_slist_remove(w->parent->children, (gpointer)w);
+        w->children = g_slist_remove(w->parent->children, (gpointer)w);
     }
     /* remove this widget and all its children */
     FreeWidgetRecursive((gpointer)w->children, NULL);

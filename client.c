@@ -75,7 +75,8 @@ int main(int argc, char **argv)
     /* TODO: delete */
     Model *m = ModelNew(100);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
-    Model *textM = GUIBakeText("HELLO WORLD");
+    DrawOptimizeModel(m, ATTRIBUTE_DEFAULTS);
+    Model *textM = GenText("HELLO WORLD");
 
     /* Main game loop. */
     while(run) {

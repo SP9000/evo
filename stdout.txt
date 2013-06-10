@@ -15,19 +15,6 @@ Starting client
 Connection to server succeeded.
 making new model
 making new model
-generating VBO's
-generating VBO's
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
 packet created
 packet created
 packet created

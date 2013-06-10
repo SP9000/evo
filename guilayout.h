@@ -9,11 +9,12 @@
 #ifndef _GUILAYOUT_H
 #define _GUILAYOUT_H
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <glib.h>
+#include "model.h"
 
 /**
  * The widget structure.
@@ -30,17 +31,29 @@ typedef struct tagWidget {
     /* the background that is displayed by this widget - not scrolled */
     Model* background;
     /* the contents that this window displays - can be scrolled. */
-    Model* contents
+    Model* contents;
     /* the children of the widget - a list of widgets */
     GSList* children;
     /* the parent widget of this widget. NULL if this is the root widget */
-    Widget* parent;
+    struct tagWidget* parent;
 }Widget;
 
 /**
  * Initialize the GUILayout system.
  */
 void GUILayoutInit();
+
+/**
+ * Set the root widget for the GUILayout system.
+ * @param w the widget to set as the root for the GUILayout system.
+ */
+void GUILayoutSetRootWidget(Widget* w);
+
+/**
+ * Get the current root widget for the GUILayout system.
+ * @return the current root widget.
+ */
+Widget* GUILayoutGetRootWidget();
 
 /**
  * Create a new widget.
@@ -73,7 +86,7 @@ void GUILayoutAddWidget(Widget* w, Widget* p, float x, float y);
  */
 void GUILayoutRemoveWidget(Widget* w);
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif

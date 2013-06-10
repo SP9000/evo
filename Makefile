@@ -6,8 +6,8 @@ CFLAGS = `pkg-config --cflags --libs glib-2.0`
 
 all: Client Server
     
-Client: client.o draw.o luainterface.o toluabindings.o model.o client_packet.o matrix.o collision.o
-	$(CC) $(CFLAGS) -o $@ client.o matrix.o draw.o luainterface.o toluabindings.o model.o client_packet.o collision.o $(LIBS)
+Client: client.o draw.o luainterface.o toluabindings.o model.o client_packet.o matrix.o collision.o guilayout.o modelgen.o
+	$(CC) $(CFLAGS) -o $@ client.o matrix.o draw.o luainterface.o toluabindings.o model.o client_packet.o collision.o guilayout.o modelgen.o $(LIBS)
 
 Server: server.o 
 	$(CC) $(CFLAGS) -o $@ server.o $(SERVERLIBS) -I $(INCLUDE)
@@ -18,7 +18,10 @@ client.o: client.c draw.c luainterface.c toluabindings.c model.c client_packet.c
 server.o: server/server.c 
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
-draw.o: draw.c model.c
+draw.o: draw.c model.c guilayout.c
+	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
+
+guilayout.o: guilayout.c 
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 collision.o: collision.c
@@ -28,6 +31,9 @@ luainterface.o: luainterface.c
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 model.o: model.c
+	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
+
+modelgen.o: modelgen.c model.c draw.c
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 luabindings.o: toluabindings.c
