@@ -188,7 +188,9 @@ void DrawGUI()
     glUniformMatrix4fv(GUIProjectionMatID, 1, 0, GUIProjectionMat);
     return;
 
+    glEnable(GL_SCISSOR_TEST);
     DrawWidgetRecursive((gpointer)GUILayoutGetRootWidget(), NULL);
+    glDisable(GL_SCISSOR_TEST);
 }
 
 void DrawWidgetRecursive(gpointer data, gpointer user_data)
@@ -196,6 +198,7 @@ void DrawWidgetRecursive(gpointer data, gpointer user_data)
     Widget* w = (Widget*)data;
     DrawModel(w->background);
     DrawModel(w->contents);
+    glScissor(w->x * screen->w, w->y * screen->h, w->w * screen->w, w->h * screen->h);
     g_slist_foreach(w->children, DrawWidgetRecursive, NULL);
 }
 

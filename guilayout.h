@@ -15,6 +15,16 @@ extern "C" {
 
 #include <glib.h>
 #include "model.h"
+#include "modelgen.h"
+
+/* flags that widget generates no events */
+#define GUILAYOUT_PLAIN     0x00000000
+/* an event is generated when the widget is resized */
+#define GUILAYOUT_RESIZABLE 0x00000001
+/* an event is generated each time the widget is moved via dragging */
+#define GUILAYOUT_DRAGABBLE 0x00000002  
+/* an event is generated when the widget is clicked */
+#define GUILAYOUT_CLICKABLE 0x00000004
 
 /**
  * The widget structure.
@@ -24,10 +34,16 @@ extern "C" {
  * for flexible sizing on monitors of all resolutions.
  */
 typedef struct tagWidget {
+    /* the lower-left coordinate of the window */
+    float x, y;
+    /* the current dimensions of the widget */
+    float w, h;
     /* the minimum dimensions of the widget */
     float minW, minH;
     /* maximum dimensions of the widget or 0 for no limit */
     float maxW, maxH;
+    /* flags for various attributes of the widget e.g. GUILAYOUT_RESIZABLE */
+    uint32_t flags;
     /* the background that is displayed by this widget - not scrolled */
     Model* background;
     /* the contents that this window displays - can be scrolled. */
@@ -60,7 +76,7 @@ Widget* GUILayoutGetRootWidget();
  * @param background the background to draw for this widget.
  * @param contents the contents to display within the widget.
  */
-Widget* GUILayoutNewWidget(Model* background, Model* contents);
+Widget* GUILayoutNewWidget(Model* background, Model* contents, uint32_t flags);
 
 /**
  * Create a textbox widget.

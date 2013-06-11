@@ -15,19 +15,7 @@ Starting client
 Connection to server succeeded.
 making new model
 making new model
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
+making new model
 packet created
 packet created
 packet created

@@ -11,8 +11,10 @@ extern "C" {
 /**
  * Create a model of the specified text.
  * @param text the text to generate a model of.
+ * @param w the width of the bounds to generate the text inside.
+ * @param h the height of the bounds to generate the text inside.
  */
-Model* GenText(char *text);
+Model* GenText(char *text, float w, float h);
 
 /**
  * Create a model of a rectangle using the given position and dimensions.

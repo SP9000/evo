@@ -26,10 +26,10 @@ extern "C" {
 #include "matrix.h"
 #include "guilayout.h"
 
-#define ATTRIBUTE_COLORS 1
-#define ATTRIBUTE_NORMALS 2
+#define ATTRIBUTE_COLORS 0x0001
+#define ATTRIBUTE_NORMALS 0x0002
 
-#define ATTRIBUTE_DEFAULTS ATTRIBUTE_COLORS | ATTRIBUTE_NORMALS
+#define ATTRIBUTE_DEFAULTS 0x0003
 
 typedef float Vector2[2];
 typedef float Vector3[3];

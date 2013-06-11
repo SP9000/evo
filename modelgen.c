@@ -1,6 +1,6 @@
 #include "modelgen.h"
 
-Model* GenText(char *text)
+Model* GenText(char *text, float w, float h)
 {
     /* # of lines in each character */
     int charSizes[] = {
@@ -66,7 +66,7 @@ Model* GenText(char *text)
     Model* m = ModelNew(1000);
     /* add all vertices contained in the given string */
     float x = 3.0f;
-    float y = 4.0f;
+    float y = 20.0f;
     float scale = 5;
     while(*text) {
         int i;
@@ -89,10 +89,18 @@ Model* GenText(char *text)
             ModelAddVertex(m, v);
         }
         x += scale;
+        /* keep text inside bounds given */
+        if(x >= w) {
+            y -= scale;
+            x = 0.0f;
+        }
+        /* break if no more room left for text */
+        if(y >= h) {
+            break;
+        }
         text++;
     }
     m->primitive = GL_LINES;
-
     DrawOptimizeModel(m, ATTRIBUTE_COLORS);
 
     return m;
@@ -127,5 +135,4 @@ Model* GenRect(float x, float y, float z, float w, float h, Color c)
     DrawOptimizeModel(m, ATTRIBUTE_COLORS);
     return m;
 }
-
 

@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     Model *m = ModelNew(100);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
     DrawOptimizeModel(m, ATTRIBUTE_DEFAULTS);
-    Model* textM = GenText("HELLO WORLD");
+    Model* textM = GenText("HELLO WORLD", 20.0f, 30.0f);
     Color col = {1.0f,0.0f,0.0f,1.0f};
     Model* rectM = GenRect(0, 0, 0, 10, 10, col);
 
