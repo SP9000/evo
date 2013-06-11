@@ -48,6 +48,8 @@ static GHashTable* vertShaders;
 static GHashTable* fragShaderNames;
 static GHashTable* vertShaderNames;
 
+/* helper function to recursively draw the GUI */
+void DrawWidgetRecursive(gpointer data, gpointer user_data);
 
 /* Material loading */
 int MaterialInit();
@@ -175,6 +177,8 @@ void DrawStartFrame()
 
 void DrawGUI()
 {
+    Widget* w;
+
     /* set up GUI "camera" */
     Mat4x4LoadIdentity(GUIViewMat);
     Mat4x4Translate(GUIViewMat, 0, 0, -1);
@@ -182,33 +186,40 @@ void DrawGUI()
     /* do GUI */
     glUniformMatrix4fv(GUIModelMatID, 1, 0, GUIModelMat);
     glUniformMatrix4fv(GUIProjectionMatID, 1, 0, GUIProjectionMat);
+    return;
+
+    DrawWidgetRecursive((gpointer)GUILayoutGetRootWidget(), NULL);
 }
 
-void DrawModel(Model *m)
+void DrawWidgetRecursive(gpointer data, gpointer user_data)
 {
-    /* If there is no vertex and color buffers, generate them. */
-    if(m->vertexVBOID == 0 || m->colorVBOID == 0 || m->normalVBOID == 0) {
-        puts("generating VBO's");
-        glGenVertexArrays(1, &m->vao);
-        glBindVertexArray(m->vao);
+    Widget* w = (Widget*)data;
+    DrawModel(w->background);
+    DrawModel(w->contents);
+    g_slist_foreach(w->children, DrawWidgetRecursive, NULL);
+}
 
-        /* Buffer the vertex data. */
-        glGenBuffers(1, &m->vertexVBOID);
-        glBindBuffer(GL_ARRAY_BUFFER, m->vertexVBOID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * m->numVertices,
-                m->vertices, GL_STATIC_DRAW);
-        glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(0);
+void DrawOptimizeModel(Model* m, uint32_t attributes) {
+    glGenVertexArrays(1, &m->vao);
+    glBindVertexArray(m->vao);
 
-        /* Buffer the color data. */
+    /* always generate vertex VBO */
+    glGenBuffers(1, &m->vertexVBOID);
+    glBindBuffer(GL_ARRAY_BUFFER, m->vertexVBOID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * m->numVertices,
+            m->vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+
+    if(attributes & ATTRIBUTE_COLORS) {
         glGenBuffers(1, &m->colorVBOID);
         glBindBuffer(GL_ARRAY_BUFFER, m->colorVBOID);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * m->numVertices,
                 m->colors, GL_STATIC_DRAW);
         glVertexAttribPointer((GLuint)1, 4, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(1);
-
-        /* Buffer normal data. */
+    }
+    if(attributes & ATTRIBUTE_NORMALS) {
         glGenBuffers(1, &m->normalVBOID);
         glBindBuffer(GL_ARRAY_BUFFER, m->normalVBOID);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * m->numVertices,
@@ -216,17 +227,27 @@ void DrawModel(Model *m)
         glVertexAttribPointer((GLuint)2, 3, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(2);
     }
-
-    if(m->numVertices == 0) {
-        fprintf(stderr, "Error: attempted to render a model with 0 vertices\n");
-        return;
-    }
-
-    /* Bind the models vertex attribute object. */
+    /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
 
     /* Draw the model. */
-    glDrawArrays(GL_TRIANGLES, 0, m->numVertices);
+    glDrawArrays(m->primitive, 0, m->numVertices);
+    
+    /* Unbind. */
+    glBindVertexArray(0);
+}
+
+void DrawModel(Model *m)
+{
+    if(m->vertexVBOID == 0) {
+        fprintf(stderr, "Warning: attempted to render an unoptimized model\n");
+        return;
+    }
+    /* Bind the models' vertex attribute object. */
+    glBindVertexArray(m->vao);
+
+    /* Draw the model. */
+    glDrawArrays(m->primitive, 0, m->numVertices);
     
     /* Unbind. */
     glBindVertexArray(0);
@@ -237,137 +258,6 @@ void DrawMoveCamera(float x, float y, float z)
     cam.pos[0] += x;
     cam.pos[1] += y;
     cam.pos[2] += z;
-}
-
-/*****************************************************************************/
-/*  GUI subsystem                                                            */
-/*****************************************************************************/
-Model* GUIDrawText(Rect *box, char *text, Model* m)
-{
-    /* # of lines in each character */
-    int charSizes[] = {
-        3, /* A */
-        5, /* B */
-        3, /* D */
-        3, /* C */
-        4, /* E */
-        3, /* F */
-        5, /* G */
-        3, /* H */
-        3, /* I */
-        4, /* J */
-        3, /* K */
-        2, /* L */
-        4, /* M */
-        3, /* N */
-        4, /* O */
-        3, /* P */
-        5, /* Q */
-        4, /* R */
-        3, /* S */
-        2, /* T */
-        3, /* U */
-        2, /* V */
-        4, /* W */
-        2, /* X */
-        3, /* Y */
-        3, /* Z */
-    };
-    /* lines for each character */
-    GLfloat font[26][5*4] = {
-    {-1,-1,0,1, 0,1,1,-1, -.5f,0,.5f,0},                                /* A */
-    {-1,1,-1,-1, -1,1,1,.5f, 1,.5f,-1,0, -1,0,1,-.5f, 1,-.5f,-1,-1},    /* B */
-    {-1,1,1,1, -1,1,-1,-1, -1,-1,1,-1},                                 /* C */
-    {-1,1,-1,-1, -1,1,1,0, 1,0,-1,-1},                                  /* D */
-    {-1,1,1,1, -1,1,-1,-1, -1,-1,1,-1, -1,0, 1,0},                      /* E */
-    {-1,1,1,1, -1,1,-1,-1, -1,0, 1,0},                                  /* F */
-    {-1,1,1,1, -1,1,-1,-1, -1,-1,1,-1, 1,-1,1,0, 1,0,0,0},              /* G */
-    {-1,1,-1,-1, 1,1,1,-1, -1,0,1,0},                                   /* H */
-    {-1,1,1,1, 0,1,0,-1, -1,-1,1,-1},                                   /* I */
-    {-1,1,1,1, 0,1,0,-1, -1,-1,0,-1, -1,-1,-1,0},                       /* J */
-    {-1,1,-1,-1, -1,0,1,1, -1,0,1,-1},                                  /* K */
-    {-1,1,-1,-1, -1,-1,1,-1},                                           /* L */
-    {-1,1,-1,-1, -1,1,0,0, 0,0,1,1, 1,1,1,-1},                          /* M */
-    {-1,1,-1,-1, -1,1,1,-1, 1,1,1,-1},                                  /* N */
-    {-1,1,1,1, -1,1,-1,-1, -1,-1,1,-1, 1,1,1,-1},                       /* O */
-    {-1,1,-1,-1, -1,1,1,.5f, 1,.5f,-1,0},                               /* P */
-    {-1,1,1,1, -1,1,-1,-1, -1,-1,1,-1, 1,1,1,-1, 0,0,1,-1},             /* Q */
-    {-1,1,-1,-1, -1,1,1,.5f, 1,.5f,-1,0, -1,0,1,-1},                    /* R */
-    {-1,1,1,1, -1,1,1-1, 1,-1,-1,-1},                                   /* S */
-    {-1,1,1,1, 0,1,0,-1},                                               /* T */
-    {-1,1,-1,-1, -1,-1,1,-1, 1,1,1,-1},                                 /* U */
-    {-1,1,0,-1, 0,-1,1,1},                                              /* V */
-    {-1,1,-1,-1, -1,-1,0,0, 0,0,1,-1, 1,-1,1,1},                        /* W */
-    {-1,1,1,-1, -1,-1,1,1},                                             /* X */
-    {-1,1,0,0, 1,1,0,0, 0,0,0,-1},                                      /* Y */
-    {-1,1,1,1, 1,1,-1,-1, -1,-1, 1,-1}                                  /* Z */
-    };
-
-    Color color = {0.0f, 0.0f, 1.0f, 1.0f};
-
-    if(m == NULL) {
-        m = ModelNew(1000);
-        /* add all vertices contained in the given string */
-        float x = 3.0f;
-        float y = 4.0f;
-        float scale = 5;
-        while(*text) {
-            int i;
-            int idx = (*text) - 'A';
-            Vertex v;
-            v[2] = .9f;
-
-            /* add all vertices that compose this character */
-            for(i = 0; i < charSizes[idx]*4; i += 4) {
-                /* (x1, y1) */
-                v[0] = (font[idx][i] + x) * scale;  
-                v[1] = (font[idx][i+1] + y) * scale;
-                ModelAddColor(m, color);
-                ModelAddVertex(m, v);
-
-                /* (x2, y2) */
-                v[0] = (font[idx][i+2] + x) * scale;
-                v[1] = (font[idx][i+3] + y) * scale;
-                ModelAddColor(m, color);
-                ModelAddVertex(m, v);
-            }
-            x += scale;
-            text++;
-        }
-    }
-
-    /* buffer data if necessary */
-    if(m->vertexVBOID == 0 || m->colorVBOID == 0) {
-        puts("generating VBO's");
-        glGenVertexArrays(1, &m->vao);
-        glBindVertexArray(m->vao);
-
-        /* Buffer the vertex data. */
-        glGenBuffers(1, &m->vertexVBOID);
-        glBindBuffer(GL_ARRAY_BUFFER, m->vertexVBOID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * m->numVertices,
-                m->vertices, GL_STATIC_DRAW);
-        glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(0);
-
-        /* Buffer the color data. */
-        glGenBuffers(1, &m->colorVBOID);
-        glBindBuffer(GL_ARRAY_BUFFER, m->colorVBOID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * m->numVertices,
-                m->colors, GL_STATIC_DRAW);
-        glVertexAttribPointer((GLuint)1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(1);
-    }
-
-    /* Bind the models vertex attribute object. */
-    glBindVertexArray(m->vao);
-
-    /* Draw the text. */
-    glDrawArrays(GL_LINES, 0, m->numVertices);
-
-    /* Unbind. */
-    glBindVertexArray(0);
-    return m;
 }
 
 /*****************************************************************************/
@@ -440,7 +330,7 @@ int ReadFile(const char* filename, char** buffer)
     char* data = NULL;
     long lSize;
 
-    fp = fopen(filename, "r");
+    fp = fopen(filename, "rb");
     if(fp == NULL) {
         fprintf(stderr, "Error: could not open file %s for reading\n", filename);
         return -1;

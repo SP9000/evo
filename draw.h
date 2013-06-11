@@ -14,15 +14,22 @@
 #ifndef _DRAW_H
 #define _DRAW_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdint.h>
 #include <SDL/SDL.h>
 #include <GL/glew.h>
 #include "glib.h"
 #include "model.h"
 #include "matrix.h"
+#include "guilayout.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+#define ATTRIBUTE_COLORS 1
+#define ATTRIBUTE_NORMALS 2
+
+#define ATTRIBUTE_DEFAULTS ATTRIBUTE_COLORS | ATTRIBUTE_NORMALS
 
 typedef float Vector2[2];
 typedef float Vector3[3];
@@ -83,7 +90,17 @@ void DrawQuit();
 void DrawStartFrame();
 
 /**
+ * Generate handles to VBOs for the given model.
+ * You must call this function before calling DrawModel.
+ * @param m the model to generate VBO ID's for.
+ * @param attributes flags for each attribute to generate for.
+ */
+void DrawOptimizeModel(Model* m, uint32_t attributes);
+
+/**
  * Draw GUI ontop of the currently rendered scene.
+ * Draw the root widget of the GUILayout system ontop of whatever was last 
+ * rendered.
  */
 void DrawGUI();
 
@@ -104,16 +121,6 @@ void DrawModel(Model *m);
 void DrawMoveCamera(float x, float y, float z);
 
 /*****************************GUI SUBSYSTEM***********************************/
-/**
- * Draw the specified text in the specified bounds.
- * If the given text cannot fit, as much of it will be displayed as there is
- * room for.
- * @param box the area to draw the text inside.
- * @param text the text to display.
- */
-Model* GUIDrawText(Rect *box, char *text, Model* m);
-
-
 Material* GetMaterial(int id);
 void AddMaterial(int id, Material *mat);
 

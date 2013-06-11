@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <stdio.h>
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,9 +34,12 @@ typedef struct ModelVertex {
  * each vertex in the model.
  */
 typedef struct tagModel {
-    Vertex *vertices;
-    Normal *normals;
-    Color *colors;
+    Vertex* vertices;
+    Normal* normals;
+    Color* colors;
+
+    /* The type of primitive to render as. e.g. GL_LINES, GL_TRIANGLES... */
+    GLuint primitive;
 
     /* ID's for rendering with OpenGL-2.0+. */
     GLuint vertexVBOID, colorVBOID, normalVBOID;
@@ -47,8 +51,8 @@ typedef struct tagModel {
     /* The offset of the next unassigned vertex. */
     unsigned int numVertices;
 
-    /* Submodels of this model. For example: a leg may be a subgroup of body */  
-    struct tagModel *subgroups;
+    /* Submodels of this model. For example: a leg may be a subgroup of body */
+    struct tagModel* subgroups;
 }Model;
 
 /**
@@ -56,21 +60,27 @@ typedef struct tagModel {
  * Creates and initializes a new empty model.
  * @return a pointer to the newly created model.
  */
-Model *ModelNew(int numVertices);
+Model* ModelNew(int numVertices);
+
+/**
+ * Free all the resources used by the given model.
+ * @param m the model to free the resources of.
+ */
+void ModelFree(Model* m);
 
 /**
   * Load a .ply model from file.
   * @param m the model to load into.
   * @param file the file to load the model from.
   */
-void ModelLoadPLY(Model *m, char *file);
+void ModelLoadPLY(Model* m, char *file);
 
 /**
  * Add a vertex to the given model. 
  * @param m the model to add the coordinate to.
  * @param v the vertex to append to the model
  */
-void ModelAddVertex(Model *m, Vertex v);
+void ModelAddVertex(Model* m, Vertex v);
 
 /**
  * Add a color to the given model.
@@ -80,12 +90,12 @@ void ModelAddVertex(Model *m, Vertex v);
  * @param m the model to add the color to.
  * @param c the color to append to the model.
  */
-void ModelAddColor(Model *m, Color c);
+void ModelAddColor(Model* m, Color c);
 
 /**
  * Add a triangle to the given model in the 0 z-plane.
  */
-void ModelAddTriangle2(Model *m, float x1,float y1, float x2,float y2, float x3,float y3);
+void ModelAddTriangle2(Model* m, float x1,float y1, float x2,float y2, float x3,float y3);
 
 
 #ifdef __cplusplus

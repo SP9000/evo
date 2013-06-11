@@ -29,6 +29,16 @@ Model *ModelNew(int numVertices)
     return m;
 }
 
+void ModelFree(Model* m)
+{
+    free(m->vertices);
+    free(m->normals);
+    free(m->colors);
+    glDeleteBuffers(1, &m->vertexVBOID);
+    glDeleteBuffers(1, &m->normalVBOID);
+    glDeleteBuffers(1, &m->colorVBOID);
+}
+
 void ModelAddTriangle(Model *m, Vertex v1, Vertex v2, Vertex v3)
 {
     SetVertex(m->vertices[m->numFaces*3], v1);
@@ -62,7 +72,7 @@ void ModelLoadPLY(Model *m, char *file)
     FILE *fp;
     int numFaces, numVertices, numColors;
     int i, j;
-    char *lineBuff = NULL;
+    char lineBuff[2048];
 
 
     
@@ -72,13 +82,14 @@ void ModelLoadPLY(Model *m, char *file)
     if(fp == NULL) {
         fprintf(stderr, "Error: could not open %s\n", file);
     }
-    getline(&lineBuff, &lineBuffSize, fp);
+    fgets(lineBuff, 2048, fp);
+    /* getline(&lineBuff, &lineBuffSize, fp); */
     if(strncmp(lineBuff, "ply", 3) != 0) {
         fprintf(stderr, "Error: file %s is not a .ply file\n", file);
     }
 
-    lineBuff = NULL;
-    getline(&lineBuff, &lineBuffSize, fp);
+    fgets(lineBuff, 2048, fp);
+    /* getline(&lineBuff, &lineBuffSize, fp); */
     /* read the file header */
     while(strncmp(lineBuff, "end_header", 10) != 0) {
         /* begin parsing line */
@@ -103,8 +114,8 @@ void ModelLoadPLY(Model *m, char *file)
                 numColors = atoi(strtok(NULL, " \t"));
             }
         }
-        lineBuff = NULL;
-        getline(&lineBuff, &lineBuffSize, fp);
+        fgets(lineBuff, 2048, fp);
+        /* getline(&lineBuff, &lineBuffSize, fp); */
     }
     
     /* allocate base buffer for vertices, normals, and colors */
@@ -121,8 +132,8 @@ void ModelLoadPLY(Model *m, char *file)
 
     /* read vertex list */
     for(i = 0; i < numVertices; i++) {
-        lineBuff = NULL;
-        getline(&lineBuff, &lineBuffSize, fp);
+        fgets(lineBuff, 2048, fp);
+        /* getline(&lineBuff, &lineBuffSize, fp); */
         vertexBuff[i][0] = (float)atof(strtok(lineBuff, " \t"));
         vertexBuff[i][1] = (float)atof(strtok(NULL, " \t"));
         vertexBuff[i][2] = (float)atof(strtok(NULL, " \t"));
@@ -133,8 +144,8 @@ void ModelLoadPLY(Model *m, char *file)
 
     /* read colors list */
     for(i = 0; i < numColors; i++) {
-        lineBuff = NULL;
-        getline(&lineBuff, &lineBuffSize, fp);
+        fgets(lineBuff, 2048, fp);
+        /* getline(&lineBuff, &lineBuffSize, fp); */
         colorBuff[i][0] = (float)atof(strtok(lineBuff, " \t"));
         colorBuff[i][1] = (float)atof(strtok(NULL, " \t"));
         colorBuff[i][2] = (float)atof(strtok(NULL, " \t"));
@@ -143,8 +154,8 @@ void ModelLoadPLY(Model *m, char *file)
 
     /* read face list */
     for(i = 0, curFace = 0; curFace < numFaces; curFace++) {
-        lineBuff = NULL;
-        getline(&lineBuff, &lineBuffSize, fp);
+        fgets(lineBuff, 2048, fp);
+        /* getline(&lineBuff, &lineBuffSize, fp); */
         faceSizeBuff[curFace] = atoi(strtok(lineBuff, " \t"));
 
         if(faceSizeBuff[curFace] == 3) {
@@ -214,13 +225,7 @@ void ModelLoadPLY(Model *m, char *file)
         }
     }
     m->numVertices = i;
-
-    /*
-    for(i = 0; i < m->numVertices; i++) {
-        printf("V %f, %f, %f\n", m->vertices[i][0], m->vertices[i][1], m->vertices[i][2]);
-        printf("C %f, %f, %f\n", m->colors[i][0], m->colors[i][0], m->colors[i][0]);
-    }
-    */
+    m->primitive = GL_TRIANGLES;
 
     free(vertexBuff);
     free(normalBuff);

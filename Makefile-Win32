@@ -1,6 +1,7 @@
 INCLUDE = /usr/include/lua5.2
-LIBS = -lenet -lSDL -lGL -lGLU -lGLEW -llua -ltolua -ldl -lm  -lglib-2.0
-SERVERLIBS = -lenet
+LIBS = -lenet -lws2_32 -lwinmm -lmingw32 -lSDLmain -lSDL -lopengl32 -lglu32 -lglew32 -ltolua -llua52 -lm -lglib-2.0 
+
+SERVERLIBS = -lenet -lws2_32 -lwinmm
 
 CFLAGS = `pkg-config --cflags --libs glib-2.0` 
 

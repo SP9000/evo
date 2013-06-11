@@ -9,9 +9,12 @@
 #ifndef _GUILAYOUT_H
 #define _GUILAYOUT_H
 
-#ifndef __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
+
+#include <glib.h>
+#include "model.h"
 
 /**
  * The widget structure.
@@ -25,19 +28,66 @@ typedef struct tagWidget {
     float minW, minH;
     /* maximum dimensions of the widget or 0 for no limit */
     float maxW, maxH;
-    /* the contents of the widget (what's rendered) */
+    /* the background that is displayed by this widget - not scrolled */
+    Model* background;
+    /* the contents that this window displays - can be scrolled. */
     Model* contents;
+    /* the children of the widget - a list of widgets */
+    GSList* children;
+    /* the parent widget of this widget. NULL if this is the root widget */
+    struct tagWidget* parent;
 }Widget;
 
 /**
  * Initialize the GUILayout system.
  */
 void GUILayoutInit();
-void GUILayoutAddWidget();
 
+/**
+ * Set the root widget for the GUILayout system.
+ * @param w the widget to set as the root for the GUILayout system.
+ */
+void GUILayoutSetRootWidget(Widget* w);
 
+/**
+ * Get the current root widget for the GUILayout system.
+ * @return the current root widget.
+ */
+Widget* GUILayoutGetRootWidget();
 
-#ifndef __cplusplus
+/**
+ * Create a new widget.
+ * @param background the background to draw for this widget.
+ * @param contents the contents to display within the widget.
+ */
+Widget* GUILayoutNewWidget(Model* background, Model* contents);
+
+/**
+ * Create a textbox widget.
+ * @param background the background to use for the textbox.
+ * @param text the text to display within the textbox.
+ * @return a textbox widget containing the specified text.
+ */
+Widget* GUILayoutNewTextBox(Model* background, char* text);
+
+/**
+ * Add the specified widget to the specified parent widget. 
+ * @param w the widget to add.
+ * @param p the widget to parent this widget to, or NULL for root widget.
+ * @param x the x location to add the widget at (range 0-1).
+ * @param y the y location to add the widget at (range 0-1).
+ */
+void GUILayoutAddWidget(Widget* w, Widget* p, float x, float y);
+
+/**
+ * Remove the specified widget from the GUILayout system.
+ * The widget is deleted upon removal and its resources freed.
+ * @param w the widget to remove.
+ */
+void GUILayoutRemoveWidget(Widget* w);
+
+#ifdef __cplusplus
 }
 #endif
 #endif
+

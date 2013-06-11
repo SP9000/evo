@@ -9,5 +9,6 @@
 #include "client_packet.h"
 #include "draw.h"
 #include "luainterface.h"
+#include "modelgen.h"
 
 #endif

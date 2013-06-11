@@ -75,7 +75,10 @@ int main(int argc, char **argv)
     /* TODO: delete */
     Model *m = ModelNew(100);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
-    Model *textM = NULL;
+    DrawOptimizeModel(m, ATTRIBUTE_DEFAULTS);
+    Model* textM = GenText("HELLO WORLD");
+    Color col = {1.0f,0.0f,0.0f,1.0f};
+    Model* rectM = GenRect(0, 0, 0, 10, 10, col);
 
     /* Main game loop. */
     while(run) {
@@ -181,12 +184,15 @@ int main(int argc, char **argv)
         DrawStartFrame();
         DrawModel(m);   //TODO: delete
         DrawGUI();
-        textM = GUIDrawText(NULL, "HELLO WORLD", textM);
+        DrawModel(rectM);
+        DrawModel(textM);
 
         SDL_GL_SwapBuffers();
         /* Update */
         SDL_Delay(100);
     }
+
+    ModelFree(m);   //TODO: delete
 
     /* Shut down the game. */
     puts("Game terminated");
