@@ -61,8 +61,7 @@ static int tolua_toluabind_Model_AddVertex00(lua_State* tolua_S)
  if (
  !tolua_isusertype(tolua_S,1,"Model",0,&tolua_err) || 
  !tolua_istable(tolua_S,2,0,&tolua_err) || 
- !tolua_istable(tolua_S,3,0,&tolua_err) || 
- !tolua_isnoobj(tolua_S,4,&tolua_err)
+ !tolua_isnoobj(tolua_S,3,&tolua_err)
  )
  goto tolua_lerror;
  else
@@ -70,7 +69,6 @@ static int tolua_toluabind_Model_AddVertex00(lua_State* tolua_S)
  {
   Model* m = ((Model*)  tolua_tousertype(tolua_S,1,0));
   float v[3];
-  float c[4];
  {
 #ifndef TOLUA_RELEASE
  if (!tolua_isnumberarray(tolua_S,2,3,0,&tolua_err))
@@ -84,29 +82,12 @@ static int tolua_toluabind_Model_AddVertex00(lua_State* tolua_S)
  }
  }
  {
-#ifndef TOLUA_RELEASE
- if (!tolua_isnumberarray(tolua_S,3,4,0,&tolua_err))
- goto tolua_lerror;
- else
-#endif
- {
- int i;
- for(i=0; i<4;i++)
-  c[i] = ((float)  tolua_tofieldnumber(tolua_S,3,i+1,0));
- }
- }
- {
-  ModelAddVertex(m,v,c);
+  ModelAddVertex(m,v);
  }
  {
  int i;
  for(i=0; i<3;i++)
  tolua_pushfieldnumber(tolua_S,2,i+1,(lua_Number) v[i]);
- }
- {
- int i;
- for(i=0; i<4;i++)
- tolua_pushfieldnumber(tolua_S,3,i+1,(lua_Number) c[i]);
  }
  }
  return 0;
