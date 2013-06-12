@@ -1,16 +1,5 @@
 #include "draw.h"
 
-const GLchar *selectShader =
-"#version 130\n"
-"in vec3 in_Position;\n"
-"out vec4 ex_Color;\n"
-"uniform mat4x4 Model, View, Projection;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = Projection * View * Model * vec4(in_Position,1.0);\n"
-"   ex_Color = vec4(0.0, 1.0, 0.0, 0.5);"
-"}";
-
 /* Matrices for the shaders */
 static Mat4x4 ModelMat;
 static Mat4x4 ProjectionMat;
@@ -94,11 +83,11 @@ int DrawInit()
         }
 
         /* compile shader programs */
-        char attr1[] = "in_Position"; char attr2[] = "in_Color"; char attr3[] = "in_Normal";
-        char *attrs[3] = {attr1, attr2, attr3};
+        char attr1[] = "in_Position"; char attr2[] = "in_Color"; 
+        char *attrs[2] = {attr1, attr2};
         char guiAttr1[] = "in_Position"; char guiAttr2[] = "in_Color"; 
         char *guiAttrs[2] = {guiAttr1, guiAttr2};
-        MaterialMain = MaterialLoad("test.vert", "test.frag", attrs, 3);
+        MaterialMain = MaterialLoad("test.vert", "test.frag", attrs, 2);
         MaterialGUISelect = MaterialLoad("gui.vert", "gui.frag", guiAttrs, 2);
         puts("loaded materials successfully");
 
@@ -202,10 +191,29 @@ void DrawWidgetRecursive(gpointer data, gpointer user_data)
     g_slist_foreach(w->children, DrawWidgetRecursive, NULL);
 }
 
-void DrawOptimizeModel(Model* m, uint32_t attributes) {
+void DrawOptimizeModel(Model* m) {
+    int i;
+    
     glGenVertexArrays(1, &m->vao);
     glBindVertexArray(m->vao);
 
+    m->vboIDs = (GLuint*)malloc(m->numAttributes * sizeof(GLuint));
+    glGenBuffers(m->numAttributes, m->vboIDs);
+    for(i = 0; i < m->numAttributes; ++i) {
+        int attrSize = ModelGetAttributeSize(m->attributeTable[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, m->vboIDs[i]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * attrSize * m->numVertices,
+                m->attributes[i], GL_STATIC_DRAW);
+        glVertexAttribPointer((GLuint)i, attrSize, GL_FLOAT, GL_FALSE, 0, 0);
+        glEnableVertexAttribArray(i);
+    }
+    /* Bind the models' vertex attribute object. */
+    glBindVertexArray(m->vao);
+
+    /* Unbind. */
+    glBindVertexArray(0);
+
+#if 0
     /* always generate vertex VBO */
     glGenBuffers(1, &m->vertexVBOID);
     glBindBuffer(GL_ARRAY_BUFFER, m->vertexVBOID);
@@ -238,14 +246,12 @@ void DrawOptimizeModel(Model* m, uint32_t attributes) {
     
     /* Unbind. */
     glBindVertexArray(0);
+#endif
+
 }
 
 void DrawModel(Model *m)
 {
-    if(m->vertexVBOID == 0) {
-        fprintf(stderr, "Warning: attempted to render an unoptimized model\n");
-        return;
-    }
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
 

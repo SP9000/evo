@@ -3,7 +3,6 @@ OpenGL extensions availiable
 Shader version 1.20  - Intel Build 8.15.10.2281
 in_Position: 0
 in_Color: 1
-in_Normal: 2
 in_Position: 0
 in_Color: 1
 loaded materials successfully
@@ -14,14 +13,9 @@ Starting client
 
 Connection to server succeeded.
 making new model
-making new model
-making new model
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
+# faces: 500
+SRS
+fak
 packet created
 Game terminated
 Shutting down Enet

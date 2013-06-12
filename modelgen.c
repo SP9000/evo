@@ -101,7 +101,7 @@ Model* GenText(char *text, float w, float h)
         text++;
     }
     m->primitive = GL_LINES;
-    DrawOptimizeModel(m, ATTRIBUTE_COLORS);
+    DrawOptimizeModel(m);
 
     return m;
 }
@@ -132,7 +132,7 @@ Model* GenRect(float x, float y, float z, float w, float h, Color c)
     ModelAddVertex(m, v);
 
     m->primitive = GL_QUADS;
-    DrawOptimizeModel(m, ATTRIBUTE_COLORS);
+    DrawOptimizeModel(m);
     return m;
 }
 

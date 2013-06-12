@@ -7,55 +7,92 @@ Model *ModelNew(int numVertices)
 {
     puts("making new model");
     Model* m = malloc(sizeof(Model));
-    m->vertices = malloc(numVertices * sizeof(Vertex));
-    if(m->vertices == NULL) {
+
+    /* create base buffers */
+    m->attributes = (float**)malloc(sizeof(float*));
+    m->attributes[0] = (float*)malloc(numVertices * (sizeof(float) * ATTRIBUTE_VERTEX_SIZE));
+    if(m->attributes == NULL) {
         fprintf(stderr, "Error allocating vertex buffer for new model\n");
-    }
-    m->normals = malloc(numVertices * sizeof(Normal));
-    if(m->normals == NULL) {
-        fprintf(stderr, "Error allocating normal buffer for new model\n");
-    }
-    m->colors = malloc(numVertices * sizeof(Color));
-    if(m->colors == NULL) {
-        fprintf(stderr, "Error allocating color buffer for new model\n");
     }
     
     m->numFaces = 0; 
     m->numVertices = 0;
+    m->numAttributes = 0;
     m->subgroups = NULL;
 
-    m->vertexVBOID = 0;
-    m->colorVBOID = 0;
     return m;
 }
 
 void ModelFree(Model* m)
 {
-    free(m->vertices);
-    free(m->normals);
-    free(m->colors);
-    glDeleteBuffers(1, &m->vertexVBOID);
-    glDeleteBuffers(1, &m->normalVBOID);
-    glDeleteBuffers(1, &m->colorVBOID);
+    int i;
+    for(i = 0; i < m->numAttributes; ++i) {
+        free(m->attributes[i]);
+    }
+    free(m->attributeTable);
+    free(m->vboIDs);
 }
 
 void ModelAddTriangle(Model *m, Vertex v1, Vertex v2, Vertex v3)
 {
+    /*
     SetVertex(m->vertices[m->numFaces*3], v1);
     SetVertex(m->vertices[m->numFaces*3+1], v2);
     SetVertex(m->vertices[m->numFaces*3+2], v3);
     m->numFaces++;
+    */
 }
 
 void ModelAddVertex(Model *m, Vertex v)
 {
-    SetVertex(m->vertices[m->numVertices], v);
+    float* vertexBuff = ModelGetAttributeBuffer(m, ATTRIBUTE_VERTEX);
+    if(vertexBuff) {
+        ModelSetAttribute(vertexBuff, m->numVertices, v, 0, ATTRIBUTE_VERTEX);
+    }
     m->numVertices++;
 }
 
 void ModelAddColor(Model *m, Color c)
 {
-    SetColor(m->colors[m->numVertices], c);
+    float* colorBuff = ModelGetAttributeBuffer(m, ATTRIBUTE_COLOR);
+    if(colorBuff) {
+        ModelSetAttribute(colorBuff, m->numVertices, c, 0, ATTRIBUTE_COLOR);
+    }
+}
+
+float* ModelGetAttributeBuffer(Model* m, int attribute)
+{
+    int i;
+    for(i = 0; i < m->numAttributes; ++i) {
+        if(m->attributeTable[i] == attribute) {
+            return m->attributes[i];
+        }
+    }
+    return NULL;
+}
+
+void ModelAddAttribute(Model* m, int attribute)
+{
+    int attrSize; 
+    int i;
+
+    /* make sure the attribute doesn't already exist */
+    for(i = 0; i < m->numAttributes; ++i) {
+        if(m->attributeTable[i] == attribute) {
+            return;
+        }
+    }
+    attrSize = ModelGetAttributeSize(attribute);
+    /* make sure the attribute is supported */
+    if(attrSize < 0) {
+        return;
+    }
+
+    m->attributes = (float**)realloc(m->attributes, (m->numAttributes+1) * sizeof(float));
+    m->attributeTable = (int*)realloc(m->attributeTable, (m->numAttributes+1) * sizeof(int));
+    ++m->numAttributes;
+    m->attributeTable[m->numAttributes] = attribute;
+    m->attributes[m->numAttributes] = (float*)malloc(m->numVertices * attrSize * sizeof(float));
 }
 
 void ModelLoadPLY(Model *m, char *file)
@@ -71,10 +108,13 @@ void ModelLoadPLY(Model *m, char *file)
     char *pch;
     FILE *fp;
     int numFaces, numVertices, numColors;
-    int i, j;
+
+    int* attributesSize;
+
+    int i, j, k;
     char lineBuff[2048];
 
-
+    float** tmpAttributes;
     
     /* open the file and verify it is a .ply file */
     fp = NULL;
@@ -83,85 +123,91 @@ void ModelLoadPLY(Model *m, char *file)
         fprintf(stderr, "Error: could not open %s\n", file);
     }
     fgets(lineBuff, 2048, fp);
-    /* getline(&lineBuff, &lineBuffSize, fp); */
     if(strncmp(lineBuff, "ply", 3) != 0) {
         fprintf(stderr, "Error: file %s is not a .ply file\n", file);
     }
 
+    m->numAttributes = 0;
+    m->attributeTable = NULL;
+    m->attributes = NULL;
+    attributesSize = NULL;
+
     fgets(lineBuff, 2048, fp);
-    /* getline(&lineBuff, &lineBuffSize, fp); */
-    /* read the file header */
+
+    /* read the file header - alloc the buffers to store the model data */
     while(strncmp(lineBuff, "end_header", 10) != 0) {
         /* begin parsing line */
         pch = strtok(lineBuff, " \t");
+
         if(strncmp(pch, "comment", 7) == 0) {
             /* do nothing */
         }
-        /* TODO: size of vertex, faces, and colors all fixed and implied 
-          i.e. "property" is not implemented */
         else if(strncmp(pch, "element", 7) == 0) {
+            int attributeSize;
+            int attributeID = ATTRIBUTE_NONE;
+
             pch = strtok(NULL, " \t");
-            /* set number of vertices */
+
+            /* vertices */
             if(strncmp(pch, "vertex", 6) == 0) {
-                numVertices = atoi(strtok(NULL, " \t"));
+                attributeSize = ATTRIBUTE_VERTEX_SIZE;
+                attributeID = ATTRIBUTE_VERTEX;
+            }
+            /* colors */
+            else if(strncmp(pch, "color", 5) == 0) {
+                attributeSize = ATTRIBUTE_COLOR_SIZE;
+                attributeID = ATTRIBUTE_COLOR;
             }
             /* set number of faces */
             else if(strncmp(pch, "face", 4) == 0) {
                 numFaces = atoi(strtok(NULL, " \t"));
             }
-            /* set number of colors */
-            else if(strncmp(pch, "color", 5) == 0) {
-                numColors = atoi(strtok(NULL, " \t"));
+
+            /* reallocate the attribute table and attributes buffers */
+            if(attributeID != ATTRIBUTE_NONE) {
+                m->attributeTable = (int*)realloc(m->attributeTable, (m->numAttributes+1) * sizeof(int));
+                attributesSize = (int*)realloc(attributesSize, (m->numAttributes+1) * sizeof(int));
+                m->attributeTable[m->numAttributes] = attributeID;
+                attributesSize[m->numAttributes] = atoi(strtok(NULL, " \t"));
+                ++m->numAttributes;
             }
         }
         fgets(lineBuff, 2048, fp);
-        /* getline(&lineBuff, &lineBuffSize, fp); */
-    }
-    
-    /* allocate base buffer for vertices, normals, and colors */
-    vertexBuff = (Vertex*)malloc(numVertices * sizeof(Vertex) * 3);
-    normalBuff= (Normal*)malloc(numVertices * sizeof(Normal) * 3);
-    colorBuff = (Color*)malloc(numVertices * sizeof(Color) * 4);
-    faceBuff = (int*)malloc(sizeof(int) * numFaces * 4);
-    faceSizeBuff = (int*)malloc(sizeof(int) * numFaces);
-
-    /* worst case allocation TODO: */
-    m->vertices = malloc(sizeof(Vertex) * 3 * numFaces * 6);
-    m->normals = malloc(sizeof(Normal) * 3 * numFaces * 6);
-    m->colors = malloc(sizeof(Color) * 4 * numFaces * 6);
-
-    /* read vertex list */
-    for(i = 0; i < numVertices; i++) {
-        fgets(lineBuff, 2048, fp);
-        /* getline(&lineBuff, &lineBuffSize, fp); */
-        vertexBuff[i][0] = (float)atof(strtok(lineBuff, " \t"));
-        vertexBuff[i][1] = (float)atof(strtok(NULL, " \t"));
-        vertexBuff[i][2] = (float)atof(strtok(NULL, " \t"));
-        normalBuff[i][0] = (float)atof(strtok(NULL, " \t"));
-        normalBuff[i][1] = (float)atof(strtok(NULL, " \t"));
-        normalBuff[i][2] = (float)atof(strtok(NULL, " \t"));
     }
 
-    /* read colors list */
-    for(i = 0; i < numColors; i++) {
-        fgets(lineBuff, 2048, fp);
-        /* getline(&lineBuff, &lineBuffSize, fp); */
-        colorBuff[i][0] = (float)atof(strtok(lineBuff, " \t"));
-        colorBuff[i][1] = (float)atof(strtok(NULL, " \t"));
-        colorBuff[i][2] = (float)atof(strtok(NULL, " \t"));
-        colorBuff[i][3] = (float)atof(strtok(NULL, " \t"));
+    /* allocate temporary buffers for reading in all the attributes to */
+    tmpAttributes = (float**)malloc(sizeof(float*) * m->numAttributes);
+    for(i = 0; i < m->numAttributes; i++) {
+        tmpAttributes[i] = (float*)malloc(sizeof(float*) * attributesSize[i] *
+                ModelGetAttributeSize(m->attributeTable[i]));
     }
+
+    /* read lists of each attribute */
+    for(i = 0; i < m->numAttributes; ++i) {
+        for(j = 0; j < attributesSize[i]; ++j) {
+            int attrSize = ModelGetAttributeSize(m->attributeTable[i]);
+            fgets(lineBuff, 2048, fp);
+            for(k = 0; k < attrSize; ++k) {
+                tmpAttributes[i][j*attrSize+k] = (float)atof(strtok(NULL, " \t"));
+            }
+        }
+    }
+    puts("SRS");
+
+    faceSizeBuff = (int*)malloc(numFaces * sizeof(int));
+    faceBuff = (int*)malloc(numFaces * 4 * sizeof(int));
 
     /* read face list */
-    for(i = 0, curFace = 0; curFace < numFaces; curFace++) {
+    m->numVertices = 0;
+    for(i = 0, curFace = 0; curFace < numFaces; ++curFace) {
         fgets(lineBuff, 2048, fp);
-        /* getline(&lineBuff, &lineBuffSize, fp); */
         faceSizeBuff[curFace] = atoi(strtok(lineBuff, " \t"));
 
         if(faceSizeBuff[curFace] == 3) {
             faceBuff[i] = atoi(strtok(NULL, " \t"));
             faceBuff[i+1] = atoi(strtok(NULL, " \t"));
             faceBuff[i+2] = atoi(strtok(NULL, " \t"));
+            m->numVertices += 3;
             i += 3;
         }
         else if(faceSizeBuff[curFace] == 4) {
@@ -169,53 +215,50 @@ void ModelLoadPLY(Model *m, char *file)
             faceBuff[i+1] = atoi(strtok(NULL, " \t"));
             faceBuff[i+2] = atoi(strtok(NULL, " \t"));
             faceBuff[i+3] = atoi(strtok(NULL, " \t"));
+            m->numVertices += 6;
             i += 4;
         }
     }
 
-    /* expand vertex/normal/color information */
-    for(i = 0, j = 0, curFace = 0; curFace < numFaces; curFace++) {
+    /* allocate attribute buffers for model */
+    m->attributes = (float**)malloc(sizeof(float*) * m->numAttributes);
+    for(i = 0; i < m->numAttributes; ++i) {
+        m->attributes[i] = (float*)malloc(sizeof(float) * m->numVertices *
+                ModelGetAttributeSize(m->attributeTable[i]));
+    }
+
+    /* expand vertex/normal/color information from indexed face information */
+    for(i = 0, j = 0, curFace = 0; curFace < numFaces; ++curFace) {
         /* if triangle, just expand each vertex */
         if(faceSizeBuff[curFace] == 3) {
-            SetVertex(m->vertices[i], vertexBuff[faceBuff[j]]);
-            SetNormal(m->normals[i], normalBuff[faceBuff[j]]);
-            SetColor(m->colors[i], colorBuff[faceBuff[j]]);
-
-            SetVertex(m->vertices[i+1], vertexBuff[faceBuff[j+1]]);
-            SetNormal(m->normals[i+1], normalBuff[faceBuff[j+1]]);
-            SetColor(m->colors[i+1], colorBuff[faceBuff[j+1]]);
-
-            SetVertex(m->vertices[i+2], vertexBuff[faceBuff[j+2]]);
-            SetNormal(m->normals[i+2], normalBuff[faceBuff[j+2]]);
-            SetColor(m->colors[i+2], colorBuff[faceBuff[j+2]]);
+            for(k = 0; k < m->numAttributes; ++k) {
+                ModelSetAttribute(m->attributes[k],i,
+                        tmpAttributes[k],faceBuff[j], m->attributeTable[k]);
+                ModelSetAttribute(m->attributes[k],i+1,
+                        tmpAttributes[k],faceBuff[j+1], m->attributeTable[k]);
+                ModelSetAttribute(m->attributes[k],i+2,
+                        tmpAttributes[k],faceBuff[j+2], m->attributeTable[k]);
+            }
             i += 3;
             j += 3;
         }
         /* if quad, do 0,1,2 and 0,2,3 */
         else if(faceSizeBuff[curFace] == 4) {
-            SetVertex(m->vertices[i], vertexBuff[faceBuff[j]]);
-            SetNormal(m->normals[i], normalBuff[faceBuff[j]]);
-            SetColor(m->colors[i], colorBuff[faceBuff[j]]);
+            for(k = 0; k < m->numAttributes; ++k) {
+                ModelSetAttribute(m->attributes[k],i,
+                        tmpAttributes[k],faceBuff[j], m->attributeTable[k]);
+                ModelSetAttribute(m->attributes[k],i+1,
+                        tmpAttributes[k],faceBuff[j+1], m->attributeTable[k]);
+                ModelSetAttribute(m->attributes[k],i+2,
+                        tmpAttributes[k],faceBuff[j+2], m->attributeTable[k]);
 
-            SetVertex(m->vertices[i+1], vertexBuff[faceBuff[j+1]]);
-            SetNormal(m->normals[i+1], normalBuff[faceBuff[j+1]]);
-            SetColor(m->colors[i+1], colorBuff[faceBuff[j+1]]);
-
-            SetVertex(m->vertices[i+2], vertexBuff[faceBuff[j+2]]);
-            SetNormal(m->normals[i+2], normalBuff[faceBuff[j+2]]);
-            SetColor(m->colors[i+2], colorBuff[faceBuff[j+2]]);
-
-            SetVertex(m->vertices[i+3], vertexBuff[faceBuff[j]]);
-            SetNormal(m->normals[i+3], normalBuff[faceBuff[j]]);
-            SetColor(m->colors[i+3], colorBuff[faceBuff[j]]);
-
-            SetVertex(m->vertices[i+4], vertexBuff[faceBuff[j+2]]);
-            SetNormal(m->normals[i+4], normalBuff[faceBuff[j+2]]);
-            SetColor(m->colors[i+4], colorBuff[faceBuff[j+2]]);
-
-            SetVertex(m->vertices[i+5], vertexBuff[faceBuff[j+3]]);
-            SetNormal(m->normals[i+5], normalBuff[faceBuff[j+3]]);
-            SetColor(m->colors[i+5], colorBuff[faceBuff[j+3]]);
+                ModelSetAttribute(m->attributes[k],i+3,
+                        tmpAttributes[k],faceBuff[j], m->attributeTable[k]);
+                ModelSetAttribute(m->attributes[k],i+4,
+                        tmpAttributes[k],faceBuff[j+2], m->attributeTable[k]);
+                ModelSetAttribute(m->attributes[k],i+5,
+                        tmpAttributes[k],faceBuff[j+3], m->attributeTable[k]);
+            }
             i += 6;
             j += 4;
         }
@@ -224,12 +267,14 @@ void ModelLoadPLY(Model *m, char *file)
             break;
         }
     }
-    m->numVertices = i;
     m->primitive = GL_TRIANGLES;
 
-    free(vertexBuff);
-    free(normalBuff);
-    free(colorBuff);
+    /* cleanup temporary buffers */
+    for(i = 0; i < m->numAttributes; ++i) {
+        free(tmpAttributes[i]);
+    }
+    free(tmpAttributes);
+    free(attributesSize);
     free(faceBuff);
     free(faceSizeBuff);
 }
@@ -260,3 +305,34 @@ void SetColor(Color c1, Color c2)
     c1[2] = c2[2];
     c1[3] = c2[3];
 }
+
+void ModelSetAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
+{
+    int i;
+    srcOffset *= ModelGetAttributeSize(type);
+    dstOffset *= ModelGetAttributeSize(type);
+
+    if(srcOffset < 0) {
+        return;
+    }
+    for(i = 0; i < ModelGetAttributeSize(type); ++i) {
+        dst[srcOffset+i] = src[dstOffset+i];
+    }
+}
+
+int ModelGetAttributeSize(int id) 
+{
+    switch(id) {
+    case ATTRIBUTE_VERTEX:
+        return ATTRIBUTE_VERTEX_SIZE;
+    case ATTRIBUTE_COLOR:
+        return ATTRIBUTE_COLOR_SIZE;
+    case ATTRIBUTE_NORMAL:
+        return ATTRIBUTE_NORMAL_SIZE;
+    case ATTRIBUTE_NONE:
+        return 0;
+    default:
+        return -1;
+    }
+}
+

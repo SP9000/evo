@@ -26,11 +26,6 @@ extern "C" {
 #include "matrix.h"
 #include "guilayout.h"
 
-#define ATTRIBUTE_COLORS 0x0001
-#define ATTRIBUTE_NORMALS 0x0002
-
-#define ATTRIBUTE_DEFAULTS 0x0003
-
 typedef float Vector2[2];
 typedef float Vector3[3];
 
@@ -95,7 +90,7 @@ void DrawStartFrame();
  * @param m the model to generate VBO ID's for.
  * @param attributes flags for each attribute to generate for.
  */
-void DrawOptimizeModel(Model* m, uint32_t attributes);
+void DrawOptimizeModel(Model* m);
 
 /**
  * Draw GUI ontop of the currently rendered scene.
