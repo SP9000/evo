@@ -3,6 +3,5 @@ $#include "toluaheader2.h"
 module Model
 {
     Model *ModelNew @ New(int numVertices);
-    void ModelAddVertex @ AddVertex(Model *m, float v[3]);
 }
 

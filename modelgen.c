@@ -79,14 +79,14 @@ Model* GenText(char *text, float w, float h)
             /* (x1, y1) */
             v[0] = (font[idx][i] + x) * scale;  
             v[1] = (font[idx][i+1] + y) * scale;
-            ModelAddColor(m, color);
-            ModelAddVertex(m, v);
+            ModelAddAttribute(m, ATTRIBUTE_COLOR, color);
+            ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
 
             /* (x2, y2) */
             v[0] = (font[idx][i+2] + x) * scale;
             v[1] = (font[idx][i+3] + y) * scale;
-            ModelAddColor(m, color);
-            ModelAddVertex(m, v);
+            ModelAddAttribute(m, ATTRIBUTE_COLOR, color);
+            ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
         }
         x += scale;
         /* keep text inside bounds given */
@@ -116,20 +116,20 @@ Model* GenRect(float x, float y, float z, float w, float h, Color c)
 
     v[0] = x * scale;
     v[1] = y * scale;
-    ModelAddColor(m, c);
-    ModelAddVertex(m, v);
+    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
+    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
     v[0] = x * scale + w * scale;
     v[1] = y * scale;
-    ModelAddColor(m, c);
-    ModelAddVertex(m, v);
+    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
+    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
     v[0] = x * scale + w * scale;
     v[1] = y * scale + h * scale;
-    ModelAddColor(m, c);
-    ModelAddVertex(m, v);
+    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
+    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
     v[0] = x * scale;
     v[1] = y * scale + h * scale;
-    ModelAddColor(m, c);
-    ModelAddVertex(m, v);
+    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
+    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
 
     m->primitive = GL_QUADS;
     DrawOptimizeModel(m);

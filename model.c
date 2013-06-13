@@ -1,7 +1,4 @@
 #include "model.h" 
-void SetVertex(Vertex n1, Vertex n2);
-void SetNormal(Vertex n1, Vertex n2);
-void SetColor(Color c1, Color c2);
 
 Model *ModelNew(int numVertices)
 {
@@ -11,13 +8,12 @@ Model *ModelNew(int numVertices)
     /* create base buffers */
     m->attributes = (float**)malloc(sizeof(float*));
     m->attributes[0] = (float*)malloc(numVertices * (sizeof(float) * ATTRIBUTE_VERTEX_SIZE));
-    if(m->attributes == NULL) {
-        fprintf(stderr, "Error allocating vertex buffer for new model\n");
-    }
-    
+    m->attributeTable = (int*)malloc(sizeof(int));
+    m->attributeTable[0] = ATTRIBUTE_VERTEX;
+
     m->numFaces = 0; 
     m->numVertices = 0;
-    m->numAttributes = 0;
+    m->numAttributes = 1;
     m->subgroups = NULL;
 
     return m;
@@ -36,28 +32,8 @@ void ModelFree(Model* m)
 void ModelAddTriangle(Model *m, Vertex v1, Vertex v2, Vertex v3)
 {
     /*
-    SetVertex(m->vertices[m->numFaces*3], v1);
-    SetVertex(m->vertices[m->numFaces*3+1], v2);
-    SetVertex(m->vertices[m->numFaces*3+2], v3);
     m->numFaces++;
     */
-}
-
-void ModelAddVertex(Model *m, Vertex v)
-{
-    float* vertexBuff = ModelGetAttributeBuffer(m, ATTRIBUTE_VERTEX);
-    if(vertexBuff) {
-        ModelSetAttribute(vertexBuff, m->numVertices, v, 0, ATTRIBUTE_VERTEX);
-    }
-    m->numVertices++;
-}
-
-void ModelAddColor(Model *m, Color c)
-{
-    float* colorBuff = ModelGetAttributeBuffer(m, ATTRIBUTE_COLOR);
-    if(colorBuff) {
-        ModelSetAttribute(colorBuff, m->numVertices, c, 0, ATTRIBUTE_COLOR);
-    }
 }
 
 float* ModelGetAttributeBuffer(Model* m, int attribute)
@@ -71,29 +47,52 @@ float* ModelGetAttributeBuffer(Model* m, int attribute)
     return NULL;
 }
 
-void ModelAddAttribute(Model* m, int attribute)
+void ModelAddAttribute(Model* m, int attribute, float* val)
 {
     int attrSize; 
     int i;
+    int exists = -1;
 
-    /* make sure the attribute doesn't already exist */
-    for(i = 0; i < m->numAttributes; ++i) {
-        if(m->attributeTable[i] == attribute) {
-            return;
-        }
-    }
     attrSize = ModelGetAttributeSize(attribute);
+
     /* make sure the attribute is supported */
     if(attrSize < 0) {
+        /* not supported */
         return;
     }
 
-    m->attributes = (float**)realloc(m->attributes, (m->numAttributes+1) * sizeof(float));
-    m->attributeTable = (int*)realloc(m->attributeTable, (m->numAttributes+1) * sizeof(int));
-    ++m->numAttributes;
-    m->attributeTable[m->numAttributes] = attribute;
-    m->attributes[m->numAttributes] = (float*)malloc(m->numVertices * attrSize * sizeof(float));
+    /* check if attribute already exists, if it does i=offset in table */
+    for(i = 0; i < m->numAttributes; ++i) {
+        if(m->attributeTable[i] == attribute) {
+            exists = i;
+            break;
+        }
+    }
+
+    /* if the attribute already exists, append the value */
+    if(exists >= 0) {
+        m->attributes[i] = (float*)realloc(m->attributes[i], (m->numVertices+1) * attrSize * sizeof(float));
+    }
+
+    /* attribute doesn't exist, create a new buffer for it */
+    else {
+        i = m->numAttributes;
+        m->attributes = (float**)realloc(m->attributes, (i+1) * sizeof(float*));
+        m->attributes[i] = (float*)malloc((m->numVertices+1) * attrSize * sizeof(float));
+        m->attributeTable = (int*)realloc(m->attributeTable, (i+1) * sizeof(int));
+        m->attributeTable[i] = attribute;
+        ++m->numAttributes;
+    }
+
+    /* add the attribute */
+    ModelSetAttribute(m->attributes[i],m->numVertices, val,0, attribute);
+
+    /* if adding a vertex, increment vertex count */
+    if(attribute == ATTRIBUTE_VERTEX) {
+        ++m->numVertices;
+    }
 }
+
 
 void ModelLoadPLY(Model *m, char *file)
 {
@@ -187,13 +186,14 @@ void ModelLoadPLY(Model *m, char *file)
         for(j = 0; j < attributesSize[i]; ++j) {
             int attrSize = ModelGetAttributeSize(m->attributeTable[i]);
             fgets(lineBuff, 2048, fp);
-            for(k = 0; k < attrSize; ++k) {
+            tmpAttributes[i][j*attrSize] = (float)atof(strtok(lineBuff, " \t"));
+            for(k = 1; k < attrSize; ++k) {
                 tmpAttributes[i][j*attrSize+k] = (float)atof(strtok(NULL, " \t"));
             }
         }
     }
-    puts("SRS");
 
+    /* allocate face buffers */
     faceSizeBuff = (int*)malloc(numFaces * sizeof(int));
     faceBuff = (int*)malloc(numFaces * 4 * sizeof(int));
 
@@ -284,28 +284,6 @@ void ModelAddTriangle2(Model *m, float x1,float y1, float x2,float y2, float x3,
     
 }
 
-void SetVertex(Vertex v1, Vertex v2) 
-{
-    v1[0] = v2[0];
-    v1[1] = v2[1];
-    v1[2] = v2[2];
-}
-
-void SetNormal(Vertex n1, Vertex n2) 
-{
-    n1[0] = n2[0];
-    n1[1] = n2[1];
-    n1[2] = n2[2];
-}
-
-void SetColor(Color c1, Color c2)
-{
-    c1[0] = c2[0];
-    c1[1] = c2[1];
-    c1[2] = c2[2];
-    c1[3] = c2[3];
-}
-
 void ModelSetAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
 {
     int i;
@@ -316,7 +294,7 @@ void ModelSetAttribute(float* dst, int dstOffset, float* src, int srcOffset, int
         return;
     }
     for(i = 0; i < ModelGetAttributeSize(type); ++i) {
-        dst[srcOffset+i] = src[dstOffset+i];
+        dst[dstOffset+i] = src[srcOffset+i];
     }
 }
 

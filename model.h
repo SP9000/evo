@@ -92,21 +92,15 @@ void ModelFree(Model* m);
 void ModelLoadPLY(Model* m, char *file);
 
 /**
- * Add a vertex to the given model. 
- * @param m the model to add the coordinate to.
- * @param v the vertex to append to the model
+ * Add an attribute of the the given type to the model.
+ * Make sure to add the ATTRIBUTE_VERTEX last when creating a model as this
+ * will increment the internal vertex count of the model, which is used
+ * to determine where to place the other attributes.
+ * @param m the model to add the attribute to.
+ * @param attribute the type of the attribute to add.
+ * @param val the value to append to the given attribute buffer.
  */
-void ModelAddVertex(Model* m, Vertex v);
-
-/**
- * Add a color to the given model.
- * Be sure to call this and other AddAttribute commands before AddVertex since
- * AddVertex will increase the numVertices variable used to determine where to
- * add the other attributes 
- * @param m the model to add the color to.
- * @param c the color to append to the model.
- */
-void ModelAddColor(Model* m, Color c);
+void ModelAddAttribute(Model* m, int attribute, float* val);
 
 /**
  * Add a triangle to the given model in the 0 z-plane.

@@ -28,6 +28,9 @@ typedef struct tagEntity {
     void (*Update)(void);
 }Entity;
 
+
+void EntityNew(int size, ...);
+
 #ifdef __cplusplus
 }
 #endif

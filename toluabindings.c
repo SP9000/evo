@@ -53,51 +53,6 @@ static int tolua_toluabind_Model_New00(lua_State* tolua_S)
 #endif
 }
 
-/* function: ModelAddVertex */
-static int tolua_toluabind_Model_AddVertex00(lua_State* tolua_S)
-{
-#ifndef TOLUA_RELEASE
- tolua_Error tolua_err;
- if (
- !tolua_isusertype(tolua_S,1,"Model",0,&tolua_err) || 
- !tolua_istable(tolua_S,2,0,&tolua_err) || 
- !tolua_isnoobj(tolua_S,3,&tolua_err)
- )
- goto tolua_lerror;
- else
-#endif
- {
-  Model* m = ((Model*)  tolua_tousertype(tolua_S,1,0));
-  float v[3];
- {
-#ifndef TOLUA_RELEASE
- if (!tolua_isnumberarray(tolua_S,2,3,0,&tolua_err))
- goto tolua_lerror;
- else
-#endif
- {
- int i;
- for(i=0; i<3;i++)
-  v[i] = ((float)  tolua_tofieldnumber(tolua_S,2,i+1,0));
- }
- }
- {
-  ModelAddVertex(m,v);
- }
- {
- int i;
- for(i=0; i<3;i++)
- tolua_pushfieldnumber(tolua_S,2,i+1,(lua_Number) v[i]);
- }
- }
- return 0;
-#ifndef TOLUA_RELEASE
- tolua_lerror:
- tolua_error(tolua_S,"#ferror in function 'AddVertex'.",&tolua_err);
- return 0;
-#endif
-}
-
 /* Open lib function */
 LUALIB_API int luaopen_toluabind (lua_State* tolua_S)
 {
@@ -108,7 +63,6 @@ LUALIB_API int luaopen_toluabind (lua_State* tolua_S)
  tolua_module(tolua_S,"Model",0);
  tolua_beginmodule(tolua_S,"Model");
  tolua_function(tolua_S,"New",tolua_toluabind_Model_New00);
- tolua_function(tolua_S,"AddVertex",tolua_toluabind_Model_AddVertex00);
  tolua_endmodule(tolua_S);
  tolua_endmodule(tolua_S);
  return 1;

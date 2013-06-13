@@ -71,16 +71,13 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     
-
     /* TODO: delete */
     Model *m = ModelNew(100);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
     DrawOptimizeModel(m);
-    /*
     Model* textM = GenText("HELLO WORLD", 20.0f, 30.0f);
     Color col = {1.0f,0.0f,0.0f,1.0f};
     Model* rectM = GenRect(0, 0, 0, 10, 10, col);
-    */
     /* Main game loop. */
     while(run) {
         unsigned char keysPressed[16];
@@ -184,11 +181,9 @@ int main(int argc, char **argv)
         /* Render */
         DrawStartFrame();
         DrawModel(m);   //TODO: delete
-        /*
         DrawGUI();
         DrawModel(rectM);
         DrawModel(textM);
-        */
         SDL_GL_SwapBuffers();
         /* Update */
         SDL_Delay(100);

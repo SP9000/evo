@@ -194,9 +194,11 @@ void DrawWidgetRecursive(gpointer data, gpointer user_data)
 void DrawOptimizeModel(Model* m) {
     int i;
     
+    /* create a VAO for the model */
     glGenVertexArrays(1, &m->vao);
     glBindVertexArray(m->vao);
 
+    /* buffer all the attributes of the model into VBO's */
     m->vboIDs = (GLuint*)malloc(m->numAttributes * sizeof(GLuint));
     glGenBuffers(m->numAttributes, m->vboIDs);
     for(i = 0; i < m->numAttributes; ++i) {
@@ -207,47 +209,9 @@ void DrawOptimizeModel(Model* m) {
         glVertexAttribPointer((GLuint)i, attrSize, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(i);
     }
-    /* Bind the models' vertex attribute object. */
-    glBindVertexArray(m->vao);
 
     /* Unbind. */
     glBindVertexArray(0);
-
-#if 0
-    /* always generate vertex VBO */
-    glGenBuffers(1, &m->vertexVBOID);
-    glBindBuffer(GL_ARRAY_BUFFER, m->vertexVBOID);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * m->numVertices,
-            m->vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer((GLuint)0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glEnableVertexAttribArray(0);
-
-    if(attributes & ATTRIBUTE_COLORS) {
-        glGenBuffers(1, &m->colorVBOID);
-        glBindBuffer(GL_ARRAY_BUFFER, m->colorVBOID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 4 * m->numVertices,
-                m->colors, GL_STATIC_DRAW);
-        glVertexAttribPointer((GLuint)1, 4, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(1);
-    }
-    if(attributes & ATTRIBUTE_NORMALS) {
-        glGenBuffers(1, &m->normalVBOID);
-        glBindBuffer(GL_ARRAY_BUFFER, m->normalVBOID);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * m->numVertices,
-                m->normals, GL_STATIC_DRAW);
-        glVertexAttribPointer((GLuint)2, 3, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(2);
-    }
-    /* Bind the models' vertex attribute object. */
-    glBindVertexArray(m->vao);
-
-    /* Draw the model. */
-    glDrawArrays(m->primitive, 0, m->numVertices);
-    
-    /* Unbind. */
-    glBindVertexArray(0);
-#endif
-
 }
 
 void DrawModel(Model *m)
