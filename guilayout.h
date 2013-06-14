@@ -26,6 +26,11 @@ extern "C" {
 /* an event is generated when the widget is clicked */
 #define GUILAYOUT_CLICKABLE 0x00000004
 
+typedef struct tagRect {
+    float x,y;
+    float w,h;
+}Rect;
+
 /**
  * The widget structure.
  * Widgets are physically similar to models, but carry a little extra
@@ -34,10 +39,8 @@ extern "C" {
  * for flexible sizing on monitors of all resolutions.
  */
 typedef struct tagWidget {
-    /* the lower-left coordinate of the window */
-    float x, y;
-    /* the current dimensions of the widget */
-    float w, h;
+    /* the lower left corner and width/height of the widget */
+    Rect rect;
     /* the minimum dimensions of the widget */
     float minW, minH;
     /* maximum dimensions of the widget or 0 for no limit */
@@ -76,7 +79,7 @@ Widget* GUILayoutGetRootWidget();
  * @param background the background to draw for this widget.
  * @param contents the contents to display within the widget.
  */
-Widget* GUILayoutNewWidget(Model* background, Model* contents, uint32_t flags);
+Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t flags);
 
 /**
  * Create a textbox widget.
@@ -84,7 +87,7 @@ Widget* GUILayoutNewWidget(Model* background, Model* contents, uint32_t flags);
  * @param text the text to display within the textbox.
  * @return a textbox widget containing the specified text.
  */
-Widget* GUILayoutNewTextBox(Model* background, char* text);
+Widget* GUILayoutNewTextBox(Model* background, Rect* r, char* text);
 
 /**
  * Add the specified widget to the specified parent widget. 

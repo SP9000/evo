@@ -45,13 +45,10 @@ typedef struct tagModel {
 typedef struct Material {
     GLuint frag;
     GLuint vert;
+    GLuint geom;
     GLuint program;
 }Material;
 
-typedef struct tagRect {
-    float x,y;
-    float w,h;
-}Rect;
 
 typedef struct tagMap {
     guint32 width, height;

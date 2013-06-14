@@ -136,3 +136,13 @@ Model* GenRect(float x, float y, float z, float w, float h, Color c)
     return m;
 }
 
+/*
+Model* GenCircle(float radius, int resolution)
+{
+    float theta;
+    int i;
+    float dTheta = resolution / (2 * M_PI);
+    for(i = 0, theta = 0.0f; i < resolution; ++i, theta += 
+}
+
+*/

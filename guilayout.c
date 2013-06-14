@@ -5,7 +5,7 @@ static Widget* root_widget;
 
 void GUILayoutInit()
 {
-    
+    root_widget = NULL;
 }
 
 void GUILayoutSetRootWidget(Widget* w)
@@ -33,7 +33,7 @@ void GUILayoutRemoveWidget(Widget* w)
     FreeWidgetRecursive((gpointer)w->children, NULL);
 }
 
-Widget* GUILayoutNewWidget(Model* background, Model* contents, uint32_t flags)
+Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t flags)
 {
     Widget* w = (Widget*)malloc(sizeof(Widget));
     w->contents = contents;
@@ -41,10 +41,10 @@ Widget* GUILayoutNewWidget(Model* background, Model* contents, uint32_t flags)
     w->flags = flags;
     w->children = NULL;
 
-    w->x = 0.5f;
-    w->y = 0.5f;
-    w->w = 0.01f;
-    w->h = 0.01f;
+    w->rect.x = r->x;
+    w->rect.y = r->y;
+    w->rect.w = r->w;
+    w->rect.h = r->h;
 
     return w;
 }
@@ -63,10 +63,14 @@ void FreeWidgetRecursive(gpointer data, gpointer user_data)
     free(w);
 }
 
-Widget* GUILayoutNewTextBox(Model* background, char* text)
+Widget* GUILayoutNewTextBox(Model* background, Rect* r, char* text)
 {
+    /* TODO: */
+    float textW = r->w * 400;
+    float textH = r->h * 200;
+
     Widget* w = (Widget*)malloc(sizeof(Widget));
-    Model* text_model = GenText(text, 0, 0); //TODO:
-    return GUILayoutNewWidget(background, text_model, GUILAYOUT_PLAIN);
+    Model* text_model = GenText(text, textW, textH); 
+    return GUILayoutNewWidget(background, text_model, r, GUILAYOUT_PLAIN);
 }
 

@@ -1,5 +1,7 @@
 #include "draw.h"
 
+
+/************************* Rendering variables *******************************/
 /* Matrices for the shaders */
 static Mat4x4 ModelMat;
 static Mat4x4 ProjectionMat;
@@ -28,26 +30,40 @@ static Camera cam;
 static Material* MaterialMain;
 static Material* MaterialGUISelect;
 
+
+/************************* Shader/Material tables ****************************/
 /* IDs of loaded programs (materials) */
 static GHashTable* materials;
 /* IDs of all loaded shaders */
 static GHashTable* fragShaders;
 static GHashTable* vertShaders;
+static GHashTable* geomShaders;
 /* translation table from material names -> IDs */
 static GHashTable* fragShaderNames;
 static GHashTable* vertShaderNames;
+static GHashTable* geomShaderNames;
 
-/* helper function to recursively draw the GUI */
-void DrawWidgetRecursive(gpointer data, gpointer user_data);
 
-/* Material loading */
+/************************** Material loading *********************************/
 int MaterialInit();
-Material* MaterialLoad(const char* vertFile, const char* fragFile, char** attributes, int numAttributes);
+
+/* load a material using the given shader files and attributes */
+Material* MaterialLoad(const char* vertFile, const char* fragFile, 
+        const char* geomFile, char** attributes, int numAttributes);
+/* get the material associated with the given material ID */
 Material* GetMaterial(int id);
-GLuint CompileProgram(GLuint vertShader, GLuint fragShader, char **attributes, int numAttributes);
-int ReadFile(const char* filename, char** buffer);
+/* compile a program consisting of the given shaders and attributes */
+GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
+        char **attributes, int numAttributes);
+/* read the file "filename" into buffer */
+int MaterialReadFile(const char* filename, char** buffer);
+/* associate the given material to id in the internal material hash table */
 void AddMaterial(int id, Material *mat);
+/* compile the given shader of the given type */
 GLuint CompileShader(const GLchar* shader, GLuint type);
+
+/************************** helper functions *********************************/
+void DrawWidgetRecursive(gpointer data, gpointer user_data);
 
 /* The current level. */
 // static Map world;
@@ -87,8 +103,8 @@ int DrawInit()
         char *attrs[2] = {attr1, attr2};
         char guiAttr1[] = "in_Position"; char guiAttr2[] = "in_Color"; 
         char *guiAttrs[2] = {guiAttr1, guiAttr2};
-        MaterialMain = MaterialLoad("test.vert", "test.frag", attrs, 2);
-        MaterialGUISelect = MaterialLoad("gui.vert", "gui.frag", guiAttrs, 2);
+        MaterialMain = MaterialLoad("test.vert", "test.frag", "test.geom", attrs, 2);
+        MaterialGUISelect = MaterialLoad("gui.vert", "gui.frag", "test.geom", guiAttrs, 2);
         puts("loaded materials successfully");
 
         glUseProgram(MaterialMain->program);
@@ -175,7 +191,6 @@ void DrawGUI()
     /* do GUI */
     glUniformMatrix4fv(GUIModelMatID, 1, 0, GUIModelMat);
     glUniformMatrix4fv(GUIProjectionMatID, 1, 0, GUIProjectionMat);
-    return;
 
     glEnable(GL_SCISSOR_TEST);
     DrawWidgetRecursive((gpointer)GUILayoutGetRootWidget(), NULL);
@@ -187,7 +202,8 @@ void DrawWidgetRecursive(gpointer data, gpointer user_data)
     Widget* w = (Widget*)data;
     DrawModel(w->background);
     DrawModel(w->contents);
-    glScissor(w->x * screen->w, w->y * screen->h, w->w * screen->w, w->h * screen->h);
+    glScissor(w->rect.x * screen->w, w->rect.y * screen->h, 
+            w->rect.w * screen->w, w->rect.h * screen->h);
     g_slist_foreach(w->children, DrawWidgetRecursive, NULL);
 }
 
@@ -243,6 +259,8 @@ int MaterialInit()
     fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
     vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
     vertShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
+    geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
+    geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
     return 0;
 }
 
@@ -256,13 +274,15 @@ void AddMaterial(int id, Material *mat)
     g_hash_table_insert(materials, (gpointer)id, (gpointer)mat);
 }
 
-Material* MaterialLoad(const char* vertFile, const char* fragFile, char** attributes, int numAttributes)
+Material* MaterialLoad(const char* vertFile, const char* fragFile, 
+        const char* geomFile, char** attributes, int numAttributes)
 {
     Material* m;
 
     char* frag;
     char* vert;
-    GLuint v, f;
+    char* geom;
+    GLuint v, f, g;
     gpointer lup;
 
     m = (Material*)malloc(sizeof(Material));
@@ -271,7 +291,7 @@ Material* MaterialLoad(const char* vertFile, const char* fragFile, char** attrib
     lup = (char*)g_hash_table_lookup(vertShaderNames, vertFile);
     if(lup == NULL) {
         /* no, load it */
-        ReadFile(vertFile, &vert);
+        MaterialReadFile(vertFile, &vert);
         v = CompileShader(vert, GL_VERTEX_SHADER);
         /* insert into hash tables */
         g_hash_table_insert(vertShaderNames, (gpointer)vertFile, (gpointer)v);
@@ -282,9 +302,10 @@ Material* MaterialLoad(const char* vertFile, const char* fragFile, char** attrib
     }
     m->vert = v;
 
+    /* get/compile fragment shader */
     lup = (char*)g_hash_table_lookup(fragShaderNames, fragFile);
     if(lup == NULL) {
-        ReadFile(fragFile, &frag);
+        MaterialReadFile(fragFile, &frag);
         f = CompileShader(frag, GL_FRAGMENT_SHADER);
         g_hash_table_insert(fragShaderNames, (gpointer)fragFile, (gpointer)f);
     }
@@ -293,11 +314,24 @@ Material* MaterialLoad(const char* vertFile, const char* fragFile, char** attrib
     }
     m->frag = f;
 
-    m->program = CompileProgram(v, f, attributes, numAttributes);
+    /* get/compile geometry shader */
+    lup = (char*)g_hash_table_lookup(geomShaderNames, geomFile);
+    if(lup == NULL) {
+        MaterialReadFile(geomFile, &geom);
+        g = CompileShader(geom, GL_GEOMETRY_SHADER);
+        g_hash_table_insert(geomShaderNames, (gpointer)geomFile, (gpointer)g);
+    }
+    else {
+        g = (GLuint)lup;
+    }
+    m->geom = g;
+
+    m->program = CompileProgram(v, f, g, attributes, numAttributes);
+    puts("program compiled");
     return m;
 }
 
-int ReadFile(const char* filename, char** buffer)
+int MaterialReadFile(const char* filename, char** buffer)
 {
     FILE* fp = NULL;
     char* data = NULL;
@@ -333,22 +367,27 @@ GLuint CompileShader(const GLchar* shader, GLuint type)
     GLuint s;
     GLsizei len;
     int success;
+    GLchar* log;
 
     s = glCreateShader(type);
     glShaderSource(s, 1, &shader, NULL);
     glCompileShader(s);
     glGetShaderiv(s, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
+    log = malloc(sizeof(GLchar) * len);
+    glGetShaderInfoLog(s, len, &len, log);
+    puts(log);
+    free(log);
+
     if(success == GL_FALSE) {
-        glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
-        char *log = malloc(sizeof(char) * len);
-        glGetShaderInfoLog(s, len, &len, log);
-        printf("Shader failed to compile. Log:\n%s", log);
-        free(log);
         if(type == GL_VERTEX_SHADER) {
             fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
         }
         else if(type == GL_FRAGMENT_SHADER) {
             fprintf(stderr, "Error: fragment shader was not compiled successfully.\n");
+        }
+        else if(type == GL_GEOMETRY_SHADER) {
+            fprintf(stderr, "Error: geometry shader was not compiled successfully.\n");
         }
         else {
             fprintf(stderr, "Error: shader was not compiled successfully.\n");
@@ -358,20 +397,38 @@ GLuint CompileShader(const GLchar* shader, GLuint type)
     return s;
 }
 
-GLuint CompileProgram(GLuint vertShader, GLuint fragShader, char **attributes, int numAttributes)
+GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader,
+      char **attributes, int numAttributes)
 {
     int i;
+    int success;
+    char* log;
+    int len;
+    GLuint temp;
     GLuint program;
 
     program = glCreateProgram();
     glAttachShader(program, vertShader);
     glAttachShader(program, fragShader);
+    glAttachShader(program, geomShader);
 
     for(i = 0; i < numAttributes; i++) {
-        printf("%s: %d\n", attributes[i], i);
         glBindAttribLocation(program, i, attributes[i]);
     }
+    printf("linking shader program. log:\n");
     glLinkProgram(program);
+
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+    log = malloc(sizeof(GLchar) * len);
+    glGetProgramInfoLog(program, len, &len, log);
+    puts(log);
+    free(log);
+
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if(success == GL_FALSE) {
+        fprintf(stderr, "Error: shader could not be linked successfully.\n");
+        exit(EXIT_FAILURE);
+    }
     return program;
 }
 
