@@ -10,5 +10,6 @@
 #include "draw.h"
 #include "luainterface.h"
 #include "modelgen.h"
+#include "AppSpec/app.h"
 
 #endif

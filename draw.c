@@ -58,6 +58,11 @@ int MaterialReadFile(const char* filename, char** buffer);
 void AddMaterial(int id, Material *mat);
 /* compile the given shader of the given type */
 GLuint CompileShader(const GLchar* shader, GLuint type);
+/* add a texture with the given properties to the material */
+void MaterialAddTexture(Material* m, int w, int h, Texel* data);
+/* load a material using the given parameters */
+Material* MaterialLoadFromFiles(const char* vertFile, const char* fragFile, 
+        const char* geomFile, char** attributes, int numAttributes);
 
 /************************** helper functions *********************************/
 void DrawWidgetRecursive(gpointer data, gpointer user_data);
@@ -98,8 +103,10 @@ int DrawInit()
         /* compile shader programs */
         char attr1[] = "in_Position"; char attr2[] = "in_Color"; 
         char *attrs[2] = {attr1, attr2};
-        MaterialGUISelect = MaterialLoad("test.vert", "test.frag", NULL, attrs, 2);
-        MaterialMain = MaterialLoad("test.vert", "test.frag", "test.geom", attrs, 2);
+        MaterialGUISelect = MaterialLoadFromFiles("test.vert", "test.frag", NULL, attrs, 2);
+        MaterialMain = MaterialLoadFromFiles("test.vert", "test.frag", NULL, attrs, 2);
+        //MaterialGUISelect = MaterialLoad("test.mat");
+        //MaterialMain = MaterialLoad("test.mat");
         puts("loaded materials successfully");
 
         glUseProgram(MaterialMain->program);
@@ -148,6 +155,7 @@ int DrawInit()
     /* wider lines */
     glLineWidth(3);
 
+
     /* Done. */
     puts("Draw initialization complete");
     return 0;
@@ -165,6 +173,7 @@ void DrawStartFrame()
 {
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
 
     glUseProgram(MaterialMain->program);
 
@@ -182,8 +191,9 @@ void DrawGUI()
 {
     Widget* w;
 
+    glDisable(GL_DEPTH_TEST);
     /* use the GUI shader */
-    glUseProgram(MaterialGUISelect->program);
+    //glUseProgram(MaterialGUISelect->program);
 
     /* set up GUI "camera" */
     Mat4x4LoadIdentity(GUIViewMat);
@@ -234,7 +244,8 @@ void DrawModel(Model *m)
 {
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
-
+    
+    glUseProgram(MaterialMain->program);
     //glUseProgram(m->mat.program);
 
     /* Draw the model. */
@@ -276,11 +287,69 @@ void AddMaterial(int id, Material *mat)
     g_hash_table_insert(materials, (gpointer)id, (gpointer)mat);
 }
 
-Material* MaterialLoad(const char* vertFile, const char* fragFile, 
+Material* MaterialLoad(const char* materialFile)
+{
+    Material* m;
+    char line[256];
+    char* param;
+    int i;
+
+    char vertFile[64];
+    char fragFile[64];
+    char geomFile[64];
+    char** attributes = NULL;
+    int numAttributes = 0;
+
+    int attrCount = 0;
+
+    FILE* mf = fopen(materialFile, "rb");
+    while(!feof(mf)) {
+        fgets(line, 256, mf);
+        param = strtok(line, "=");
+        if(strncmp(param, "fragment", 8) == 0) {
+            strncpy(fragFile, strtok(NULL, " \t\n"), 64);
+        }
+        else if(strncmp(param, "vertex", 8) == 0) {
+            strncpy(vertFile, strtok(NULL, " \t\n"), 64);
+        }
+        else if(strncmp(param, "geometry", 8) == 0) {
+            strncpy(geomFile, strtok(NULL, " \t\n"), 64);
+        }
+        else if(strncmp(param, "attributes", 10) == 0) {
+            numAttributes = atoi(strtok(NULL, " \t\n"));
+            attributes = (char**)malloc(numAttributes * sizeof(char*));
+        }
+        else if(strncmp(param, "attribute", 9) == 0) {
+            if(numAttributes == 0) {
+                fprintf(stderr, "Error: \"attributes\" must be defined before"
+                        "any specific attribute.\n");
+                return NULL;
+            }
+            char* a = strtok(NULL, " \t\n");
+            attributes[attrCount] = malloc(strlen(a)+1*sizeof(char));
+            strncpy(attributes[attrCount], a, strlen(a));
+            ++attrCount;
+        }
+    }
+    fclose(mf);
+    
+    m = MaterialLoadFromFiles(vertFile, fragFile, NULL,
+            attributes, numAttributes);
+
+    /* clean up */
+    for(i = 0; i < numAttributes; ++i) {
+        free(attributes[i]);
+    }
+    free(attributes);
+    return m;
+}
+
+
+Material* MaterialLoadFromFiles(const char* vertFile, const char* fragFile, 
         const char* geomFile, char** attributes, int numAttributes)
 {
     Material* m;
-
+    
     char* frag;
     char* vert;
     char* geom;
@@ -338,6 +407,23 @@ Material* MaterialLoad(const char* vertFile, const char* fragFile,
     return m;
 }
 
+void MaterialAddTexture(Material* m, int w, int h, Texel* data)
+{
+    GLuint tex;
+    m->textures = (GLuint*)realloc(m->textures, (m->numTextures+1) * sizeof(GLuint));
+    glGenTextures(1, &tex);
+    m->textures[m->numTextures] = tex;
+    ++m->numTextures;
+
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, 
+            GL_UNSIGNED_BYTE, (GLvoid*)data);
+}
+
 int MaterialReadFile(const char* filename, char** buffer)
 {
     FILE* fp = NULL;
@@ -368,6 +454,7 @@ int MaterialReadFile(const char* filename, char** buffer)
     *buffer = data;
     fclose(fp);
 }
+
 
 GLuint CompileShader(const GLchar* shader, GLuint type) 
 {
@@ -441,5 +528,43 @@ GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader,
         exit(EXIT_FAILURE);
     }
     return program;
+}
+
+DrawTarget* DrawNewTarget(int w, int h)
+{
+    GLenum status;
+    DrawTarget* target = (DrawTarget*)malloc(sizeof(DrawTarget));
+    /* create a texture to render to */
+    glGenTextures(1, &target->texID);
+    glBindTexture(GL_TEXTURE_2D, target->texID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, 
+            GL_UNSIGNED_BYTE, NULL);
+
+    glGenFramebuffers(1, &target->fbID);
+    glBindFramebuffer(GL_FRAMEBUFFER, target->fbID);
+
+    /* attach texture to FBO */
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+            GL_TEXTURE_2D, target->fbID, 0);
+
+    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if(status != GL_FRAMEBUFFER_COMPLETE) {
+        fprintf(stderr, "Warning: draw target not properly supported.\n");
+    }
+    return target;
+}
+
+void DrawSetTarget(DrawTarget* target)
+{
+    if(target != NULL) {
+        glBindFramebuffer(GL_FRAMEBUFFER, target->fbID);
+    }
+    else {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
 

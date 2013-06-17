@@ -29,19 +29,19 @@ extern "C" {
 typedef float Vector2[2];
 typedef float Vector3[3];
 
-/*
-typedef struct tagModelComponent {
-    ModelComponent *attachedTo;
-    ModelVertex vertices[];
-}ModelComponent;
+typedef struct __attribute__((__packed__)) tagTexel {
+    GLbyte r;
+    GLbyte g;
+    GLbyte b;
+    GLbyte a;
+}Texel;
 
-
-typedef struct tagModel {
-    int numComponents;
-    ModelComponent components[];
-}Model;
-*/
-
+typedef struct tagDrawTarget {
+    /* the framebuffer ID of the target. */
+    GLuint fbID;
+    /* the ID of the texture to render to (if any). */
+    GLuint texID;
+}DrawTarget;
 
 typedef struct tagMap {
     guint32 width, height;
@@ -73,6 +73,18 @@ void DrawQuit();
   * to render a frame.
   */
 void DrawStartFrame();
+
+/**
+ * Generate a new target to draw to.
+ * @return the new target.
+ */
+DrawTarget* DrawNewTarget();
+
+/**
+ * Sets the target of the current render.
+ * @param target the target to render to. NULL = back buffer.
+ */
+void DrawSetTarget(DrawTarget* target);
 
 /**
  * Generate handles to VBOs for the given model.
@@ -107,14 +119,10 @@ void DrawMoveCamera(float x, float y, float z);
 
 
 /** load a material using the given shader files and attributes.
- * @param vertFile the file containing the vertex shader for the material.
- * @param fragFile the file containing the fragment shader for the material.
- * @param geomFile the file containing the geometry shader for the material.
- * @param attributes the input attributes to the vertex shader.
- * @param numAttributes the number of inputs to the vertex shader.
+ * @param matFile the file containing the various shader and attribute 
+ *  definitions.
  */
-Material* MaterialLoad(const char* vertFile, const char* fragFile, 
-        const char* geomFile, char** attributes, int numAttributes);
+Material* MaterialLoad(const char* matFile);
 
 /*****************************GUI SUBSYSTEM***********************************/
 Material* GetMaterial(int id);

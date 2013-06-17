@@ -71,15 +71,8 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     
-    /* TODO: delete */
-    Model *m = ModelNew(100);
-    ModelLoadPLY(m, "TestAssets/monkey.ply");
-    DrawOptimizeModel(m);
-    Color col = {1.0f,0.0f,0.0f,1.0f};
-    Model* rectM = GenRect(0, 0, 0, 10, 10, col);
-    Rect wRect = {0,0,.2,.4};
-    Widget* w = GUILayoutNewTextBox(rectM, &wRect, "HELLO ALL");
-    GUILayoutSetRootWidget(w);
+    /* start the application */
+    AppStart();
 
     /* Main game loop. */
     while(run) {
@@ -181,19 +174,12 @@ int main(int argc, char **argv)
             enet_peer_send(peer, 0, epacket);
         }
     
-        /* Render */
-        DrawStartFrame();
-        DrawModel(m);   //TODO: delete
-        DrawGUI();
-        //DrawModel(rectM);
-        //DrawModel(textM);
-
+        AppUpdate();
         SDL_GL_SwapBuffers();
         /* Update */
         SDL_Delay(100);
     }
 
-    ModelFree(m);   //TODO: delete
 
     /* Shut down the game. */
     puts("Game terminated");

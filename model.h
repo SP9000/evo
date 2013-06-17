@@ -50,6 +50,9 @@ typedef struct tagMaterial {
     GLuint vert;
     GLuint geom;
     GLuint program;
+
+    int numTextures;
+    GLuint* textures;
 }Material;
 
 /**
@@ -116,6 +119,15 @@ void ModelLoadPLY(Model* m, char *file);
 void ModelAddAttribute(Model* m, int attribute, float* val);
 
 /**
+ * Set the specified attribute of the given model to the specified value.
+ * @param m the model to set the attribute of.
+ * @param attribute the type of the attribute to set.
+ * @param offset the vertex-offset of the attribute to set.
+ * @param val the value to set the attribute to.
+ */
+void ModelSetAttribute(Model* m, int attribute, int offset, float* val);
+
+/**
  * Add a triangle to the given model in the 0 z-plane.
  */
 void ModelAddTriangle2(Model* m, float x1,float y1, float x2,float y2, float x3,float y3);
@@ -134,8 +146,9 @@ int ModelGetAttributeSize(int id);
  * @param offset the number of the attribute to set within the buffer.
  * @param src the buffer to set the dst to.
  * @param type the type of the attribute to set.
+ * TODO: kinda janky name. probably not a function to be used outside model.c.
  */
-void ModelSetAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type);
+void ModelCopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type);
 
 /**
  * Get the address of the specified attribute's buffer in the given model.

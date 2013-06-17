@@ -3,14 +3,8 @@ OpenGL extensions availiable
 Shader version 1.20  - Intel Build 8.15.10.2413
 No errors.
 No errors.
-ик;
-linking shader program. log:
 No errors.
 program compiled
-No errors.
-No errors.
-ик;
-linking shader program. log:
 No errors.
 program compiled
 loaded materials successfully
@@ -23,6 +17,13 @@ Connection to server succeeded.
 making new model
 making new model
 making new model
+making new model
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
 packet created
 Game terminated
 Shutting down Enet

@@ -7,8 +7,8 @@ CFLAGS = `pkg-config --cflags --libs glib-2.0`
 
 all: Client Server
     
-Client: client.o draw.o luainterface.o toluabindings.o model.o client_packet.o matrix.o collision.o guilayout.o modelgen.o
-	$(CC) $(CFLAGS) -o $@ client.o matrix.o draw.o luainterface.o toluabindings.o model.o client_packet.o collision.o guilayout.o modelgen.o $(LIBS)
+Client: client.o app.o draw.o luainterface.o toluabindings.o model.o client_packet.o matrix.o collision.o guilayout.o modelgen.o
+	$(CC) $(CFLAGS) -o $@ client.o app.o matrix.o draw.o luainterface.o toluabindings.o model.o client_packet.o collision.o guilayout.o modelgen.o $(LIBS)
 
 Server: server.o 
 	$(CC) $(CFLAGS) -o $@ server.o $(SERVERLIBS) -I $(INCLUDE)
@@ -17,6 +17,9 @@ client.o: client.c draw.c luainterface.c toluabindings.c model.c client_packet.c
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 server.o: server/server.c 
+	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
+
+app.o: AppSpec/app.c draw.c model.c guilayout.c modelgen.c
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 draw.o: draw.c model.c guilayout.c
