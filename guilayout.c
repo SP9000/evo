@@ -41,10 +41,7 @@ Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t
     w->flags = flags;
     w->children = NULL;
 
-    w->rect.x = r->x;
-    w->rect.y = r->y;
-    w->rect.w = r->w;
-    w->rect.h = r->h;
+    w->rect = *r;
 
     return w;
 }

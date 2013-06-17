@@ -314,3 +314,8 @@ int ModelGetAttributeSize(int id)
     }
 }
 
+void ModelSetMaterial(Model* m, Material* mat)
+{
+    m->mat= *mat;
+}
+

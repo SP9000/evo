@@ -42,11 +42,24 @@ typedef struct ModelVertex {
 }ModelVertex;
 
 /**
+ * A structure for holding the ID's of the shaders associated with a given 
+ * material.
+ */
+typedef struct tagMaterial {
+    GLuint frag;
+    GLuint vert;
+    GLuint geom;
+    GLuint program;
+}Material;
+
+/**
  * Model structure.
  * This is holds the data for the data for the position, normal, and color for
  * each vertex in the model.
  */
 typedef struct tagModel {
+    /* the material associated with this model. */
+    Material mat;
     /* buffers for each attribute of the model */
     float** attributes;
     /* a table of ATTRIBUTE_* ID's to tell the contents of attributes */
@@ -132,6 +145,13 @@ void ModelSetAttribute(float* dst, int dstOffset, float* src, int srcOffset, int
  *  attribute doesn't exist in the given model.
  */
 float* ModelGetAttributeBuffer(Model* m, int attribute);
+
+/**
+ * Set the material of the given model to the given material.
+ * @param m the model to set the material of.
+ * @param mat the material to set the model's material property to.
+ */
+void ModelSetMaterial(Model* m, Material* mat);
 
 #ifdef __cplusplus
 }

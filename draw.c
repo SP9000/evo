@@ -47,9 +47,6 @@ static GHashTable* geomShaderNames;
 /************************** Material loading *********************************/
 int MaterialInit();
 
-/* load a material using the given shader files and attributes */
-Material* MaterialLoad(const char* vertFile, const char* fragFile, 
-        const char* geomFile, char** attributes, int numAttributes);
 /* get the material associated with the given material ID */
 Material* GetMaterial(int id);
 /* compile a program consisting of the given shaders and attributes */
@@ -101,13 +98,12 @@ int DrawInit()
         /* compile shader programs */
         char attr1[] = "in_Position"; char attr2[] = "in_Color"; 
         char *attrs[2] = {attr1, attr2};
-        char guiAttr1[] = "in_Position"; char guiAttr2[] = "in_Color"; 
-        char *guiAttrs[2] = {guiAttr1, guiAttr2};
+        MaterialGUISelect = MaterialLoad("test.vert", "test.frag", NULL, attrs, 2);
         MaterialMain = MaterialLoad("test.vert", "test.frag", "test.geom", attrs, 2);
-        MaterialGUISelect = MaterialLoad("gui.vert", "gui.frag", "test.geom", guiAttrs, 2);
         puts("loaded materials successfully");
 
         glUseProgram(MaterialMain->program);
+
         /* Initialize the camera. */
         cam.pos[0] = 0.0f; cam.pos[1] = 0.0f; cam.pos[2] = -4.0f;
         cam.rot[0] = 0.0f; cam.rot[1] = 0.0f; cam.rot[2] = 0.0f;
@@ -159,16 +155,19 @@ int DrawInit()
 
 void DrawQuit()
 {
-        glDetachShader(MaterialMain->program, MaterialMain->vert);
-        glDetachShader(MaterialMain->program, MaterialMain->frag);
-        glDeleteShader(MaterialMain->vert);
-        glDeleteShader(MaterialMain->frag);
+    glDetachShader(MaterialMain->program, MaterialMain->vert);
+    glDetachShader(MaterialMain->program, MaterialMain->frag);
+    glDeleteShader(MaterialMain->vert);
+    glDeleteShader(MaterialMain->frag);
 }
 
 void DrawStartFrame()
 {
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glUseProgram(MaterialMain->program);
+
     /* position the camera */
     Mat4x4LoadIdentity(ViewMat);
     Mat4x4Translate(ViewMat, -cam.pos[0], -cam.pos[1], cam.pos[2]);
@@ -177,12 +176,14 @@ void DrawStartFrame()
     glUniformMatrix4fv(ModelMatID, 1, 0, ModelMat);
     glUniformMatrix4fv(ViewMatID, 1, 0, ViewMat);
     glUniformMatrix4fv(ProjectionMatID, 1, 0, ProjectionMat);
-
 }
 
 void DrawGUI()
 {
     Widget* w;
+
+    /* use the GUI shader */
+    glUseProgram(MaterialGUISelect->program);
 
     /* set up GUI "camera" */
     Mat4x4LoadIdentity(GUIViewMat);
@@ -225,7 +226,6 @@ void DrawOptimizeModel(Model* m) {
         glVertexAttribPointer((GLuint)i, attrSize, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(i);
     }
-
     /* Unbind. */
     glBindVertexArray(0);
 }
@@ -234,6 +234,8 @@ void DrawModel(Model *m)
 {
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
+
+    //glUseProgram(m->mat.program);
 
     /* Draw the model. */
     glDrawArrays(m->primitive, 0, m->numVertices);
@@ -314,17 +316,22 @@ Material* MaterialLoad(const char* vertFile, const char* fragFile,
     }
     m->frag = f;
 
-    /* get/compile geometry shader */
-    lup = (char*)g_hash_table_lookup(geomShaderNames, geomFile);
-    if(lup == NULL) {
-        MaterialReadFile(geomFile, &geom);
-        g = CompileShader(geom, GL_GEOMETRY_SHADER);
-        g_hash_table_insert(geomShaderNames, (gpointer)geomFile, (gpointer)g);
+    if(geomFile == NULL) {
+        g = 0;
     }
     else {
-        g = (GLuint)lup;
+        /* get/compile geometry shader */
+        lup = (char*)g_hash_table_lookup(geomShaderNames, geomFile);
+        if(lup == NULL) {
+            MaterialReadFile(geomFile, &geom);
+            g = CompileShader(geom, GL_GEOMETRY_SHADER);
+            g_hash_table_insert(geomShaderNames, (gpointer)geomFile, (gpointer)g);
+        }
+        else {
+            g = (GLuint)lup;
+        }
+        m->geom = g;
     }
-    m->geom = g;
 
     m->program = CompileProgram(v, f, g, attributes, numAttributes);
     puts("program compiled");
@@ -374,11 +381,12 @@ GLuint CompileShader(const GLchar* shader, GLuint type)
     glCompileShader(s);
     glGetShaderiv(s, GL_COMPILE_STATUS, &success);
     glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
-    log = malloc(sizeof(GLchar) * len);
-    glGetShaderInfoLog(s, len, &len, log);
-    puts(log);
-    free(log);
-
+    if(len > 0) {
+        log = malloc(sizeof(GLchar) * len);
+        glGetShaderInfoLog(s, len, &len, log);
+        puts(log);
+        free(log);
+    }
     if(success == GL_FALSE) {
         if(type == GL_VERTEX_SHADER) {
             fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
@@ -409,20 +417,23 @@ GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader,
 
     program = glCreateProgram();
     glAttachShader(program, vertShader);
+    if(geomShader != 0) {
+        glAttachShader(program, geomShader);
+    }
     glAttachShader(program, fragShader);
-    glAttachShader(program, geomShader);
 
     for(i = 0; i < numAttributes; i++) {
         glBindAttribLocation(program, i, attributes[i]);
     }
-    printf("linking shader program. log:\n");
-    glLinkProgram(program);
 
+    glLinkProgram(program);
     glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
-    log = malloc(sizeof(GLchar) * len);
-    glGetProgramInfoLog(program, len, &len, log);
-    puts(log);
-    free(log);
+    if(len > 0) {
+        log = malloc(sizeof(GLchar) * len);
+        glGetProgramInfoLog(program, len, &len, log);
+        puts(log);
+        free(log);
+    }
 
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if(success == GL_FALSE) {

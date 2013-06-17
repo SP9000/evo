@@ -42,13 +42,6 @@ typedef struct tagModel {
 }Model;
 */
 
-typedef struct Material {
-    GLuint frag;
-    GLuint vert;
-    GLuint geom;
-    GLuint program;
-}Material;
-
 
 typedef struct tagMap {
     guint32 width, height;
@@ -111,6 +104,17 @@ void DrawModel(Model *m);
  * @param z the amount to move the camera in the Z direction.
  */
 void DrawMoveCamera(float x, float y, float z);
+
+
+/** load a material using the given shader files and attributes.
+ * @param vertFile the file containing the vertex shader for the material.
+ * @param fragFile the file containing the fragment shader for the material.
+ * @param geomFile the file containing the geometry shader for the material.
+ * @param attributes the input attributes to the vertex shader.
+ * @param numAttributes the number of inputs to the vertex shader.
+ */
+Material* MaterialLoad(const char* vertFile, const char* fragFile, 
+        const char* geomFile, char** attributes, int numAttributes);
 
 /*****************************GUI SUBSYSTEM***********************************/
 Material* GetMaterial(int id);
