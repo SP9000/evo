@@ -5,9 +5,12 @@ static Model* background;
 
 void AppStart()
 {
+    Material* mat = MaterialLoad("test.mat");
     m = ModelNew(0);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
+    ModelSetMaterial(mat);
     DrawOptimizeModel(m);
+
     Color col = {1.0f,0.0f,0.0f,1.0f};
     Model* rectM = GenRect(0, 0, 0, 10, 10, col);
     Rect wRect = {0,0,.2,.4};

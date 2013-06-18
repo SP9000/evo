@@ -28,7 +28,6 @@ static Camera cam;
 
 /* The current vertex and fragment shaders. */
 static Material* MaterialMain;
-static Material* MaterialGUISelect;
 
 
 /************************* Shader/Material tables ****************************/
@@ -103,10 +102,8 @@ int DrawInit()
         /* compile shader programs */
         char attr1[] = "in_Position"; char attr2[] = "in_Color"; 
         char *attrs[2] = {attr1, attr2};
-        MaterialGUISelect = MaterialLoadFromFiles("test.vert", "test.frag", NULL, attrs, 2);
-        MaterialMain = MaterialLoadFromFiles("test.vert", "test.frag", NULL, attrs, 2);
-        //MaterialGUISelect = MaterialLoad("test.mat");
-        //MaterialMain = MaterialLoad("test.mat");
+        //MaterialMain = MaterialLoadFromFiles("test.vert", "test.frag", NULL, attrs, 2);
+        MaterialMain = MaterialLoad("test.mat");
         puts("loaded materials successfully");
 
         glUseProgram(MaterialMain->program);
@@ -135,9 +132,9 @@ int DrawInit()
         Mat4x4LoadIdentity(GUIProjectionMat);
         Mat4x4OrthoMat(GUIProjectionMat, 0.0f, (float)screen->w, (float)screen->h, 0.0f, 0.01f, 100.0f);
         /* get uniforms for GUI matrices */
-        GUIModelMatID = glGetUniformLocation(MaterialGUISelect->program, "Model");
-        GUIViewMatID = glGetUniformLocation(MaterialGUISelect->program, "View");
-        GUIProjectionMatID = glGetUniformLocation(MaterialGUISelect->program, "Projection");
+        GUIModelMatID = glGetUniformLocation(MaterialMain->program, "Model");
+        GUIViewMatID = glGetUniformLocation(MaterialMain->program, "View");
+        GUIProjectionMatID = glGetUniformLocation(MaterialMain->program, "Projection");
     }
     /* Initialize legacy OpenGL for older hardware. */
     else {
@@ -302,6 +299,7 @@ Material* MaterialLoad(const char* materialFile)
 
     int attrCount = 0;
 
+    puts("FFFFFUCK!");
     FILE* mf = fopen(materialFile, "rb");
     while(!feof(mf)) {
         fgets(line, 256, mf);
@@ -326,13 +324,12 @@ Material* MaterialLoad(const char* materialFile)
                 return NULL;
             }
             char* a = strtok(NULL, " \t\n");
-            attributes[attrCount] = malloc(strlen(a)+1*sizeof(char));
-            strncpy(attributes[attrCount], a, strlen(a));
+            attributes[attrCount] = (char*)malloc((strlen(a)+1)*sizeof(char));
+            strncpy(attributes[attrCount], a, strlen(a)+1);
             ++attrCount;
         }
     }
     fclose(mf);
-    
     m = MaterialLoadFromFiles(vertFile, fragFile, NULL,
             attributes, numAttributes);
 
@@ -357,7 +354,7 @@ Material* MaterialLoadFromFiles(const char* vertFile, const char* fragFile,
     gpointer lup;
 
     m = (Material*)malloc(sizeof(Material));
-
+    
     /* has this shader already been loaded? */
     lup = (char*)g_hash_table_lookup(vertShaderNames, vertFile);
     if(lup == NULL) {
