@@ -1,3 +1,11 @@
+/******************************************************************************
+ * matrix.h
+ * This file contains definitions for the matrix type(s) as well as various
+ * functions to manipulate them.
+ *
+ * Bryce Wilson
+ * created April, 2013
+ *****************************************************************************/
 #ifndef _MATRIX_H
 #define _MATRIX_H
 #ifdef __cplusplus 

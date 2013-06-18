@@ -6,7 +6,6 @@ int main(int argc, char **argv)
     ENetPeer *peer;
     ENetEvent event;
     ENetAddress address;
-    LuaInterface luaI;
     int serviceResult;
     int run = 1;
 
@@ -27,9 +26,11 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Initialize Lua scripting. */
-    LuaInterfaceInit(&luaI);
-    
+    /* Initialize material system. */
+    if(MaterialInit() != 0) {
+        fprintf(stderr, "Error: could not initialize the material subsytem\n");
+    }
+
     puts("Starting client\n");
     /* Initialize ENet */
     if(enet_initialize() != 0) {

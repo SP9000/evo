@@ -5,10 +5,10 @@ static Model* background;
 
 void AppStart()
 {
-    Material* mat = MaterialLoad("test.mat");
+    //Material* mat = MaterialLoad("test.mat");
     m = ModelNew(0);
     ModelLoadPLY(m, "TestAssets/monkey.ply");
-    ModelSetMaterial(mat);
+   // ModelSetMaterial(m, mat);
     DrawOptimizeModel(m);
 
     Color col = {1.0f,0.0f,0.0f,1.0f};

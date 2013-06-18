@@ -1,11 +1,9 @@
 /******************************************************************************
- * The Draw system contains all functions used for rendering within the 
- * TV Dinner Engine contains all utilities related to rendering to the display.
- * In theory, this code contains the most platform dependent code, though it is
- * standard OpenGL according to the 4.0 standard. The following subsystems are
- * included in the Draw system:
- *  Material - manages the material (shaders) loaded into the engine.
- *  GUI      - manages 2D drawing ontop of the 3D rendered game area.
+ * draw.h
+ * This file defines all functions used for rendering within the engine.
+ * In theory, this code contains the majority of the platform dependent code in
+ * the engine though you'll find some in material.h as well.
+ * This should be at least up to 4.0 standard of OpenGL.
  * 
  * Bryce Wilson
  * Created: April, 2013
@@ -20,8 +18,10 @@ extern "C" {
 
 #include <stdint.h>
 #include <SDL/SDL.h>
+#include <stdlib.h>
 #include <GL/glew.h>
 #include "glib.h"
+#include "material.h"
 #include "model.h"
 #include "matrix.h"
 #include "guilayout.h"
@@ -29,12 +29,6 @@ extern "C" {
 typedef float Vector2[2];
 typedef float Vector3[3];
 
-typedef struct __attribute__((__packed__)) tagTexel {
-    GLbyte r;
-    GLbyte g;
-    GLbyte b;
-    GLbyte a;
-}Texel;
 
 typedef struct tagDrawTarget {
     /* the framebuffer ID of the target. */
@@ -116,17 +110,6 @@ void DrawModel(Model *m);
  * @param z the amount to move the camera in the Z direction.
  */
 void DrawMoveCamera(float x, float y, float z);
-
-
-/** load a material using the given shader files and attributes.
- * @param matFile the file containing the various shader and attribute 
- *  definitions.
- */
-Material* MaterialLoad(const char* matFile);
-
-/*****************************GUI SUBSYSTEM***********************************/
-Material* GetMaterial(int id);
-void AddMaterial(int id, Material *mat);
 
 #ifdef __cplusplus
 }

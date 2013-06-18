@@ -1,3 +1,12 @@
+/******************************************************************************
+ * model.h
+ * Contains definitions for the model and the types it uses as well as 
+ * functions to create/load/manage models. Models are used for nearly all
+ * objects rendered in the engine including text and other GUI functionaliy.
+ *
+ * Bryce Wilson
+ * created: April, 2013
+ *****************************************************************************/
 #ifndef _MODEL_H
 #define _MODEL_H
 
@@ -10,6 +19,7 @@ extern "C" {
 #include <string.h>
 #include <stdlib.h>
 #include <GL/glew.h>
+#include "material.h"
 
 /* attribute types for the model */
 #define ATTRIBUTE_NONE   0
@@ -41,19 +51,6 @@ typedef struct ModelVertex {
     Color color;
 }ModelVertex;
 
-/**
- * A structure for holding the ID's of the shaders associated with a given 
- * material.
- */
-typedef struct tagMaterial {
-    GLuint frag;
-    GLuint vert;
-    GLuint geom;
-    GLuint program;
-
-    int numTextures;
-    GLuint* textures;
-}Material;
 
 /**
  * Model structure.

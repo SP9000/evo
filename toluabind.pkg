@@ -1,7 +1,0 @@
-$#include "toluaheader2.h"
-
-module Model
-{
-    Model *ModelNew @ New(int numVertices);
-}
-

@@ -1,11 +1,13 @@
-/**
+/******************************************************************************
+ * guilayout.h
  * This file contains definitions for functions used to compose the GUI.
  * This includes high level objects such as widgets, text boxes, etc.
  * No code to actually render said objects should be put here. As with
  * all other rendered items, that belongs in draw.h/draw.c 
+ *
  * Bryce Wilson
- * 6/5/2013
- */
+ * created: June 5, 2013
+ *****************************************************************************/
 #ifndef _GUILAYOUT_H
 #define _GUILAYOUT_H
 

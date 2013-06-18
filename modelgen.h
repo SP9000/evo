@@ -1,3 +1,11 @@
+/******************************************************************************
+ * modelgen.h
+ * This file contains functions to create models of various things. This 
+ * includes text, rects, etc.
+ *
+ * Bryce Wilson
+ * created: June 2013
+ *****************************************************************************/
 #ifndef _MODELGEN_H
 #define _MODELGEN_H
 
