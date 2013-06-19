@@ -6,8 +6,8 @@ CFLAGS = `pkg-config --cflags --libs glib-2.0`
 
 all: Client Server
     
-Client: client.o app.o draw.o model.o client_packet.o matrix.o collision.o guilayout.o material.o modelgen.o util.o cJSON.o
-	$(CC) $(CFLAGS) -o $@ client.o app.o matrix.o draw.o model.o client_packet.o collision.o guilayout.o material.o modelgen.o util.o cJSON.o $(LIBS)
+Client: client.o app.o draw.o model.o client_packet.o matrix.o collision.o guilayout.o material.o modelgen.o scene.o util.o cJSON.o
+	$(CC) $(CFLAGS) -o $@ client.o app.o matrix.o draw.o model.o client_packet.o collision.o guilayout.o material.o modelgen.o scene.o util.o cJSON.o $(LIBS)
 
 Server: server.o 
 	$(CC) $(CFLAGS) -o $@ server.o $(SERVERLIBS) 
@@ -43,6 +43,9 @@ matrix.o: matrix.c
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 util.o: util.c
+	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
+
+scene.o: scene.c
 	$(CC) -c $(CFLAGS) $? -I $(INCLUDE)
 
 client_packet.o: client_packet.c

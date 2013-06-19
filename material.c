@@ -11,7 +11,7 @@ static GHashTable* fragShaderNames;
 static GHashTable* vertShaderNames;
 static GHashTable* geomShaderNames;
 
-int MaterialInit()
+int Material_Init()
 {
     materials = g_hash_table_new(g_int_hash, g_direct_equal);
     fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
@@ -23,7 +23,7 @@ int MaterialInit()
     return 0;
 }
 
-Material* MaterialLoad(const char* matFile)
+Material* Material_Load(const char* matFile)
 { 
     Material* m;
     gpointer lup;
@@ -108,7 +108,7 @@ Material* MaterialLoad(const char* matFile)
     if(lup == NULL) {
         /* no, load it */
         UtilReadFile(vertFile, &buffer);
-        v = MaterialCompileShader(buffer, GL_VERTEX_SHADER);
+        v = Material_CompileShader(buffer, GL_VERTEX_SHADER);
         /* insert into hash tables */
         g_hash_table_insert(vertShaderNames, (gpointer)vertFile, (gpointer)v);
         free(buffer);
@@ -123,7 +123,7 @@ Material* MaterialLoad(const char* matFile)
     lup = (char*)g_hash_table_lookup(fragShaderNames, fragFile);
     if(lup == NULL) {
         UtilReadFile(fragFile, &buffer);
-        f = MaterialCompileShader(buffer, GL_FRAGMENT_SHADER);
+        f = Material_CompileShader(buffer, GL_FRAGMENT_SHADER);
         g_hash_table_insert(fragShaderNames, (gpointer)fragFile, (gpointer)f);
         free(buffer);
     }
@@ -141,7 +141,7 @@ Material* MaterialLoad(const char* matFile)
         lup = (char*)g_hash_table_lookup(geomShaderNames, geomFile);
         if(lup == NULL) {
             UtilReadFile(geomFile, &buffer);
-            g = MaterialCompileShader(buffer, GL_GEOMETRY_SHADER);
+            g = Material_CompileShader(buffer, GL_GEOMETRY_SHADER);
             g_hash_table_insert(geomShaderNames, (gpointer)geomFile, (gpointer)g);
             free(buffer);
         }
@@ -150,11 +150,19 @@ Material* MaterialLoad(const char* matFile)
         }
         m->geom = g;
     }
-    m->program = MaterialCompileProgram(v, f, g, attributes, nAttributes);
+
+    /* compile the shader program */
+    m->program = Material_CompileProgram(v, f, g, attributes, nAttributes);
+
+    /* get matrix uniform locations */
+    m->modelMatrixID        = glGetUniformLocation(m->program, "Model");
+    m->viewMatrixID         = glGetUniformLocation(m->program, "View");
+    m->projectionMatrixID   = glGetUniformLocation(m->program, "Projection");
+
     return m;
 }
 
-GLuint MaterialCompileShader(const GLchar* shader, GLuint type) 
+GLuint Material_CompileShader(const GLchar* shader, GLuint type) 
 {
     GLuint s;
     GLsizei len;
@@ -190,7 +198,7 @@ GLuint MaterialCompileShader(const GLchar* shader, GLuint type)
     return s;
 }
 
-GLuint MaterialCompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader,
+GLuint Material_CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader,
       char **attributes, int numAttributes)
 {
     int i;
@@ -228,17 +236,7 @@ GLuint MaterialCompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomS
     return program;
 }
 
-Material* GetMaterial(int id)
-{
-    return (Material*)g_hash_table_lookup(materials, (gconstpointer)id);
-}
-
-void AddMaterial(int id, Material *mat)
-{
-    g_hash_table_insert(materials, (gpointer)id, (gpointer)mat);
-}
-
-void MaterialAddTexture(Material* m, int w, int h, Texel* data)
+void Material_AddTexture(Material* m, int w, int h, Texel* data)
 {
     GLuint tex;
     m->textures = (GLuint*)realloc(m->textures, (m->numTextures+1) * sizeof(GLuint));
@@ -254,3 +252,4 @@ void MaterialAddTexture(Material* m, int w, int h, Texel* data)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, 
             GL_UNSIGNED_BYTE, (GLvoid*)data);
 }
+

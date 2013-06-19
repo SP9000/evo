@@ -1,6 +1,6 @@
 #include "model.h" 
 
-Model *ModelNew(int numVertices)
+Model *Model_New(int numVertices)
 {
     puts("making new model");
     Model* m = malloc(sizeof(Model));
@@ -19,7 +19,7 @@ Model *ModelNew(int numVertices)
     return m;
 }
 
-void ModelFree(Model* m)
+void Model_Free(Model* m)
 {
     int i;
     for(i = 0; i < m->numAttributes; ++i) {
@@ -29,14 +29,7 @@ void ModelFree(Model* m)
     free(m->vboIDs);
 }
 
-void ModelAddTriangle(Model *m, Vertex v1, Vertex v2, Vertex v3)
-{
-    /*
-    m->numFaces++;
-    */
-}
-
-float* ModelGetAttributeBuffer(Model* m, int attribute)
+float* Model_GetAttributeBuffer(Model* m, int attribute)
 {
     int i;
     for(i = 0; i < m->numAttributes; ++i) {
@@ -47,7 +40,7 @@ float* ModelGetAttributeBuffer(Model* m, int attribute)
     return NULL;
 }
 
-void ModelAddAttribute(Model* m, int attribute, float* val)
+void Model_AddAttribute(Model* m, int attribute, float* val)
 {
     int attrSize; 
     int i;
@@ -85,7 +78,7 @@ void ModelAddAttribute(Model* m, int attribute, float* val)
     }
 
     /* add the attribute */
-    ModelCopyAttribute(m->attributes[i],m->numVertices, val,0, attribute);
+    Model_CopyAttribute(m->attributes[i],m->numVertices, val,0, attribute);
 
     /* if adding a vertex, increment vertex count */
     if(attribute == ATTRIBUTE_VERTEX) {
@@ -94,7 +87,7 @@ void ModelAddAttribute(Model* m, int attribute, float* val)
 }
 
 
-void ModelLoadPLY(Model *m, char *file)
+void Model_LoadPLY(Model *m, char *file)
 {
     Vertex *vertexBuff;
     Normal *normalBuff;
@@ -232,11 +225,11 @@ void ModelLoadPLY(Model *m, char *file)
         /* if triangle, just expand each vertex */
         if(faceSizeBuff[curFace] == 3) {
             for(k = 0; k < m->numAttributes; ++k) {
-                ModelCopyAttribute(m->attributes[k],i,
+                Model_CopyAttribute(m->attributes[k],i,
                         tmpAttributes[k],faceBuff[j], m->attributeTable[k]);
-                ModelCopyAttribute(m->attributes[k],i+1,
+                Model_CopyAttribute(m->attributes[k],i+1,
                         tmpAttributes[k],faceBuff[j+1], m->attributeTable[k]);
-                ModelCopyAttribute(m->attributes[k],i+2,
+                Model_CopyAttribute(m->attributes[k],i+2,
                         tmpAttributes[k],faceBuff[j+2], m->attributeTable[k]);
             }
             i += 3;
@@ -245,18 +238,18 @@ void ModelLoadPLY(Model *m, char *file)
         /* if quad, do 0,1,2 and 0,2,3 */
         else if(faceSizeBuff[curFace] == 4) {
             for(k = 0; k < m->numAttributes; ++k) {
-                ModelCopyAttribute(m->attributes[k],i,
+                Model_CopyAttribute(m->attributes[k],i,
                         tmpAttributes[k],faceBuff[j], m->attributeTable[k]);
-                ModelCopyAttribute(m->attributes[k],i+1,
+                Model_CopyAttribute(m->attributes[k],i+1,
                         tmpAttributes[k],faceBuff[j+1], m->attributeTable[k]);
-                ModelCopyAttribute(m->attributes[k],i+2,
+                Model_CopyAttribute(m->attributes[k],i+2,
                         tmpAttributes[k],faceBuff[j+2], m->attributeTable[k]);
 
-                ModelCopyAttribute(m->attributes[k],i+3,
+                Model_CopyAttribute(m->attributes[k],i+3,
                         tmpAttributes[k],faceBuff[j], m->attributeTable[k]);
-                ModelCopyAttribute(m->attributes[k],i+4,
+                Model_CopyAttribute(m->attributes[k],i+4,
                         tmpAttributes[k],faceBuff[j+2], m->attributeTable[k]);
-                ModelCopyAttribute(m->attributes[k],i+5,
+                Model_CopyAttribute(m->attributes[k],i+5,
                         tmpAttributes[k],faceBuff[j+3], m->attributeTable[k]);
             }
             i += 6;
@@ -279,12 +272,7 @@ void ModelLoadPLY(Model *m, char *file)
     free(faceSizeBuff);
 }
 
-void ModelAddTriangle2(Model *m, float x1,float y1, float x2,float y2, float x3,float y3)
-{
-    
-}
-
-void ModelCopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
+void Model_CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
 {
     int i;
     srcOffset *= ModelGetAttributeSize(type);
@@ -298,7 +286,7 @@ void ModelCopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, in
     }
 }
 
-void ModelSetAttribute(Model* m, int attribute, int offset, float* val)
+void Model_SetAttribute(Model* m, int attribute, int offset, float* val)
 {
     int attrSize; 
     int i;
@@ -322,10 +310,18 @@ void ModelSetAttribute(Model* m, int attribute, int offset, float* val)
     /* if the exists, set the value */
     if(exists >= 0) {
         /* add the attribute */
-        ModelCopyAttribute(m->attributes[i],offset, val,0, attribute);
+        Model_CopyAttribute(m->attributes[i],offset, val,0, attribute);
     }
 }
 
+void Model_SetMaterial(Model* m, Material* mat)
+{
+    m->mat = *mat;
+}
+
+/*****************************************************************************/
+/*                           local functions                                 */
+/*****************************************************************************/
 int ModelGetAttributeSize(int id) 
 {
     switch(id) {
@@ -340,10 +336,5 @@ int ModelGetAttributeSize(int id)
     default:
         return -1;
     }
-}
-
-void ModelSetMaterial(Model* m, Material* mat)
-{
-    m->mat= *mat;
 }
 

@@ -16,6 +16,7 @@ extern "C" {
 #endif
 
 #include <glib.h>
+#include "material.h"
 #include "model.h"
 #include "modelgen.h"
 
@@ -61,27 +62,28 @@ typedef struct tagWidget {
 
 /**
  * Initialize the GUILayout system.
+ * @return zero on success, nonzero on failure.
  */
-void GUILayoutInit();
+int GUILayout_Init();
 
 /**
  * Set the root widget for the GUILayout system.
  * @param w the widget to set as the root for the GUILayout system.
  */
-void GUILayoutSetRootWidget(Widget* w);
+void GUILayout_SetRootWidget(Widget* w);
 
 /**
  * Get the current root widget for the GUILayout system.
  * @return the current root widget.
  */
-Widget* GUILayoutGetRootWidget();
+Widget* GUILayout_GetRootWidget();
 
 /**
  * Create a new widget.
  * @param background the background to draw for this widget.
  * @param contents the contents to display within the widget.
  */
-Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t flags);
+Widget* GUILayout_NewWidget(Model* background, Model* contents, Rect* r, uint32_t flags);
 
 /**
  * Create a textbox widget.
@@ -89,7 +91,7 @@ Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t
  * @param text the text to display within the textbox.
  * @return a textbox widget containing the specified text.
  */
-Widget* GUILayoutNewTextBox(Model* background, Rect* r, char* text);
+Widget* GUILayout_NewTextBox(Model* background, Rect* r, char* text);
 
 /**
  * Add the specified widget to the specified parent widget. 
@@ -98,14 +100,14 @@ Widget* GUILayoutNewTextBox(Model* background, Rect* r, char* text);
  * @param x the x location to add the widget at (range 0-1).
  * @param y the y location to add the widget at (range 0-1).
  */
-void GUILayoutAddWidget(Widget* w, Widget* p, float x, float y);
+void GUILayout_AddWidget(Widget* w, Widget* p, float x, float y);
 
 /**
  * Remove the specified widget from the GUILayout system.
  * The widget is deleted upon removal and its resources freed.
  * @param w the widget to remove.
  */
-void GUILayoutRemoveWidget(Widget* w);
+void GUILayout_RemoveWidget(Widget* w);
 
 #ifdef __cplusplus
 }

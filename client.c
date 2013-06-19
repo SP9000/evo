@@ -21,14 +21,24 @@ int main(int argc, char **argv)
     SDL_WM_GrabInput(SDL_GRAB_ON);
 
     /* Initialize draw. */
-    if(DrawInit() != 0) {
+    if(Draw_Init() != 0) {
         fprintf(stderr, "Error initializing Draw\n");
         exit(EXIT_FAILURE);
     }
-
     /* Initialize material system. */
-    if(MaterialInit() != 0) {
+    if(Material_Init() != 0) {
         fprintf(stderr, "Error: could not initialize the material subsytem\n");
+        exit(EXIT_FAILURE);
+    }
+    /* Initialize the scene */
+    if(Scene_Init() != 0) {
+        fprintf(stderr, "Error: could not initialize the scene\n");
+        exit(EXIT_FAILURE);
+    }
+    /* Initialize the GUI-layout system. */
+    if(GUILayout_Init() != 0) {
+        fprintf(stderr, "Error: could not initialize gui-layout\n");
+        exit(EXIT_FAILURE);
     }
 
     puts("Starting client\n");
@@ -73,7 +83,7 @@ int main(int argc, char **argv)
     }
     
     /* start the application */
-    AppStart();
+    App_Start();
 
     /* Main game loop. */
     while(run) {
@@ -152,16 +162,16 @@ int main(int argc, char **argv)
         /* If mouse is at edge of screen, pan */
         SDL_GetMouseState(&mouseX, &mouseY);
         if(mouseX < 5) {
-            DrawMoveCamera(-0.1f, 0, 0);
+            Draw_MoveCamera(-0.1f, 0, 0);
         }
         else if(mouseX > 635) {
-            DrawMoveCamera(0.1f, 0, 0);
+            Draw_MoveCamera(0.1f, 0, 0);
         }
         if(mouseY < 5) {
-            DrawMoveCamera(0, 0.1f, 0);
+            Draw_MoveCamera(0, 0.1f, 0);
         }
         else if(mouseY > 475) {
-            DrawMoveCamera(0, -0.1f, 0);
+            Draw_MoveCamera(0, -0.1f, 0);
         }
 
         /* If there is new input, send a packet containing the info to the server. */
@@ -175,21 +185,19 @@ int main(int argc, char **argv)
             enet_peer_send(peer, 0, epacket);
         }
     
-        AppUpdate();
+        App_Update();
         SDL_GL_SwapBuffers();
         /* Update */
         SDL_Delay(100);
     }
+    /* Shut down the client. */
 
-
-    /* Shut down the game. */
-    puts("Game terminated");
     /* Destroy ENet client. */
-    puts("Shutting down Enet");
     enet_host_destroy(client);
     enet_deinitialize();
-    DrawQuit();
-    puts("Shutting down SDL");
+
+    App_Quit();
+    Draw_Quit();
     SDL_Quit();
     return 0;
 }

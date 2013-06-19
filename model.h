@@ -89,20 +89,20 @@ typedef struct tagModel {
  * Creates and initializes a new empty model.
  * @return a pointer to the newly created model.
  */
-Model* ModelNew(int numVertices);
+Model* Model_New(int numVertices);
 
 /**
  * Free all the resources used by the given model.
  * @param m the model to free the resources of.
  */
-void ModelFree(Model* m);
+void Model_Free(Model* m);
 
 /**
   * Load a .ply model from file.
   * @param m the model to load into.
   * @param file the file to load the model from.
   */
-void ModelLoadPLY(Model* m, char *file);
+void Model_LoadPLY(Model* m, char *file);
 
 /**
  * Add an attribute of the the given type to the model.
@@ -113,7 +113,7 @@ void ModelLoadPLY(Model* m, char *file);
  * @param attribute the type of the attribute to add.
  * @param val the value to append to the given attribute buffer.
  */
-void ModelAddAttribute(Model* m, int attribute, float* val);
+void Model_AddAttribute(Model* m, int attribute, float* val);
 
 /**
  * Set the specified attribute of the given model to the specified value.
@@ -122,12 +122,7 @@ void ModelAddAttribute(Model* m, int attribute, float* val);
  * @param offset the vertex-offset of the attribute to set.
  * @param val the value to set the attribute to.
  */
-void ModelSetAttribute(Model* m, int attribute, int offset, float* val);
-
-/**
- * Add a triangle to the given model in the 0 z-plane.
- */
-void ModelAddTriangle2(Model* m, float x1,float y1, float x2,float y2, float x3,float y3);
+void Model_SetAttribute(Model* m, int attribute, int offset, float* val);
 
 /**
  * Get the number of floats the attribute of the given ID uses.
@@ -135,7 +130,7 @@ void ModelAddTriangle2(Model* m, float x1,float y1, float x2,float y2, float x3,
  * @return the number of floats the given attribute uses or negative if unknown
  *  type.
  */
-int ModelGetAttributeSize(int id);
+int Model_GetAttributeSize(int id);
 
 /**
  * Set the specified attribute of this model.
@@ -145,7 +140,7 @@ int ModelGetAttributeSize(int id);
  * @param type the type of the attribute to set.
  * TODO: kinda janky name. probably not a function to be used outside model.c.
  */
-void ModelCopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type);
+void Model_CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type);
 
 /**
  * Get the address of the specified attribute's buffer in the given model.
@@ -154,14 +149,14 @@ void ModelCopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, in
  * @return the location of the buffer for the given attribute or NULL if the
  *  attribute doesn't exist in the given model.
  */
-float* ModelGetAttributeBuffer(Model* m, int attribute);
+float* Model_GetAttributeBuffer(Model* m, int attribute);
 
 /**
  * Set the material of the given model to the given material.
  * @param m the model to set the material of.
  * @param mat the material to set the model's material property to.
  */
-void ModelSetMaterial(Model* m, Material* mat);
+void Model_SetMaterial(Model* m, Material* mat);
 
 #ifdef __cplusplus
 }

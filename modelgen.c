@@ -63,7 +63,7 @@ Model* GenText(char *text, float w, float h)
 
     Color color = {0.0f, 0.0f, 1.0f, 1.0f};
 
-    Model* m = ModelNew(1000);
+    Model* m = Model_New(1000);
     /* add all vertices contained in the given string */
     float x = 3.0f;
     float y = 20.0f;
@@ -79,14 +79,14 @@ Model* GenText(char *text, float w, float h)
             /* (x1, y1) */
             v[0] = (font[idx][i] + x) * scale;  
             v[1] = (font[idx][i+1] + y) * scale;
-            ModelAddAttribute(m, ATTRIBUTE_COLOR, color);
-            ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
+            Model_AddAttribute(m, ATTRIBUTE_COLOR, color);
+            Model_AddAttribute(m, ATTRIBUTE_VERTEX, v);
 
             /* (x2, y2) */
             v[0] = (font[idx][i+2] + x) * scale;
             v[1] = (font[idx][i+3] + y) * scale;
-            ModelAddAttribute(m, ATTRIBUTE_COLOR, color);
-            ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
+            Model_AddAttribute(m, ATTRIBUTE_COLOR, color);
+            Model_AddAttribute(m, ATTRIBUTE_VERTEX, v);
         }
         x += scale;
         /* keep text inside bounds given */
@@ -101,7 +101,7 @@ Model* GenText(char *text, float w, float h)
         text++;
     }
     m->primitive = GL_LINES;
-    DrawOptimizeModel(m);
+    Draw_OptimizeModel(m);
 
     return m;
 }
@@ -111,28 +111,28 @@ Model* GenRect(float x, float y, float z, float w, float h, Color c)
     float scale = 10;
     Vertex v;
 
-    Model* m = ModelNew(4);
+    Model* m = Model_New(4);
     v[2] = z;
 
     v[0] = x * scale;
     v[1] = y * scale;
-    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
-    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
+    Model_AddAttribute(m, ATTRIBUTE_COLOR, c);
+    Model_AddAttribute(m, ATTRIBUTE_VERTEX, v);
     v[0] = x * scale + w * scale;
     v[1] = y * scale;
-    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
-    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
+    Model_AddAttribute(m, ATTRIBUTE_COLOR, c);
+    Model_AddAttribute(m, ATTRIBUTE_VERTEX, v);
     v[0] = x * scale + w * scale;
     v[1] = y * scale + h * scale;
-    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
-    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
+    Model_AddAttribute(m, ATTRIBUTE_COLOR, c);
+    Model_AddAttribute(m, ATTRIBUTE_VERTEX, v);
     v[0] = x * scale;
     v[1] = y * scale + h * scale;
-    ModelAddAttribute(m, ATTRIBUTE_COLOR, c);
-    ModelAddAttribute(m, ATTRIBUTE_VERTEX, v);
+    Model_AddAttribute(m, ATTRIBUTE_COLOR, c);
+    Model_AddAttribute(m, ATTRIBUTE_VERTEX, v);
 
     m->primitive = GL_QUADS;
-    DrawOptimizeModel(m);
+    Draw_OptimizeModel(m);
     return m;
 }
 

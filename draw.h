@@ -7,7 +7,6 @@
  * 
  * Bryce Wilson
  * Created: April, 2013
- * Last Modified: May 4, 2013
  *****************************************************************************/
 #ifndef _DRAW_H
 #define _DRAW_H
@@ -25,6 +24,7 @@ extern "C" {
 #include "model.h"
 #include "matrix.h"
 #include "guilayout.h"
+#include "scene.h"
 
 typedef float Vector2[2];
 typedef float Vector3[3];
@@ -55,30 +55,35 @@ typedef struct tagCamera {
  * Initialize the libraries needed for rendering. 
  * @return the success of the initialization - 0 on success, !0 on error.
  */
-int DrawInit();
+int Draw_Init();
 
 /**
  * Clean up all libraries and allocations of the rendering system.
  */
-void DrawQuit();
+void Draw_Quit();
 
 /**
   * Clear the screen and do anything else necessary before beginning 
   * to render a frame.
   */
-void DrawStartFrame();
+void Draw_StartFrame();
+
+/**
+ * Draw all models in the scene.
+ */
+void Draw_Scene();
 
 /**
  * Generate a new target to draw to.
  * @return the new target.
  */
-DrawTarget* DrawNewTarget();
+DrawTarget* Draw_NewTarget();
 
 /**
  * Sets the target of the current render.
  * @param target the target to render to. NULL = back buffer.
  */
-void DrawSetTarget(DrawTarget* target);
+void Draw_SetTarget(DrawTarget* target);
 
 /**
  * Generate handles to VBOs for the given model.
@@ -86,14 +91,14 @@ void DrawSetTarget(DrawTarget* target);
  * @param m the model to generate VBO ID's for.
  * @param attributes flags for each attribute to generate for.
  */
-void DrawOptimizeModel(Model* m);
+void Draw_OptimizeModel(Model* m);
 
 /**
  * Draw GUI ontop of the currently rendered scene.
  * Draw the root widget of the GUILayout system ontop of whatever was last 
  * rendered.
  */
-void DrawGUI();
+void Draw_GUI();
 
 /**
  * Draw the given model.
@@ -101,7 +106,7 @@ void DrawGUI();
  * that the model has been rendered.
  * @param m the model to draw.
  */
-void DrawModel(Model *m);
+void Draw_Model(Model *m);
 
 /**
  * Move the camera by the given X,Y,Z amounts.
@@ -109,7 +114,7 @@ void DrawModel(Model *m);
  * @param y the amount to move the camera in the Y direction.
  * @param z the amount to move the camera in the Z direction.
  */
-void DrawMoveCamera(float x, float y, float z);
+void Draw_MoveCamera(float x, float y, float z);
 
 #ifdef __cplusplus
 }

@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+#include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
 #include <GL/glew.h>
@@ -36,6 +37,10 @@ typedef struct tagMaterial {
     GLuint geom;
     GLuint program;
 
+    GLuint modelMatrixID;
+    GLuint viewMatrixID;
+    GLuint projectionMatrixID;
+
     int numTextures;
     GLuint* textures;
 }Material;
@@ -48,7 +53,7 @@ typedef struct tagMaterial {
  *  definitions.
  * @return the material defined in the given file or NULL in case of error.
  */
-Material* MaterialLoad(const char* matFile);
+Material* Material_Load(const char* matFile);
 
 /** 
  * Compile the given shader of the given shader type.
@@ -56,7 +61,7 @@ Material* MaterialLoad(const char* matFile);
  * @param type the type of the shader e.g. GL_VERTEX_SHADER.
  * @return the compiled shader.
  */
-GLuint MaterialCompileShader(const GLchar* shader, GLuint type);
+GLuint Material_CompileShader(const GLchar* shader, GLuint type);
 
 /**
  * Compile a program consisting of the given shaders and attributes.
@@ -67,22 +72,8 @@ GLuint MaterialCompileShader(const GLchar* shader, GLuint type);
  * @param numAttributes the number of attributes given to the vertex shader.
  * @return the handle to the compiled shader program.
  */
-GLuint MaterialCompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
+GLuint Material_CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
         char **attributes, int numAttributes);
-
-/**
- * Get the material associated with the given material ID.
- * @param id the ID of the material to retrieve.
- * @return the material associated with the ID.
- */
-Material* GetMaterial(int id);
-
-/**
- * Associate the given material to id in the internal material hash table.
- * @param id the ID of the material to add.
- * @param mat the material to associate with the given ID.
- */
-void AddMaterial(int id, Material *mat);
 
 /** 
  * Add a texture with the given properties to the given material.
@@ -91,7 +82,7 @@ void AddMaterial(int id, Material *mat);
  * @param h the height of the texture being added.
  * @param data the texture data in 8 bit RGBA format (see Texel).
  */
-void MaterialAddTexture(Material* m, int w, int h, Texel* data);
+void Material_AddTexture(Material* m, int w, int h, Texel* data);
 
 #ifdef __cplusplus
 }

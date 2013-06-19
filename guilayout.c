@@ -2,28 +2,35 @@
 
 static void FreeWidgetRecursive(gpointer data, gpointer user_data);
 static Widget* root_widget;
+static Material* guiMaterial;
 
-void GUILayoutInit()
+int GUILayout_Init()
 {
     root_widget = NULL;
+    return 0;
 }
 
-void GUILayoutSetRootWidget(Widget* w)
+void GUILayout_SetMaterial(Material* mat)
+{
+    guiMaterial = mat;
+}
+
+void GUILayout_SetRootWidget(Widget* w)
 {
     root_widget = w;
 }
 
-Widget* GUILayoutGetRootWidget() 
+Widget* GUILayout_GetRootWidget() 
 {
     return root_widget;
 }
 
-void GUILayoutAddWidget(Widget* w, Widget* p, float x, float y)
+void GUILayout_AddWidget(Widget* w, Widget* p, float x, float y)
 {
     w->children = g_slist_append(w->children, (gpointer)p);
 }
 
-void GUILayoutRemoveWidget(Widget* w)
+void GUILayout_RemoveWidget(Widget* w)
 {
     /* remove link from parent to this widget */
     if(w->parent) {
@@ -33,7 +40,7 @@ void GUILayoutRemoveWidget(Widget* w)
     FreeWidgetRecursive((gpointer)w->children, NULL);
 }
 
-Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t flags)
+Widget* GUILayout_NewWidget(Model* background, Model* contents, Rect* r, uint32_t flags)
 {
     Widget* w = (Widget*)malloc(sizeof(Widget));
     w->contents = contents;
@@ -46,21 +53,7 @@ Widget* GUILayoutNewWidget(Model* background, Model* contents, Rect* r, uint32_t
     return w;
 }
 
-void FreeWidgetRecursive(gpointer data, gpointer user_data)
-{
-    Widget* w = (Widget*)data;
-
-    ModelFree(w->contents);
-    ModelFree(w->background);
-
-    /* recursively free all the subwidgets of this widget */
-    if(w->children != NULL) {
-        g_slist_foreach(w->children, FreeWidgetRecursive, NULL);
-    }
-    free(w);
-}
-
-Widget* GUILayoutNewTextBox(Model* background, Rect* r, char* text)
+Widget* GUILayout_NewTextBox(Model* background, Rect* r, char* text)
 {
     /* TODO: */
     float textW = r->w * 400;
@@ -68,6 +61,24 @@ Widget* GUILayoutNewTextBox(Model* background, Rect* r, char* text)
 
     Widget* w = (Widget*)malloc(sizeof(Widget));
     Model* text_model = GenText(text, textW, textH); 
-    return GUILayoutNewWidget(background, text_model, r, GUILAYOUT_PLAIN);
+    Model_SetMaterial(text_model, guiMaterial);
+    return GUILayout_NewWidget(background, text_model, r, GUILAYOUT_PLAIN);
+}
+
+/*****************************************************************************/
+/*                           local functions                                 */
+/*****************************************************************************/
+void FreeWidgetRecursive(gpointer data, gpointer user_data)
+{
+    Widget* w = (Widget*)data;
+
+    Model_Free(w->contents);
+    Model_Free(w->background);
+
+    /* recursively free all the subwidgets of this widget */
+    if(w->children != NULL) {
+        g_slist_foreach(w->children, FreeWidgetRecursive, NULL);
+    }
+    free(w);
 }
 
