@@ -1,6 +1,9 @@
 Initializing draw
 OpenGL extensions availiable
 Shader version 1.20  - Intel Build 8.15.10.2413
+Starting client
+
+Connection to server succeeded.
 test.vert
 test.frag
 in_Position
@@ -8,11 +11,6 @@ in_Color
 No errors.
 No errors.
 No errors.
-loaded materials successfully
-Draw initialization complete
-Starting client
-
-Connection to server succeeded.
 making new model
 making new model
 making new model
@@ -24,14 +22,3 @@ packet created
 packet created
 packet created
 packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-Game terminated
-Shutting down Enet
-Shutting down SDL

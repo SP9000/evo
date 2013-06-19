@@ -89,8 +89,6 @@ int Draw_Init()
     /* wider lines */
     glLineWidth(3);
 
-    /* Done. */
-    puts("Draw initialization complete");
     return 0;
 }
 
@@ -205,9 +203,6 @@ DrawTarget* Draw_NewTarget(int w, int h)
     return target;
 }
 
-/*****************************************************************************/
-/*                           local functions                                 */
-/*****************************************************************************/
 void Draw_SetTarget(DrawTarget* target)
 {
     if(target != NULL) {
@@ -217,6 +212,10 @@ void Draw_SetTarget(DrawTarget* target)
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 }
+
+/*****************************************************************************/
+/*                           local functions                                 */
+/*****************************************************************************/
 void DrawSceneModel(Model* m)
 {
     glUniformMatrix4fv(m->mat.viewMatrixID, 1, 0, sceneViewMat);

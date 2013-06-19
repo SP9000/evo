@@ -25,10 +25,10 @@ void App_Start()
     Color bgCorner3 = {1.0f, 0.0f, 0.0f, 1.0f};
     Color bgCorner4 = {1.0f, 0.0f, 0.0f, 1.0f};
     background = GenRect(-4,-4,-20,8,8, bgCorner1);
-    Model_SetAttribute(background, ATTRIBUTE_COLOR, 0, bgCorner1);
-    Model_SetAttribute(background, ATTRIBUTE_COLOR, 1, bgCorner2);
-    Model_SetAttribute(background, ATTRIBUTE_COLOR, 2, bgCorner3);
-    Model_SetAttribute(background, ATTRIBUTE_COLOR, 3, bgCorner4);
+    Model_SetAttribute(background, MODEL_ATTRIBUTE_COLOR, 0, bgCorner1);
+    Model_SetAttribute(background, MODEL_ATTRIBUTE_COLOR, 1, bgCorner2);
+    Model_SetAttribute(background, MODEL_ATTRIBUTE_COLOR, 2, bgCorner3);
+    Model_SetAttribute(background, MODEL_ATTRIBUTE_COLOR, 3, bgCorner4);
 
     Model_SetMaterial(background, mat);
     Draw_OptimizeModel(background);

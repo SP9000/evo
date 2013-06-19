@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "../evo.h"
+#include "entities.h"
 
 void App_Start();
 void App_Update();

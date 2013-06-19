@@ -7,9 +7,9 @@ Model *Model_New(int numVertices)
 
     /* create base buffers */
     m->attributes = (float**)malloc(sizeof(float*));
-    m->attributes[0] = (float*)malloc(numVertices * (sizeof(float) * ATTRIBUTE_VERTEX_SIZE));
+    m->attributes[0] = (float*)malloc(numVertices * (sizeof(float) * MODEL_ATTRIBUTE_VERTEX_SIZE));
     m->attributeTable = (int*)malloc(sizeof(int));
-    m->attributeTable[0] = ATTRIBUTE_VERTEX;
+    m->attributeTable[0] = MODEL_ATTRIBUTE_VERTEX;
 
     m->numFaces = 0; 
     m->numVertices = 0;
@@ -81,7 +81,7 @@ void Model_AddAttribute(Model* m, int attribute, float* val)
     Model_CopyAttribute(m->attributes[i],m->numVertices, val,0, attribute);
 
     /* if adding a vertex, increment vertex count */
-    if(attribute == ATTRIBUTE_VERTEX) {
+    if(attribute == MODEL_ATTRIBUTE_VERTEX) {
         ++m->numVertices;
     }
 }
@@ -136,19 +136,19 @@ void Model_LoadPLY(Model *m, char *file)
         }
         else if(strncmp(pch, "element", 7) == 0) {
             int attributeSize;
-            int attributeID = ATTRIBUTE_NONE;
+            int attributeID = MODEL_ATTRIBUTE_NONE;
 
             pch = strtok(NULL, " \t");
 
             /* vertices */
             if(strncmp(pch, "vertex", 6) == 0) {
-                attributeSize = ATTRIBUTE_VERTEX_SIZE;
-                attributeID = ATTRIBUTE_VERTEX;
+                attributeSize = MODEL_ATTRIBUTE_VERTEX_SIZE;
+                attributeID = MODEL_ATTRIBUTE_VERTEX;
             }
             /* colors */
             else if(strncmp(pch, "color", 5) == 0) {
-                attributeSize = ATTRIBUTE_COLOR_SIZE;
-                attributeID = ATTRIBUTE_COLOR;
+                attributeSize = MODEL_ATTRIBUTE_COLOR_SIZE;
+                attributeID = MODEL_ATTRIBUTE_COLOR;
             }
             /* set number of faces */
             else if(strncmp(pch, "face", 4) == 0) {
@@ -156,7 +156,7 @@ void Model_LoadPLY(Model *m, char *file)
             }
 
             /* reallocate the attribute table and attributes buffers */
-            if(attributeID != ATTRIBUTE_NONE) {
+            if(attributeID != MODEL_ATTRIBUTE_NONE) {
                 m->attributeTable = (int*)realloc(m->attributeTable, (m->numAttributes+1) * sizeof(int));
                 attributesSize = (int*)realloc(attributesSize, (m->numAttributes+1) * sizeof(int));
                 m->attributeTable[m->numAttributes] = attributeID;
@@ -275,13 +275,14 @@ void Model_LoadPLY(Model *m, char *file)
 void Model_CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
 {
     int i;
-    srcOffset *= ModelGetAttributeSize(type);
-    dstOffset *= ModelGetAttributeSize(type);
+    int size = ModelGetAttributeSize(type);
+    srcOffset *= size;
+    dstOffset *= size;
 
     if(srcOffset < 0) {
         return;
     }
-    for(i = 0; i < ModelGetAttributeSize(type); ++i) {
+    for(i = 0; i < size; ++i) {
         dst[dstOffset+i] = src[srcOffset+i];
     }
 }
@@ -325,13 +326,13 @@ void Model_SetMaterial(Model* m, Material* mat)
 int ModelGetAttributeSize(int id) 
 {
     switch(id) {
-    case ATTRIBUTE_VERTEX:
-        return ATTRIBUTE_VERTEX_SIZE;
-    case ATTRIBUTE_COLOR:
-        return ATTRIBUTE_COLOR_SIZE;
-    case ATTRIBUTE_NORMAL:
-        return ATTRIBUTE_NORMAL_SIZE;
-    case ATTRIBUTE_NONE:
+    case MODEL_ATTRIBUTE_VERTEX:
+        return MODEL_ATTRIBUTE_VERTEX_SIZE;
+    case MODEL_ATTRIBUTE_COLOR:
+        return MODEL_ATTRIBUTE_COLOR_SIZE;
+    case MODEL_ATTRIBUTE_NORMAL:
+        return MODEL_ATTRIBUTE_NORMAL_SIZE;
+    case MODEL_ATTRIBUTE_NONE:
         return 0;
     default:
         return -1;

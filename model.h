@@ -22,22 +22,22 @@ extern "C" {
 #include "material.h"
 
 /* attribute types for the model */
-#define ATTRIBUTE_NONE   0
-#define ATTRIBUTE_VERTEX 1
-#define ATTRIBUTE_COLOR  2
-#define ATTRIBUTE_NORMAL 3
-#define ATTRIBUTE_TEXCO  4
+#define MODEL_ATTRIBUTE_NONE   0
+#define MODEL_ATTRIBUTE_VERTEX 1
+#define MODEL_ATTRIBUTE_COLOR  2
+#define MODEL_ATTRIBUTE_NORMAL 3
+#define MODEL_ATTRIBUTE_TEXCO  4
 
 /* the # of floats each attribute uses */
-#define ATTRIBUTE_VERTEX_SIZE 3
-#define ATTRIBUTE_COLOR_SIZE  4
-#define ATTRIBUTE_NORMAL_SIZE 3
-#define ATTRIBUTE_TEXCO_SIZE  2
+#define MODEL_ATTRIBUTE_VERTEX_SIZE 3
+#define MODEL_ATTRIBUTE_COLOR_SIZE  4
+#define MODEL_ATTRIBUTE_NORMAL_SIZE 3
+#define MODEL_ATTRIBUTE_TEXCO_SIZE  2
 
-typedef float Vertex[3];
-typedef float Normal[3];
-typedef float Color[4];
-typedef float Veretx2[2];
+typedef float Vertex[MODEL_ATTRIBUTE_VERTEX_SIZE];
+typedef float Normal[MODEL_ATTRIBUTE_NORMAL_SIZE];
+typedef float Color[MODEL_ATTRIBUTE_COLOR_SIZE];
+typedef float Texco[MODEL_ATTRIBUTE_TEXCO_SIZE];
 
 /**
  * Model vertex structure.
@@ -62,7 +62,7 @@ typedef struct tagModel {
     Material mat;
     /* buffers for each attribute of the model */
     float** attributes;
-    /* a table of ATTRIBUTE_* ID's to tell the contents of attributes */
+    /* a table of MODEL_ATTRIBUTE_* ID's to tell the contents of attributes */
     int* attributeTable;
     /* the # of unique per-vertex attributes */
     int numAttributes;
@@ -106,7 +106,7 @@ void Model_LoadPLY(Model* m, char *file);
 
 /**
  * Add an attribute of the the given type to the model.
- * Make sure to add the ATTRIBUTE_VERTEX last when creating a model as this
+ * Make sure to add the MODEL_ATTRIBUTE_VERTEX last when creating a model; this
  * will increment the internal vertex count of the model, which is used
  * to determine where to place the other attributes.
  * @param m the model to add the attribute to.
