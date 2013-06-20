@@ -8,13 +8,12 @@ CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c draw.c entity.c guilayout.
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 
 #server source files
-SERVER_SOURCES=Server/server.c
+SERVER_SOURCES=server/server.c
 SERVER_OBJECTS=$(SERVER_SOURCES:.c=.o)
 
 #execuables
 CLIENT_EXECUTABLE=Client
 SERVER_EXECUTABLE=Server
-
 
 all: $(SOURCES) $(CLIENT_EXECUTABLE) $(SERVER_EXECUTABLE) 
     

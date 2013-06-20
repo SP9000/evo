@@ -1,5 +1,9 @@
 #include "app.h"
 
+extern void App_Start();
+extern void App_Update();
+extern void App_Quit();
+
 static Model* m;
 static Model* background;
 

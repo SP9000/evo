@@ -1,4 +1,5 @@
-COMPONENT(Metaball, 
+COMPONENT(
+        Test, 
         ATTRIBUTE(float f) 
         ATTRIBUTE(int i)
         )

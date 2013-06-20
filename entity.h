@@ -15,10 +15,11 @@
 extern "C" {
 #endif
 
+#include <malloc.h>
+#include <stdarg.h>
 #include "util.h"
 
 #define ATTRIBUTE(X) X;
-
 #define COMPONENT(X, attributes) \
     static void Start(); \
     static void Update(); \
@@ -26,7 +27,7 @@ extern "C" {
         Component base; \
         attributes \
     }Component_##X; \
-    Component* Component_New_##X() { \
+    static inline Component* Component_New_##X() { \
         Component* c; \
         c = (Component*)malloc(sizeof(Component_##X)); \
         c->start = Start; \
@@ -34,10 +35,15 @@ extern "C" {
         return c; \
     }
 
+#define ENTITY(X, ...) \
+    static inline Enity* Entity_New_##X(Entity* e) { \
+        numChildren = 0; \
+        numComponents = 0; \
+        Entity_AddComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
+    }
+
 typedef void (*Component_StartFunc)();
 typedef void (*Component_UpdateFunc)();
-typedef void (*Entity_StartFunc)();
-typedef void (*Entity_UpdateFunc)();
 
 /**
  * The component structure. The collection of an entities' components defines
@@ -54,17 +60,29 @@ typedef struct Component {
  * The entity structure. Entities represent all objects in the engine.
  */
 typedef struct tagEntity {
-    Entity_StartFunc start;
-    Entity_UpdateFunc update;
+    int numChildren;
+    int numComponents;
     struct tagEntity* children;
     Component* components;
 }Entity;
 
-void Entity_New(int size, ...);
+/**
+ * Add the variable number of components to the given entity.
+ * @param e the entity to add the components to.
+ * @param numComponents the number of components to add to the entity.
+ * @param ... the variable arguments to add to the entity.
+ */
+void Entity_AddComponents(Entity* e, int numComponents, ...);
+
+/**
+ * Add the given component to the given entity.
+ * @param e the entity to add the component to.
+ * @param c the component to add to the entity.
+ */
 void Entity_AddComponent(Entity* e, Component* c);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif
+

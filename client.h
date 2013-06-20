@@ -22,7 +22,6 @@ extern "C" {
 #include "draw.h"
 #include "material.h"
 #include "modelgen.h"
-#include "AppSpec/app.h"
 
 #ifdef __cplusplus
 }
