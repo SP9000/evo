@@ -2,9 +2,7 @@
 
 void Entity_AddComponent(Entity* e, Component* c)
 {
-    ++e->numComponents;
-    e->components = (Component*)realloc(e->components, e->numComponents * 
-        sizeof(Component*));
+    e->children = g_slist_append(e->children, c);
 }
 
 void Entity_AddComponents(Entity* e, int numComponents, ...)

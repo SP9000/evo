@@ -9,6 +9,8 @@ static Model* background;
 
 void App_Start()
 {
+    Entity* metaball = Entity_New_Metaball();
+
     Material* mat = Material_Load("test.mat");
     GUILayout_SetMaterial(mat);
 

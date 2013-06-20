@@ -159,6 +159,9 @@ Material* Material_Load(const char* matFile)
     m->viewMatrixID         = glGetUniformLocation(m->program, "View");
     m->projectionMatrixID   = glGetUniformLocation(m->program, "Projection");
 
+    /* no textures for now */
+    m->texture.id = 0;
+
     return m;
 }
 
@@ -239,11 +242,16 @@ GLuint Material_CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geom
 void Material_AddTexture(Material* m, int w, int h, Texel* data)
 {
     GLuint tex;
-    m->textures = (GLuint*)realloc(m->textures, (m->numTextures+1) * sizeof(GLuint));
+
+    /* generate a texture handle for this texture */
     glGenTextures(1, &tex);
-    m->textures[m->numTextures] = tex;
+    m->texture.id = tex;
+    /* get the location of the sampler for the texture in the shader program*/
+    m->texture.loc = glGetUniformLocation(m->program, "tex");
+
     ++m->numTextures;
 
+    /* bind the texture, set its data, and set up its parameters. */
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -251,5 +259,11 @@ void Material_AddTexture(Material* m, int w, int h, Texel* data)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, 
             GL_UNSIGNED_BYTE, (GLvoid*)data);
+}
+
+void Material_SetTexture(Material* m, Texture* t)
+{
+    m->textures.id = t->id;
+    m->textures.loc = glGetUniformLocation(m->program, "tex");
 }
 

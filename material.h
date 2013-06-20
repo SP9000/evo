@@ -27,6 +27,13 @@ typedef struct __attribute__((__packed__)) tagTexel {
     GLbyte a;
 }Texel;
 
+typedef struct tagTexture {
+    /* the ID of the texture itself (as given by glGenTextures */
+    GLuint id;
+    /* the location of the texture in the shader program it's attacked to */
+    GLuint loc;
+}Texture;
+
 /**
  * A structure for holding the ID's of the shaders associated with a given 
  * material.
@@ -42,7 +49,7 @@ typedef struct tagMaterial {
     GLuint projectionMatrixID;
 
     int numTextures;
-    GLuint* textures;
+    Texture texture;
 }Material;
 
 /** 
@@ -83,6 +90,13 @@ GLuint Material_CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geom
  * @param data the texture data in 8 bit RGBA format (see Texel).
  */
 void Material_AddTexture(Material* m, int w, int h, Texel* data);
+
+/**
+ * Directly set the texture of the given material to the given texture.
+ * @param m the material to set the texture of.
+ * @param t the texture to set the material's texture to.
+ */
+void Material_SetTexture(Material* m, Texture* t)
 
 #ifdef __cplusplus
 }

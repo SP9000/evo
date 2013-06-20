@@ -18,6 +18,13 @@ static Mat4x4 GUIsceneViewMat;
 static GLuint GUIsceneModelMatID;
 static GLuint GUIsceneProjectionMatID;
 static GLuint GUIsceneViewMatID;
+
+/* The draw targets for the first and post pass rendering */
+static DrawTarget* activeTarget;
+static DrawTarget* activeTargetPost;
+
+/* The model that is used for post-processing effects (a simple rect) */
+static Model* postPassRect;
  
 /* Screen surface. */
 static SDL_Surface *screen;
@@ -89,6 +96,9 @@ int Draw_Init()
     /* wider lines */
     glLineWidth(3);
 
+    /* TODO */
+    postPassRect = GenRect(-20,-20,1,30,30,XASFDAF);
+
     return 0;
 }
 
@@ -98,6 +108,8 @@ void Draw_Quit()
 
 void Draw_StartFrame()
 {
+    Draw_SetTarget(activeTarget);
+    
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -110,6 +122,12 @@ void Draw_StartFrame()
     glUniformMatrix4fv(sceneModelMatID, 1, 0, sceneModelMat);
     glUniformMatrix4fv(sceneViewMatID, 1, 0, sceneViewMat);
     glUniformMatrix4fv(sceneProjectionMatID, 1, 0, sceneProjectionMat);
+}
+
+Draw_FinishFrame()
+{
+    Draw_SetTarget(activeTargetPost);
+    glDrawModel(postPassRect);
 }
 
 void Draw_Scene()
@@ -159,7 +177,16 @@ void Draw_Model(Model *m)
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
     
+    /* use the model's material's shader */
     glUseProgram(m->mat.program);
+
+    /* bind any samplers (textures) the material uses */
+    if(m->mat.texture.id != 0) {
+        glUniform1i(m->texture.loc, 0);
+        glActiveTexture(GL_TEXTURE0 + 0);
+        glBindTexture(GL_TEXTURE_2D, m->mat.texture.id);
+        glBindSampler(0, linearFiltering); 
+    }
 
     /* Draw the model. */
     glDrawArrays(m->primitive, 0, m->numVertices);
@@ -205,12 +232,22 @@ DrawTarget* Draw_NewTarget(int w, int h)
 
 void Draw_SetTarget(DrawTarget* target)
 {
+    activeTarget = target;
     if(target != NULL) {
         glBindFramebuffer(GL_FRAMEBUFFER, target->fbID);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, target->texID);
+        glUniform1i(target->texLoc, 1);
     }
     else {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+}
+
+Texture Draw_TargetToTexture(DrawTarget* target)
+{
+    Texture t;
+    t.id = target->id;
 }
 
 /*****************************************************************************/

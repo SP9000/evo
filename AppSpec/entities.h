@@ -7,7 +7,10 @@ extern "C" {
 
 #include "../entity.h"
 #include "Entities/metaball.h"
-#include "Entities/testcomp.h"
+
+enum ComponentIDs {
+    EID_Metaball,
+}
 
 #ifdef __cplusplus
 }

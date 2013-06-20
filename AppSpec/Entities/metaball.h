@@ -1,13 +1,5 @@
-COMPONENT(
+DEFINE_ENTITY(
         Metaball, 
-        ATTRIBUTE(float f) 
-        ATTRIBUTE(int i)
+        COMPONENT(Transform)
+        COMPONENT(Metaball)
         )
-void Start() 
-{
-
-}
-void Update()
-{
-
-}

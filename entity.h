@@ -17,10 +17,33 @@ extern "C" {
 
 #include <malloc.h>
 #include <stdarg.h>
+#include "glib.h"
 #include "util.h"
 
 #define ATTRIBUTE(X) X;
-#define COMPONENT(X, attributes) \
+#define COMPONENT(X) X
+#define COMPONENT_SET(X, Y) X, (Y)Y
+
+/** 
+ * A macro that defines basic functions for every component.
+ * This macro defines the following:
+ *  a static Start() function - called to initialize the component.
+ *  a static Update() function - called per frame to update the component.
+ *  a static inline Component_New_XX() function that allocates and returns the
+ *      component XX.
+ *  Note that because Start() and Update() are static, you should make sure
+ *  components are only included in one compilation unit to avoid redundant 
+ *  code generation. 
+ *  To define members of a comonent, use the ATTRIBUTE macro. 
+ *  Here is an example of this very unintuitive process:
+ *  DEFINE_COMPONENT(
+ *      Transform,
+ *      ATTRIBUTE(Vector3 position)
+ *      ATTRIBUTE(Vector3 rotation)
+ *      ATTRIBUTE(Vector3 scale)
+ *  )
+ */
+#define DEFINE_COMPONENT(X, attributes) \
     static void Start(); \
     static void Update(); \
     typedef struct tagComponent_##X { \
@@ -32,15 +55,54 @@ extern "C" {
         c = (Component*)malloc(sizeof(Component_##X)); \
         c->start = Start; \
         c->update = Update; \
+        c->type = EID_##X; \
         return c; \
     }
 
+/**
+ * A macro that builds an entity from the given components, but does not 
+ *  initialize them.
+ * This macro defines the following:
+ *  a static inline Entity_New_XX function for allocating and returning an 
+ *      entity containing the given components.
+ *  The first parameter defines the name of the entity while remaining 
+ *  parameters define the components of the entity.
+ *  Usage:
+ *      ENTITY(Bear,
+ *          COMPONENT(Transform),
+ *          COMPONENT(Growl),
+ *          COMPONENT(Aggressive)
+ *      )
+ */
 #define ENTITY(X, ...) \
     static inline Enity* Entity_New_##X(Entity* e) { \
         numChildren = 0; \
         numComponents = 0; \
         Entity_AddComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
     }
+
+/**
+ * A macro that defines a pre-built entity or "prefab".
+ * This macro defines the following:
+ *  a static inline Entity_New_XX function that allocates, initializes values
+ *      for, and returns a prefab.
+ *  Usage:
+ *      ENTITY(Bear,
+ *          COMPONENT_SET(Transform, {0.0f,0.0f,0.0f}),
+ *
+ */
+
+/*
+ * TODO:
+#define PREFAB(X, ...) \
+    static inline Enity* Entity_New_##X(Entity* e) { \
+        e->children = NULL; \
+        e->numChildren = 0; \
+        e->numComponents = 0; \
+        Prefab_AddComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
+        Prefab_InitComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
+    }
+*/
 
 typedef void (*Component_StartFunc)();
 typedef void (*Component_UpdateFunc)();
@@ -54,6 +116,7 @@ typedef void (*Component_UpdateFunc)();
 typedef struct Component {
     Component_StartFunc start;
     Component_UpdateFunc update;
+    unsigned type;
 }Component;
 
 /**
@@ -62,7 +125,7 @@ typedef struct Component {
 typedef struct tagEntity {
     int numChildren;
     int numComponents;
-    struct tagEntity* children;
+    GSList* children;
     Component* components;
 }Entity;
 

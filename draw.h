@@ -86,6 +86,13 @@ DrawTarget* Draw_NewTarget();
 void Draw_SetTarget(DrawTarget* target);
 
 /**
+ * Returns the given DrawTarget as a texture.
+ * @param target the target to get the texture of.
+ * @return a texture usable with Material_SetTexture.
+ */
+Texture Draw_TargetToTexture(DrawTarget* target);
+
+/**
  * Generate handles to VBOs for the given model.
  * You must call this function before calling DrawModel.
  * @param m the model to generate VBO ID's for.
