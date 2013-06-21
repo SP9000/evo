@@ -9,15 +9,16 @@ static Model* background;
 
 void App_Start()
 {
-    Entity* metaball = Entity_New_Metaball();
-
+    //Entity* metaball = Entity_New_Metaball();
     Material* mat = Material_Load("test.mat");
     GUILayout_SetMaterial(mat);
 
-    m = Model_New(0);
+    m = Model_New();
     Model_LoadPLY(m, "TestAssets/monkey.ply");
     Model_SetMaterial(m, mat);
     Draw_OptimizeModel(m);
+
+    /*
 
     Color col = {1.0f,0.0f,0.0f,1.0f};
     Model* rectM = GenRect(0, 0, 0, 10, 10, col);
@@ -30,6 +31,7 @@ void App_Start()
     Color bgCorner2 = {0.0f, 0.0f, 1.0f, 1.0f};
     Color bgCorner3 = {1.0f, 0.0f, 0.0f, 1.0f};
     Color bgCorner4 = {1.0f, 0.0f, 0.0f, 1.0f};
+
     background = GenRect(-4,-4,-20,8,8, bgCorner1);
     Model_SetAttribute(background, MODEL_ATTRIBUTE_COLOR, 0, bgCorner1);
     Model_SetAttribute(background, MODEL_ATTRIBUTE_COLOR, 1, bgCorner2);
@@ -40,6 +42,7 @@ void App_Start()
     Draw_OptimizeModel(background);
 
     Scene_Add(background);
+    */
     Scene_Add(m);
 }
 
@@ -50,11 +53,14 @@ void App_Update()
     Draw_Scene();
 
     /* Render GUI */
-    Draw_GUI();
+    //Draw_GUI();
+
+    Draw_FinishFrame();
 }
 
 void App_Quit()
 {
     Model_Free(m);
-    Model_Free(background);
+    //Model_Free(background);
 }
+

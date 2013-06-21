@@ -1,5 +1,7 @@
 #include "draw.h"
 
+/* TODO: the way uniforms are set is not remotely reliable I think... gon'
+ * have to rework that big time */
 /************************* Rendering variables *******************************/
 /* Matrices for the shaders */
 static Mat4x4 sceneModelMat;
@@ -19,9 +21,8 @@ static GLuint GUIsceneModelMatID;
 static GLuint GUIsceneProjectionMatID;
 static GLuint GUIsceneViewMatID;
 
-/* The draw targets for the first and post pass rendering */
+/* The draw target for the pre-post-pass rendering */
 static DrawTarget* activeTarget;
-static DrawTarget* activeTargetPost;
 
 /* The model that is used for post-processing effects (a simple rect) */
 static Model* postPassRect;
@@ -46,7 +47,6 @@ int Draw_Init()
         fprintf(stderr, "Error: Unable to initialize SDL: %s", SDL_GetError());
         return -1;
     }
-    puts("Initializing draw");
 
     /* Turn on double buffering. */
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);   
@@ -96,20 +96,38 @@ int Draw_Init()
     /* wider lines */
     glLineWidth(3);
 
-    /* TODO */
-    postPassRect = GenRect(-20,-20,1,30,30,XASFDAF);
+
+    /* create and use render to texture target. */
+    activeTarget = Draw_NewTarget();
+    Draw_SetTarget(activeTarget);
+
+    /* create the post pass rectangle model */
+    float postPassRectUV[] = {0.0f, 0.0f, 
+                            1.0f, 0.0f,
+                            1.0f, 1.0f,
+                            0.0f, 1.0f};
+    postPassRect = GenRect(0,0,640,480,30);
+    Model_BufferAttribute(postPassRect, MODEL_ATTRIBUTE_TEXCO, postPassRectUV);
+
+    /* set the material for the post pass rect. */
+    Material* pprMat = Material_Load("tex.mat");
+    Texture t = Draw_TargetToTexture(activeTarget);
+    Material_SetTexture(pprMat, &t);
 
     return 0;
 }
 
 void Draw_Quit()
 {
+    /* TODO */
+    return;
+    glDeleteTextures(1, &activeTarget->texID);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
+    glDeleteFramebuffersEXT(1, &activeTarget->fbID);
 }
 
 void Draw_StartFrame()
 {
-    Draw_SetTarget(activeTarget);
-    
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
@@ -124,17 +142,29 @@ void Draw_StartFrame()
     glUniformMatrix4fv(sceneProjectionMatID, 1, 0, sceneProjectionMat);
 }
 
-Draw_FinishFrame()
+void Draw_FinishFrame()
 {
-    Draw_SetTarget(activeTargetPost);
-    glDrawModel(postPassRect);
+    /* do the post pass rendering - draw to back buffer*/
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    /* Use the GUI orthographic matrices */
+    Mat4x4LoadIdentity(GUIsceneViewMat);
+    Mat4x4Translate(GUIsceneViewMat, 0, 0, -1);
+    glUniformMatrix4fv(postPassRect->mat.viewMatrixID, 1, 0, GUIsceneViewMat);
+    glUniformMatrix4fv(postPassRect->mat.modelMatrixID, 1, 0, GUIsceneModelMat);
+    glUniformMatrix4fv(postPassRect->mat.projectionMatrixID, 1, 0, GUIsceneProjectionMat);
+
+    Draw_SetTarget(NULL);
+    Draw_Model(postPassRect);
+
+    /* render next frame to texture again. */
+    Draw_SetTarget(activeTarget);
 }
 
 void Draw_Scene()
 {
     Scene_Foreach(DrawSceneModel);
 }
-
 
 void Draw_GUI()
 {
@@ -149,7 +179,6 @@ void Draw_GUI()
     glDisable(GL_SCISSOR_TEST);
 }
 
-
 void Draw_OptimizeModel(Model* m) {
     int i;
     
@@ -161,7 +190,7 @@ void Draw_OptimizeModel(Model* m) {
     m->vboIDs = (GLuint*)malloc(m->numAttributes * sizeof(GLuint));
     glGenBuffers(m->numAttributes, m->vboIDs);
     for(i = 0; i < m->numAttributes; ++i) {
-        int attrSize = ModelGetAttributeSize(m->attributeTable[i]);
+        int attrSize = Model_GetAttributeSize(m->attributeTable[i]);
         glBindBuffer(GL_ARRAY_BUFFER, m->vboIDs[i]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * attrSize * m->numVertices,
                 m->attributes[i], GL_STATIC_DRAW);
@@ -182,10 +211,10 @@ void Draw_Model(Model *m)
 
     /* bind any samplers (textures) the material uses */
     if(m->mat.texture.id != 0) {
-        glUniform1i(m->texture.loc, 0);
+        glUniform1i(m->mat.texture.loc, 0); /* TODO: use glProgramUniform in material.c */
         glActiveTexture(GL_TEXTURE0 + 0);
         glBindTexture(GL_TEXTURE_2D, m->mat.texture.id);
-        glBindSampler(0, linearFiltering); 
+        glBindSampler(0, m->mat.texture.sampler); 
     }
 
     /* Draw the model. */
@@ -216,14 +245,14 @@ DrawTarget* Draw_NewTarget(int w, int h)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, 
             GL_UNSIGNED_BYTE, NULL);
 
-    glGenFramebuffers(1, &target->fbID);
-    glBindFramebuffer(GL_FRAMEBUFFER, target->fbID);
+    glGenFramebuffersEXT(1, &target->fbID);
+    glBindFramebufferEXT(GL_FRAMEBUFFER, target->fbID);
 
     /* attach texture to FBO */
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, 
             GL_TEXTURE_2D, target->fbID, 0);
 
-    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE) {
         fprintf(stderr, "Warning: draw target not properly supported.\n");
     }
@@ -234,20 +263,18 @@ void Draw_SetTarget(DrawTarget* target)
 {
     activeTarget = target;
     if(target != NULL) {
-        glBindFramebuffer(GL_FRAMEBUFFER, target->fbID);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, target->texID);
-        glUniform1i(target->texLoc, 1);
+        glBindFramebufferEXT(GL_FRAMEBUFFER, target->fbID);
     }
     else {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebufferEXT(GL_FRAMEBUFFER, 0);
     }
 }
 
 Texture Draw_TargetToTexture(DrawTarget* target)
 {
     Texture t;
-    t.id = target->id;
+    t.id = target->texID;
+    return t;
 }
 
 /*****************************************************************************/

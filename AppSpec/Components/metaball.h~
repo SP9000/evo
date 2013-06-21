@@ -6,8 +6,9 @@ DEFINE_COMPONENT(
         ATTRIBUTE(Material* mat2)
         ATTRIBUTE(Model* model)
 )
-void Start() 
+void Start(Component_Metaball* c) 
 {
+    /*
     int i, j;
     Texel* texture = (Texel*)malloc(512*512*sizeof(Texel))
 
@@ -22,16 +23,17 @@ void Start()
         }
     }
     free(texture);
-
+    */
     /* use the generated texture for the first material (in the RTT render) */
-    Material_AddTexture(mat1, 512, 512, texture);
+    //Material_AddTexture(mat1, 512, 512, texture);
+
+    c->model = Model_Load("TestAssets/monkey.ply");
+    c->model->material = Material_Load("test.mat");
 }
 
-void Update()
+void Update(Component_Metaball* e)
 {
     /* do RTT for the metaball, the scene-draw will finish the draw to FB */
-    Draw_SetTarget(dt);
-    Draw_Model(model);
-    Draw_SetTarget(NULL);
+    Draw_Model(c->model);
 }
 

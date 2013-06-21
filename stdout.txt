@@ -1,8 +1,17 @@
 Initializing draw
 OpenGL extensions availiable
 Shader version 1.20  - Intel Build 8.15.10.2413
+tex.vert
+tex.frag
+in_Position
+in_Color
+No errors.
+No errors.
+No errors.
+Initializing materials
+Initializing scene
+Initializing GUI-layout
 Starting client
-
 Connection to server succeeded.
 test.vert
 test.frag
@@ -11,24 +20,6 @@ in_Color
 No errors.
 No errors.
 No errors.
-making new model
-making new model
-making new model
-making new model
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
 packet created
 packet created
 packet created

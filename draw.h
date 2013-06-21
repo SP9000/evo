@@ -69,6 +69,12 @@ void Draw_Quit();
 void Draw_StartFrame();
 
 /**
+ * Do the post processing on the scene and do the final render to the back 
+ * buffer.
+ */
+void Draw_FinishFrame();
+
+/**
  * Draw all models in the scene.
  */
 void Draw_Scene();

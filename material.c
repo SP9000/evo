@@ -259,11 +259,14 @@ void Material_AddTexture(Material* m, int w, int h, Texel* data)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, 
             GL_UNSIGNED_BYTE, (GLvoid*)data);
+
+    /* get a sampler handle for this texture. */
+    glGenSamplers(1, &m->texture.sampler);
 }
 
 void Material_SetTexture(Material* m, Texture* t)
 {
-    m->textures.id = t->id;
-    m->textures.loc = glGetUniformLocation(m->program, "tex");
+    m->texture.id = t->id;
+    m->texture.loc = glGetUniformLocation(m->program, "tex");
 }
 

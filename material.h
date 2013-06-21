@@ -28,10 +28,12 @@ typedef struct __attribute__((__packed__)) tagTexel {
 }Texel;
 
 typedef struct tagTexture {
-    /* the ID of the texture itself (as given by glGenTextures */
+    /* the ID of the texture itself (as given by glGenTextures) */
     GLuint id;
     /* the location of the texture in the shader program it's attacked to */
     GLuint loc;
+    /* the handle of the sampler used this texture (given by glGenSamplers). */
+    GLuint sampler;
 }Texture;
 
 /**
@@ -96,7 +98,7 @@ void Material_AddTexture(Material* m, int w, int h, Texel* data);
  * @param m the material to set the texture of.
  * @param t the texture to set the material's texture to.
  */
-void Material_SetTexture(Material* m, Texture* t)
+void Material_SetTexture(Material* m, Texture* t);
 
 #ifdef __cplusplus
 }

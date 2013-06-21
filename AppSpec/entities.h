@@ -6,11 +6,11 @@ extern "C" {
 #endif
 
 #include "../entity.h"
-#include "Entities/metaball.h"
+#include "components.h"
 
-enum ComponentIDs {
+enum {
     EID_Metaball,
-}
+} ComponentID;
 
 #ifdef __cplusplus
 }

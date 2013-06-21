@@ -31,10 +31,9 @@ Model* GenText(char *text, float w, float h);
  * @param z the Z coordinate to draw the rectangle at.
  * @param w the width of the rectangle (from 0-1).
  * @param h the height of the rectangle (from 0-1).
- * @param c the color to draw the rectangle.
  * @return a model of a rectangle of the given parameters.
  */
-Model* GenRect(float x, float y, float z, float w, float h, Color c);
+Model* GenRect(float x, float y, float z, float w, float h);
 
 #ifdef __cplusplus
 }

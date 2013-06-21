@@ -1,0 +1,9 @@
+Warning: draw target not properly supported.
+
+(Client.exe:4776): GLib-CRITICAL **: g_hash_table_lookup: assertion `hash_table != NULL' failed
+
+(Client.exe:4776): GLib-CRITICAL **: g_hash_table_insert_internal: assertion `hash_table != NULL' failed
+
+(Client.exe:4776): GLib-CRITICAL **: g_hash_table_lookup: assertion `hash_table != NULL' failed
+
+(Client.exe:4776): GLib-CRITICAL **: g_hash_table_insert_internal: assertion `hash_table != NULL' failed

@@ -21,27 +21,32 @@ int main(int argc, char **argv)
     SDL_WM_GrabInput(SDL_GRAB_ON);
 
     /* Initialize draw. */
+    puts("Initializing draw");
     if(Draw_Init() != 0) {
         fprintf(stderr, "Error initializing Draw\n");
         exit(EXIT_FAILURE);
     }
+
     /* Initialize material system. */
+    puts("Initializing materials");
     if(Material_Init() != 0) {
         fprintf(stderr, "Error: could not initialize the material subsytem\n");
         exit(EXIT_FAILURE);
     }
     /* Initialize the scene */
+    puts("Initializing scene");
     if(Scene_Init() != 0) {
         fprintf(stderr, "Error: could not initialize the scene\n");
         exit(EXIT_FAILURE);
     }
     /* Initialize the GUI-layout system. */
+    puts("Initializing GUI-layout");
     if(GUILayout_Init() != 0) {
         fprintf(stderr, "Error: could not initialize gui-layout\n");
         exit(EXIT_FAILURE);
     }
 
-    puts("Starting client\n");
+    puts("Starting client");
     /* Initialize ENet */
     if(enet_initialize() != 0) {
         fprintf(stderr, "Error initializing enet\n");

@@ -1,19 +1,12 @@
 #include "model.h" 
 
-Model *Model_New(int numVertices)
+Model *Model_New()
 {
-    puts("making new model");
     Model* m = malloc(sizeof(Model));
-
-    /* create base buffers */
-    m->attributes = (float**)malloc(sizeof(float*));
-    m->attributes[0] = (float*)malloc(numVertices * (sizeof(float) * MODEL_ATTRIBUTE_VERTEX_SIZE));
-    m->attributeTable = (int*)malloc(sizeof(int));
-    m->attributeTable[0] = MODEL_ATTRIBUTE_VERTEX;
 
     m->numFaces = 0; 
     m->numVertices = 0;
-    m->numAttributes = 1;
+    m->numAttributes = 0;
     m->subgroups = NULL;
 
     return m;
@@ -40,13 +33,11 @@ float* Model_GetAttributeBuffer(Model* m, int attribute)
     return NULL;
 }
 
-void Model_AddAttribute(Model* m, int attribute, float* val)
+void Model_AddAttribute(Model* m, int attribute)
 {
-    int attrSize; 
     int i;
-    int exists = -1;
-
-    attrSize = ModelGetAttributeSize(attribute);
+    int attrSize; 
+    attrSize = Model_GetAttributeSize(attribute);
 
     /* make sure the attribute is supported */
     if(attrSize < 0) {
@@ -54,36 +45,19 @@ void Model_AddAttribute(Model* m, int attribute, float* val)
         return;
     }
 
-    /* check if attribute already exists, if it does i=offset in table */
+    /* check if attribute already exists, if it does - nothing to do */
     for(i = 0; i < m->numAttributes; ++i) {
         if(m->attributeTable[i] == attribute) {
-            exists = i;
-            break;
+            return;
         }
     }
 
-    /* if the attribute already exists, append the value */
-    if(exists >= 0) {
-        m->attributes[i] = (float*)realloc(m->attributes[i], (m->numVertices+1) * attrSize * sizeof(float));
-    }
-
     /* attribute doesn't exist, create a new buffer for it */
-    else {
-        i = m->numAttributes;
-        m->attributes = (float**)realloc(m->attributes, (i+1) * sizeof(float*));
-        m->attributes[i] = (float*)malloc((m->numVertices+1) * attrSize * sizeof(float));
-        m->attributeTable = (int*)realloc(m->attributeTable, (i+1) * sizeof(int));
-        m->attributeTable[i] = attribute;
-        ++m->numAttributes;
-    }
-
-    /* add the attribute */
-    Model_CopyAttribute(m->attributes[i],m->numVertices, val,0, attribute);
-
-    /* if adding a vertex, increment vertex count */
-    if(attribute == MODEL_ATTRIBUTE_VERTEX) {
-        ++m->numVertices;
-    }
+    m->attributes = (float**)realloc(m->attributes, (i+1) * sizeof(float*));
+    m->attributes[i] = (float*)malloc((m->numVertices) * attrSize * sizeof(float));
+    m->attributeTable = (int*)realloc(m->attributeTable, (i+1) * sizeof(int));
+    m->attributeTable[i] = attribute;
+    ++m->numAttributes;
 }
 
 
@@ -171,13 +145,13 @@ void Model_LoadPLY(Model *m, char *file)
     tmpAttributes = (float**)malloc(sizeof(float*) * m->numAttributes);
     for(i = 0; i < m->numAttributes; i++) {
         tmpAttributes[i] = (float*)malloc(sizeof(float*) * attributesSize[i] *
-                ModelGetAttributeSize(m->attributeTable[i]));
+                Model_GetAttributeSize(m->attributeTable[i]));
     }
 
     /* read lists of each attribute */
     for(i = 0; i < m->numAttributes; ++i) {
         for(j = 0; j < attributesSize[i]; ++j) {
-            int attrSize = ModelGetAttributeSize(m->attributeTable[i]);
+            int attrSize = Model_GetAttributeSize(m->attributeTable[i]);
             fgets(lineBuff, 2048, fp);
             tmpAttributes[i][j*attrSize] = (float)atof(strtok(lineBuff, " \t"));
             for(k = 1; k < attrSize; ++k) {
@@ -217,7 +191,7 @@ void Model_LoadPLY(Model *m, char *file)
     m->attributes = (float**)malloc(sizeof(float*) * m->numAttributes);
     for(i = 0; i < m->numAttributes; ++i) {
         m->attributes[i] = (float*)malloc(sizeof(float) * m->numVertices *
-                ModelGetAttributeSize(m->attributeTable[i]));
+                Model_GetAttributeSize(m->attributeTable[i]));
     }
 
     /* expand vertex/normal/color information from indexed face information */
@@ -275,7 +249,7 @@ void Model_LoadPLY(Model *m, char *file)
 void Model_CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
 {
     int i;
-    int size = ModelGetAttributeSize(type);
+    int size = Model_GetAttributeSize(type);
     srcOffset *= size;
     dstOffset *= size;
 
@@ -293,7 +267,7 @@ void Model_SetAttribute(Model* m, int attribute, int offset, float* val)
     int i;
     int exists = -1;
 
-    attrSize = ModelGetAttributeSize(attribute);
+    attrSize = Model_GetAttributeSize(attribute);
 
     /* make sure the attribute is supported */
     if(attrSize < 0) {
@@ -315,6 +289,22 @@ void Model_SetAttribute(Model* m, int attribute, int offset, float* val)
     }
 }
 
+void Model_BufferAttribute(Model* m, int attribute, float* data)
+{
+    int i;
+    float* dst;
+    /* add the attribute if it isn't already */
+    Model_AddAttribute(m, attribute);
+
+    /* get the destination for the copy */
+    dst = Model_GetAttributeBuffer(m, attribute);
+
+    /* copy - say replace this with memcpy, I dare you */
+    for(i = 0; i < m->numVertices * Model_GetAttributeSize(attribute); ++i) {
+        dst[i] = data[i];
+    }
+}
+
 void Model_SetMaterial(Model* m, Material* mat)
 {
     m->mat = *mat;
@@ -323,7 +313,7 @@ void Model_SetMaterial(Model* m, Material* mat)
 /*****************************************************************************/
 /*                           local functions                                 */
 /*****************************************************************************/
-int ModelGetAttributeSize(int id) 
+int Model_GetAttributeSize(int id) 
 {
     switch(id) {
     case MODEL_ATTRIBUTE_VERTEX:
@@ -332,6 +322,8 @@ int ModelGetAttributeSize(int id)
         return MODEL_ATTRIBUTE_COLOR_SIZE;
     case MODEL_ATTRIBUTE_NORMAL:
         return MODEL_ATTRIBUTE_NORMAL_SIZE;
+    case MODEL_ATTRIBUTE_TEXCO:
+        return MODEL_ATTRIBUTE_TEXCO_SIZE;
     case MODEL_ATTRIBUTE_NONE:
         return 0;
     default:

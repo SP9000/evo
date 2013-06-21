@@ -87,9 +87,8 @@ typedef struct tagModel {
 /**
  * Create a new model.
  * Creates and initializes a new empty model.
- * @return a pointer to the newly created model.
  */
-Model* Model_New(int numVertices);
+Model* Model_New();
 
 /**
  * Free all the resources used by the given model.
@@ -105,15 +104,22 @@ void Model_Free(Model* m);
 void Model_LoadPLY(Model* m, char *file);
 
 /**
- * Add an attribute of the the given type to the model.
- * Make sure to add the MODEL_ATTRIBUTE_VERTEX last when creating a model; this
- * will increment the internal vertex count of the model, which is used
- * to determine where to place the other attributes.
+ * Add the buffer of the given attribute type to the model.
  * @param m the model to add the attribute to.
  * @param attribute the type of the attribute to add.
+ * @param data the data to buffer (an array of floats ATTRIBUTE_XX_SIZE *
+ *   numVertices) floats long.
+ */
+void Model_BufferAttribute(Model* m, int attribute,  float* data);
+
+/**
+ * Add an attribute of the the given type to the model.
+ * This function allocates a buffer of numVertices size for the given attribute.
+ * to determine where to place the other attributes.
+ * @param m the model to add the attribute to.
  * @param val the value to append to the given attribute buffer.
  */
-void Model_AddAttribute(Model* m, int attribute, float* val);
+void Model_AddAttribute(Model* m, int attribute);
 
 /**
  * Set the specified attribute of the given model to the specified value.

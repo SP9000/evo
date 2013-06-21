@@ -75,10 +75,12 @@ extern "C" {
  *      )
  */
 #define ENTITY(X, ...) \
-    static inline Enity* Entity_New_##X(Entity* e) { \
-        numChildren = 0; \
-        numComponents = 0; \
+    static inline Enity* Entity_New_##X() { \
+        Entity* e = (Entity*)malloc(sizeof(Entity)); \
+        e->numChildren = 0; \
+        e->numComponents = 0; \
         Entity_AddComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
+        Scene_Add(e); \
     }
 
 /**
