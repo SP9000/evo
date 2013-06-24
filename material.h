@@ -54,6 +54,12 @@ typedef struct tagMaterial {
     Texture texture;
 }Material;
 
+/**
+ * Initialize the material system.
+ * @return zero on success, nonzero on error.
+ */
+int Material_Init();
+
 /** 
  * Load the material defined in the given file and return it.
  * The material file is a JSON format file that defines what shaders and 

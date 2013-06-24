@@ -31,5 +31,6 @@ int UtilReadFile(const char* filename, char** buffer)
     data[lSize] = '\0';
     *buffer = data;
     fclose(fp);
+    return 0;
 }
 

@@ -53,9 +53,18 @@ void Model_AddAttribute(Model* m, int attribute)
     }
 
     /* attribute doesn't exist, create a new buffer for it */
-    m->attributes = (float**)realloc(m->attributes, (i+1) * sizeof(float*));
+    /* if there are no attributes, malloc */
+    if(i == 0) {
+        m->attributes = (float**)malloc(sizeof(float*));
+        m->attributeTable = (int*)malloc(sizeof(int));
+    }
+    /* not the first attribute, do realloc */
+    else {
+        m->attributes = (float**)realloc(m->attributes, (i+1) * sizeof(float*));
+        m->attributeTable = (int*)realloc(m->attributeTable, (i+1) * sizeof(int));
+    }
+
     m->attributes[i] = (float*)malloc((m->numVertices) * attrSize * sizeof(float));
-    m->attributeTable = (int*)realloc(m->attributeTable, (i+1) * sizeof(int));
     m->attributeTable[i] = attribute;
     ++m->numAttributes;
 }
@@ -63,17 +72,13 @@ void Model_AddAttribute(Model* m, int attribute)
 
 void Model_LoadPLY(Model *m, char *file)
 {
-    Vertex *vertexBuff;
-    Normal *normalBuff;
-    Color *colorBuff;
     int *faceBuff;
     int *faceSizeBuff;
     int curFace;
 
-    size_t lineBuffSize;
     char *pch;
     FILE *fp;
-    int numFaces, numVertices, numColors;
+    int numFaces;
 
     int* attributesSize;
 
@@ -109,19 +114,16 @@ void Model_LoadPLY(Model *m, char *file)
             /* do nothing */
         }
         else if(strncmp(pch, "element", 7) == 0) {
-            int attributeSize;
             int attributeID = MODEL_ATTRIBUTE_NONE;
 
             pch = strtok(NULL, " \t");
 
             /* vertices */
             if(strncmp(pch, "vertex", 6) == 0) {
-                attributeSize = MODEL_ATTRIBUTE_VERTEX_SIZE;
                 attributeID = MODEL_ATTRIBUTE_VERTEX;
             }
             /* colors */
             else if(strncmp(pch, "color", 5) == 0) {
-                attributeSize = MODEL_ATTRIBUTE_COLOR_SIZE;
                 attributeID = MODEL_ATTRIBUTE_COLOR;
             }
             /* set number of faces */
@@ -293,6 +295,8 @@ void Model_BufferAttribute(Model* m, int attribute, float* data)
 {
     int i;
     float* dst;
+    int attrSize = Model_GetAttributeSize(attribute);
+
     /* add the attribute if it isn't already */
     Model_AddAttribute(m, attribute);
 
@@ -300,7 +304,7 @@ void Model_BufferAttribute(Model* m, int attribute, float* data)
     dst = Model_GetAttributeBuffer(m, attribute);
 
     /* copy - say replace this with memcpy, I dare you */
-    for(i = 0; i < m->numVertices * Model_GetAttributeSize(attribute); ++i) {
+    for(i = 0; i < m->numVertices * attrSize; ++i) {
         dst[i] = data[i];
     }
 }

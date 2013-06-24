@@ -59,7 +59,6 @@ Widget* GUILayout_NewTextBox(Model* background, Rect* r, char* text)
     float textW = r->w * 400;
     float textH = r->h * 200;
 
-    Widget* w = (Widget*)malloc(sizeof(Widget));
     Model* text_model = GenText(text, textW, textH); 
     Model_SetMaterial(text_model, guiMaterial);
     return GUILayout_NewWidget(background, text_model, r, GUILAYOUT_PLAIN);

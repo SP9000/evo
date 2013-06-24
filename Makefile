@@ -1,7 +1,7 @@
 CLIENT_LIBS = -lenet -lSDL -lGL -lGLU -lGLEW -ldl -lm  -lglib-2.0
 SERVER_LIBS = -lenet
 
-CFLAGS = `pkg-config --cflags --libs glib-2.0` 
+CFLAGS = `pkg-config --cflags --libs glib-2.0` -Wall
 
 #client source files
 CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c draw.c entity.c guilayout.c material.c matrix.c model.c modelgen.c scene.c util.c cJSON.c

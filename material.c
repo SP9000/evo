@@ -208,7 +208,6 @@ GLuint Material_CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geom
     int success;
     char* log;
     int len;
-    GLuint temp;
     GLuint program;
 
     program = glCreateProgram();

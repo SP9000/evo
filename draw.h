@@ -35,6 +35,8 @@ typedef struct tagDrawTarget {
     GLuint fbID;
     /* the ID of the texture to render to (if any). */
     GLuint texID;
+    /* renderbuffer depth buffer handle */
+    GLuint depthID;
 }DrawTarget;
 
 typedef struct tagMap {
@@ -48,6 +50,10 @@ typedef struct tagCamera {
     float aspect;
     float near;
     float far;
+
+    Mat4x4 modelMat;
+    Mat4x4 viewMat;
+    Mat4x4 projectionMat;
 }Camera;
 
 
@@ -56,6 +62,7 @@ typedef struct tagCamera {
  * @return the success of the initialization - 0 on success, !0 on error.
  */
 int Draw_Init();
+
 
 /**
  * Clean up all libraries and allocations of the rendering system.

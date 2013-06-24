@@ -15,7 +15,6 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-#include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
 #include <GL/glew.h>

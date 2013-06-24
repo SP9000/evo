@@ -2,6 +2,10 @@
 
 Model* GenText(char *text, float w, float h)
 {
+    int i;
+    int modelOff;
+    Model* m;
+
     /* # of lines in each character */
     int charSizes[] = {
         3, /* A */
@@ -62,14 +66,19 @@ Model* GenText(char *text, float w, float h)
     };
 
     Color color = {0.0f, 0.0f, 1.0f, 1.0f};
+    m = Model_New();
+    for(i = 0; i < strlen(text); ++i) {
+        m->numVertices += charSizes[i]*2;
+    }
+    Model_AddAttribute(m, MODEL_ATTRIBUTE_VERTEX);
+    Model_AddAttribute(m, MODEL_ATTRIBUTE_COLOR);
 
-    Model* m = Model_New(1000);
     /* add all vertices contained in the given string */
     float x = 3.0f;
     float y = 20.0f;
     float scale = 5;
+    modelOff = 0;
     while(*text) {
-        int i;
         int idx = (*text) - 'A';
         Vertex v;
         v[2] = .9f;
@@ -77,17 +86,18 @@ Model* GenText(char *text, float w, float h)
         /* add all vertices that compose this character */
         for(i = 0; i < charSizes[idx]*4; i += 4) {
             /* (x1, y1) */
-            v[0] = (font[idx][i] + x) * scale;  
+            v[0] = (font[idx][i] + x) * scale;   
             v[1] = (font[idx][i+1] + y) * scale;
-
-            //Model_AddAttribute(m, MODEL_ATTRIBUTE_COLOR, color);
-            //Model_AddAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
+            Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff, color);
+            Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff, v);
 
             /* (x2, y2) */
-            v[0] = (font[idx][i+2] + x) * scale;
-            v[1] = (font[idx][i+3] + y) * scale;
-            //Model_AddAttribute(m, MODEL_ATTRIBUTE_COLOR, color);
-            //Model_AddAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
+            v[0] = (font[idx][i+2] + x) * scale; 
+            v[1] = (font[idx][i+3] + y) * scale; 
+            Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff+1, color);
+            Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff+1, v);
+            
+            modelOff += 2;
         }
         x += scale;
         /* keep text inside bounds given */
@@ -116,12 +126,13 @@ Model* GenRect(float x, float y, float z, float w, float h)
     float sw = w*scale;
     float sh = h*scale;
 
-    float v[] = {sx,    sy,
-                 sx+sw, sy,
-                 sx+sw, sy+sh,
-                 sx,    sy+sh};
+    float v[] = {sx,    sy, z,
+                 sx+sw, sy, z,
+                 sx+sw, sy+sh, z,
+                 sx,    sy+sh, z};
     /* create model and buffer vertex data */
     m = Model_New();
+    m->numVertices = 4;
     Model_BufferAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
     m->primitive = GL_QUADS;
     Draw_OptimizeModel(m);

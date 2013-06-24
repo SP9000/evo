@@ -109,6 +109,12 @@ void GUILayout_AddWidget(Widget* w, Widget* p, float x, float y);
  */
 void GUILayout_RemoveWidget(Widget* w);
 
+/**
+ * Set the default material to be used for rendering widgets.
+ * @param mat the material to set as the new default for widgets.
+ */
+void GUILayout_SetMaterial(Material* mat);
+
 #ifdef __cplusplus
 }
 #endif

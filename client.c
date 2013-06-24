@@ -18,7 +18,14 @@ int main(int argc, char **argv)
     }
 
     /* Capture mouse */
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    /* SDL_WM_GrabInput(SDL_GRAB_ON); */
+
+    /* Initialize material system. */
+    puts("Initializing materials");
+    if(Material_Init() != 0) {
+        fprintf(stderr, "Error: could not initialize the material subsytem\n");
+        exit(EXIT_FAILURE);
+    }
 
     /* Initialize draw. */
     puts("Initializing draw");
@@ -27,12 +34,6 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Initialize material system. */
-    puts("Initializing materials");
-    if(Material_Init() != 0) {
-        fprintf(stderr, "Error: could not initialize the material subsytem\n");
-        exit(EXIT_FAILURE);
-    }
     /* Initialize the scene */
     puts("Initializing scene");
     if(Scene_Init() != 0) {
