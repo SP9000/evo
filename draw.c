@@ -33,7 +33,7 @@ int Draw_Init()
 
     /* Turn on double buffering. */
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);   
-    screen = SDL_SetVideoMode(640, 480, 32, SDL_OPENGL);
+    screen = SDL_SetVideoMode(960, 540, 32, SDL_OPENGL);
     
     /* Initialize OpenGL. */
     if(glewInit() == GLEW_OK) {
@@ -45,7 +45,7 @@ int Draw_Init()
         sceneCam.pos[0] = 0.0f; sceneCam.pos[1] = 0.0f; sceneCam.pos[2] = -4.0f;
         sceneCam.rot[0] = 0.0f; sceneCam.rot[1] = 0.0f; sceneCam.rot[2] = 0.0f;
         sceneCam.fov = 60.0f;
-        sceneCam.aspect = 640.0f / 480.0f;
+        sceneCam.aspect = (float)screen->w / (float)screen->h;
         sceneCam.near = 0.1f;
         sceneCam.far = 100.0f;
         
@@ -75,7 +75,7 @@ int Draw_Init()
     }
 
     /* wider lines */
-    glLineWidth(3);
+    glLineWidth(2);
 
     return 0;
 

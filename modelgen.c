@@ -76,28 +76,30 @@ Model* GenText(char *text, float w, float h)
     /* add all vertices contained in the given string */
     float x = 3.0f;
     float y = 20.0f;
-    float scale = 5;
+    float scale = 3;
     modelOff = 0;
     while(*text) {
-        int idx = (*text) - 'A';
-        Vertex v;
-        v[2] = .9f;
+        if(*text != ' ') {
+            int idx = (*text) - 'A';
+            Vertex v;
+            v[2] = .9f;
 
-        /* add all vertices that compose this character */
-        for(i = 0; i < charSizes[idx]*4; i += 4) {
-            /* (x1, y1) */
-            v[0] = (font[idx][i] + x) * scale;   
-            v[1] = (font[idx][i+1] + y) * scale;
-            Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff, color);
-            Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff, v);
+            /* add all vertices that compose this character */
+            for(i = 0; i < charSizes[idx]*4; i += 4) {
+                /* (x1, y1) */
+                v[0] = (font[idx][i] + x) * scale;   
+                v[1] = (font[idx][i+1] + y) * scale;
+                Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff, color);
+                Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff, v);
 
-            /* (x2, y2) */
-            v[0] = (font[idx][i+2] + x) * scale; 
-            v[1] = (font[idx][i+3] + y) * scale; 
-            Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff+1, color);
-            Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff+1, v);
-            
-            modelOff += 2;
+                /* (x2, y2) */
+                v[0] = (font[idx][i+2] + x) * scale; 
+                v[1] = (font[idx][i+3] + y) * scale; 
+                Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff+1, color);
+                Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff+1, v);
+                
+                modelOff += 2;
+            }
         }
         x += scale;
         /* keep text inside bounds given */

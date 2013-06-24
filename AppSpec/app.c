@@ -22,12 +22,12 @@ void App_Start()
     Model_SetMaterial(m, mat);
     Draw_OptimizeModel(m);
 
-    Model* rectM = GenRect(0, 0, 0, 10, 10);
+    Model* rectM = GenRect(0, 0, 0, 200, 100);
     Model_BufferAttribute(rectM, MODEL_ATTRIBUTE_COLOR, rectColors);
-    Rect wRect = {0,0,.2,.4};
+    Rect wRect = {0,0,.4,.4};
     Model_SetMaterial(rectM, mat);
     Widget* w = GUILayout_NewTextBox(rectM, &wRect, "HELLO ALL");
-    //GUILayout_SetRootWidget(w);
+    GUILayout_SetRootWidget(w);
     
     background = GenRect(-10,-10,-4,20,20);
     Model_BufferAttribute(background, MODEL_ATTRIBUTE_COLOR, rectColors);
@@ -45,7 +45,7 @@ void App_Update()
     Draw_Scene();
 
     /* Render GUI */
-    //Draw_GUI();
+    Draw_GUI();
 }
 
 void App_Quit()

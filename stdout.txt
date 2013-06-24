@@ -1,14 +1,7 @@
+Initializing materials
 Initializing draw
 OpenGL extensions availiable
 Shader version 1.20  - Intel Build 8.15.10.2413
-tex.vert
-tex.frag
-in_Position
-in_Color
-No errors.
-No errors.
-No errors.
-Initializing materials
 Initializing scene
 Initializing GUI-layout
 Starting client
@@ -20,6 +13,39 @@ in_Color
 No errors.
 No errors.
 No errors.
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
+packet created
 packet created
 packet created
 packet created
