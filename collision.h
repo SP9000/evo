@@ -7,6 +7,7 @@ extern "C" {
 
 #include <malloc.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "glib.h"
 
 typedef struct tagNode {
@@ -38,19 +39,19 @@ typedef struct tagCollision {
 /**
  * Initialize collision for use in the engine 
  */
-void CollisionInit();
+void Collision_Init();
 
 /**
  * Adds a collider to the internal list of things to be checked for collision
  * between each other.
  * @param col the collider to begin checking collision for.
  */
-void CollisionAddCollider(Collider* col);
+void Collision_AddCollider(Collider* col);
 
 /**
  * Detect collision between all the colliders that have been added to the game.
  */
-void CollisionDetect();
+void Collision_Detect();
 
 /**
  * The currently colliding colliders in the game.
