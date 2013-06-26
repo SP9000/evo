@@ -20,29 +20,10 @@ enum {
 } STDComponentID;
 
 /* forward declarations for component types */
-typedef struct tagComponent_Collider Component_Collider;
-typedef struct tagComponent_Transform Component_Transform;
 
-/* don't build these components, only insert their definitions */
-#ifdef BUILD
-#define BUILDING
-#undef BUILD
-#endif
-
-/* define the macro for NOT building, and include all standard components */
-#include "definecomponent.h"
 /* include the prototypes for all the components */
-#include "Components/transform.h"
-#include "Components/collider.h"
-
-/* if we were building a component, continue */
-#ifdef BUILDING
-#undef BUILDING
-#define BUILD
-/* and redefine the macro so that building will work */
-#include "definecomponent.h"
-#endif
-
+#include "Components/transform.c"
+#include "Components/collider.c"
 
 #ifdef __cplusplus
 }

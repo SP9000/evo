@@ -1,5 +1,6 @@
 #ifndef TRANSFORM_H
 #define TRANSFORM_H
+
 #include "../component.h"
 
 /**
@@ -24,6 +25,11 @@ void Start(Component_Transform* c)
 void Update(Component_Transform* c) 
 {
 
+}
+
+void Collide(Entity* e)
+{
+    puts("transform collision");
 }
 
 #endif

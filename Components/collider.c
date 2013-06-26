@@ -1,6 +1,9 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
+
 #include "../component.h"
+#include <stdio.h>
+
 
 /**
  * The collider component.
@@ -8,13 +11,14 @@
  * to be checked for collision with other entities that have colliders.
  */
 DEFINE_COMPONENT(Collider,
-    ATTRIBUTE(Component_Transform* transform)
+    ATTRIBUTE(struct Component_Transform* transform)
     ATTRIBUTE(AABB aabb)
 )
 
 #ifdef BUILD
 void Start(Component_Collider* c)
 {
+    c->transform = (Component_Transform*)Entity_GetComponent(c->base.entity, CID_Transform);
     c->transform->x = 0.0f;
     c->transform->y = 0.0f;
     c->transform->z = 0.0f;
@@ -27,6 +31,11 @@ void Start(Component_Collider* c)
 void Update(Component_Collider* c) 
 {
 
+}
+
+void Collide(Entity* e)
+{
+    puts("collider collision");
 }
 
 #endif

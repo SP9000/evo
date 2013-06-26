@@ -17,7 +17,9 @@ extern "C" {
 
 #include <malloc.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include "component.h"
+#include "collision.h"
 #include "stdcomponents.h"
 #include "glib.h"
 #include "util.h"
@@ -38,13 +40,13 @@ extern "C" {
  *      )
  */
 #define ENTITY(X, ...) \
-    static inline Enity* Entity_New_##X() { \
-        Entity* e = (Entity*)malloc(sizeof(Entity)); \
-        e->numChildren = 0; \
-        e->numComponents = 0; \
-        Entity_AddComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
-        Scene_Add(e); \
-    }
+        Entity* X = (Entity*)malloc(sizeof(Entity)); \
+        X->numChildren = 0; \
+        X->numComponents = 0; \
+        Entity_AddComponent(X, Component_New_Transform()); \
+        Entity_AddComponents(X, PP_NARG(__VA_ARGS__),  __VA_ARGS__); \
+        Entity_Start(X); \
+        Scene_Add(X); \
 
 /**
  * A macro that defines a pre-built entity or "prefab".
@@ -72,10 +74,9 @@ extern "C" {
 /**
  * The entity structure. Entities represent all objects in the engine.
  */
-typedef struct tagEntity {
+typedef struct Entity {
     int numChildren;
     int numComponents;
-    Component_Transform transform;
     GSList* children;
     GSList* components;
 }Entity;
@@ -102,6 +103,20 @@ void Entity_AddComponent(Entity* e, Component* c);
  * @return the component if it exists in the entity, NULL otherwise.
  */
 Component* Entity_GetComponent(Entity* e, int cid);
+
+/**
+ * This is called once all the components have been added to an entity.
+ * It calls the start function of every component.
+ * @param e the entity to start.
+ */
+void Entity_Start(Entity* e);
+
+/**
+ * Call the collide function on all components for the given entity.
+ * @param e the entity to call the collide function for.
+ * @param other the entity to pass as a parameter to the collide function.
+ */
+void Entity_Collide(Entity* e, Entity* other);
 
 #ifdef __cplusplus
 }

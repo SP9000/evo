@@ -17,32 +17,39 @@
 #define COMPONENT(X) X
 #define COMPONENT_SET(X, Y) X, (Y)Y
 
+/* I'm well goddamn aware we're redefining DEFINE_COMPONENT */
+#undef DEFINE_COMPONENT
+
 /** 
- * A macro that defines basic functions for every component.
- * This macro defines the following:
- *  a Component_Start_XX() function - called to initialize the component.
- *  a Component_Update_XX() function - called per frame to update the component.
+ * DEFINE_COMPONENT(X, Y)
+ * This macro performs different functions based on the definition of BUILD.
+ *
+ * If BUILD is not defined, this macro generates:
+ *  a typedef for this component of the name <Component_X>
  *  a Component_New_XX() function that allocates and returns the
  *      component XX.
- *  Note that because Start() and Update() are static, you should make sure
- *  components are only included in one compilation unit to avoid redundant 
- *  code generation. 
- *  To define members of a comonent, use the ATTRIBUTE macro. 
+ *
+ * If BUILD is defined, this macro also produces the actual initialization
+ * code for the component and additionally declares:
+ *  a static void Start() function - called to initialize the component.
+ *  a static void Update() function - called per frame to update the component.
+ *
+ *  To define members of a component, use the ATTRIBUTE macro. Make sure to 
+ *  prefix other components with "struct"
  *  Here is an example of this very unintuitive process:
  *  DEFINE_COMPONENT(
- *      Transform,
+ *      ATTRIBUTE(struct Component_Transform)
  *      ATTRIBUTE(Vector3 position)
  *      ATTRIBUTE(Vector3 rotation)
  *      ATTRIBUTE(Vector3 scale)
  *  )
- * If _BUILD_COMPONENTS is not defined, this macro will just generate the 
- * prototypes for the types and functions.
  */
 #ifdef BUILD
 #define DEFINE_COMPONENT(X, attributes) \
     static void Start(); \
     static void Update(); \
-    typedef struct tagComponent_##X { \
+    static void Collide(Entity* e); \
+    typedef struct Component_##X { \
         Component base; \
         attributes \
     }Component_##X; \
@@ -51,12 +58,13 @@
         c = (Component*)malloc(sizeof(Component_##X)); \
         c->start = Start; \
         c->update = Update; \
+        c->collide = Collide; \
         c->id = CID_##X; \
         return c; \
     }
 #else
 #define DEFINE_COMPONENT(X, attributes) \
-    typedef struct tagComponent_##X { \
+    typedef struct Component_##X { \
         Component base; \
         attributes \
     }Component_##X; \

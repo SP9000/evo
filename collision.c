@@ -1,6 +1,6 @@
 #include "collision.h"
 
-GList* colliding = NULL;
+GHashTable* colliding = NULL;
 static GHashTable* collidingY = NULL;
 static GHashTable* collidingZ = NULL;
 
@@ -30,6 +30,7 @@ void Collision_AddCollider(Component_Collider* col)
     xSorted = g_list_insert_sorted(xSorted, (gpointer)col, XCompare);
     ySorted = g_list_insert_sorted(ySorted, (gpointer)col, YCompare);
     zSorted = g_list_insert_sorted(zSorted, (gpointer)col, ZCompare);
+    colliding = g_hash_table_new(NULL, NULL);
 }
 
 void Collision_RemoveCollider(Component_Collider* col)
@@ -39,6 +40,7 @@ void Collision_RemoveCollider(Component_Collider* col)
     xSorted = g_list_remove(xSorted, (gpointer)col);
     ySorted = g_list_remove(ySorted, (gpointer)col);
     zSorted = g_list_remove(zSorted, (gpointer)col);
+
 }
 
 void Collision_Detect()
@@ -46,7 +48,6 @@ void Collision_Detect()
     GList* i;
     GList* j;
 
-    Collision* col;
     Component_Collider* c1;
     Component_Collider* c2;
 
@@ -73,9 +74,6 @@ void Collision_Detect()
             }
             /* X is overlapping */
             else {
-                Collision* c = (Collision*)malloc(sizeof(Collision));
-                c->col1 = c1;
-                c->col2 = c2;
                 possibleCollisions = g_list_append(possibleCollisions, (gpointer)c1);
             }
         }
@@ -95,12 +93,9 @@ void Collision_Detect()
             }
             /* overlapping Y */
             else {
-                Collision* c = (Collision*)malloc(sizeof(Collision));
-                c->col1 = c1;
-                c->col2 = c2;
                 /* insert both this collision and the reverse */
-                g_hash_table_insert(collidingY, (gpointer)c1, (gpointer)c);
-                g_hash_table_insert(collidingY, (gpointer)c2, (gpointer)c);
+                g_hash_table_insert(collidingY, (gpointer)c1, (gpointer)c2);
+                g_hash_table_insert(collidingY, (gpointer)c2, (gpointer)c1);
             }
         }
     }
@@ -120,38 +115,45 @@ void Collision_Detect()
             }
             /* overlapping Z */
             else {
-                Collision* c = (Collision*)malloc(sizeof(Collision));
-                c->col1 = c1;
-                c->col2 = c2;
                 /* insert both this collision and the reverse */
-                g_hash_table_insert(collidingZ, (gpointer)c1, (gpointer)c);
-                g_hash_table_insert(collidingZ, (gpointer)c2, (gpointer)c);
+                g_hash_table_insert(collidingZ, (gpointer)c1, (gpointer)c2);
+                g_hash_table_insert(collidingZ, (gpointer)c2, (gpointer)c1);
             }
         }
     }
     
     /* check for matches on all axes, x axis overlap is implicit */
     for(i = possibleCollisions; i != NULL; i = g_list_next(i)) {
+        c1 = (Component_Collider*)i->data;
         /* check Y overlap */
         if(g_hash_table_lookup(collidingY, i->data) != NULL) {
             /* check Z overlap */
-            col = (Collision*)g_hash_table_lookup(collidingZ, i->data);
-            if(col != NULL) {
-                /* collision occurred */
-                colliding = g_list_append(colliding, (gpointer)i);
-                printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
-                        col->col1->transform->x, col->col1->transform->y, col->col1->transform->z,
-                        col->col2->transform->x, col->col2->transform->y, col->col2->transform->z);
-                fflush(stdout);
+            c2 = (Component_Collider*)g_hash_table_lookup(collidingZ, i->data);
+            if(c2 != NULL) {
+                /* are we already aware of this collision? */
+                if(g_hash_table_lookup(colliding, (gpointer)c1) != (gpointer)c2) {
+                    /* no, collision occurred for the first time. */
+                    g_hash_table_insert(colliding, (gpointer)c1, (gpointer)c2);
+                    g_hash_table_insert(colliding, (gpointer)c2, (gpointer)c1);
+                    printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
+                            c1->transform->x, c1->transform->y, c1->transform->z,
+                            c2->transform->x, c2->transform->y, c2->transform->z);
+                    Entity_Collide(c1->base.entity, c2->base.entity);
+                    fflush(stdout);
+                }
             }
         }
     }
+    /* colliding now contains all pairs of colliders who's AABB's are 
+     * overlapping...do more precise detection */
+    
 }
 
 void Collision_Update()
 {
 
 }
+
 
 gboolean ColEqual(gconstpointer a, gconstpointer b)
 {

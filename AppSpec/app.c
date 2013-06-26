@@ -37,23 +37,15 @@ void App_Start()
     Scene_Add(background);
     Scene_Add(m);
 
-    /* COLLISION TEST */
-/*
-    Node n1 = {1.0f, 0.0f, 0.0f};
-    Node n2 = {1.0f, 1.0f, 1.0f};
-    Node n3 = {10.0f, 0.0f, 9.0f};
-    Node n4 = {11.0f, 1.5f, 9.0f};
-    AABB bb = {2.0f, 2.0f, 2.0f};
-    Collider c1 = {&n1, &bb, NULL};
-    Collider c2 = {&n2, &bb, NULL};
-    Collider c3 = {&n3, &bb, NULL};
-    Collider c4 = {&n4, &bb, NULL};
-    Collision_AddCollider(&c1);
-    Collision_AddCollider(&c2);
-    Collision_AddCollider(&c3);
-    Collision_AddCollider(&c4);
+    ENTITY(e1,
+            Component_New_Collider()
+          )
+    ENTITY(e2,
+            Component_New_Collider()
+          )
+
     Collision_Detect();
-*/
+    Collision_Detect();
 }
 
 void App_Update()

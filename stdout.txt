@@ -13,16 +13,8 @@ in_Color
 No errors.
 No errors.
 No errors.
-checking 641100
-collision between {1.000000,0.000000,0.000000} and {1.000000,1.000000,1.000000}
-checking 641110
-collision between {11.000000,1.500000,9.000000} and {10.000000,0.000000,9.000000}
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
-packet created
+collision between {0.000000,0.000000,0.000000} and {0.000000,0.000000,0.000000}
+transform collision
+collider collision
 packet created
 packet created
