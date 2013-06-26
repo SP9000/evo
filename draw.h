@@ -8,8 +8,8 @@
  * Bryce Wilson
  * Created: April, 2013
  *****************************************************************************/
-#ifndef _DRAW_H
-#define _DRAW_H
+#ifndef DRAW_H
+#define DRAW_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,9 +25,7 @@ extern "C" {
 #include "matrix.h"
 #include "guilayout.h"
 #include "scene.h"
-
-typedef float Vector2[2];
-typedef float Vector3[3];
+#include "types.h"
 
 
 typedef struct tagDrawTarget {
@@ -45,7 +43,7 @@ typedef struct tagMap {
 
 typedef struct tagCamera {
     Vector3 pos;
-    Vector2 rot;
+    Vector3 rot;
     float fov;
     float aspect;
     float near;

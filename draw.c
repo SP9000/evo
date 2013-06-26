@@ -42,8 +42,8 @@ int Draw_Init()
         glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
         
         /* Initialize the camera. */
-        sceneCam.pos[0] = 0.0f; sceneCam.pos[1] = 0.0f; sceneCam.pos[2] = -4.0f;
-        sceneCam.rot[0] = 0.0f; sceneCam.rot[1] = 0.0f; sceneCam.rot[2] = 0.0f;
+        sceneCam.pos.x = 0.0f; sceneCam.pos.y = 0.0f; sceneCam.pos.z = -4.0f;
+        sceneCam.rot.x = 0.0f; sceneCam.rot.y = 0.0f; sceneCam.rot.z = 0.0f;
         sceneCam.fov = 60.0f;
         sceneCam.aspect = (float)screen->w / (float)screen->h;
         sceneCam.near = 0.1f;
@@ -111,7 +111,7 @@ void Draw_StartFrame()
 
     /* position the camera */
     Mat4x4LoadIdentity(sceneCam.viewMat);
-    Mat4x4Translate(sceneCam.viewMat, -sceneCam.pos[0], -sceneCam.pos[1], sceneCam.pos[2]);
+    Mat4x4Translate(sceneCam.viewMat, -sceneCam.pos.x, -sceneCam.pos.y, sceneCam.pos.z);
     activeCam = &sceneCam;
 }
 
@@ -221,9 +221,9 @@ void Draw_Model(Model *m)
 
 void Draw_MoveCamera(float x, float y, float z)
 {
-    sceneCam.pos[0] += x;
-    sceneCam.pos[1] += y;
-    sceneCam.pos[2] += z;
+    sceneCam.pos.x += x;
+    sceneCam.pos.y += y;
+    sceneCam.pos.z += z;
 }
 
 DrawTarget* Draw_NewTarget(int w, int h)

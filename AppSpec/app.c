@@ -38,6 +38,7 @@ void App_Start()
     Scene_Add(m);
 
     /* COLLISION TEST */
+/*
     Node n1 = {1.0f, 0.0f, 0.0f};
     Node n2 = {1.0f, 1.0f, 1.0f};
     Node n3 = {10.0f, 0.0f, 9.0f};
@@ -52,6 +53,7 @@ void App_Start()
     Collision_AddCollider(&c3);
     Collision_AddCollider(&c4);
     Collision_Detect();
+*/
 }
 
 void App_Update()

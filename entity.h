@@ -17,47 +17,10 @@ extern "C" {
 
 #include <malloc.h>
 #include <stdarg.h>
+#include "component.h"
+#include "stdcomponents.h"
 #include "glib.h"
 #include "util.h"
-
-#define ATTRIBUTE(X) X;
-#define COMPONENT(X) X
-#define COMPONENT_SET(X, Y) X, (Y)Y
-
-/** 
- * A macro that defines basic functions for every component.
- * This macro defines the following:
- *  a static Start() function - called to initialize the component.
- *  a static Update() function - called per frame to update the component.
- *  a static inline Component_New_XX() function that allocates and returns the
- *      component XX.
- *  Note that because Start() and Update() are static, you should make sure
- *  components are only included in one compilation unit to avoid redundant 
- *  code generation. 
- *  To define members of a comonent, use the ATTRIBUTE macro. 
- *  Here is an example of this very unintuitive process:
- *  DEFINE_COMPONENT(
- *      Transform,
- *      ATTRIBUTE(Vector3 position)
- *      ATTRIBUTE(Vector3 rotation)
- *      ATTRIBUTE(Vector3 scale)
- *  )
- */
-#define DEFINE_COMPONENT(X, attributes) \
-    static void Start(); \
-    static void Update(); \
-    typedef struct tagComponent_##X { \
-        Component base; \
-        attributes \
-    }Component_##X; \
-    static inline Component* Component_New_##X() { \
-        Component* c; \
-        c = (Component*)malloc(sizeof(Component_##X)); \
-        c->start = Start; \
-        c->update = Update; \
-        c->type = EID_##X; \
-        return c; \
-    }
 
 /**
  * A macro that builds an entity from the given components, but does not 
@@ -106,29 +69,15 @@ extern "C" {
     }
 */
 
-typedef void (*Component_StartFunc)();
-typedef void (*Component_UpdateFunc)();
-
-/**
- * The component structure. The collection of an entities' components defines
- * its behavior. This layout just defines the base structure of the component.
- * When you make your own components, ensure that the first fields match those
- * of this struct (even in order).
- */
-typedef struct Component {
-    Component_StartFunc start;
-    Component_UpdateFunc update;
-    unsigned type;
-}Component;
-
 /**
  * The entity structure. Entities represent all objects in the engine.
  */
 typedef struct tagEntity {
     int numChildren;
     int numComponents;
+    Component_Transform transform;
     GSList* children;
-    Component* components;
+    GSList* components;
 }Entity;
 
 /**
@@ -145,6 +94,14 @@ void Entity_AddComponents(Entity* e, int numComponents, ...);
  * @param c the component to add to the entity.
  */
 void Entity_AddComponent(Entity* e, Component* c);
+
+/**
+ * Get the component of the specified type from the entity.
+ * @param e the entity to retrieve the desired component from.
+ * @param cid the ID of the type of the component to get.
+ * @return the component if it exists in the entity, NULL otherwise.
+ */
+Component* Entity_GetComponent(Entity* e, int cid);
 
 #ifdef __cplusplus
 }

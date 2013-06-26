@@ -24,7 +24,7 @@ void Collision_Init()
     colliders = NULL;
 }
 
-void Collision_AddCollider(Collider* col)
+void Collision_AddCollider(Component_Collider* col)
 {
     colliders = g_list_append(colliders, col);
     xSorted = g_list_insert_sorted(xSorted, (gpointer)col, XCompare);
@@ -32,7 +32,7 @@ void Collision_AddCollider(Collider* col)
     zSorted = g_list_insert_sorted(zSorted, (gpointer)col, ZCompare);
 }
 
-void Collision_RemoveCollider(Collider* col)
+void Collision_RemoveCollider(Component_Collider* col)
 {
     /* get that s*** outta' here */
     colliders = g_list_remove(colliders, (gpointer)col);
@@ -47,8 +47,8 @@ void Collision_Detect()
     GList* j;
 
     Collision* col;
-    Collider* c1;
-    Collider* c2;
+    Component_Collider* c1;
+    Component_Collider* c2;
 
     /* direct hash, custom equal func */
     collidingY = g_hash_table_new(NULL, ColEqual);
@@ -63,12 +63,12 @@ void Collision_Detect()
             j = i = g_list_next(i);
         }
         else {
-            c1 = (Collider*)(i->data);
-            c2 = (Collider*)(j->data);
+            c1 = (Component_Collider*)(i->data);
+            c2 = (Component_Collider*)(j->data);
 
             /* not overlapping? */
-            if((c1->pos->x + c1->aabb->w) <
-                     (c2->pos->x)) {
+            if((c1->transform->x + c1->aabb.w) <
+                     (c2->transform->x)) {
                 j = i = g_list_next(i);
             }
             /* X is overlapping */
@@ -86,11 +86,11 @@ void Collision_Detect()
             j = i = g_list_next(i);
         }
         else {
-            c1 = (Collider*)(i->data);
-            c2 = (Collider*)(j->data);
+            c1 = (Component_Collider*)(i->data);
+            c2 = (Component_Collider*)(j->data);
             /* not overlapping? */
-            if((c1->pos->y + c1->aabb->h) < 
-                    (c2->pos->y)) {
+            if((c1->transform->y + c1->aabb.h) < 
+                    (c2->transform->y)) {
                 j = i = g_list_next(i);
             }
             /* overlapping Y */
@@ -111,11 +111,11 @@ void Collision_Detect()
             j = i = g_list_next(i);
         }
         else {
-            c1 = (Collider*)(i->data);
-            c2 = (Collider*)(j->data);
+            c1 = (Component_Collider*)(i->data);
+            c2 = (Component_Collider*)(j->data);
             /* not overlapping? */
-            if((c1->pos->z + c1->aabb->d) <
-                    (c2->pos->z)) {
+            if((c1->transform->z + c1->aabb.d) <
+                    (c2->transform->z)) {
                 j = i = g_list_next(i);
             }
             /* overlapping Z */
@@ -132,7 +132,6 @@ void Collision_Detect()
     
     /* check for matches on all axes, x axis overlap is implicit */
     for(i = possibleCollisions; i != NULL; i = g_list_next(i)) {
-        printf("checking %x\n", i); fflush(stdout);
         /* check Y overlap */
         if(g_hash_table_lookup(collidingY, i->data) != NULL) {
             /* check Z overlap */
@@ -141,8 +140,8 @@ void Collision_Detect()
                 /* collision occurred */
                 colliding = g_list_append(colliding, (gpointer)i);
                 printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
-                        col->col1->pos->x, col->col1->pos->y, col->col1->pos->z,
-                        col->col2->pos->x, col->col2->pos->y, col->col2->pos->z);
+                        col->col1->transform->x, col->col1->transform->y, col->col1->transform->z,
+                        col->col2->transform->x, col->col2->transform->y, col->col2->transform->z);
                 fflush(stdout);
             }
         }
@@ -167,12 +166,12 @@ gboolean ColEqual(gconstpointer a, gconstpointer b)
 
 gint XCompare(gconstpointer a, gconstpointer b)
 {
-    Collider* c1 = (Collider*)a;
-    Collider* c2 = (Collider*)b;
-    if(c1->pos->x < c2->pos->x) {
+    Component_Collider* c1 = (Component_Collider*)a;
+    Component_Collider* c2 = (Component_Collider*)b;
+    if(c1->transform->x < c2->transform->x) {
         return -1;
     }
-    else if(c1->pos->x > c2->pos->x) {
+    else if(c1->transform->x > c2->transform->x) {
         return 1;
     }
     else {
@@ -182,31 +181,27 @@ gint XCompare(gconstpointer a, gconstpointer b)
 
 gint YCompare(gconstpointer a, gconstpointer b)
 {
-    Collider* c1 = (Collider*)a;
-    Collider* c2 = (Collider*)b;
-    if(c1->pos->y < c2->pos->y) {
+    Component_Collider* c1 = (Component_Collider*)a;
+    Component_Collider* c2 = (Component_Collider*)b;
+    if(c1->transform->y < c2->transform->y) {
         return -1;
     }
-    else if(c1->pos->y > c2->pos->y) {
+    else if(c1->transform->y > c2->transform->y) {
         return 1;
     }
-    else {
-        return 0;
-    }
+    return 0;
 }
 
 gint ZCompare(gconstpointer a, gconstpointer b)
 {
-    Collider* c1 = (Collider*)a;
-    Collider* c2 = (Collider*)b;
-    if(c1->pos->z < c2->pos->z) {
+    Component_Collider* c1 = (Component_Collider*)a;
+    Component_Collider* c2 = (Component_Collider*)b;
+    if(c1->transform->z < c2->transform->z) {
         return -1;
     }
-    else if(c1->pos->z > c2->pos->z) {
+    else if(c1->transform->z > c2->transform->z) {
         return 1;
     }
-    else {
-        return 0;
-    }
+    return 0;
 }
 
