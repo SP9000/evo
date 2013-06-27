@@ -17,9 +17,7 @@ DEFINE_COMPONENT(Transform,
 #ifdef BUILD
 void Start(Component_Transform* c)
 {
-    c->x = 0.0f;
-    c->y = 0.0f;
-    c->z = 0.0f;
+
 }
 
 void Update(Component_Transform* c) 

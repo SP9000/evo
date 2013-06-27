@@ -37,11 +37,14 @@ void App_Start()
     Scene_Add(background);
     Scene_Add(m);
 
-    ENTITY(e1,
-            Component_New_Collider()
+    Component_Transform e1_transform = {.x = 1.0f, .y = 1.0f, .z = 20.0f};
+    Component_Transform e2_transform = {.x = 1.5f, .y = 1.0f, .z = 20.0f};
+    Component_Collider testcol = {.aabb={1,1,1}};
+    ENTITY(e1, e1_transform,
+            Component_New_Collider(testcol)
           )
-    ENTITY(e2,
-            Component_New_Collider()
+    ENTITY(e2, e2_transform,
+            Component_New_Collider(testcol)
           )
 
     Collision_Detect();

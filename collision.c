@@ -120,7 +120,7 @@ void Collision_Detect()
                 g_hash_table_insert(collidingZ, (gpointer)c2, (gpointer)c1);
             }
         }
-    }
+    }  
     
     /* check for matches on all axes, x axis overlap is implicit */
     for(i = possibleCollisions; i != NULL; i = g_list_next(i)) {

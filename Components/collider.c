@@ -19,10 +19,6 @@ DEFINE_COMPONENT(Collider,
 void Start(Component_Collider* c)
 {
     c->transform = (Component_Transform*)Entity_GetComponent(c->base.entity, CID_Transform);
-    c->transform->x = 0.0f;
-    c->transform->y = 0.0f;
-    c->transform->z = 0.0f;
-
     c->aabb.w = 1.0f;
     c->aabb.h = 1.0f;
     c->aabb.d = 1.0f;

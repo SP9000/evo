@@ -29,11 +29,11 @@ $(SERVER_EXECUTABLE): $(SERVER_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(SERVER_OBJECTS) $(SERVER_LIBS) 
 
 .c.o:
-	$(CC) $(CFLAGS) -c $< -o $@ 
+	$(CC) $(CFLAGS) -UBUILD -c $< -o $@ 
 
 obj/%.o: Components/%.c
 	$(CC) $(CFLAGS) -DBUILD -c $< -o $@ 
 
 clean:
 	rm -f *.o
-
+	rm -f obj/*.o

@@ -46,21 +46,22 @@
  */
 #ifdef BUILD
 #define DEFINE_COMPONENT(X, attributes) \
-    static void Start(); \
-    static void Update(); \
-    static void Collide(Entity* e); \
     typedef struct Component_##X { \
         Component base; \
         attributes \
     }Component_##X; \
-    Component* Component_New_##X() { \
-        Component* c; \
-        c = (Component*)malloc(sizeof(Component_##X)); \
-        c->start = Start; \
-        c->update = Update; \
-        c->collide = Collide; \
-        c->id = CID_##X; \
-        return c; \
+    static void Start(Component_##X *c); \
+    static void Update(Component_##X *c); \
+    static void Collide(Entity* e); \
+    Component* Component_New_##X(Component_##X init) { \
+        Component_##X *c; \
+        c = (Component_##X *)malloc(sizeof(Component_##X)); \
+        *c = init; \
+        c->base.start = Start; \
+        c->base.update = Update; \
+        c->base.collide = Collide; \
+        c->base.id = CID_##X; \
+        return (Component*)c; \
     }
 #else
 #define DEFINE_COMPONENT(X, attributes) \
@@ -68,6 +69,6 @@
         Component base; \
         attributes \
     }Component_##X; \
-    Component* Component_New_##X(); 
+    Component* Component_New_##X(Component_##X); 
 #endif
 

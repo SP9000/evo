@@ -34,7 +34,7 @@ typedef struct Component {
      * another */
     Component_CollideFunc collide;
     /* the entity this componennt is attached to */
-    struct tagEntity* entity;
+    struct Entity* entity;
     /* the ID of the component (tells what type it is) */
     unsigned id;
 }Component;

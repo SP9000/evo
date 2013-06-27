@@ -39,14 +39,16 @@ extern "C" {
  *          COMPONENT(Aggressive)
  *      )
  */
-#define ENTITY(X, ...) \
+#define ENTITY(X, T, ...) \
         Entity* X = (Entity*)malloc(sizeof(Entity)); \
         X->numChildren = 0; \
         X->numComponents = 0; \
-        Entity_AddComponent(X, Component_New_Transform()); \
+        X->components = NULL; \
+        X->children = NULL; \
+        Entity_AddComponent(X, Component_New_Transform(T)); \
         Entity_AddComponents(X, PP_NARG(__VA_ARGS__),  __VA_ARGS__); \
         Entity_Start(X); \
-        Scene_Add(X); \
+        Scene_Add(X);
 
 /**
  * A macro that defines a pre-built entity or "prefab".
