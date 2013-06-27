@@ -1,14 +1,14 @@
 CLIENT_LIBS = -lenet -lws2_32 -lwinmm -lmingw32 -lSDLmain -lSDL -lopengl32 -lglu32 -lglew32 -lm -lglib-2.0 
 SERVER_LIBS = -lenet -lws2_32 -lwinmm
 
-CFLAGS = `pkg-config --cflags --libs glib-2.0` -Wall
+CFLAGS = -std=c99 `pkg-config --cflags --libs glib-2.0` -Wall
 
 # component sources 
 COMPONENT_SOURCES=$(wildcard Components/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files
-CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c collision.c draw.c entity.c guilayout.c material.c matrix.c model.c modelgen.c scene.c util.c cJSON.c 
+CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c collision.c component.c draw.c entity.c guilayout.c material.c matrix.c model.c modelgen.c scene.c util.c cJSON.c 
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 
 #server source files

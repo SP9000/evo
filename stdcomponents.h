@@ -15,15 +15,20 @@ extern "C" {
 enum {
     CID_Transform = 1,
     CID_Collider,
+    CID_Debug,
+    CID_Model,
 
     CID_End
 } STDComponentID;
 
 /* forward declarations for component types */
 
+#include "material.h"
+
 /* include the prototypes for all the components */
 #include "Components/transform.c"
 #include "Components/collider.c"
+#include "Components/model.c"
 
 #ifdef __cplusplus
 }

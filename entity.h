@@ -23,6 +23,7 @@ extern "C" {
 #include "stdcomponents.h"
 #include "glib.h"
 #include "util.h"
+#include "p99/p99_args.h"
 
 /**
  * A macro that builds an entity from the given components, but does not 
@@ -46,7 +47,7 @@ extern "C" {
         X->components = NULL; \
         X->children = NULL; \
         Entity_AddComponent(X, Component_New_Transform(T)); \
-        Entity_AddComponents(X, PP_NARG(__VA_ARGS__),  __VA_ARGS__); \
+        Entity_AddComponents(X, P99_NARG(__VA_ARGS__),  __VA_ARGS__); \
         Entity_Start(X); \
         Scene_Add(X);
 

@@ -22,14 +22,14 @@ void App_Start()
     Model_SetMaterial(m, mat);
     Draw_OptimizeModel(m);
 
-    Model* rectM = GenRect(0, 0, 0, 200, 100);
+    Model* rectM = ModelGen_Rect(0, 0, 0, 200, 100);
     Model_BufferAttribute(rectM, MODEL_ATTRIBUTE_COLOR, rectColors);
     Rect wRect = {0,0,.4,.4};
     Model_SetMaterial(rectM, mat);
     Widget* w = GUILayout_NewTextBox(rectM, &wRect, "HELLO ALL");
     GUILayout_SetRootWidget(w);
     
-    background = GenRect(-10,-10,-4,20,20);
+    background = ModelGen_Rect(-10,-10,-4,20,20);
     Model_BufferAttribute(background, MODEL_ATTRIBUTE_COLOR, rectColors);
     Model_SetMaterial(background, mat);
     Draw_OptimizeModel(background);

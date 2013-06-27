@@ -1,6 +1,6 @@
 #include "modelgen.h"
 
-Model* GenText(char *text, float w, float h)
+Model* ModelGen_Text(char *text, float w, float h)
 {
     int i;
     int modelOff;
@@ -115,11 +115,10 @@ Model* GenText(char *text, float w, float h)
     }
     m->primitive = GL_LINES;
     Draw_OptimizeModel(m);
-
     return m;
 }
 
-Model* GenRect(float x, float y, float z, float w, float h)
+Model* ModelGen_Rect(float x, float y, float z, float w, float h)
 {
     Model* m;
     float scale = 1.0f;
@@ -137,12 +136,28 @@ Model* GenRect(float x, float y, float z, float w, float h)
     m->numVertices = 4;
     Model_BufferAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
     m->primitive = GL_QUADS;
-    Draw_OptimizeModel(m);
+    return m;
+}
+
+Model* ModelGen_Box(float x, float y, float z, float w, float h, float d)
+{
+    Model* m;
+    float v[] = {x,y,z, x+w,y,z, x+w,y+h,z, x,y+h,z,         /* front face  */
+                 x,y,z, x,y,z+d, x,y+h,z+d, x,y+h,z,         /* left face   */
+                 x,y,z+d, x+w,y,z+d, x+w,y+h,z+d, x,y+h,z+d, /* back face   */
+                 x+w,y,z, x+w,y,z+d, x+w,y+h,z+d, x+w,y+h,z, /* right face  */
+                 x,y+h,z, x+w,y+h,z, x+w,y+h,z+d, x,y+h,z+d, /* top face    */
+                 x,y,z, x+w,y,z, x+w,y,z+d, x,y,z+d          /* bottom face */
+    };  
+    m = Model_New();
+    m->numVertices = 24;
+    m->primitive = GL_QUADS;
+    Model_BufferAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
     return m;
 }
 
 /*
-Model* GenCircle(float radius, int resolution)
+Model* ModelGen_Circle(float radius, int resolution)
 {
     float theta;
     int i;

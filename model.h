@@ -50,7 +50,6 @@ typedef struct ModelVertex {
     Color color;
 }ModelVertex;
 
-
 /**
  * Model structure.
  * This is holds the data for the data for the position, normal, and color for

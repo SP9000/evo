@@ -22,7 +22,7 @@ extern "C" {
  * @param w the width of the bounds to generate the text inside.
  * @param h the height of the bounds to generate the text inside.
  */
-Model* GenText(char *text, float w, float h);
+Model* ModelGen_Text(char *text, float w, float h);
 
 /**
  * Create a model of a rectangle using the given position and dimensions.
@@ -33,7 +33,18 @@ Model* GenText(char *text, float w, float h);
  * @param h the height of the rectangle (from 0-1).
  * @return a model of a rectangle of the given parameters.
  */
-Model* GenRect(float x, float y, float z, float w, float h);
+Model* ModelGen_Rect(float x, float y, float z, float w, float h);
+
+/**
+ * Create a model of a box with the given position and dimensions.
+ * @param x the X coordinate.
+ * @param y the Y coordinate.
+ * @param z the Z coordinate.
+ * @param w the width of the box.
+ * @param h the height of the box.
+ * @param d the depth of the box.
+ */
+Model* ModelGen_Box(float x, float y, float z, float w, float h, float d);
 
 #ifdef __cplusplus
 }

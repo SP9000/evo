@@ -13,8 +13,12 @@ in_Color
 No errors.
 No errors.
 No errors.
-collision between {0.000000,0.000000,0.000000} and {0.000000,0.000000,0.000000}
+collision between {1.000000,1.000000,20.000000} and {1.500000,1.000000,20.000000}
 transform collision
 collider collision
+packet created
+packet created
+packet created
+packet created
 packet created
 packet created

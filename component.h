@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+
 typedef struct Entity Entity;
 
 typedef void (*Component_StartFunc)();
@@ -39,6 +40,13 @@ typedef struct Component {
     unsigned id;
 }Component;
 
+/**
+ * Retrieves a component that belongs to the same entity as self.
+ * @param self the component requesting a sibling component.
+ * @param id the component type (CID) to retrieve.
+ * @return the component of the type requested or NULL if none exists.
+ */
+Component* Component_Get(Component* self, int id);
 
 /* don't build these components, only insert their definitions */
 #ifdef BUILD

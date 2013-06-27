@@ -1,5 +1,5 @@
-#ifndef COLLIDER_H
-#define COLLIDER_H
+#ifndef COMPONENT_COLLIDER
+#define COMPONENT_COLLIDER
 
 #include "../component.h"
 #include <stdio.h>
@@ -18,7 +18,7 @@ DEFINE_COMPONENT(Collider,
 #ifdef BUILD
 void Start(Component_Collider* c)
 {
-    c->transform = (Component_Transform*)Entity_GetComponent(c->base.entity, CID_Transform);
+    c->transform = (Component_Transform*)Component_Get((Component*)c, CID_Transform);
     c->aabb.w = 1.0f;
     c->aabb.h = 1.0f;
     c->aabb.d = 1.0f;
