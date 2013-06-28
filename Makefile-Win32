@@ -1,7 +1,7 @@
 CLIENT_LIBS = -lenet -lws2_32 -lwinmm -lmingw32 -lSDLmain -lSDL -lopengl32 -lglu32 -lglew32 -lm -lglib-2.0 
 SERVER_LIBS = -lenet -lws2_32 -lwinmm
 
-CFLAGS = -std=c99 `pkg-config --cflags --libs glib-2.0` -Wall
+CFLAGS = -std=c99 `pkg-config --cflags --libs glib-2.0` -Wall -DOPENGL_2
 
 # component sources 
 COMPONENT_SOURCES=$(wildcard Components/*.c)

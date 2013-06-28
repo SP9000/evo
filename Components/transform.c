@@ -8,28 +8,28 @@
  * The transform component contains the data to represent an entity's physical
  * location in the scene.
  */
-DEFINE_COMPONENT(Transform,
-    ATTRIBUTE(float x)
-    ATTRIBUTE(float y)
-    ATTRIBUTE(float z)
+DEFINE(Transform,
+    ATTRIBUTES(
+        float x;
+        float y;
+        float z;
+    ),
+    FUNCTIONS(
+        static void Start(Component_Transform* this) 
+        {
+
+        }
+        static void Update(Component_Transform* c) 
+        {
+
+        }
+        static void Collide(Entity* e)
+        {
+            puts("transform collision");
+        }
+    ),
+    INIT()
 )
 
-#ifdef BUILD
-void Start(Component_Transform* c)
-{
-
-}
-
-void Update(Component_Transform* c) 
-{
-
-}
-
-void Collide(Entity* e)
-{
-    puts("transform collision");
-}
-
-#endif
 #endif
 

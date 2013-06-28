@@ -3,294 +3,291 @@
 
 #include "../component.h"
 
-DEFINE_COMPONENT(Material,
-    ATTRIBUTE(GLuint frag)
-    ATTRIBUTE(GLuint vert)
-    ATTRIBUTE(GLuint geom)
-    ATTRIBUTE(GLuint program)
-    
-    ATTRIBUTE(GLuint modelMatrixID)
-    ATTRIBUTE(GLuint viewMatrixID)
-    ATTRIBUTE(GLuint projectionMatrixID)
-
-    ATTRIBUTE(Texture texture),
-
-    FUNCTION(Load)(char* file)
-    Load(char* file)
-)
-
-
-#ifdef BUILD
-/****************************** OPENGL 2.1+ **********************************/
 #ifdef OPENGL_2
-/* function to compile a single shader of the given type */
-static GLuint CompileShader(const GLchar* shader, GLuint type);
-/* function to compile program from given shaders */
-static GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
-        char **attributes, int numAttributes);
-/* IDs of loaded programs (materials) */
-static GHashTable* materials;
-/* IDs of all loaded shaders */
-static GHashTable* fragShaders;
-static GHashTable* vertShaders;
-static GHashTable* geomShaders;
-/* translation table from material names -> IDs */
-static GHashTable* fragShaderNames;
-static GHashTable* vertShaderNames;
-static GHashTable* geomShaderNames;
+DEFINE(
+    Material,
 
-void Start(Component_Material* c)
-{
-    if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
-    if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
-    if(vertShaders == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
-    if(geomShaders == NULL) geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
-    if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
-    if(vertShaderNames == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
-    if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
-}
+    ATTRIBUTES( 
+        /* variables */
+        GLuint frag;
+        GLuint vert;
+        GLuint geom;
+        GLuint program;
 
-void Update(Component_Material* c) 
-{
+        GLuint modelMatrixID;
+        GLuint viewMatrixID;
+        GLuint projectionMatrixID;
+        Texture texture;
 
-}
+        /* functions */
+        void (*Load)(struct Component_Material* self, char *file);
+    ),
 
-void Load(Component_Material* c, void* data)
-{
-    Component_Material* m = c;
-    char* matFile = (char*)data;
-    gpointer lup;
-    GLuint v, f, g;
-    int i;
+    FUNCTIONS(
+        /* shared static variables among instances of components should be
+         * placed in the FUNCTIONS block. */
+        /* function to compile a single shader of the given type */
+        static GLuint CompileShader(const GLchar* shader, GLuint type);
+        /* function to compile program from given shaders */
+        static GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
+                char **attributes, int numAttributes);
+        /* IDs of loaded programs (materials) */
+        static GHashTable* materials;
+        /* IDs of all loaded shaders */
+        static GHashTable* fragShaders;
+        static GHashTable* vertShaders;
+        static GHashTable* geomShaders;
+        /* translation table from material names -> IDs */
+        static GHashTable* fragShaderNames;
+        static GHashTable* vertShaderNames;
+        static GHashTable* geomShaderNames;
 
-    cJSON* root;
-    cJSON* json;
+        /* unique functions */
+        static void Load(Component_Material* self, char *file) 
+        {
+            gpointer lup;
+            GLuint v;
+            GLuint f;
+            GLuint g;
+            int i;
 
-    int nAttributes;
-    char** attributes;
-    char* text;
-    char* buffer;
-    char* vertFile = NULL;
-    char* fragFile = NULL;
-    char* geomFile = NULL;
+            cJSON* root;
+            cJSON* json;
 
-    UtilReadFile(matFile, &text);
-    root = cJSON_Parse(text);
+            int nAttributes;
+            char** attributes;
+            char* text;
+            char* buffer;
+            char* vertFile = NULL;
+            char* fragFile = NULL;
+            char* geomFile = NULL;
 
-    /* check for errors, return NULL if encountered */
-    if(!root) {
-        fprintf(stderr, "Error: JSON parse error before: [%s]\n", 
-                cJSON_GetErrorPtr());
-        return;
-    }
+            UtilReadFile(file, &text);
+            root = cJSON_Parse(text);
 
-    root = root->child;
-    /* make sure "material" object exists */
-    if(strncmp(root->string, "material", 8) != 0) {
-        fprintf(stderr, "Error: unrecognized JSON object name %s"
-               " for material\n", root->string); 
-    }
-    /* get all material information */
-    else {
-        root = root->child;
-        while(root != NULL) {
-            json = root;
-            /* get the first child object of the material */
-            if(strncmp(json->string, "shaders", 7) == 0) {
-                /* get shaders */
-                json = json->child;
-                do {
-                    if(strncmp(json->string, "vert", 4) == 0) {
-                        vertFile = json->valuestring;
-                        puts(vertFile);
-                    }
-                    else if(strncmp(json->string, "frag", 4) == 0) {
-                        fragFile = json->valuestring;
-                        puts(fragFile);
-                    }
-                    else if(strncmp(json->string, "geom", 4) == 0) {
-                        geomFile = json->valuestring;
-                    }
-                    json = json->next;
-                }while(json != NULL);
+            /* check for errors, return NULL if encountered */
+            if(!root) {
+                fprintf(stderr, "Error: JSON parse error before: [%s]\n", 
+                        cJSON_GetErrorPtr());
+                return;
             }
-            else if(strncmp(json->string, "attributes", 10) == 0) {
-                /* get attributes */
-                nAttributes = cJSON_GetArraySize(json);
-                attributes = (char**)malloc(nAttributes * sizeof(char*));
-                for(i = 0; i < nAttributes; ++i) {
-                    cJSON* attr = cJSON_GetArrayItem(json, i);
-                    puts(attr->valuestring);
-                    attributes[i] = (char*)malloc((strlen(attr->valuestring)+1) * 
-                            sizeof(char));
-                    strncpy(attributes[i], attr->valuestring, 
-                            strlen(attr->valuestring)+1);
+
+            root = root->child;
+            /* make sure "material" object exists */
+            if(strncmp(root->string, "material", 8) != 0) {
+                fprintf(stderr, "Error: unrecognized JSON object name %s"
+                       " for material\n", root->string); 
+            }
+            /* get all material information */
+            else {
+                root = root->child;
+                while(root != NULL) {
+                    json = root;
+                    /* get the first child object of the material */
+                    if(strncmp(json->string, "shaders", 7) == 0) {
+                        /* get shaders */
+                        json = json->child;
+                        do {
+                            if(strncmp(json->string, "vert", 4) == 0) {
+                                vertFile = json->valuestring;
+                                puts(vertFile);
+                            }
+                            else if(strncmp(json->string, "frag", 4) == 0) {
+                                fragFile = json->valuestring;
+                                puts(fragFile);
+                            }
+                            else if(strncmp(json->string, "geom", 4) == 0) {
+                                geomFile = json->valuestring;
+                            }
+                            json = json->next;
+                        }while(json != NULL);
+                    }
+                    else if(strncmp(json->string, "attributes", 10) == 0) {
+                        /* get attributes */
+                        nAttributes = cJSON_GetArraySize(json);
+                        attributes = (char**)malloc(nAttributes * sizeof(char*));
+                        for(i = 0; i < nAttributes; ++i) {
+                            cJSON* attr = cJSON_GetArrayItem(json, i);
+                            puts(attr->valuestring);
+                            attributes[i] = (char*)malloc((strlen(attr->valuestring)+1) * 
+                                    sizeof(char));
+                            strncpy(attributes[i], attr->valuestring, 
+                                    strlen(attr->valuestring)+1);
+                        }
+                    }
+                    root = root->next;
                 }
             }
-            root = root->next;
+            cJSON_Delete(root);
+            cJSON_Delete(json);
+
+            self = (Component_Material*)malloc(sizeof(Material));
+
+            /* get/compile shaders - start with the vertex shader */
+            lup = (char*)g_hash_table_lookup(vertShaderNames, vertFile);
+            if(lup == NULL) {
+                /* no, load it */
+                UtilReadFile(vertFile, &buffer);
+                v = CompileShader(buffer, GL_VERTEX_SHADER);
+                /* insert into hash tables */
+                g_hash_table_insert(vertShaderNames, (gpointer)vertFile, (gpointer)v);
+                free(buffer);
+            }
+            else {
+                /* yes, use saved ID */
+                v = (GLuint)lup;
+            }
+            self->vert = v;
+
+            /* get/compile fragment shader */
+            lup = (char*)g_hash_table_lookup(fragShaderNames, fragFile);
+            if(lup == NULL) {
+                UtilReadFile(fragFile, &buffer);
+                f = CompileShader(buffer, GL_FRAGMENT_SHADER);
+                g_hash_table_insert(fragShaderNames, (gpointer)fragFile, (gpointer)f);
+                free(buffer);
+            }
+            else {
+                f = (GLuint)lup;
+            }
+            self->frag = f;
+
+            /* geometry shader is optional */
+            if(geomFile == NULL) {
+                g = 0;
+            }
+            else {
+                /* get/compile geometry shader */
+                lup = (char*)g_hash_table_lookup(geomShaderNames, geomFile);
+                if(lup == NULL) {
+                    UtilReadFile(geomFile, &buffer);
+                    g = CompileShader(buffer, GL_GEOMETRY_SHADER);
+                    g_hash_table_insert(geomShaderNames, (gpointer)geomFile, (gpointer)g);
+                    free(buffer);
+                }
+                else {
+                    g = (GLuint)lup;
+                }
+                self->geom = g;
+            }
+
+            /* compile the shader program */
+            self->program = CompileProgram(v, f, g, attributes, nAttributes);
+
+            /* get matrix uniform locations */
+            self->modelMatrixID        = glGetUniformLocation(self->program, "Model");
+            self->viewMatrixID         = glGetUniformLocation(self->program, "View");
+            self->projectionMatrixID   = glGetUniformLocation(self->program, "Projection");
+
+            /* no textures for now */
+            self->texture.id = 0;
         }
-    }
-    cJSON_Delete(root);
-    cJSON_Delete(json);
 
-    m = (Component_Material*)malloc(sizeof(Material));
+        GLuint CompileShader(const GLchar* shader, GLuint type) 
+        {
+            GLuint s;
+            GLsizei len;
+            int success;
+            GLchar* log;
 
-    /* get/compile shaders - start with the vertex shader */
-    lup = (char*)g_hash_table_lookup(vertShaderNames, vertFile);
-    if(lup == NULL) {
-        /* no, load it */
-        UtilReadFile(vertFile, &buffer);
-        v = CompileShader(buffer, GL_VERTEX_SHADER);
-        /* insert into hash tables */
-        g_hash_table_insert(vertShaderNames, (gpointer)vertFile, (gpointer)v);
-        free(buffer);
-    }
-    else {
-        /* yes, use saved ID */
-        v = (GLuint)lup;
-    }
-    m->vert = v;
-
-    /* get/compile fragment shader */
-    lup = (char*)g_hash_table_lookup(fragShaderNames, fragFile);
-    if(lup == NULL) {
-        UtilReadFile(fragFile, &buffer);
-        f = CompileShader(buffer, GL_FRAGMENT_SHADER);
-        g_hash_table_insert(fragShaderNames, (gpointer)fragFile, (gpointer)f);
-        free(buffer);
-    }
-    else {
-        f = (GLuint)lup;
-    }
-    m->frag = f;
-
-    /* geometry shader is optional */
-    if(geomFile == NULL) {
-        g = 0;
-    }
-    else {
-        /* get/compile geometry shader */
-        lup = (char*)g_hash_table_lookup(geomShaderNames, geomFile);
-        if(lup == NULL) {
-            UtilReadFile(geomFile, &buffer);
-            g = CompileShader(buffer, GL_GEOMETRY_SHADER);
-            g_hash_table_insert(geomShaderNames, (gpointer)geomFile, (gpointer)g);
-            free(buffer);
+            s = glCreateShader(type);
+            glShaderSource(s, 1, &shader, NULL);
+            glCompileShader(s);
+            glGetShaderiv(s, GL_COMPILE_STATUS, &success);
+            glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
+            if(len > 0) {
+                log = malloc(sizeof(GLchar) * len);
+                glGetShaderInfoLog(s, len, &len, log);
+                puts(log);
+                free(log);
+            }
+            if(success == GL_FALSE) {
+                if(type == GL_VERTEX_SHADER) {
+                    fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
+                }
+                else if(type == GL_FRAGMENT_SHADER) {
+                    fprintf(stderr, "Error: fragment shader was not compiled successfully.\n");
+                }
+                else if(type == GL_GEOMETRY_SHADER) {
+                    fprintf(stderr, "Error: geometry shader was not compiled successfully.\n");
+                }
+                else {
+                    fprintf(stderr, "Error: shader was not compiled successfully.\n");
+                }
+                exit(EXIT_FAILURE);
+            }
+            return s;
         }
-        else {
-            g = (GLuint)lup;
+
+        GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
+            char **attributes, int numAttributes) 
+        {
+            int i;
+            int success;
+            char* log;
+            int len;
+            GLuint program;
+
+            program = glCreateProgram();
+            glAttachShader(program, vertShader);
+            if(geomShader != 0) {
+                glAttachShader(program, geomShader);
+            }
+            glAttachShader(program, fragShader);
+
+            for(i = 0; i < numAttributes; i++) {
+                glBindAttribLocation(program, i, attributes[i]);
+            }
+
+            glLinkProgram(program);
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+            if(len > 0) {
+                log = malloc(sizeof(GLchar) * len);
+                glGetProgramInfoLog(program, len, &len, log);
+                puts(log);
+                free(log);
+            }
+
+            glGetProgramiv(program, GL_LINK_STATUS, &success);
+            if(success == GL_FALSE) {
+                fprintf(stderr, "Error: shader could not be linked successfully.\n");
+                exit(EXIT_FAILURE);
+            }
+            return program;
         }
-        m->geom = g;
-    }
 
-    /* compile the shader program */
-    m->program = CompileProgram(v, f, g, attributes, nAttributes);
-
-    /* get matrix uniform locations */
-    m->modelMatrixID        = glGetUniformLocation(m->program, "Model");
-    m->viewMatrixID         = glGetUniformLocation(m->program, "View");
-    m->projectionMatrixID   = glGetUniformLocation(m->program, "Projection");
-
-    /* no textures for now */
-    m->texture.id = 0;
-}
-GLuint CompileShader(const GLchar* shader, GLuint type) 
-{
-    GLuint s;
-    GLsizei len;
-    int success;
-    GLchar* log;
-
-    s = glCreateShader(type);
-    glShaderSource(s, 1, &shader, NULL);
-    glCompileShader(s);
-    glGetShaderiv(s, GL_COMPILE_STATUS, &success);
-    glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
-    if(len > 0) {
-        log = malloc(sizeof(GLchar) * len);
-        glGetShaderInfoLog(s, len, &len, log);
-        puts(log);
-        free(log);
-    }
-    if(success == GL_FALSE) {
-        if(type == GL_VERTEX_SHADER) {
-            fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
+        /* Start and Update are part of all components */
+        static void Start(Component_Material* self) 
+        {
+            if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
+            if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
+            if(vertShaders == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
+            if(geomShaders == NULL) geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
+            if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
+            if(vertShaderNames == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
+            if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
         }
-        else if(type == GL_FRAGMENT_SHADER) {
-            fprintf(stderr, "Error: fragment shader was not compiled successfully.\n");
+        static void Update(Component_Material* self) 
+        {
+
         }
-        else if(type == GL_GEOMETRY_SHADER) {
-            fprintf(stderr, "Error: geometry shader was not compiled successfully.\n");
+
+        static void Collide(Entity* e)
+        {
+            puts("material collision");
         }
-        else {
-            fprintf(stderr, "Error: shader was not compiled successfully.\n");
-        }
-        exit(EXIT_FAILURE);
-    }
-    return s;
-}
-GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
-    char **attributes, int numAttributes) 
-{
-    int i;
-    int success;
-    char* log;
-    int len;
-    GLuint program;
+    ),
 
-    program = glCreateProgram();
-    glAttachShader(program, vertShader);
-    if(geomShader != 0) {
-        glAttachShader(program, geomShader);
-    }
-    glAttachShader(program, fragShader);
+    INIT(
+        SET(Load, Load)
+    )
+)
 
-    for(i = 0; i < numAttributes; i++) {
-        glBindAttribLocation(program, i, attributes[i]);
-    }
-
-    glLinkProgram(program);
-    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
-    if(len > 0) {
-        log = malloc(sizeof(GLchar) * len);
-        glGetProgramInfoLog(program, len, &len, log);
-        puts(log);
-        free(log);
-    }
-
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if(success == GL_FALSE) {
-        fprintf(stderr, "Error: shader could not be linked successfully.\n");
-        exit(EXIT_FAILURE);
-    }
-    return program;
-}
-/****************************** SOFTWARE RENDERER ****************************/
 #elif defined SW_RENDER
-void Start(Component_Material* c)
-{
-
-}
-
-void Update(Component_Material* c) 
-{
-
-}
-
-void Load(Component_Material* c, void* data)
-{
-
-}
+    /* TODO: software renderer material component */
 
 #else 
 #error "no rendering method selected."
-#endif
-
-/********************************* COMMON ************************************/
-void Collide(Entity* e)
-{
-    puts("material collision");
-}
 #endif
 
 #endif

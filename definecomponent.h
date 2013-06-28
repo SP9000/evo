@@ -16,21 +16,13 @@
 #include "p99/p99_args.h"
 #include "p99/p99_for.h"
 
-#define ATTRIBUTE(X) X ;
-#define COMPONENT(X) X
-#define COMPONENT_SET(X, Y) X, (Y)Y
+#define ATTRIBUTES(X) X
+#define FUNCTIONS(X) X
+#define INIT(X) X
+#define SET(X, Y) self -> X = Y;
 
-/* macro to declare a function and helper macros to declare a pointer in the 
- * component structure, and to produce the static prototype.
- */
-#define FUNCTION(X) X,
-#define FUNCTION_MEMBER(NAME, X, I) void (*X 
-#define FUNCTION_DECLARE(NAME, X, I) static void X 
-#define FUNCTION_SET(X) c -> X = X
-#define FUNCTION_SEP(NAME, I, REC, RES) REC; RES
-
-/* I'm well goddamn aware we're redefining DEFINE_COMPONENT */
-#undef DEFINE_COMPONENT
+/* I'm well goddamn aware we're redefining DEFINE */
+#undef DEFINE
 
 /** 
  * DEFINE_COMPONENT(X, Y)
@@ -57,34 +49,30 @@
  *  )
  */
 #ifdef BUILD
-#define DEFINE_COMPONENT(X, attributes, ...) \
+#define DEFINE(X, attributes, functions, set) \
     typedef struct Component_##X { \
         Component base; \
         attributes \
-        P99_FOR(struct Component_##X *, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_MEMBER, ##__VA_ARGS__); \
     }Component_##X; \
-    static void Start(Component_##X *c); \
-    static void Update(Component_##X *c); \
-    static void Collide(Entity* e); \
-    P99_FOR(struct Component_##X *, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_DECLARE, ##__VA_ARGS__); \
+    functions \
     Component* Component_New_##X(Component_##X init) { \
-        Component_##X *c; \
-        c = (Component_##X *)malloc(sizeof(Component_##X)); \
-        *c = init; \
-        c->base.start = Start; \
-        c->base.update = Update; \
-        c->base.collide = Collide; \
-        c->base.id = CID_##X; \
-        P99_SEP(FUNCTION_SET, ##__VA_ARGS__); \
-        return (Component*)c; \
+        Component_##X *self; \
+        self = (Component_##X *)malloc(sizeof(Component_##X)); \
+        *self = init; \
+        self -> base.start = Start; \
+        self -> base.update = Update; \
+        self -> base.collide = Collide; \
+        self -> base.id = CID_##X; \
+        set \
+        return (Component*)self; \
     }
+
 #else
-#define DEFINE_COMPONENT(X, attributes, ...) \
+#define DEFINE(X, attributes, funtions, set) \
     typedef struct Component_##X { \
         Component base; \
         attributes \
-        P99_FOR(struct Component_##X *, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_MEMBER, ##__VA_ARGS__); \
     }Component_##X; \
-    Component* Component_New_##X(Component_##X); 
+    Component* Component_New_##X(Component_##X init); 
 #endif
 

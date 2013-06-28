@@ -25,7 +25,8 @@ enum {
 /* forward declarations for component types */
 
 #include "modelgen.h"
-#include "material.h"
+#include "cJSON.h"
+#include "glib.h"
 
 /* include the prototypes for all the components */
 #include "Components/transform.c"

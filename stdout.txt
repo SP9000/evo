@@ -19,6 +19,3 @@ collider collision
 packet created
 packet created
 packet created
-packet created
-packet created
-packet created
