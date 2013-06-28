@@ -13,7 +13,6 @@
 extern "C" {
 #endif
 
-
 typedef struct Entity Entity;
 
 typedef void (*Component_StartFunc)();
@@ -56,6 +55,7 @@ Component* Component_Get(Component* self, int id);
 /* define the macro for NOT building, and include all standard components */
 #include "definecomponent.h"
 
+/* include definitions for all standard components */
 #include "stdcomponents.h"
 
 /* if we were building a component, continue */

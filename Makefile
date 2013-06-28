@@ -1,14 +1,16 @@
+CC = c99
 CLIENT_LIBS = -lenet -lSDL -lGL -lGLU -lGLEW -ldl -lm  -lglib-2.0
 SERVER_LIBS = -lenet
 
-CFLAGS = `pkg-config --cflags --libs glib-2.0` -Wall
+# -DOPENGL for OpenGL 2.1+ rendering, -DSW_RENDER for software rendering */
+CFLAGS = `pkg-config --cflags --libs glib-2.0` -Wall -DOPENGL_2
 
 # component sources 
 COMPONENT_SOURCES=$(wildcard Components/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files
-CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c collision.c draw.c entity.c guilayout.c material.c matrix.c model.c modelgen.c scene.c util.c cJSON.c 
+CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c collision.c component.c draw.c entity.c guilayout.c material.c matrix.c model.c modelgen.c scene.c util.c cJSON.c 
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 
 #server source files

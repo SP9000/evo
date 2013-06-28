@@ -16,16 +16,16 @@
 #include "p99/p99_args.h"
 #include "p99/p99_for.h"
 
-#define ATTRIBUTE(X) X;
+#define ATTRIBUTE(X) X ;
 #define COMPONENT(X) X
 #define COMPONENT_SET(X, Y) X, (Y)Y
 
 /* macro to declare a function and helper macros to declare a pointer in the 
  * component structure, and to produce the static prototype.
  */
-#define FUNCTION(X, ...) X
-#define FUNCTION_MEMBER(NAME, X, I) void (* X)(NAME*, void*)
-#define FUNCTION_DECLARE(X) static void X ()
+#define FUNCTION(X) X,
+#define FUNCTION_MEMBER(NAME, X, I) void (*X 
+#define FUNCTION_DECLARE(NAME, X, I) static void X 
 #define FUNCTION_SET(X) c -> X = X
 #define FUNCTION_SEP(NAME, I, REC, RES) REC; RES
 
@@ -61,13 +61,12 @@
     typedef struct Component_##X { \
         Component base; \
         attributes \
-        P99_FOR(struct Component_##X*, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_MEMBER, __VA_ARGS__); \
+        P99_FOR(struct Component_##X *, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_MEMBER, ##__VA_ARGS__); \
     }Component_##X; \
     static void Start(Component_##X *c); \
     static void Update(Component_##X *c); \
     static void Collide(Entity* e); \
-    P99_SEP(FUNCTION_DECLARE, __VA_ARGS__); \
-    functions; \
+    P99_FOR(struct Component_##X *, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_DECLARE, ##__VA_ARGS__); \
     Component* Component_New_##X(Component_##X init) { \
         Component_##X *c; \
         c = (Component_##X *)malloc(sizeof(Component_##X)); \
@@ -76,7 +75,7 @@
         c->base.update = Update; \
         c->base.collide = Collide; \
         c->base.id = CID_##X; \
-        P99_SEP(FUNCTION_SET, __VA_ARGS__); \
+        P99_SEP(FUNCTION_SET, ##__VA_ARGS__); \
         return (Component*)c; \
     }
 #else
@@ -84,7 +83,7 @@
     typedef struct Component_##X { \
         Component base; \
         attributes \
-        P99_FOR(struct Component_##X*, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_MEMBER, __VA_ARGS__); \
+        P99_FOR(struct Component_##X *, P99_NARG(__VA_ARGS__), FUNCTION_SEP, FUNCTION_MEMBER, ##__VA_ARGS__); \
     }Component_##X; \
     Component* Component_New_##X(Component_##X); 
 #endif

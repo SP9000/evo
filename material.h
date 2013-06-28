@@ -5,8 +5,8 @@
  * Bryce Wilson
  * created: June 18, 2013
  *****************************************************************************/
-#ifndef _MATERIAL_H
-#define _MATERIAL_H
+#ifndef MATERIAL_H
+#define MATERIAL_H
 
 #ifdef __cplusplus
 extern "C" {
