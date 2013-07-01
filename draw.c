@@ -1,13 +1,11 @@
 #include "draw.h"
 
-/* TODO: the way uniforms are set is not remotely reliable I think... gon'
- * have to rework that big time */
 /************************* Rendering variables *******************************/
 /* The draw target for the pre-post-pass rendering */
 static DrawTarget* activeTarget;
 
 /* The model that is used for post-processing effects (a simple rect) */
-static Model* postPassRect;
+static Component_Model* postPassRect;
  
 /* Screen surface. */
 static SDL_Surface *screen;
@@ -16,7 +14,6 @@ static SDL_Surface *screen;
 static Camera* activeCam;
 static Camera sceneCam;
 static Camera guiCam;
-
 
 /************************** helper functions *********************************/
 void DrawWidgetRecursive(gpointer data, gpointer user_data);
@@ -81,17 +78,21 @@ int Draw_Init()
 
     /* TODO: post-processing */
     /* create the post pass rectangle model */
+    /*
     float postPassRectUV[] = {0.0f, 0.0f, 
                             1.0f, 0.0f,
                             1.0f, 1.0f,
                             0.0f, 1.0f};
 
-    postPassRect = GenRect(-320,-320,640,480,10);
+    postPassRect = ModelGen_Rect(-320,-320,640,480,10);
     Model_BufferAttribute(postPassRect, MODEL_ATTRIBUTE_TEXCO, postPassRectUV);
+    */
     /* set the material for the post pass rect. */
+    /*
     Material* pprMat = Material_Load("tex.mat");
     Texture t = Draw_TargetToTexture(activeTarget);
     Material_SetTexture(pprMat, &t);
+    */
 }
 
 void Draw_Quit()
@@ -166,7 +167,7 @@ void Draw_GUI()
     glDisable(GL_SCISSOR_TEST);
 }
 
-void Draw_OptimizeModel(Model* m) {
+void Draw_OptimizeModel(Component_Model* m) {
     int i;
     
     /* create a VAO for the model */
@@ -177,7 +178,7 @@ void Draw_OptimizeModel(Model* m) {
     m->vboIDs = (GLuint*)malloc(m->numAttributes * sizeof(GLuint));
     glGenBuffers(m->numAttributes, m->vboIDs);
     for(i = 0; i < m->numAttributes; ++i) {
-        int attrSize = Model_GetAttributeSize(m->attributeTable[i]);
+        int attrSize = m->GetAttributeSize(m->attributeTable[i]);
         glBindBuffer(GL_ARRAY_BUFFER, m->vboIDs[i]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * attrSize * m->numVertices,
                 m->attributes[i], GL_STATIC_DRAW);
@@ -189,7 +190,7 @@ void Draw_OptimizeModel(Model* m) {
 }
 
 
-void Draw_Model(Model *m)
+void Draw_Model(Component_Model *m)
 {
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
@@ -293,7 +294,7 @@ Texture Draw_TargetToTexture(DrawTarget* target)
 /*****************************************************************************/
 void DrawWidgetRecursive(gpointer data, gpointer user_data)
 {
-    Widget* w = (Widget*)data;
+    Component_Widget* w = (Component_Widget*)data;
 
     /* draw the widget background */
     Draw_Model(w->background);

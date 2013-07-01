@@ -20,13 +20,6 @@ int main(int argc, char **argv)
     /* Capture mouse */
     /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
-    /* Initialize material system. */
-    puts("Initializing materials");
-    if(Material_Init() != 0) {
-        fprintf(stderr, "Error: could not initialize the material subsytem\n");
-        exit(EXIT_FAILURE);
-    }
-
     /* Initialize draw. */
     puts("Initializing draw");
     if(Draw_Init() != 0) {
@@ -38,12 +31,6 @@ int main(int argc, char **argv)
     puts("Initializing scene");
     if(Scene_Init() != 0) {
         fprintf(stderr, "Error: could not initialize the scene\n");
-        exit(EXIT_FAILURE);
-    }
-    /* Initialize the GUI-layout system. */
-    puts("Initializing GUI-layout");
-    if(GUILayout_Init() != 0) {
-        fprintf(stderr, "Error: could not initialize gui-layout\n");
         exit(EXIT_FAILURE);
     }
 

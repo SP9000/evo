@@ -24,7 +24,7 @@ enum {
 
 /* forward declarations for component types */
 
-#include "modelgen.h"
+#include <GL/glew.h>
 #include "cJSON.h"
 #include "glib.h"
 
@@ -33,6 +33,7 @@ enum {
 #include "Components/collider.c"
 #include "Components/material.c"
 #include "Components/model.c"
+#include "Components/widget.c"
 
 #ifdef __cplusplus
 }

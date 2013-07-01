@@ -1,20 +1,21 @@
-/******************************************************************************
- * component.h
- * This file defines the component type, which is the type that defines the 
- * behavior of pretty much everything in the engine.
- * This file should be included by components themselves.
- *
- * Bryce Wilson
- * Created June 24, 2013
- *****************************************************************************/
+/*****************************************************************************/
+/* component.h                                                               */
+/* This file defines the component type, which is the type that defines the  */
+/* behavior of pretty much everything in the engine.                         */
+/* This file should be included by components themselves.                    */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* Created June 24, 2013                                                     */
+/*****************************************************************************/
 #ifndef COMPONENT_H
 #define COMPONENT_H
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct Entity Entity;
+#include "types.h"
 
+typedef struct Entity Entity;
 typedef void (*Component_StartFunc)();
 typedef void (*Component_UpdateFunc)();
 typedef void (*Component_CollideFunc)(struct Entity* e);
@@ -46,6 +47,13 @@ typedef struct Component {
  * @return the component of the type requested or NULL if none exists.
  */
 Component* Component_Get(Component* self, int id);
+
+/**
+ * A convienience macro to retrieve the component of the specified type and 
+ * cast it to that same type.
+ */
+#define Component_GetAs(TYPE) \
+    (Component_##TYPE *)Component_Get((Component*)self, CID_##TYPE)
 
 /* don't build these components, only insert their definitions */
 #ifdef BUILD

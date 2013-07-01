@@ -1,13 +1,14 @@
-/******************************************************************************
- * draw.h
- * This file defines all functions used for rendering within the engine.
- * In theory, this code contains the majority of the platform dependent code in
- * the engine though you'll find some in material.h as well.
- * This should be at least up to 4.0 standard of OpenGL.
- * 
- * Bryce Wilson
- * Created: April, 2013
- *****************************************************************************/
+/*****************************************************************************/
+/* draw.h                                                                    */
+/* This file defines all functions used for rendering within the engine.     */
+/* In theory, this code contains the majority of the platform dependent code */
+/* in the engine though you'll find some in material.h as well.              */
+/* The hardware acclerated version should be compatible with OpenGL 2.0 and  */
+/* conform at least up to 4.0  standard.                                     */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* Created: April, 2013                                                      */
+/*****************************************************************************/
 #ifndef DRAW_H
 #define DRAW_H
 
@@ -26,7 +27,7 @@ extern "C" {
 #include "guilayout.h"
 #include "scene.h"
 #include "types.h"
-
+#include "stdcomponents.h"
 
 typedef struct tagDrawTarget {
     /* the framebuffer ID of the target. */
@@ -109,7 +110,7 @@ Texture Draw_TargetToTexture(DrawTarget* target);
  * @param m the model to generate VBO ID's for.
  * @param attributes flags for each attribute to generate for.
  */
-void Draw_OptimizeModel(Model* m);
+void Draw_OptimizeModel(Component_Model* m);
 
 /**
  * Draw GUI ontop of the currently rendered scene.
@@ -124,7 +125,7 @@ void Draw_GUI();
  * that the model has been rendered.
  * @param m the model to draw.
  */
-void Draw_Model(Model *m);
+void Draw_Model(Component_Model *m);
 
 /**
  * Move the camera by the given X,Y,Z amounts.

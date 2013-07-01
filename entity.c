@@ -1,23 +1,43 @@
 #include "entity.h"
 
-void Entity_AddComponent(Entity* e, Component* c)
-{
-    e->components = g_slist_append(e->components, c);
-    c->entity = e;
-}
-
-void Entity_AddComponents(Entity* e, int numComponents, ...)
+Entity* Entity_New(int numComponents, ...)
 {
     int i;
     Component* c;
     va_list vl;
 
+    int hasTransform = 0;
+
+    Entity* e = (Entity*)malloc(sizeof(Entity)); 
+    e->numChildren = 0; 
+    e->numComponents = 0; 
+    e->components = NULL; 
+    e->children = NULL; 
+
     va_start(vl, numComponents);
     for(i = 0; i < numComponents; ++i) {
         c = va_arg(vl, Component*);
+        if(c->id == CID_Transform) {
+            hasTransform = 1;
+        }
         Entity_AddComponent(e, c);
     }
     va_end(vl);
+
+    /* if no transform was given, add a default one */
+    if(!hasTransform) {
+        Entity_AddComponent(e, Component_New_Transform(NULL, 0.0f, 0.0f, 0.0f)); 
+    }
+
+    Entity_Start(e); 
+    Scene_Add(e);
+    return e;
+}
+
+void Entity_AddComponent(Entity* e, Component* c)
+{
+    e->components = g_slist_append(e->components, c);
+    c->entity = e;
 }
 
 void Entity_Start(Entity* e)
@@ -33,6 +53,8 @@ void Entity_Start(Entity* e)
         case CID_Collider:
             Collision_AddCollider((Component_Collider*)c);
             break;
+        case CID_Model:
+            Scene_Add((Component_Model*)c);
         default:
             break;
         }

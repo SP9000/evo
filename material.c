@@ -11,6 +11,7 @@ static GHashTable* fragShaderNames;
 static GHashTable* vertShaderNames;
 static GHashTable* geomShaderNames;
 
+
 int Material_Init()
 {
     materials = g_hash_table_new(g_int_hash, g_direct_equal);

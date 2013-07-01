@@ -1,13 +1,13 @@
-/******************************************************************************
- * entity.h
- * This file defines the types and functions for managing "entities" 
- * Entities are the basic objects within the game. Their behavior is defined by
- * one or more "components". Each component within the entity is updated with
- * the client update.
- *
- * Bryce Wilson
- * created: April 2013
- *****************************************************************************/
+/*****************************************************************************/
+/* entity.h                                                                  */
+/* This file defines the types and functions for managing "entities"         */
+/* Entities are the basic objects within the game. Their behavior is defined */
+/* by one or more "components". Each component within the entity is updated  */
+/* with the client update.                                                   */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* created: April 2013                                                       */
+/*****************************************************************************/
 #ifndef _ENTITY_H
 #define _ENTITY_H
 
@@ -40,16 +40,7 @@ extern "C" {
  *          COMPONENT(Aggressive)
  *      )
  */
-#define ENTITY(X, T, ...) \
-        Entity* X = (Entity*)malloc(sizeof(Entity)); \
-        X->numChildren = 0; \
-        X->numComponents = 0; \
-        X->components = NULL; \
-        X->children = NULL; \
-        Entity_AddComponent(X, Component_New_Transform(T)); \
-        Entity_AddComponents(X, P99_NARG(__VA_ARGS__),  __VA_ARGS__); \
-        Entity_Start(X); \
-        Scene_Add(X);
+#define ENTITY(X, T, ...) Entity* X = Entity_New(P99_NARG(__VA_ARGS__), __VA_ARGS__);
 
 /**
  * A macro that defines a pre-built entity or "prefab".
@@ -85,12 +76,13 @@ typedef struct Entity {
 }Entity;
 
 /**
- * Add the variable number of components to the given entity.
- * @param e the entity to add the components to.
- * @param numComponents the number of components to add to the entity.
- * @param ... the variable arguments to add to the entity.
+ * This function is used by the ENTITY macro - it allocates a new entity and
+ * adds all the components passed to it.
+ * @param numComponents the number of components to add.
+ * @param ... the components to add.
+ * @return an entity containing the given components.
  */
-void Entity_AddComponents(Entity* e, int numComponents, ...);
+Entity* Entity_New(int numComponents, ...);
 
 /**
  * Add the given component to the given entity.

@@ -1,3 +1,4 @@
+#if 0
 /******************************************************************************
  * modelgen.h
  * This file contains functions to create models of various things. This 
@@ -50,4 +51,5 @@ Model* ModelGen_Box(float x, float y, float z, float w, float h, float d);
 }
 #endif
 
+#endif
 #endif

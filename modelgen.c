@@ -1,3 +1,4 @@
+#if 0
 #include "modelgen.h"
 
 Model* ModelGen_Text(char *text, float w, float h)
@@ -166,3 +167,4 @@ Model* ModelGen_Circle(float radius, int resolution)
 }
 
 */
+#endif

@@ -15,16 +15,16 @@ int Scene_Quit()
     return 0;
 }
 
-void Scene_Add(Model* m)
+void Scene_Add(Component_Model* m)
 {
     scene = g_slist_append(scene, (gpointer)m);
 }
 
-void Scene_Foreach(void (*func)(Model*))
+void Scene_Foreach(void (*func)(Component_Model*))
 {
     GSList* it;
     for(it = scene; it != NULL; it = g_slist_next(it)) {
-        func((Model*)(it->data));
+        func((Component_Model*)(it->data));
     }
 }
 

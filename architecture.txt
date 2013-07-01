@@ -1,40 +1,60 @@
-                Server Client Architecture
-The server-client architecture is mutually exclusive in its delegations of
-various tasks.  Rendering is done only on the client side, and the server is
-the only one responsible for physics and updates to the game state.
-This approach makes the architecture well suited to single player games as the
-host machine can run both the server and client with minimal penalty. 
-For such scenarios you should make sure to make the game tick very small 
-in order to make the game updates as fast as possible.
-Since rendering is the only major task of the client, the CPU burden on the 
-clients is very small.  Things that do not affect the game state, such as 
-weather effects can (and should) be done on the client side.  As more 
-moving objects are added to the game the bandwidth usage will increase, so one
-should be mindful about frequent updates to the number of and motion of 
-objects. To mitigate the problem, the server will cull updates that are not
-viewable within the clients' camera before sending, so the problem is not as 
-bad as it may initially sound.
+Entities:
+The only user created code for this engine should be contained within the 
+application's "entities". Entities are defined by the components that they
+are made up of. 
+         _____________     _____________
+        [  ENTITY 1   ]   [   ENTITY 2  ]
+        [ COMPONENT 1 ]   [ COMPONENT 1 ]
+        [ COMPONENT 2 ]   [ COMPONENT 2 ]    ....  
+        [    ...      ]   [     ...     ]
+        [ COMPONENT N ]   [ COMPONENT N ]
+        [_____________]   [_____________]
+           /   |    \            
+        [...] [...] [...]
+         /|\   /|\   /|\ 
 
-Client
-1. Receive updates to game state
-2. Run user hooks (scripts)
-3. Render
-4. Update scene according to updates
-5. Interpolate game if necessary while waiting for next server tick.
-6. Get input and send a packet to the server if any is received.
-7. goto 1.
 
--------------------------------------------------------------------------------
-Server
-Each "tick" the following actions are executed
-1. Receive client input 
-2. Update game state
-3. Run one tick of the game state
-4. Send clients updates.
+Components:
+Components are the building blocks of entities.  All components contain two
+functions: Start and Update. These are called upon creation of a component and
+every frame to update the component respectively. Components also may contain
+other functions as well as variables to store various information. All parts of
+a component are publicly accessible by any other component or function with a
+reference to the it.
+         ________________________________
+        [           COMPONENT 1          ]
+        [  void Start()                  ]
+        [  void Update()                 ]
+        [  void Collide()                ]
+        [  void (*DoSomething)(int flag) ]
+        [  float x                       ] 
+        [  float y                       ]
+        [  AABB boundingBox              ]
+        [________________________________]
 
-The Update Queue
-A queue of is stored on the server containing UPDATE_MEMORY_LENGTH previous
-updates.  If a client misses one or more updates, he will request multiple
-updates from the queue.  If more updates than the queue provides are needed,
-the entire game state is sent to the client.
+Subsystems:
+subsystems contain lower level functionality that is not implemented in the 
+standard Entity/Component structure.  Subsystems typically perform on all 
+components of a certain type within the engine.  When components of such a type
+are added, the appropriate subsystem is automatically notified of their 
+existence.
+
+There are currently 2 subsystems: Collision and Scene. 
+Collision: 
+When a Collider component is added to the engine, the entity to which it is
+attached is added to this subsystem. The collision subsystem performs 
+collision detection on the colliders within it. When a collision is detected,
+the colliding entity's components are all notified with by calling their 
+Collide() function.
+
+Scene:
+When a Model component is added to the engine, it gets added as well to the 
+scene subsystem. This subsystem is responsible for rendering all visible
+objects within the current context.
+ ____________________       ___________________
+[      COLLISION     ]      [       SCENE      ] 
+[ ENTITY 1(Collider) ]      [  ENTITY 1(Model) ]
+[ ENTITY 3(Collider) ]      [  ENTITY 2(Model) ]
+[ ENTITY 5(Collider) ]      [  ENTITY 4(Model) ]
+[____________________]      [__________________]
 

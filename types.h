@@ -38,6 +38,10 @@ typedef struct tagAABB {
     float w, h, d;
 }AABB;
 
+typedef struct tagRect {
+    float x, y;
+    float w, h;
+}Rect;
 
 #ifdef __cplusplus
 }

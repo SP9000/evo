@@ -9,6 +9,7 @@ static Model* background;
 
 void App_Start()
 {
+/*
     float rectColors[] = {0.0f,0.0f,1.0f,1.0f,
           0.0f,0.0f,1.0f,1.0f,
           1.0f,0.0f,0.0f,1.0f,
@@ -36,18 +37,19 @@ void App_Start()
 
     Scene_Add(background);
     Scene_Add(m);
+*/
 
-    Component_Transform e1_transform = {.x = 1.0f, .y = 1.0f, .z = 20.0f};
-    Component_Transform e2_transform = {.x = 1.5f, .y = 1.0f, .z = 20.0f};
-    Component_Collider testcol = {.aabb={1,1,1}};
-    ENTITY(e1, e1_transform,
-            Component_New_Collider(testcol)
+    ENTITY(monkey,
+            Component_New_Transform(NULL, 1.0f,1.5f,20.0f),
+            Component_New_Collider(NULL, (AABB){1,1,1}),
+            Component_New_Model(NULL, "TestAssets/monkey.ply"),
+            Component_New_Material(NULL, "test.mat")
           )
-    ENTITY(e2, e2_transform,
-            Component_New_Collider(testcol)
+    ENTITY(background, 
+            Component_New_Transform(NULL, 1.0f,1.0f,20.0f),
+            Component_New_Model(NULL, "TestAssets/monkey.ply"),
+            Component_New_Material(NULL, "test.mat")
           )
-
-    Collision_Detect();
     Collision_Detect();
 }
 
