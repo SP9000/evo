@@ -16,8 +16,8 @@
 #include "p99/p99_args.h"
 #include "p99/p99_for.h"
 
-/* I'm well goddamn aware we're redefining DEFINE */
-#undef DEFINE
+/* I'm well goddamn aware we're redefining COMPONENT */
+#undef COMPONENT
 #undef BEGIN
 #undef END
 #undef SET
@@ -34,13 +34,14 @@
     Component* Component_New_##X(Component_##X *init, ##__VA_ARGS__) { \
         Component_##X *self; \
         self = (Component_##X *)malloc(sizeof(Component_##X)); \
-        *self = *init; \
+        if(init != NULL) { \
+            *self = *init; \
+        } \
         self -> base.start = Start; \
         self -> base.update = Update; \
         self -> base.collide = Collide; \
-        self -> base.id = CID_##X ; \
-
-#define CTOR(X, ...) X, ##__VA_ARGS__
+        self -> base.id = CID_##X ; 
+#define CTOR(X, ...) X ##__VA_ARGS__
 #define END return (Component*)self; }
 
 #else
@@ -50,7 +51,7 @@
         ATTRS \
     }Component_##X;
 #define BEGIN(X, ...) \
-    Component* Component_New_##X(Component_##X *init, __VA_ARGS__);
+    Component* Component_New_##X(Component_##X *init, ##__VA_ARGS__);
 #define SET(X, Y) 
 #define CTOR(X, ...) 
 #define END 

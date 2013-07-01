@@ -21,8 +21,6 @@ extern "C" {
 #include <stdlib.h>
 #include <GL/glew.h>
 #include "glib.h"
-#include "material.h"
-#include "model.h"
 #include "matrix.h"
 #include "guilayout.h"
 #include "scene.h"
@@ -42,19 +40,8 @@ typedef struct tagMap {
     guint32 width, height;
 }Map;
 
-typedef struct tagCamera {
-    Vector3 pos;
-    Vector3 rot;
-    float fov;
-    float aspect;
-    float near;
-    float far;
-
-    Mat4x4 modelMat;
-    Mat4x4 viewMat;
-    Mat4x4 projectionMat;
-}Camera;
-
+/* expose the screen surface. h8r's gon' h8 */
+extern SDL_Surface* screen;
 
 /**
  * Initialize the libraries needed for rendering. 
@@ -114,7 +101,7 @@ void Draw_OptimizeModel(Component_Model* m);
 
 /**
  * Draw GUI ontop of the currently rendered scene.
- * Draw the root widget of the GUILayout system ontop of whatever was last 
+ * Draw the root widget and all children of it ontop of whatever was last 
  * rendered.
  */
 void Draw_GUI();
@@ -125,7 +112,13 @@ void Draw_GUI();
  * that the model has been rendered.
  * @param m the model to draw.
  */
-void Draw_Model(Component_Model *m);
+void Draw_Model(Component_Model* m);
+
+/**
+ * Draw the given widget.
+ * @param w the widget to draw.
+ */
+void Draw_Widget(Component_Widget* w);
 
 /**
  * Move the camera by the given X,Y,Z amounts.
@@ -134,6 +127,12 @@ void Draw_Model(Component_Model *m);
  * @param z the amount to move the camera in the Z direction.
  */
 void Draw_MoveCamera(float x, float y, float z);
+
+/**
+ * Use the given camera to render the everything until a new camera is set.
+ * @param cam the camera to render the following draws with.
+ */
+void Draw_SetCamera(Component_Camera* cam);
 
 #ifdef __cplusplus
 }

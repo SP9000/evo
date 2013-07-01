@@ -8,7 +8,7 @@ COMPONENT_SOURCES=$(wildcard Components/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files
-CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c collision.c component.c draw.c entity.c guilayout.c material.c matrix.c model.c modelgen.c scene.c util.c cJSON.c 
+CLIENT_SOURCES=AppSpec/app.c client.c client_packet.c collision.c component.c draw.c entity.c guilayout.c matrix.c modelgen.c scene.c util.c cJSON.c 
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 
 #server source files

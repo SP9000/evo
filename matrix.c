@@ -1,5 +1,32 @@
 #include "matrix.h"
 
+static float matrixStack[16 * MATRIX_STACK_SIZE];
+static int matrixSP = 0;
+
+void Mat4x4Push(Mat4x4 mat)
+{
+    int i;
+    int offset = matrixSP * 16;
+    for(i = 0; i < 16; ++i) {
+        matrixStack[offset+i] = mat[i];
+    }
+    matrixSP++;
+}
+
+void Mat4x4Pop(Mat4x4 mat)
+{
+    int i;
+    matrixSP--;
+    if(matrixSP <= 0) {
+        fprintf(stderr, "Error: matrix stack pointer negative\n");
+        return;
+    }
+    int offset = matrixSP * 16;
+    for(i = 0; i < 16; ++i) {
+        mat[i] = matrixStack[offset+i];
+    }
+}
+
 void Mat4x4LoadIdentity(Mat4x4 mat)
 {
     int i;
@@ -31,8 +58,16 @@ void Mat4x4Translate(Mat4x4 mat, float x, float y, float z)
     Mat4x4Multiply(mat, tmat);
 }
 
+void Mat4x4Scale(Mat4x4 mat, float x, float y, float z)
+{
+    mat[0] *= x;
+    mat[5] *= y;
+    mat[10] *= z;
+}
+
 void Mat4x4Rotate(Mat4x4 mat, float angle, float x, float y, float z)
 {
+    /* TODO: dafuq???? */
     Mat4x4 tMat;
     if(x != 0.0f) {
         Mat4x4LoadIdentity(tMat);
@@ -50,7 +85,7 @@ void Mat4x4Rotate(Mat4x4 mat, float angle, float x, float y, float z)
     }
 }
 
-void Mat4x4OrthoMat(Mat4x4 mat, float left, float right, float top, float bottom, float near, float far)
+void Mat4x4OrthoMat(Mat4x4 mat, float left, float right, float top, float bottom, float nearZ, float farZ)
 {
     /* TODO: ??? */
     mat[0] = 2.0 / (right - left);
@@ -65,12 +100,12 @@ void Mat4x4OrthoMat(Mat4x4 mat, float left, float right, float top, float bottom
 
     mat[8] = 0;
     mat[9] = 0;
-    mat[10] = -2.0f / (far - near);
+    mat[10] = -2.0f / (farZ - nearZ);
     mat[11] = 0;
 
     mat[12] = -(right+left) / (right-left);
     mat[13] = -(top+bottom) / (top-bottom);
-    mat[14] = -(far+near)   / (far-near);
+    mat[14] = -(farZ+nearZ)   / (farZ-nearZ);
     mat[15] = 1;
 }
 

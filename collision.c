@@ -68,8 +68,8 @@ void Collision_Detect()
             c2 = (Component_Collider*)(j->data);
 
             /* not overlapping? */
-            if((c1->transform->x + c1->aabb.w) <
-                     (c2->transform->x)) {
+            if((c1->transform->pos.x + c1->aabb.w) <
+                     (c2->transform->pos.x)) {
                 j = i = g_list_next(i);
             }
             /* X is overlapping */
@@ -87,8 +87,8 @@ void Collision_Detect()
             c1 = (Component_Collider*)(i->data);
             c2 = (Component_Collider*)(j->data);
             /* not overlapping? */
-            if((c1->transform->y + c1->aabb.h) < 
-                    (c2->transform->y)) {
+            if((c1->transform->pos.y + c1->aabb.h) < 
+                    (c2->transform->pos.y)) {
                 j = i = g_list_next(i);
             }
             /* overlapping Y */
@@ -109,8 +109,8 @@ void Collision_Detect()
             c1 = (Component_Collider*)(i->data);
             c2 = (Component_Collider*)(j->data);
             /* not overlapping? */
-            if((c1->transform->z + c1->aabb.d) <
-                    (c2->transform->z)) {
+            if((c1->transform->pos.z + c1->aabb.d) <
+                    (c2->transform->pos.z)) {
                 j = i = g_list_next(i);
             }
             /* overlapping Z */
@@ -136,8 +136,8 @@ void Collision_Detect()
                     g_hash_table_insert(colliding, (gpointer)c1, (gpointer)c2);
                     g_hash_table_insert(colliding, (gpointer)c2, (gpointer)c1);
                     printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
-                            c1->transform->x, c1->transform->y, c1->transform->z,
-                            c2->transform->x, c2->transform->y, c2->transform->z);
+                            c1->transform->pos.x, c1->transform->pos.y, c1->transform->pos.z,
+                            c2->transform->pos.x, c2->transform->pos.y, c2->transform->pos.z);
                     Entity_Collide(c1->base.entity, c2->base.entity);
                     fflush(stdout);
                 }
@@ -145,7 +145,7 @@ void Collision_Detect()
         }
     }
     /* colliding now contains all pairs of colliders who's AABB's are 
-     * overlapping...do more precise detection */
+     * overlapping...do more precise detection TODO */
     
 }
 
@@ -170,10 +170,10 @@ gint XCompare(gconstpointer a, gconstpointer b)
 {
     Component_Collider* c1 = (Component_Collider*)a;
     Component_Collider* c2 = (Component_Collider*)b;
-    if(c1->transform->x < c2->transform->x) {
+    if(c1->transform->pos.x < c2->transform->pos.x) {
         return -1;
     }
-    else if(c1->transform->x > c2->transform->x) {
+    else if(c1->transform->pos.x > c2->transform->pos.x) {
         return 1;
     }
     else {
@@ -185,10 +185,10 @@ gint YCompare(gconstpointer a, gconstpointer b)
 {
     Component_Collider* c1 = (Component_Collider*)a;
     Component_Collider* c2 = (Component_Collider*)b;
-    if(c1->transform->y < c2->transform->y) {
+    if(c1->transform->pos.y < c2->transform->pos.y) {
         return -1;
     }
-    else if(c1->transform->y > c2->transform->y) {
+    else if(c1->transform->pos.y > c2->transform->pos.y) {
         return 1;
     }
     return 0;
@@ -198,10 +198,10 @@ gint ZCompare(gconstpointer a, gconstpointer b)
 {
     Component_Collider* c1 = (Component_Collider*)a;
     Component_Collider* c2 = (Component_Collider*)b;
-    if(c1->transform->z < c2->transform->z) {
+    if(c1->transform->pos.z < c2->transform->pos.z) {
         return -1;
     }
-    else if(c1->transform->z > c2->transform->z) {
+    else if(c1->transform->pos.z > c2->transform->pos.z) {
         return 1;
     }
     return 0;

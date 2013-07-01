@@ -22,6 +22,7 @@ extern "C" {
 #include "collision.h"
 #include "stdcomponents.h"
 #include "glib.h"
+#include "scene.h"
 #include "util.h"
 #include "p99/p99_args.h"
 
@@ -40,30 +41,7 @@ extern "C" {
  *          COMPONENT(Aggressive)
  *      )
  */
-#define ENTITY(X, T, ...) Entity* X = Entity_New(P99_NARG(__VA_ARGS__), __VA_ARGS__);
-
-/**
- * A macro that defines a pre-built entity or "prefab".
- * This macro defines the following:
- *  a static inline Entity_New_XX function that allocates, initializes values
- *      for, and returns a prefab.
- *  Usage:
- *      ENTITY(Bear,
- *          COMPONENT_SET(Transform, {0.0f,0.0f,0.0f}),
- *
- */
-
-/*
- * TODO:
-#define PREFAB(X, ...) \
-    static inline Enity* Entity_New_##X(Entity* e) { \
-        e->children = NULL; \
-        e->numChildren = 0; \
-        e->numComponents = 0; \
-        Prefab_AddComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
-        Prefab_InitComponents(e, PP_NARG(__VA_ARGS__), __VA_ARGS__); \
-    }
-*/
+#define ENTITY(X, ...) Entity* X = Entity_New(P99_NARG(__VA_ARGS__), __VA_ARGS__);
 
 /**
  * The entity structure. Entities represent all objects in the engine.

@@ -16,6 +16,7 @@ extern "C" {
 #include "types.h"
 
 typedef struct Entity Entity;
+
 typedef void (*Component_StartFunc)();
 typedef void (*Component_UpdateFunc)();
 typedef void (*Component_CollideFunc)(struct Entity* e);
@@ -39,6 +40,9 @@ typedef struct Component {
     /* the ID of the component (tells what type it is) */
     unsigned id;
 }Component;
+
+/* gross forward declaration */
+Component* Entity_GetComponent(Entity* e, int cid);
 
 /**
  * Retrieves a component that belongs to the same entity as self.

@@ -9,9 +9,8 @@
 #include "../component.h"
 
 COMPONENT(Transform,
-    float x;
-    float y;
-    float z;
+    Vector3 pos;
+    Vector3 scale;
 )
 #ifdef BUILD
     static void Start(Component_Transform* self) 
@@ -27,11 +26,10 @@ COMPONENT(Transform,
         puts("transform collision");
     }
 #endif
-BEGIN(Transform, float x, float y, float z)
+BEGIN(Transform, Vector3 pos, Vector3 scale)
 CTOR(
-    self->x = x;
-    self->y = y;
-    self->z = z;
+    self->pos = pos;
+    self->scale = scale;
 )
 END
 #endif

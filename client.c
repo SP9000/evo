@@ -17,9 +17,6 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    /* Capture mouse */
-    /* SDL_WM_GrabInput(SDL_GRAB_ON); */
-
     /* Initialize draw. */
     puts("Initializing draw");
     if(Draw_Init() != 0) {
@@ -75,8 +72,14 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     
+
     /* start the application */
+    puts("Core initialized...starting application");
+    fflush(stdout);
     App_Start();
+
+    /* Capture mouse */
+    SDL_WM_GrabInput(SDL_GRAB_ON);
 
     /* Main game loop. */
     while(run) {
@@ -157,13 +160,13 @@ int main(int argc, char **argv)
         if(mouseX < 5) {
             Draw_MoveCamera(-0.1f, 0, 0);
         }
-        else if(mouseX > 635) {
+        else if(mouseX > screen->w - 5) {
             Draw_MoveCamera(0.1f, 0, 0);
         }
         if(mouseY < 5) {
             Draw_MoveCamera(0, 0.1f, 0);
         }
-        else if(mouseY > 475) {
+        else if(mouseY > screen->h - 5) {
             Draw_MoveCamera(0, -0.1f, 0);
         }
 
@@ -179,8 +182,18 @@ int main(int argc, char **argv)
         }
     
         App_Update();
+
+        /* perform collision detection */
+        Collision_Detect();
+
+        /* Render */
+        Draw_StartFrame();
+        Draw_Scene();
         SDL_GL_SwapBuffers();
-        /* Update */
+
+        /* Render GUI TODO */
+        //Draw_GUI();
+
         SDL_Delay(100);
     }
     /* Shut down the client. */

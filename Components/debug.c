@@ -20,8 +20,8 @@ COMPONENT(Debug,
         c->col = (Component_Collider*)Component_Get((Component*)c, CID_Collider);
         if(c->col) {
             AABB aabb = c->col->aabb;
-            c->colModel = ModelGen_Box(c->transform->x, c->transform->y, c->transform->z,
-                    aabb.w, aabb.h, aabb.d);
+            /* c->colModel = ModelGen_Box(c->transform->x, c->transform->y, c->transform->z,
+                    aabb.w, aabb.h, aabb.d); */
         }
     }
 
@@ -36,7 +36,9 @@ COMPONENT(Debug,
     }
 #endif
 BEGIN(Debug)
+CTOR( 
 
+    )
 END
 #endif
 

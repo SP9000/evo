@@ -32,8 +32,10 @@
  * each vertex in the model.
  */
 COMPONENT(Model,
+    /* the transform component associated with this model. */
+    struct Component_Transform* transform;
     /* the material associated with this model. */
-    struct Component_Material mat;
+    struct Component_Material* mat;
     /* buffers for each attribute of the model */
     float** attributes;
     /* a table of MODEL_ATTRIBUTE_* ID's to tell the contents of attributes */
@@ -148,10 +150,10 @@ COMPONENT(Model,
     }
 
     /* helper function to set an attribute at a given offset */
-    static void Model_CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
+    static void CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
     {
         int i;
-        int size = self->GetAttributeSize(type);
+        int size = GetAttributeSize(type);
         srcOffset *= size;
         dstOffset *= size;
 
@@ -176,7 +178,7 @@ COMPONENT(Model,
         int i;
         int exists = -1;
 
-        attrSize = self->GetAttributeSize(self, attribute);
+        attrSize = self->GetAttributeSize(attribute);
 
         /* make sure the attribute is supported */
         if(attrSize < 0) {
@@ -425,6 +427,8 @@ COMPONENT(Model,
     static void Start(Component_Model* self)
     {
         self->mat = Component_GetAs(Material);
+        self->transform = Component_GetAs(Transform);
+        Draw_OptimizeModel(self);
     }
 
     static void Update(Component_Model* self) 

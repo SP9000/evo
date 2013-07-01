@@ -1,11 +1,11 @@
-/******************************************************************************
- * collision.h
- * This file defines functions for checking collision between entities in the
- * engine.
- * 
- * Bryce Wilson
- * Created April 2013
- *****************************************************************************/
+/*****************************************************************************/
+/* collision.h                                                               */
+/* This file defines functions for checking collision between entities in    */
+/* the engine.                                                               */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* Created April 2013                                                        */
+/*****************************************************************************/
 #ifndef COLLISION_H
 #define COLLISION_H
 
@@ -14,8 +14,8 @@ extern "C" {
 #endif
 
 #include <malloc.h>
-#include <stdbool.h>
 #include <stdio.h>
+#include "entity.h"
 #include "glib.h"
 #include "stdcomponents.h"
 
@@ -26,7 +26,6 @@ extern "C" {
 #define COLLIDER_SPHERE 2
 /* Plane collider - the AABB's w and h dimensions represent the plane's */
 #define COLLIDER_PLANE 3
-
 
 typedef struct tagCollision {
     Component_Collider* col1;

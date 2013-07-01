@@ -8,10 +8,6 @@ extern "C" {
 #include "../evo.h"
 #include "entities.h"
 
-void App_Start();
-void App_Update();
-void App_Quit();
-
 #ifdef __cplusplus
 }
 #endif

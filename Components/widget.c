@@ -20,6 +20,8 @@
 /* an event is generated when the widget is clicked */
 #define WIDGET_CLICKABLE 0x00000004
 
+#include "../component.h"
+
 /**
  * The widget structure.
  * Widgets are physically similar to models, but carry a little extra
@@ -39,13 +41,16 @@ COMPONENT(Widget,
     /* flags for various attributes of the widget e.g. GUILAYOUT_RESIZABLE */
     uint32_t flags;
     /* the background that is displayed by this widget - not scrolled */
-    Component_Model* background;
+    struct Component_Model* background;
     /* the contents that this window displays - can be scrolled. */
-    Component_Model* contents;
+    struct Component_Model* contents;
     /* the children of the widget - a list of widgets */
     GSList* children;
     /* the parent widget of this widget. NULL if this is the root widget */
-    struct tagWidget* parent;
+    struct Component_Widget* parent;
+
+    void (*AddWidget)(struct Component_Widget* self, 
+        struct Component_Widget* p, float x, float y);
 )
 
 #ifdef BUILD
@@ -56,14 +61,14 @@ COMPONENT(Widget,
      * @param x the x location to add the widget at (range 0-1).
      * @param y the y location to add the widget at (range 0-1).
      */
-    static void GUILayout_AddWidget(Component_Widget* self, Component_Widget* p, float x, float y)
+    static void AddWidget(Component_Widget* self, Component_Widget* p, float x, float y)
     {
         self->children = g_slist_append(self->children, (gpointer)p);
     }
     /* helper function to free all of a widget's subwidgets */
     static void FreeWidgetRecursive(gpointer data, gpointer user_data)
     {
-        Component_Widget* w = (Widget*)data;
+        Component_Widget* w = (Component_Widget*)data;
 
         w->contents->Free(w->contents);
         w->background->Free(w->background);
@@ -79,19 +84,32 @@ COMPONENT(Widget,
      * The widget is deleted upon removal and its resources freed.
      * @param w the widget to remove.
      */
-    static void GUILayout_RemoveWidget(Component_Widget* self)
+    static void RemoveWidget(Component_Widget* self)
     {
         /* remove link from parent to this widget */
         if(self->parent) {
-            self->children = g_slist_remove(self->parent->children, (gpointer)w);
+            self->parent->children = g_slist_remove(self->parent->children, (gpointer)self);
         }
         /* remove this widget and all its children */
         FreeWidgetRecursive((gpointer)self->children, NULL);
     }
+
+    static void Start() 
+    {
+
+    }
+    static void Update()
+    {
+
+    }
+    static void Collide()
+    {
+
+    }
 #endif
 BEGIN(Widget, Component_Widget* parent)
 CTOR(
-
+    self->AddWidget = AddWidget;
 )
 END
 #endif

@@ -2,8 +2,8 @@
 /* scene.h                                                                   */
 /* This file contains definitions for functions to manage the "scene" in the */
 /* engine. The scene is a spatial representation of the objects to be        */
-/* rendered.                                                                 */
-/*                                                                           */
+/* rendered. When a Model or Widget component is added to the engine, it gets*/
+/* added automatically to the scene system.                                  */
 /* Bryce Wilson                                                              */
 /* created: June 18, 2013                                                    */
 /*****************************************************************************/
@@ -14,7 +14,6 @@ extern "C" {
 #endif
 
 #include "glib.h"
-#include "model.h"
 #include "stdcomponents.h"
 
 /**
@@ -36,21 +35,26 @@ int Scene_Quit();
 void Scene_Add(Component_Model* m);
 
 /**
- * Add the given model to the GUI portion of the display. 
+ * Add the given widget to the GUI portion of the display. 
  * The GUI is described in two-dimensions as opposed to the (typically) 3D
- * scene. The GUI is generally rendered last. 
- * @param 
+ * scene. It is drawn ontop of the scene. 
+ * @param w The widget to add to the GUI scene.
  */
-void Scene_AddGUI(Component_Model* m);
+void Scene_AddWidget(Component_Widget* w);
 
 /**
- * Run the given function with the given user data over all entities in the
+ * Run the given function with the given user data over all models in the
  * scene.
  * @param func the function to run on all objects in the scene.
- * @param id if non-zero, only call func for entities that have a component
- *  with this ID.
  */
-void Scene_Foreach(void (*func)(Component_Model*), int cid);
+void Scene_Foreach(void (*func)(Component_Model*));
+
+/**
+ * Run the given function with the given user data over all widgets in the
+ * scene.
+ * @param func the function to run on all widgets in the scene.
+ */
+void Scene_ForeachWidget(void (*func)(Component_Widget*));
 
 #ifdef __cplusplus
 }

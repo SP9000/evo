@@ -134,8 +134,6 @@ COMPONENT(Material,
         cJSON_Delete(root);
         cJSON_Delete(json);
 
-        self = (Component_Material*)malloc(sizeof(Material));
-
         /* get/compile shaders - start with the vertex shader */
         lup = (char*)g_hash_table_lookup(vertShaderNames, vertFile);
         if(lup == NULL) {

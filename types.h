@@ -1,11 +1,11 @@
-/******************************************************************************
- * types.h
- * This file contains definitions for various types that may be useful to a 
- * variety of parts of the engine
- * 
- * Bryce Wilson
- * Created: June 25, 2013
- *****************************************************************************/
+/*****************************************************************************/
+/* types.h                                                                   */
+/* This file contains definitions for various types that may be useful to a  */
+/* variety of parts of the engine                                            */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* Created: June 25, 2013                                                    */
+/*****************************************************************************/
 #ifndef TYPES_H
 #define TYPES_H
 #ifdef __cplusplus
@@ -14,7 +14,7 @@ extern "C"
 
 /* GLib has lots of useful types... */
 #include "glib.h"
-
+#include "matrix.h"
 
 /**
  * A basic type for representing a point in 2-dimensional space.

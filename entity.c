@@ -26,11 +26,12 @@ Entity* Entity_New(int numComponents, ...)
 
     /* if no transform was given, add a default one */
     if(!hasTransform) {
-        Entity_AddComponent(e, Component_New_Transform(NULL, 0.0f, 0.0f, 0.0f)); 
+        Vector3 dfltPos = {0.0f, 0.0f, 0.0f};
+        Vector3 dfltScale = {1.0f, 1.0f, 1.0f};
+        Entity_AddComponent(e, Component_New_Transform(NULL, dfltPos, dfltScale));
     }
 
     Entity_Start(e); 
-    Scene_Add(e);
     return e;
 }
 
@@ -55,6 +56,10 @@ void Entity_Start(Entity* e)
             break;
         case CID_Model:
             Scene_Add((Component_Model*)c);
+            break;
+        case CID_Widget:
+            Scene_AddWidget((Component_Widget*)c);
+            break;
         default:
             break;
         }

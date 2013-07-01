@@ -1,26 +1,19 @@
 #include "draw.h"
 
 /************************* Rendering variables *******************************/
+/* Screen surface. */
+SDL_Surface *screen;
+
 /* The draw target for the pre-post-pass rendering */
 static DrawTarget* activeTarget;
 
 /* The model that is used for post-processing effects (a simple rect) */
 static Component_Model* postPassRect;
  
-/* Screen surface. */
-static SDL_Surface *screen;
-
 /* The current camera. */
-static Camera* activeCam;
-static Camera sceneCam;
-static Camera guiCam;
+static Component_Camera* activeCam;
+static Component_Camera* guiCam;
 
-/************************** helper functions *********************************/
-void DrawWidgetRecursive(gpointer data, gpointer user_data);
-
-/*****************************************************************************/
-/* Rendering subsystem                                                       */
-/*****************************************************************************/
 int Draw_Init()
 {
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -38,30 +31,17 @@ int Draw_Init()
         printf("Shader version %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
         glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
         
-        /* Initialize the camera. */
-        sceneCam.pos.x = 0.0f; sceneCam.pos.y = 0.0f; sceneCam.pos.z = -4.0f;
-        sceneCam.rot.x = 0.0f; sceneCam.rot.y = 0.0f; sceneCam.rot.z = 0.0f;
-        sceneCam.fov = 60.0f;
-        sceneCam.aspect = (float)screen->w / (float)screen->h;
-        sceneCam.near = 0.1f;
-        sceneCam.far = 100.0f;
-        
-        /* Initialize matrices */
-        Mat4x4LoadIdentity(sceneCam.modelMat);
-        Mat4x4LoadIdentity(sceneCam.viewMat);
-        Mat4x4LoadIdentity(sceneCam.projectionMat);
-        Mat4x4PerspMat(sceneCam.projectionMat, sceneCam.fov, sceneCam.aspect, sceneCam.near, sceneCam.far);
-
-        /* Initialize GUI matrices */
-        Mat4x4LoadIdentity(guiCam.modelMat);
-        Mat4x4LoadIdentity(guiCam.viewMat);
-        Mat4x4LoadIdentity(guiCam.projectionMat);
-        Mat4x4OrthoMat(guiCam.projectionMat, 0.0f, (float)screen->w, (float)screen->h, 0.0f, 0.01f, 100.0f);
+        /* Initialize GUI camera. Unlike scene cameras the GUI camera is 
+         * non-negotiable. You're going to go to Hogwarts, you're going to do
+         * spells, and that'll be that! */
+        guiCam = Component_New_Camera(NULL);
+        guiCam->Orthographic(guiCam, 0.0f, (float)screen->w, (float)screen->h, 
+                0.0f, 0.01f, 100.0f);
     }
     /* Initialize legacy OpenGL for older hardware. */
     else {
         printf("OpenGL extensions not supported, going old-skool\n");
-        printf("But seriously, this is probably going to be a miserable failure\n");
+        printf("But seriously, this is GOING to be a miserable failure\n");
         glEnable(GL_TEXTURE_2D);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glViewport(0, 0, 640, 480);
@@ -73,7 +53,6 @@ int Draw_Init()
 
     /* wider lines */
     glLineWidth(2);
-
     return 0;
 
     /* TODO: post-processing */
@@ -111,16 +90,17 @@ void Draw_StartFrame()
     glEnable(GL_DEPTH_TEST);
 
     /* position the camera */
-    Mat4x4LoadIdentity(sceneCam.viewMat);
-    Mat4x4Translate(sceneCam.viewMat, -sceneCam.pos.x, -sceneCam.pos.y, sceneCam.pos.z);
-    activeCam = &sceneCam;
+    Mat4x4LoadIdentity(activeCam->viewMat);
+    Mat4x4Translate(activeCam->viewMat, -activeCam->transform->pos.x, 
+            -activeCam->transform->pos.y, activeCam->transform->pos.z);
 }
 
 void Draw_FinishFrame()
 {
+#if 0
     glDisable(GL_DEPTH_TEST);
 
-    glUseProgram(postPassRect->mat.program);
+    glUseProgram(postPassRect->mat->program);
     Draw_SetTarget(NULL);
     glEnable(GL_TEXTURE_2D);
     /* do the post pass rendering - draw to back buffer*/
@@ -146,6 +126,7 @@ void Draw_FinishFrame()
     /* render next frame to texture again. */
     glDisable(GL_TEXTURE_2D);
     Draw_SetTarget(activeTarget);
+#endif
 }
 
 void Draw_Scene()
@@ -155,16 +136,22 @@ void Draw_Scene()
 
 void Draw_GUI()
 {
+    Component_Camera* saveCam;
+
     glDisable(GL_DEPTH_TEST);
 
     /* set up GUI "camera" */
-    Mat4x4LoadIdentity(guiCam.viewMat);
-    Mat4x4Translate(guiCam.viewMat, 0, 0, -1);
+    Mat4x4LoadIdentity(guiCam->viewMat);
+    Mat4x4Translate(guiCam->viewMat, 0, 0, -1);
 
-    activeCam = &guiCam;
+    saveCam = activeCam;
+    activeCam = guiCam;
+
     glEnable(GL_SCISSOR_TEST);
-    DrawWidgetRecursive((gpointer)GUILayout_GetRootWidget(), NULL);
+    Scene_ForeachWidget(Draw_Widget);
     glDisable(GL_SCISSOR_TEST);
+
+    activeCam = saveCam;
 }
 
 void Draw_OptimizeModel(Component_Model* m) {
@@ -190,26 +177,33 @@ void Draw_OptimizeModel(Component_Model* m) {
 }
 
 
-void Draw_Model(Component_Model *m)
+void Draw_Model(Component_Model* m)
 {
+    /* translate */
+    Mat4x4Push(activeCam->viewMat);
+    Mat4x4Translate(activeCam->viewMat, -m->transform->pos.x, -m->transform->pos.y, m->transform->pos.z);
+    activeCam->viewMat[0] *= m->transform->scale.x;
+    activeCam->viewMat[5] *= m->transform->scale.y;
+    activeCam->viewMat[10] *= m->transform->scale.z;
+
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(m->vao);
-    
+
     /* use the model's material's shader */
-    glUseProgram(m->mat.program);
+    glUseProgram(m->mat->program);
 
     /* set matrices */
-    glUniformMatrix4fv(m->mat.modelMatrixID, 1, GL_FALSE, activeCam->modelMat);
-    glUniformMatrix4fv(m->mat.viewMatrixID, 1, GL_FALSE, activeCam->viewMat);
-    glUniformMatrix4fv(m->mat.projectionMatrixID, 1, GL_FALSE, activeCam->projectionMat);
+    glUniformMatrix4fv(m->mat->modelMatrixID, 1, GL_FALSE, activeCam->modelMat);
+    glUniformMatrix4fv(m->mat->viewMatrixID, 1, GL_FALSE, activeCam->viewMat);
+    glUniformMatrix4fv(m->mat->projectionMatrixID, 1, GL_FALSE, activeCam->projectionMat);
 
     /* bind any samplers (textures) the material uses */
-    if(m->mat.texture.id != 0) {
+    if(m->mat->texture.id != 0) {
 #if 0
-        glUniform1i(m->mat.texture.loc, 0); /* TODO: use glProgramUniform in material.c */
+        glUniform1i(m->mat->texture.loc, 0); /* TODO: use glProgramUniform in material.c */
         glActiveTexture(GL_TEXTURE0 + 0);
-        glBindTexture(GL_TEXTURE_2D, m->mat.texture.id);
-        glBindSampler(0, m->mat.texture.sampler); 
+        glBindTexture(GL_TEXTURE_2D, m->mat->texture.id);
+        glBindSampler(0, m->mat->texture.sampler); 
 #endif
     }
 
@@ -218,13 +212,27 @@ void Draw_Model(Component_Model *m)
 
     /* Unbind. */
     glBindVertexArray(0);
+
+    /* restore camera */
+    Mat4x4Pop(activeCam->viewMat);
+}
+
+void Draw_Widget(Component_Widget* w)
+{
+    glScissor(w->rect.x * screen->w, w->rect.y * screen->h, 
+            w->rect.w * screen->w, w->rect.h * screen->h);
+    /* draw the widget background */
+    Draw_Model(w->background);
+
+    /* draw the widget contents */
+    Draw_Model(w->contents);
 }
 
 void Draw_MoveCamera(float x, float y, float z)
 {
-    sceneCam.pos.x += x;
-    sceneCam.pos.y += y;
-    sceneCam.pos.z += z;
+    activeCam->transform->pos.x += x;
+    activeCam->transform->pos.y += y;
+    activeCam->transform->pos.z += z;
 }
 
 DrawTarget* Draw_NewTarget(int w, int h)
@@ -267,6 +275,11 @@ wat:
     return target;
 }
 
+void Draw_SetCamera(Component_Camera* cam)
+{
+    activeCam = cam;
+}
+
 void Draw_SetTarget(DrawTarget* target)
 {
     if(target == NULL) {
@@ -274,7 +287,7 @@ void Draw_SetTarget(DrawTarget* target)
         glEnable(GL_TEXTURE_2D);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, activeTarget->texID);
-        glUniform1i(glGetUniformLocation(postPassRect->mat.program, "tex"), 0);
+        glUniform1i(glGetUniformLocation(postPassRect->mat->program, "tex"), 0);
     }
     else {
         glBindTexture(GL_TEXTURE_2D, 0);
@@ -287,22 +300,4 @@ Texture Draw_TargetToTexture(DrawTarget* target)
     Texture t;
     t.id = target->texID;
     return t;
-}
-
-/*****************************************************************************/
-/*                           local functions                                 */
-/*****************************************************************************/
-void DrawWidgetRecursive(gpointer data, gpointer user_data)
-{
-    Component_Widget* w = (Component_Widget*)data;
-
-    /* draw the widget background */
-    Draw_Model(w->background);
-
-    /* draw the widget contents */
-    Draw_Model(w->contents);
-
-    glScissor(w->rect.x * screen->w, w->rect.y * screen->h, 
-            w->rect.w * screen->w, w->rect.h * screen->h);
-    g_slist_foreach(w->children, DrawWidgetRecursive, NULL);
 }
