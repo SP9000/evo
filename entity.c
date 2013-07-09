@@ -2,39 +2,13 @@
 
 static GSList* entities;
 
-Entity* Entity_New(int numComponents, ...)
+Entity* Entity_New()
 {
-    int i;
-    Component* c;
-    va_list vl;
-
-    int hasTransform = 0;
-
     Entity* e = (Entity*)malloc(sizeof(Entity)); 
     e->numChildren = 0; 
     e->numComponents = 0; 
     e->components = NULL; 
     e->children = NULL; 
-
-    va_start(vl, numComponents);
-    for(i = 0; i < numComponents; ++i) {
-        c = va_arg(vl, Component*);
-        if(c->id == CID_Transform) {
-            hasTransform = 1;
-        }
-        Entity_AddComponent(e, c);
-    }
-    va_end(vl);
-
-    /* if no transform was given, add a default one */
-    if(!hasTransform) {
-        Vector3 dfltPos = {0.0f, 0.0f, 0.0f};
-        Vector3 dfltScale = {1.0f, 1.0f, 1.0f};
-        Entity_AddComponent(e, Component_New_Transform(NULL, dfltPos, dfltScale));
-    }
-
-    Entity_Start(e); 
-    entities = g_slist_append(entities, e);
     return e;
 }
 
@@ -74,6 +48,7 @@ void Entity_Start(Entity* e)
             break;
         }
     }
+    entities = g_slist_append(entities, e);
 }
 
 Component* Entity_GetComponent(Entity* e, int cid)

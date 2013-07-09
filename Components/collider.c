@@ -13,7 +13,6 @@ COMPONENT(Collider,
     AABB aabb;
 )
 
-CTOR(Collider, AABB aabb)
 
 #ifdef BUILD
     static void Start(Component_Collider* self)
@@ -33,9 +32,6 @@ CTOR(Collider, AABB aabb)
     {
         puts("collider collision");
     }
-    NEW(Collider, AABB aabb)
-        self->aabb = aabb;
-    END
 #endif
 #endif
 

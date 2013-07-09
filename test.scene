@@ -1,0 +1,56 @@
+{
+    "monkey": {
+        "Transform": {
+            "pos": {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        "Model": {
+            "file": "TestAssets/monkey.ply"
+        },
+        "Material": {
+            "file": "test.mat"
+        },
+        "Collider": {
+            "aabb": {
+                "w": 1.0,
+                "h": 1.0,
+                "d": 1.0
+            }
+        }
+    },
+    "monkey2": {
+        "Transform": {
+            "pos": {
+                "x": 0.5,
+                "y": 0.5,
+                "z": 0.5
+            },
+            "scale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            }
+        },
+        "Model": {
+            "file": "TestAssets/monkey.ply"
+        },
+        "Material": {
+            "file": "test.mat"
+        },
+        "Collider": {
+            "aabb": {
+                "w": 1.0,
+                "h": 1.0,
+                "d": 1.0
+            }
+        }
+    }
+}

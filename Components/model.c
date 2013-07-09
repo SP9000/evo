@@ -32,6 +32,9 @@
  * each vertex in the model.
  */
 COMPONENT(Model,
+    /* the file to load the model properties from */
+    PUBLIC char* file;
+
     /* the transform component associated with this model. */
     struct Component_Transform* transform;
     /* the material associated with this model. */
@@ -62,7 +65,6 @@ COMPONENT(Model,
     void (*Free)(struct Component_Model* self);
 )
 
-CTOR(Model, char* file)
 
 #ifdef BUILD
     /**
@@ -432,19 +434,7 @@ CTOR(Model, char* file)
         self->mat = Component_GetAs(Material);
         self->transform = Component_GetAs(Transform);
         Draw_OptimizeModel(self);
-    }
 
-    static void Update(Component_Model* self) 
-    {
-
-    }
-
-    static void Collide(Entity* e)
-    {
-        puts("model collision");
-    }
-
-    NEW(Model, char* file)
         self->LoadPLY = LoadPLY;
         self->BufferAttribute = BufferAttribute;
         self->AddAttribute = AddAttribute;
@@ -456,9 +446,19 @@ CTOR(Model, char* file)
         self->numAttributes = 0;
         self->subgroups = NULL;
 
-        if(file != NULL) {
-            self->LoadPLY(self, file);
+        if(self->file != NULL) {
+            self->LoadPLY(self, self->file);
         }
-    END
+    }
+
+    static void Update(Component_Model* self) 
+    {
+
+    }
+
+    static void Collide(Entity* e)
+    {
+        puts("model collision");
+    }
 #endif
 #endif

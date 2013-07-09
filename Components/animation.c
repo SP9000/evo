@@ -6,15 +6,19 @@
 /* Since models already have some sort of heirarchy via subgroups, this      */
 /* component stores just the root model, and you must access deeper levels   */
 /* on a case-by-case basis.                                                  */
+/*                                                                           */
 /* Bryce Wilson                                                              */
 /* Created July 8, 2013                                                      */
 /*****************************************************************************/
 #ifndef COMPONENT_ANIMATION
 #define COMPONENT_ANIMATION
 
+#include "../component.h"
+
 #define ANIM_TRANSLATE 0
 #define ANIM_SCALE 1
 #define ANIM_ROTATE 2
+
 
 /**
  * Animation command structure.
@@ -36,7 +40,6 @@ COMPONENT(Animation,
     struct Component_Model* root;
     AnimationCmd** animations;
 )
-CTOR(Animation)
 
 #ifdef BUILD
     static void Start(Component_Animation* self) 
@@ -51,8 +54,5 @@ CTOR(Animation)
     {
 
     }
-    
-    NEW(Animation)
-    END
 #endif
 #endif

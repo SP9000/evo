@@ -20,6 +20,7 @@ enum {
     CID_Model,
     CID_Material,
     CID_Widget,
+    CID_Animation,
 
     CID_End
 } STDComponentID;
@@ -39,6 +40,7 @@ enum {
 #include "Components/material.c"
 #include "Components/model.c"
 #include "Components/widget.c"
+#include "Components/animation.c"
 
 #ifdef __cplusplus
 }

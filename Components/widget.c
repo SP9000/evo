@@ -53,7 +53,6 @@ COMPONENT(Widget,
         struct Component_Widget* p, float x, float y);
 )
 
-CTOR(Widget, Component_Widget* parent)
 
 #ifdef BUILD
     /**
@@ -96,20 +95,17 @@ CTOR(Widget, Component_Widget* parent)
         FreeWidgetRecursive((gpointer)self->children, NULL);
     }
 
-    static void Start() 
+    static void Start(Component_Widget* self) 
     {
-
-    }
-    static void Update()
-    {
-
-    }
-    static void Collide()
-    {
-
-    }
-    NEW(Widget, Component_Widget* parent)
         self->AddWidget = AddWidget;
-    END
+    }
+    static void Update(Component_Widget* self)
+    {
+
+    }
+    static void Collide(Entity* other)
+    {
+
+    }
 #endif
 #endif

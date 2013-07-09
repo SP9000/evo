@@ -1,11 +1,11 @@
-/******************************************************************************
- * material.c
- * The material component
- * Contains the definition of the material type and functions to load/manage
- * materials. Platform dependent code (OpenGL) is used in this system.
- * Bryce Wilson
- * created: June 18, 2013
- *****************************************************************************/
+/*****************************************************************************/
+/* material.c                                                                */
+/* The material component                                                    */
+/* Contains the definition of the material type and functions to load/manage */
+/* materials. Platform dependent code (OpenGL) is used in this system.       */
+/* Bryce Wilson                                                              */
+/* created: June 18, 2013                                                    */
+/*****************************************************************************/
 #ifndef COMPONENT_MATERIAL
 #define COMPONENT_MATERIAL
 
@@ -23,6 +23,8 @@ typedef struct tagTexture {
 
 
 COMPONENT(Material,
+    PUBLIC char* file;
+
     /* variables */
     GLuint frag;
     GLuint vert;
@@ -38,7 +40,6 @@ COMPONENT(Material,
     void (*Load)(struct Component_Material* self, char *file);
 )
 
-CTOR(Material, char* file)
 
 #ifdef BUILD
     /* shared static variables among instances of components should be
@@ -271,6 +272,17 @@ CTOR(Material, char* file)
     /* Start and Update are part of all components */
     static void Start(Component_Material* self) 
     {
+        if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
+        if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
+        if(vertShaders == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
+        if(geomShaders == NULL) geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
+        if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
+        if(vertShaderNames == NULL) vertShaderNames = g_hash_table_new(g_int_hash, g_int_equal);
+        if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
+        self->Load = Load;
+        if(self->file != NULL) {
+            self->Load(self, self->file);
+        }
     }
     static void Update(Component_Material* self) 
     {
@@ -281,20 +293,6 @@ CTOR(Material, char* file)
     {
         puts("material collision");
     }
-    NEW(Material, char* file)
-        if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
-        if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(vertShaders == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(geomShaders == NULL) geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
-        if(vertShaderNames == NULL) vertShaderNames = g_hash_table_new(g_int_hash, g_int_equal);
-        if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
-        self->Load = Load;
-        if(file != NULL) {
-            self->Load(self, file);
-        }
-    END
-
 #endif
 #elif defined SW_RENDER
     /* TODO: software renderer material component */

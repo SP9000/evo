@@ -4,6 +4,7 @@ void App_Start()
 {
     Component_Camera* cam_ptr;
 
+    /*
     ENTITY(monkey,
             Component_New_Transform(NULL, 
                 (Vector3){0.5f,0.5f,0.0f}, (Vector3){1.0f,1.0f,1.0f}),
@@ -30,11 +31,13 @@ void App_Start()
                 (Vector3){0.0f,0.0f,-7.0f}, (Vector3){1.0f,1.0f,1.0f}),
             Component_New_Camera(NULL)
           )
+         */
     /* get/setup camera */
+    /*
     cam_ptr= (Component_Camera*)Entity_GetComponent(cam, CID_Camera);
     cam_ptr->Perspective(cam_ptr, 60.0f, (float)screen->w/(float)screen->h,
             0.01f, 100.0f);
-
+    */
     puts("Application initialized");
     fflush(stdout);
 }

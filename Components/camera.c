@@ -27,24 +27,8 @@ COMPONENT(Camera,
         float left, float right, float top, float bottom, float nearZ, float farZ);
 )
 
-CTOR(Camera)
 
 #ifdef BUILD
-    static void Start(Component_Camera* self) 
-    {
-        self->transform = Component_GetAs(Transform);
-        Mat4x4LoadIdentity(self->modelMat);
-        Mat4x4LoadIdentity(self->viewMat);
-        Mat4x4LoadIdentity(self->projectionMat);
-    }
-    static void Update(Component_Camera* self) 
-    {
-
-    }
-    static void Collide(Entity* e)
-    {
-        puts("camera collision");
-    }
     void Perspective(Component_Camera* self, float fov, float aspect, 
             float nearZ, float farZ)
     {
@@ -62,9 +46,23 @@ CTOR(Camera)
         Mat4x4OrthoMat(self->projectionMat, 
                 left, right, top, bottom, nearZ, farZ);
     }
-    NEW(Camera) 
+    static void Start(Component_Camera* self) 
+    {
+        self->transform = Component_GetAs(Transform);
+        Mat4x4LoadIdentity(self->modelMat);
+        Mat4x4LoadIdentity(self->viewMat);
+        Mat4x4LoadIdentity(self->projectionMat);
+
         self->Orthographic = Orthographic;
         self->Perspective = Perspective;
-    END
+    }
+    static void Update(Component_Camera* self) 
+    {
+
+    }
+    static void Collide(Entity* e)
+    {
+        puts("camera collision");
+    }
 #endif
 #endif

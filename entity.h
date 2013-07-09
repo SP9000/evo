@@ -26,23 +26,7 @@ extern "C" {
 #include "scene.h"
 #include "util.h"
 #include "p99/p99_args.h"
-
-/**
- * A macro that builds an entity from the given components, but does not 
- *  initialize them.
- * This macro defines the following:
- *  a static inline Entity_New_XX function for allocating and returning an 
- *      entity containing the given components.
- *  The first parameter defines the name of the entity while remaining 
- *  parameters define the components of the entity.
- *  Usage:
- *      ENTITY(Bear,
- *          COMPONENT(Transform),
- *          COMPONENT(Growl),
- *          COMPONENT(Aggressive)
- *      )
- */
-#define ENTITY(X, ...) Entity* X = Entity_New(P99_NARG(__VA_ARGS__), __VA_ARGS__);
+#include "cJSON.h"
 
 /**
  * The entity structure. Entities represent all objects in the engine.
@@ -55,13 +39,10 @@ typedef struct Entity {
 }Entity;
 
 /**
- * This function is used by the ENTITY macro - it allocates a new entity and
- * adds all the components passed to it.
- * @param numComponents the number of components to add.
- * @param ... the components to add.
- * @return an entity containing the given components.
+ * Create an empty entity.
+ * @return an empty entity.
  */
-Entity* Entity_New(int numComponents, ...);
+Entity* Entity_New();
 
 /**
  * Add the given component to the given entity.
@@ -96,6 +77,7 @@ void Entity_Collide(Entity* e, Entity* other);
  * Update all entities that have been created.
  */
 void Entity_Update();
+
 
 #ifdef __cplusplus
 }

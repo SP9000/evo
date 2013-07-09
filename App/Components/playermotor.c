@@ -19,7 +19,6 @@ COMPONENT(PlayerMotor,
     float speed;
 )
 
-CTOR(PlayerMotor, float fallSpeed, float jumpHeight, float speed)
 
 #ifdef BUILD
     static void Start(Component_PlayerMotor* self) 
@@ -39,10 +38,5 @@ CTOR(PlayerMotor, float fallSpeed, float jumpHeight, float speed)
     {
 
     }
-    NEW(PlayerMotor, float fallSpeed, float jumpHeight, float speed)
-        self->fallSpeed = fallSpeed;
-        self->speed = speed;
-        self->jumpHeight = jumpHeight;
-    END
 #endif
 #endif
