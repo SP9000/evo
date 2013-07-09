@@ -21,7 +21,9 @@ extern "C" {
 #include "client_packet.h"
 #include "collision.h"
 #include "draw.h"
+#include "input.h"
 #include "modelgen.h"
+#include "timer.h"
 
 extern void App_Start();
 extern void App_Update();

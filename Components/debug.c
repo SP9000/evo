@@ -13,6 +13,7 @@ COMPONENT(Debug,
     struct Component_Collider* col;
     struct Model* colModel;
 )
+CTOR(Debug)
 #ifdef BUILD
     static void Start(Component_Debug* c)
     {
@@ -34,11 +35,9 @@ COMPONENT(Debug,
     {
         puts("debug collision");
     }
-#endif
-BEGIN(Debug)
-CTOR( 
+    NEW(Debug)
+    END
 
-    )
-END
+#endif
 #endif
 

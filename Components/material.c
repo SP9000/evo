@@ -21,6 +21,7 @@ typedef struct tagTexture {
     GLuint sampler;
 }Texture;
 
+
 COMPONENT(Material,
     /* variables */
     GLuint frag;
@@ -36,6 +37,9 @@ COMPONENT(Material,
     /* functions */
     void (*Load)(struct Component_Material* self, char *file);
 )
+
+CTOR(Material, char* file)
+
 #ifdef BUILD
     /* shared static variables among instances of components should be
      * placed in the FUNCTIONS block. */
@@ -103,11 +107,9 @@ COMPONENT(Material,
                     do {
                         if(strncmp(json->string, "vert", 4) == 0) {
                             vertFile = json->valuestring;
-                            puts(vertFile);
                         }
                         else if(strncmp(json->string, "frag", 4) == 0) {
                             fragFile = json->valuestring;
-                            puts(fragFile);
                         }
                         else if(strncmp(json->string, "geom", 4) == 0) {
                             geomFile = json->valuestring;
@@ -121,7 +123,6 @@ COMPONENT(Material,
                     attributes = (char**)malloc(nAttributes * sizeof(char*));
                     for(i = 0; i < nAttributes; ++i) {
                         cJSON* attr = cJSON_GetArrayItem(json, i);
-                        puts(attr->valuestring);
                         attributes[i] = (char*)malloc((strlen(attr->valuestring)+1) * 
                                 sizeof(char));
                         strncpy(attributes[i], attr->valuestring, 
@@ -270,13 +271,6 @@ COMPONENT(Material,
     /* Start and Update are part of all components */
     static void Start(Component_Material* self) 
     {
-        if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
-        if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(vertShaders == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(geomShaders == NULL) geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
-        if(vertShaderNames == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
-        if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
     }
     static void Update(Component_Material* self) 
     {
@@ -287,21 +281,25 @@ COMPONENT(Material,
     {
         puts("material collision");
     }
-#endif
-BEGIN(Material, char* file)
-CTOR(
-    self->Load = Load;
-    if(file != NULL) {
-        self->Load(self, file);
-    }
-)
-END
+    NEW(Material, char* file)
+        if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
+        if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
+        if(vertShaders == NULL) vertShaders = g_hash_table_new(g_int_hash, g_int_equal);
+        if(geomShaders == NULL) geomShaders = g_hash_table_new(g_int_hash, g_int_equal);
+        if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
+        if(vertShaderNames == NULL) vertShaderNames = g_hash_table_new(g_int_hash, g_int_equal);
+        if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
+        self->Load = Load;
+        if(file != NULL) {
+            self->Load(self, file);
+        }
+    END
 
+#endif
 #elif defined SW_RENDER
     /* TODO: software renderer material component */
 
 #else 
 #error "no rendering method selected."
 #endif
-
 #endif

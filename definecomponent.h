@@ -18,10 +18,9 @@
 
 /* I'm well goddamn aware we're redefining COMPONENT */
 #undef COMPONENT
-#undef BEGIN
-#undef END
-#undef SET
-#undef CTOR
+
+#define CTOR(X, ...) \
+    Component* Component_New_##X(Component_##X *init, ##__VA_ARGS__); 
 
 #ifdef BUILD
 #define COMPONENT(X, ATTRS) \
@@ -29,8 +28,8 @@
         Component base; \
         ATTRS \
     }Component_##X;
-
-#define BEGIN(X, ...) \
+    
+#define NEW(X, ...) \
     Component* Component_New_##X(Component_##X *init, ##__VA_ARGS__) { \
         Component_##X *self; \
         self = (Component_##X *)malloc(sizeof(Component_##X)); \
@@ -40,20 +39,14 @@
         self -> base.start = Start; \
         self -> base.update = Update; \
         self -> base.collide = Collide; \
-        self -> base.id = CID_##X ; 
-#define CTOR(X, ...) X ##__VA_ARGS__
-#define END return (Component*)self; }
+        self -> base.id = CID_##X ; \
 
+#define END \
+    return (Component*)self; }
 #else
 #define COMPONENT(X, ATTRS) \
     typedef struct Component_##X { \
         Component base; \
         ATTRS \
     }Component_##X;
-#define BEGIN(X, ...) \
-    Component* Component_New_##X(Component_##X *init, ##__VA_ARGS__);
-#define SET(X, Y) 
-#define CTOR(X, ...) 
-#define END 
-
 #endif

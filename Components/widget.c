@@ -53,6 +53,8 @@ COMPONENT(Widget,
         struct Component_Widget* p, float x, float y);
 )
 
+CTOR(Widget, Component_Widget* parent)
+
 #ifdef BUILD
     /**
      * Add the specified widget to the specified parent widget. 
@@ -106,10 +108,8 @@ COMPONENT(Widget,
     {
 
     }
+    NEW(Widget, Component_Widget* parent)
+        self->AddWidget = AddWidget;
+    END
 #endif
-BEGIN(Widget, Component_Widget* parent)
-CTOR(
-    self->AddWidget = AddWidget;
-)
-END
 #endif

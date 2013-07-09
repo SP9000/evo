@@ -13,6 +13,7 @@
 extern "C" {
 #endif
 
+#include "timer.h"
 #include "types.h"
 
 typedef struct Entity Entity;
@@ -69,6 +70,9 @@ Component* Component_Get(Component* self, int id);
 
 /* include definitions for all standard components */
 #include "stdcomponents.h"
+
+/* include definitions for all app components */
+#include "App/appcomponents.h"
 
 /* if we were building a component, continue */
 #ifdef BUILDING

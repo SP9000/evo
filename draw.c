@@ -3,6 +3,7 @@
 /************************* Rendering variables *******************************/
 /* Screen surface. */
 SDL_Surface *screen;
+Component_Camera* main_cam;
 
 /* The draw target for the pre-post-pass rendering */
 static DrawTarget* activeTarget;
@@ -50,6 +51,8 @@ int Draw_Init()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     }
+
+    main_cam = NULL;
 
     /* wider lines */
     glLineWidth(2);

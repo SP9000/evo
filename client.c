@@ -11,6 +11,10 @@ int main(int argc, char **argv)
 
     SDL_Event inputEvent;
 
+    /* Initialize the client */
+    puts("\nInitializing client\n"
+    "****************************************");
+
     /* Initialize SDL. */
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL\n");
@@ -29,6 +33,10 @@ int main(int argc, char **argv)
     if(Scene_Init() != 0) {
         fprintf(stderr, "Error: could not initialize the scene\n");
         exit(EXIT_FAILURE);
+    }
+
+    /* Initialize the input system */
+    if(Input_Init() != 0) {
     }
 
     puts("Starting client");
@@ -74,7 +82,8 @@ int main(int argc, char **argv)
     
 
     /* start the application */
-    puts("Core initialized...starting application");
+    puts("Core initialized...starting application\n"
+        "***************************************");
     fflush(stdout);
     App_Start();
 
@@ -170,21 +179,30 @@ int main(int argc, char **argv)
             Draw_MoveCamera(0, -0.1f, 0);
         }
 
-        /* If there is new input, send a packet containing the info to the server. */
+        /* If there is new input, create/send a packet containing the info to the server. */
         if(mouseMoved || numReleased > 0 || numPressed > 0) {
             size_t packetLen = GamePacket_Create(packet, 
                     keysPressed, keysReleased, 
                     numPressed, numReleased, 
                     (short)mouseX, (short)mouseY);
-            puts("packet created");
             ENetPacket *epacket = enet_packet_create(packet, packetLen, ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(peer, 0, epacket);
         }
     
-        App_Update();
+        /* update input information */
+        Input_Update();
 
         /* perform collision detection */
         Collision_Detect();
+
+        /* update time */
+        Time_Update();
+    
+        /* update entities */
+        Entity_Update();
+    
+        /* update the app */
+        App_Update();
 
         /* Render */
         Draw_StartFrame();
@@ -203,6 +221,7 @@ int main(int argc, char **argv)
     enet_deinitialize();
 
     App_Quit();
+    Input_Quit();
     Draw_Quit();
     SDL_Quit();
     return 0;

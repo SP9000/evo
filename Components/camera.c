@@ -26,6 +26,9 @@ COMPONENT(Camera,
     void (*Orthographic)(struct Component_Camera* self,
         float left, float right, float top, float bottom, float nearZ, float farZ);
 )
+
+CTOR(Camera)
+
 #ifdef BUILD
     static void Start(Component_Camera* self) 
     {
@@ -59,11 +62,9 @@ COMPONENT(Camera,
         Mat4x4OrthoMat(self->projectionMat, 
                 left, right, top, bottom, nearZ, farZ);
     }
-#endif
-BEGIN(Camera)
-CTOR(
+    NEW(Camera) 
         self->Orthographic = Orthographic;
         self->Perspective = Perspective;
-    )
-END
+    END
+#endif
 #endif

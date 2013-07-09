@@ -19,6 +19,36 @@ extern "C" {
 #include <SDL/SDL.h>
 
 /**
+ * A simple union to abstract the buttons on the keyboard/joystick.
+ */
+typedef union tagInputButton {
+    uint8_t key;
+    uint8_t joy;
+}InputButton;
+
+/**
+ * This structure represents the physical device used to communicate with the 
+ * input system.
+ */
+typedef struct tagInputDevice {
+    /* type of input device: 0=keyboard, 1=joystick */
+    int type;
+    /* if device is a joystick, this holds the reference to it */
+    SDL_Joystick* joy;
+}InputDevice;
+
+
+/**
+ * Initialize the input system. 
+ */
+int Input_Init();
+
+/**
+ * Call upon exiting the client to cleanup input.
+ */
+void Input_Quit();
+
+/**
  * Calling this scans the input for the device. 
  * Call this every frame if you want input.
  */

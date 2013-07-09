@@ -1,5 +1,7 @@
 #include "entity.h"
 
+static GSList* entities;
+
 Entity* Entity_New(int numComponents, ...)
 {
     int i;
@@ -32,6 +34,7 @@ Entity* Entity_New(int numComponents, ...)
     }
 
     Entity_Start(e); 
+    entities = g_slist_append(entities, e);
     return e;
 }
 
@@ -60,6 +63,13 @@ void Entity_Start(Entity* e)
         case CID_Widget:
             Scene_AddWidget((Component_Widget*)c);
             break;
+        case CID_Camera:
+            /* If no camera has been created, set this one as the main cam. */
+            if(!main_cam) {
+                main_cam = (Component_Camera*)c;
+                Draw_SetCamera(main_cam);
+            }
+            break;
         default:
             break;
         }
@@ -86,4 +96,18 @@ void Entity_Collide(Entity* e, Entity* other)
         c->collide(other);
     }
     
+}
+
+void Entity_Update()
+{
+    GSList* eit;
+    GSList* cit;
+
+    /* foreach entity... */
+    for(eit = entities; eit != NULL; eit = g_slist_next(eit)) {
+        /* update all components for this entity */
+        for(cit = ((Entity*)(eit->data))->components; cit != NULL; cit = g_slist_next(cit)) {
+            ((Component*)(cit->data))->update(cit->data);
+        }
+    }
 }

@@ -12,6 +12,9 @@ COMPONENT(Collider,
     struct Component_Transform* transform;
     AABB aabb;
 )
+
+CTOR(Collider, AABB aabb)
+
 #ifdef BUILD
     static void Start(Component_Collider* self)
     {
@@ -30,11 +33,9 @@ COMPONENT(Collider,
     {
         puts("collider collision");
     }
+    NEW(Collider, AABB aabb)
+        self->aabb = aabb;
+    END
 #endif
-BEGIN(Collider, AABB aabb)
-CTOR(
-    self->aabb = aabb;
-)
-END
 #endif
 

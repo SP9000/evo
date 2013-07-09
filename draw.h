@@ -27,6 +27,8 @@ extern "C" {
 #include "types.h"
 #include "stdcomponents.h"
 
+extern Component_Camera* main_cam;
+
 typedef struct tagDrawTarget {
     /* the framebuffer ID of the target. */
     GLuint fbID;

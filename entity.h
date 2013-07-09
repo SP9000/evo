@@ -20,6 +20,7 @@ extern "C" {
 #include <stdio.h>
 #include "component.h"
 #include "collision.h"
+#include "draw.h"
 #include "stdcomponents.h"
 #include "glib.h"
 #include "scene.h"
@@ -90,6 +91,11 @@ void Entity_Start(Entity* e);
  * @param other the entity to pass as a parameter to the collide function.
  */
 void Entity_Collide(Entity* e, Entity* other);
+
+/**
+ * Update all entities that have been created.
+ */
+void Entity_Update();
 
 #ifdef __cplusplus
 }

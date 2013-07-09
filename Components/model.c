@@ -61,6 +61,9 @@ COMPONENT(Model,
     void (*SetAttribute)(struct Component_Model* self, int attribute, int offset, float* val);
     void (*Free)(struct Component_Model* self);
 )
+
+CTOR(Model, char* file)
+
 #ifdef BUILD
     /**
      * Get the number of floats the attribute of the given ID uses.
@@ -440,23 +443,22 @@ COMPONENT(Model,
     {
         puts("model collision");
     }
+
+    NEW(Model, char* file)
+        self->LoadPLY = LoadPLY;
+        self->BufferAttribute = BufferAttribute;
+        self->AddAttribute = AddAttribute;
+        self->SetAttribute = SetAttribute;
+        self->Free = Free;
+        self->GetAttributeSize = GetAttributeSize;
+
+        self->numVertices = 0;
+        self->numAttributes = 0;
+        self->subgroups = NULL;
+
+        if(file != NULL) {
+            self->LoadPLY(self, file);
+        }
+    END
 #endif
-BEGIN(Model, char* file)
-CTOR(
-    self->LoadPLY = LoadPLY;
-    self->BufferAttribute = BufferAttribute;
-    self->AddAttribute = AddAttribute;
-    self->SetAttribute = SetAttribute;
-    self->Free = Free;
-    self->GetAttributeSize = GetAttributeSize;
-
-    self->numVertices = 0;
-    self->numAttributes = 0;
-    self->subgroups = NULL;
-
-    if(file != NULL) {
-        self->LoadPLY(self, file);
-    }
-)
-END
 #endif

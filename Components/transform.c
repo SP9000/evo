@@ -8,10 +8,15 @@
 
 #include "../component.h"
 
+/* Define the component's name and attributes */
 COMPONENT(Transform,
     Vector3 pos;
     Vector3 scale;
 )
+
+/* Prototype the constructor for the component */
+CTOR(Transform, Vector3 pos, Vector3 scale) 
+
 #ifdef BUILD
     static void Start(Component_Transform* self) 
     {
@@ -25,11 +30,10 @@ COMPONENT(Transform,
     {
         puts("transform collision");
     }
+    
+    NEW(Transform, Vector3 pos, Vector3 scale) 
+        self->pos = pos;
+        self->scale = scale;
+    END
 #endif
-BEGIN(Transform, Vector3 pos, Vector3 scale)
-CTOR(
-    self->pos = pos;
-    self->scale = scale;
-)
-END
 #endif

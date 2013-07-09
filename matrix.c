@@ -10,14 +10,15 @@ void Mat4x4Push(Mat4x4 mat)
     for(i = 0; i < 16; ++i) {
         matrixStack[offset+i] = mat[i];
     }
-    matrixSP++;
+    ++matrixSP;
 }
 
 void Mat4x4Pop(Mat4x4 mat)
 {
     int i;
-    matrixSP--;
-    if(matrixSP <= 0) {
+
+    --matrixSP;
+    if(matrixSP < 0) {
         fprintf(stderr, "Error: matrix stack pointer negative\n");
         return;
     }
