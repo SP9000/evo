@@ -10,15 +10,9 @@
 /* Bryce Wilson                                                              */
 /* Created July 8, 2013                                                      */
 /*****************************************************************************/
-#ifndef COMPONENT_ANIMATION
-#define COMPONENT_ANIMATION
-
-#include "../component.h"
-
 #define ANIM_TRANSLATE 0
 #define ANIM_SCALE 1
 #define ANIM_ROTATE 2
-
 
 /**
  * Animation command structure.
@@ -36,23 +30,21 @@ typedef struct AnimationCmd {
     Vector3 value;
 }AnimationCmd;
 
-COMPONENT(Animation,
-    struct Component_Model* root;
+Component Animation {
+    public Component_Model* root;
     AnimationCmd** animations;
-)
 
-#ifdef BUILD
-    static void Start(Component_Animation* self) 
+    void Start(Component_Animation* self) 
     {
 
     }
-    static void Update(Component_Animation* self) 
+    void Update(Component_Animation* self) 
     {
 
     }
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
-
+        
     }
-#endif
-#endif
+}
+
