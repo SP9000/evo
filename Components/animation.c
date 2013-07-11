@@ -10,9 +10,9 @@
 /* Bryce Wilson                                                              */
 /* Created July 8, 2013                                                      */
 /*****************************************************************************/
-#define ANIM_TRANSLATE 0
-#define ANIM_SCALE 1
-#define ANIM_ROTATE 2
+#define ANIM_TRANSLATE 0 
+#define ANIM_SCALE 1 
+#define ANIM_ROTATE 2 
 
 /**
  * Animation command structure.
