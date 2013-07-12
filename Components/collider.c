@@ -2,20 +2,15 @@
 /* The collider component.                                                   */
 /* This component contains information that allows the entity it is attached */
 /* to be checked for collision with other entities that have colliders.      */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* Created: June, 2013                                                       */
 /*****************************************************************************/
-#ifndef COMPONENT_COLLIDER
-#define COMPONENT_COLLIDER
+COMPONENT Collider {
+    public Component_Transform* transform;
+    public AABB aabb;
 
-#include "../component.h"
-
-COMPONENT(Collider,
-    struct Component_Transform* transform;
-    AABB aabb;
-)
-
-
-#ifdef BUILD
-    static void Start(Component_Collider* self)
+    void Start()
     {
         self->transform = Component_GetAs(Transform);
         self->aabb.w = 1.0f;
@@ -23,15 +18,14 @@ COMPONENT(Collider,
         self->aabb.d = 1.0f;
     }
 
-    static void Update(Component_Collider* c) 
+    void Update() 
     {
 
     }
 
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
         puts("collider collision");
     }
-#endif
-#endif
+}
 

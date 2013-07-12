@@ -30,21 +30,25 @@ typedef struct AnimationCmd {
     Vector3 value;
 }AnimationCmd;
 
-Component Animation {
+COMPONENT Animation {
     public Component_Model* root;
     AnimationCmd** animations;
 
-    void Start(Component_Animation* self) 
+    void Start() 
     {
 
     }
-    void Update(Component_Animation* self) 
+    void Update() 
     {
 
     }
     void Collide(Entity* e)
     {
         
+    }
+    void Test(int a, float b, Component* c)
+    {
+        int d = a * b;
     }
 }
 

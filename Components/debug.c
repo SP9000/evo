@@ -3,37 +3,29 @@
 /* If this is attached to an object, it makes certain information visible    */
 /* that may be useful for debugging.                                         */
 /*****************************************************************************/
-#ifndef COMPONENT_DEBUG
-#define COMPONENT_DEBUG
+COMPONENT Debug {
+    public Component_Transform* transform;
+    public Component_Collider* col;
+    public Model* colModel;
 
-#include "../component.h"
-
-COMPONENT(Debug,
-    struct Component_Transform* transform;
-    struct Component_Collider* col;
-    struct Model* colModel;
-)
-#ifdef BUILD
-    static void Start(Component_Debug* c)
+    void Start()
     {
-        c->transform = (Component_Transform*)Component_Get((Component*)c, CID_Transform);
-        c->col = (Component_Collider*)Component_Get((Component*)c, CID_Collider);
-        if(c->col) {
-            AABB aabb = c->col->aabb;
+        self->transform = Component_GetAs(self, Transform);
+        self->col = Component_GetAs(self, Collider);
+        if(self->col) {
+            AABB aabb = self->col->aabb;
             /* c->colModel = ModelGen_Box(c->transform->x, c->transform->y, c->transform->z,
                     aabb.w, aabb.h, aabb.d); */
         }
     }
 
-    static void Update(Component_Debug * c) 
+    void Update() 
     {
 
     }
 
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
         puts("debug collision");
     }
-#endif
-#endif
-
+}

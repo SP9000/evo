@@ -2,30 +2,26 @@
 /* The transform component - common to all entities.                         */
 /* The transform component contains the data to represent an entity's        */
 /* location in the scene.                                                    */
+/*                                                                           */
+/* Bryce Wilson                                                              */
+/* Created: June, 2013                                                       */
 /*****************************************************************************/
-#ifndef COMPONENT_TRANSFORM
-#define COMPONENT_TRANSFORM
 
-#include "../component.h"
+COMPONENT Transform {
+    public Vector3 pos;
+    public Vector3 scale;
 
-/* Define the component's name and attributes */
-COMPONENT(Transform,
-    PUBLIC Vector3 pos;
-    PUBLIC Vector3 scale;
-)
-
-#ifdef BUILD
-    static void Start(Component_Transform* self) 
+    void Start() 
     {
 
     }
-    static void Update(Component_Transform* self) 
+    void Update() 
     {
 
     }
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
         puts("transform collision");
     }
-#endif
-#endif
+}
+

@@ -20,27 +20,35 @@
 /* who makes a MB function after comment removal!? */
 #define ATTRIBUTE_MAX_BODY_SIZE 1048576
 
-#define STATE_IS_PUBLIC 0
-#define STATE_SEEK_NAME 1
-#define STATE_TYPE_DECLARE 2
-#define STATE_CHECK_IF_FUNCTION 3
-#define STATE_FUNCTION_PROTOTYPE 4 
-#define STATE_FUNCTION_BODY 5
-#define STATE_FUNCTION_BEGIN 6
-#define STATE_DONE 7
-
 #include "cJSON.h"
 
-#define TYPE_INT        1
-#define TYPE_FLOAT      2
-#define TYPE_STRING     3
-#define TYPE_POINTER    4
-#define TYPE_BOOL       5
+enum {
+    STATE_IS_PUBLIC,
+    STATE_SEEK_NAME, 
+    STATE_TYPE_DECLARE,
+    STATE_CHECK_IF_FUNCTION,
+    STATE_FUNCTION_PROTOTYPE,
+    STATE_FUNCTION_BODY,
+    STATE_FUNCTION_BEGIN,
+    STATE_DONE,
+    STATE_SEEK_PARAM_NAME,
+    STATE_SEEK_PARAM_TYPE,
+    STATE_IS_MORE_PARAMS,
+    STATE_GET_PARAM_TYPE
+};
 
-#define TYPE_VECTOR2    6
-#define TYPE_VECTOR3    7
-#define TYPE_RECT       8
-#define TYPE_AABB       9
+enum {
+    TYPE_INT,
+    TYPE_FLOAT,
+    TYPE_STRING,
+    TYPE_POINTER,
+    TYPE_BOOL,
+
+    TYPE_VECTOR2,
+    TYPE_VECTOR3,
+    TYPE_RECT,
+    TYPE_AABB  
+};
 
 typedef struct tagAttribute {
     int public;
@@ -48,7 +56,7 @@ typedef struct tagAttribute {
     char* type;
     char* name;
 
-    char* prototype;    //if function
+    GList* parameters;    //if function
     char* definition;    //if function
 }Attribute;
 
@@ -57,7 +65,7 @@ FILE* header_fp;
 FILE* c_fp;
 
 //void write_json(cJSON* json, char* type, char* name);
-void C_To_Scene(char* in_file, char* header_fp, char* c_fp);
+void component_to_c_h(char* in_file, char* out_header, char* out_c);
 void ReadComponent(cJSON* c);
 
 /* given pointer at start of a block, returns pointer to end of { } block. */
@@ -66,70 +74,32 @@ char* get_block(char* text);
 void simplify(char* text);
 
 int get_type(char* text);
-Attribute* get_attribute(char* text);
-Attribute* new_attribute(char* name, char* type, char* prototype, char* body);
+Attribute* get_attribute(char** text_loc);
+Attribute* new_attribute(char* name, char* type, GList* prototype, char* body);
 
 int main(int argc, char** argv)
 {
-    char header[256];
-    char c[256];
-    if(argc != 3) {
-        puts("Usage: ./thisprogram input_file");
+    if(argc != 4) {
+        puts("Usage: ./thisprogram <input component file> <output header file> <output c file>");
         exit(1);
     }
-    strcpy(c, argv[1]);
-    strcat(c, ".c");
-    strcpy(header, argv[1]);
-    strcat(header, ".h");
-    printf("C file: %s\nHeader file: %s\n", c, header);
-    C_To_Scene(argv[1], header, c);
+    component_to_c_h(argv[1], argv[2], argv[3]);
     
     return 0;
 }
 
-/**************************************
-example:
----------- private (*.h) --------------
-typedef struct Component_Animation {
-    void DoSomething();
-}Component_Animation;
-Component* Component_New_Animation();
-
---------- public (*.c) ----------------
-typedef struct Component_Animation {
-    void DoSomething();
-    private members....
-}
-Component* Component_New_Animation()
+void component_to_c_h(char* in_file, char* out_header, char* out_c)
 {
-    ...
-}
-function prototypes
-    ...
-functions
-    ...
-**************************************/
-
-void C_To_Scene(char* in_file, char* out_header, char* out_c)
-{
-    char* line;
     char* text;
+    char* pch;
+    char* name;
     FILE* in_fp;
     FILE* header_fp;
     FILE* c_fp;
     cJSON* root;
     cJSON* json_attributes;
-    cJSON* tmp;
-    char* pch;
-    char* out;
     GSList* attributes;
     GSList* it;
-
-    char* type;
-    char* name;
-
-    int i;
-
 
     /* open input file */
     in_fp = fopen(in_file, "r");
@@ -140,14 +110,26 @@ void C_To_Scene(char* in_file, char* out_header, char* out_c)
     /* open output files (*.c and *.h) */
     header_fp = fopen(out_header, "w");
     if(header_fp == NULL) {
-        fprintf(stderr, "Error: couldn't open file %s for writing\n", header_fp);
+        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_header);
         exit(-2);
     }
     c_fp = fopen(out_c, "w");
     if(c_fp == NULL) {
-        fprintf(stderr, "Error: couldn't open file %s for writing\n", c_fp);
+        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_c);
         exit(-3);
     }
+
+    /* write some friendly messages */
+    fprintf(header_fp, 
+            "/***************************************************************/\n"
+            "/* This is a generated component header file...                */\n"
+            "/* Do whatever you want with it. I really don't care.          */\n"
+            "/***************************************************************/\n\n");
+    fprintf(c_fp, 
+            "/***************************************************************/\n"
+            "/* This is a generated component C file...                     */\n"
+            "/* Do whatever you want with it. I really don't care.          */\n"
+            "/***************************************************************/\n\n");
 
     /*
     root = cJSON_CreateObject();
@@ -161,9 +143,9 @@ void C_To_Scene(char* in_file, char* out_header, char* out_c)
     simplify(text);
 
     /* find Component:: definition */
-    pch = strstr(text, "Component ");
+    pch = strstr(text, "COMPONENT");
     if(pch == NULL) {
-        fprintf(stderr, "Error: no Component definition found\n");
+        fprintf(stderr, "Error: no COMPONENT definition found\n");
         exit(-4);
     }
     
@@ -193,52 +175,110 @@ void C_To_Scene(char* in_file, char* out_header, char* out_c)
     attributes = NULL;
     /* read attributes */
     while(*text) {
-        char* pname;
-        char* ptype;
         Attribute* a;
-        a = get_attribute(text);
+
+        /* eat spaces */
+        while(isspace(*text)) ++text;
+        /* if floating '}' found, assume we're at the end */
+        if(*text == '}') {
+            break;
+        }
+
+        a = get_attribute(&text);
         if(a != NULL) {
-            /* TODO: CAUSES CRASH....WHY!????? */
             attributes = g_slist_append(attributes, (gpointer)a);
         }
-        puts("RLY THO?");
-        return;
     }
 
-    /* write header */
-    fprintf(header_fp, "#ifndef COMPONENT_%s\n#define COMPONENT_%s", 
+    /**************************** write header *******************************/
+    fprintf(header_fp, "#ifndef COMPONENT_%s\n#define COMPONENT_%s\n", 
             name, name);
     fprintf(header_fp, "typedef struct Component_%s {\n", name);
-    fprintf(header_fp, "    Component base;\n", name);
+    fprintf(header_fp, "    Component base;\n");
+
+    /* variables */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         if(((Attribute*)(it->data))->public) {
-            fprintf(header_fp, "    %s %s;\n", 
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name);
+            if(!((Attribute*)it->data)->is_function) {
+                fprintf(header_fp, "    %s %s;\n", 
+                        ((Attribute*)it->data)->type,
+                        ((Attribute*)it->data)->name);
+            }
         }
     }
+    /* function pointer variables */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)(it->data))->public) {
+            if(((Attribute*)it->data)->is_function) {
+                /* TODO */
+            }
+        }
+    }
+
     fprintf(header_fp, "}Component_%s;\n", name);
     fprintf(header_fp, "Component* Component_%s_New();\n", name);
     fprintf(header_fp, "#endif\n");
 
-    /* write C file */
-    fprintf(c_fp, "#include \"component.h\"\n");
+    /***************************** write C file ******************************/
+    fprintf(c_fp, "#include \"..\\component.h\"\n");
     fprintf(c_fp, "typedef struct Component_%s {\n", name);
-    fprintf(header_fp, "    Component base;\n", name);
+    fprintf(c_fp, "    Component base;\n");
+
+    /* variables - public must go first to be compatible with what the */
+    /* outside world believes to be the structure looks like           */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        fprintf(c_fp, "    %s %s;\n",
-                ((Attribute*)it->data)->type,
-                ((Attribute*)it->data)->name);
+        if(((Attribute*)(it->data))->public) {
+            if(!((Attribute*)it->data)->is_function) {
+                fprintf(c_fp, "    %s %s;\n", 
+                        ((Attribute*)it->data)->type,
+                        ((Attribute*)it->data)->name);
+            }
+        }
     }
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(!((Attribute*)(it->data))->public) {
+            if(!((Attribute*)it->data)->is_function) {
+                fprintf(c_fp, "    %s %s;\n", 
+                        ((Attribute*)it->data)->type,
+                        ((Attribute*)it->data)->name);
+            }
+        }
+    }
+    /* function pointer variables */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)it->data)->is_function) {
+            GList* jt;
+            fprintf(c_fp, "    %s (*%s)(Component_%s*",
+                    ((Attribute*)it->data)->type,
+                    ((Attribute*)it->data)->name,
+                    name);
+            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(c_fp, ", ");
+                fprintf(c_fp, "%s", ((Attribute*)jt->data)->type);
+            }
+            fprintf(c_fp, ");\n");
+        }
+    }
+
+    /* function prototypes */
     fprintf(c_fp, "}Component_%s;\n", name);
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         if(((Attribute*)it->data)->is_function) {
-            fprintf(c_fp, "static %s %s %s;\n", 
+            GList* jt;
+            fprintf(c_fp, "static %s %s(Component_%s* self", 
                     ((Attribute*)it->data)->type,
                     ((Attribute*)it->data)->name,
-                    ((Attribute*)it->data)->prototype);
+                    name);
+            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(c_fp, ", %s %s", 
+                        ((Attribute*)jt->data)->type,
+                        ((Attribute*)jt->data)->name);
+            }
+            fprintf(c_fp, ");\n");
         }
     }
+
+    /* Component_X_New definition */
     fprintf(c_fp, "Component* Component_%s_New()\n{\n", name);
     fprintf(c_fp, "    Component_%s* self = "
            "(Component_%s*)malloc(sizeof(Component_%s));\n", name, name, name);
@@ -246,6 +286,7 @@ void C_To_Scene(char* in_file, char* out_header, char* out_c)
     fprintf(c_fp, "    self->base.update = Update;\n");
     fprintf(c_fp, "    self->base.collide = Collide;\n");
     fprintf(c_fp, "    self->base.id = CID_%s;\n", name);
+    /* assign function pointers to the function they should be set to */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         if(((Attribute*)it->data)->is_function) {
             fprintf(c_fp, "    self->%s = %s;\n", 
@@ -254,19 +295,35 @@ void C_To_Scene(char* in_file, char* out_header, char* out_c)
         }
     }
     fprintf(c_fp, "}\n");
+
+    /* function bodies */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         if(((Attribute*)it->data)->is_function) {
-            fprintf(c_fp, "%s\n", 
+            GList* jt;
+            fprintf(c_fp, "%s %s(Component_%s* self",
+                    ((Attribute*)it->data)->type,
+                    ((Attribute*)it->data)->name,
+                    name);
+            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(c_fp, ", %s %s", ((Attribute*)jt->data)->type,
+                        ((Attribute*)jt->data)->name);
+            }
+            fprintf(c_fp, ")\n{\n%s\n}\n", 
                     (((Attribute*)it->data))->definition);
         }
     }
+
     /* write JSON skeleton TODO: */
 
     /* cleanup */
+    fclose(c_fp);
+    fclose(header_fp);
+    /*
     out = cJSON_Print(root);
-    cJSON_Delete(root);
+    cJSON_Delete(root); 
     printf("%s\n", out);
     free(out);
+    */
 }
 
 #if 0
@@ -344,7 +401,7 @@ void simplify(char* text)
         }
         /* turn all whitespace into a single space */
         else if(isspace(*text)) {
-            while(isspace(*(++text))) *(text);
+            while(isspace(*(++text)));
             --text;
             *new++ = *text;
         }
@@ -410,50 +467,58 @@ int get_type(char* text)
     return 0;
 }
 
-Attribute* new_attribute(char* name, char* type, char* prototype, char* body)
+Attribute* new_attribute(char* name, char* type, GList* parameters, char* body)
 {
     Attribute* a = (Attribute*)malloc(sizeof(Attribute));
-    a->name = (char*)malloc(strlen(name)*sizeof(char));
+    a->name = (char*)malloc((1+strlen(name))*sizeof(char));
     strcpy(a->name, name);
 
-    a->type = (char*)malloc(strlen(type)*sizeof(char));
+    a->type = (char*)malloc((1+strlen(type))*sizeof(char));
     strcpy(a->type, type);
 
-    if(strlen(prototype) > 0) {
-        a->prototype = (char*)malloc(strlen(prototype)*sizeof(char));
-        strcpy(a->prototype, prototype);
-    }
-    if(strlen(body) > 0) {
-        a->definition = (char*)malloc(strlen(body)*sizeof(char));
+    a->parameters = parameters;
+
+    if(body != NULL && strlen(body) > 0) {
+        a->definition = (char*)malloc((1+strlen(body))*sizeof(char));
         strcpy(a->definition, body);
     }
 
     return a;
 }
 
-Attribute* get_attribute(char* text)
+Attribute* get_attribute(char** text_loc)
 {
     int i;
+    Attribute* a;
     char* name_buff;
     char* type_buff;
-    char* proto_buff;
     char* body_buff;
+    char* param_name_buff;
+    char* param_type_buff;
+    GList* parameters;
+
     int done = 0;
     int public = 0;
     int is_function = 0;
     int paren_cnt = 0;
+    char* text = *text_loc;
 
     int state = STATE_IS_PUBLIC;
 
     name_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_NAME_SIZE);
+    param_name_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_NAME_SIZE);
     type_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_TYPE_NAME_SIZE);
-    proto_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_PROTOTYPE_SIZE);
+    param_type_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_TYPE_NAME_SIZE);
     body_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_BODY_SIZE);
+    if(name_buff == NULL || type_buff == NULL || body_buff == NULL) {
+        fprintf(stderr, "Error: failed to allocate buffers.\n");
+        exit(-8);
+    }
 
-    proto_buff[0] = '\0';
     body_buff[0] = '\0';
 
-    puts(text);
+    parameters = NULL;
+
     /* I hate state machines */
     for(; !done; ++text) {
         switch(state) {
@@ -530,21 +595,101 @@ Attribute* get_attribute(char* text)
 
             /* get everything in the parentheses for the function prototype */
             case STATE_FUNCTION_PROTOTYPE:
+                is_function = 1;
                 if(*text == '(') {
                     ++paren_cnt;
                 }
                 else if(*text == ')') {
                     --paren_cnt;
                     if(paren_cnt == 0) {
-                        proto_buff[i] = '\0';
+                        state = STATE_FUNCTION_BEGIN;
+                    }
+                }
+                else if(!isspace(*text)) {
+                    param_type_buff[0] = *text;
+                    state = STATE_SEEK_PARAM_TYPE;
+                    i = 1;
+                }
+                break;
+
+            /* search for the type declaration for the parameter */
+            case STATE_SEEK_PARAM_TYPE:
+                if(*text == ',') {
+                    fprintf(stderr, "Error: expected name for parameter before"
+                            "','\n");
+                    return NULL;
+                }
+                if(!isspace(*text)) {
+                    state = STATE_GET_PARAM_TYPE;
+                    param_type_buff[i] = *text;
+                    ++i;
+                }
+                break;
+             
+            /* get the type of the next parameter for the function */
+            case STATE_GET_PARAM_TYPE:
+                if(isspace(*text)) {
+                    state = STATE_SEEK_PARAM_NAME;
+                    param_type_buff[i] = '\0';
+                    i = 0;
+                }
+                else {
+                    param_type_buff[i] = *text;
+                    ++i;
+                }
+                break;
+
+            /* get the name of the parameter */
+            case STATE_SEEK_PARAM_NAME:
+                if(*text == ')') {
+                    --paren_cnt;
+                    if(paren_cnt == 0) {
+                        /* add last parameter and begin reading the body */
+                        param_name_buff[i] = '\0';
+                        a = new_attribute(param_name_buff, param_type_buff, NULL, NULL);
+                        a->is_function = 0;
+                        a->public = 0;
+                        parameters = g_list_append(parameters, (gpointer)a);
                         state = STATE_FUNCTION_BEGIN;
                         i = 0;
                         break;
                     }
                 }
-                proto_buff[i] = *text;
-                ++i;
+                else if(isspace(*text) || *text == ',') {
+                    state = STATE_FUNCTION_PROTOTYPE;
+                    param_name_buff[i] = '\0';
+                    a = new_attribute(param_name_buff, param_type_buff, NULL, NULL);
+                    a->is_function = 0;
+                    a->public = 0;
+                    parameters = g_list_append(parameters, (gpointer)a);
+                    /* more parameters */
+                    if(*text == ',') {
+                        state = STATE_SEEK_PARAM_TYPE;
+                        i = 0;
+                    }
+                    /* possibly no more parameters */
+                    else {
+                        state = STATE_IS_MORE_PARAMS;
+                        i = 0;
+                    }
+                }
+                else {
+                    param_name_buff[i] = *text;
+                    ++i;
+                }
                 break;
+
+            /* check if there are more parameters to the function */
+            case STATE_IS_MORE_PARAMS:
+                if(*text == ',') {
+                    state = STATE_SEEK_PARAM_TYPE;
+                }
+                else if(*text == ')') {
+                    --paren_cnt;
+                    if(paren_cnt == 0) {
+                        state = STATE_FUNCTION_BEGIN;
+                    }
+                }
 
             /* find the start of the function body - the opening brace '{' */
             case STATE_FUNCTION_BEGIN:
@@ -582,20 +727,15 @@ Attribute* get_attribute(char* text)
                 return NULL;
         }
     }
-    puts(type_buff);
-    puts(name_buff);
-    puts(proto_buff);
-    puts(body_buff);
-    Attribute* a = new_attribute(name_buff, type_buff, proto_buff, body_buff);
+    a = new_attribute(name_buff, type_buff, parameters, body_buff);
+
     a->is_function = is_function;
     a->public = public;
 
-    printf("public: %d\nfunction: %d\n", a->public, a->is_function);
-
     free(name_buff);
     free(type_buff);
-    free(proto_buff);
     free(body_buff);
+    *text_loc = text;
     return a;
 }
  

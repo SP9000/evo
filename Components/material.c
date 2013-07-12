@@ -6,10 +6,8 @@
 /* Bryce Wilson                                                              */
 /* created: June 18, 2013                                                    */
 /*****************************************************************************/
-#ifndef COMPONENT_MATERIAL
-#define COMPONENT_MATERIAL
 
-#include "../component.h"
+/* TODO: this file needs a bit of work... functions that didn't take self, etc.*/
 
 #ifdef OPENGL_2
 typedef struct tagTexture {
@@ -21,47 +19,35 @@ typedef struct tagTexture {
     GLuint sampler;
 }Texture;
 
+static GLuint CompileShader(const GLchar* shader, GLuint type);
+/* function to compile program from given shaders */
+static GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
+        char **attributes, int numAttributes);
+/* IDs of loaded programs (materials) */
+static GHashTable* materials;
+/* IDs of all loaded shaders */
+static GHashTable* fragShaders;
+static GHashTable* vertShaders;
+static GHashTable* geomShaders;
+/* translation table from material names -> IDs */
+static GHashTable* fragShaderNames;
+static GHashTable* vertShaderNames;
+static GHashTable* geomShaderNames;
 
-COMPONENT(Material,
-    PUBLIC char* file;
+COMPONENT Material {
+    public char* file;
 
-    /* variables */
-    GLuint frag;
-    GLuint vert;
-    GLuint geom;
-    GLuint program;
+    public GLuint frag;
+    public GLuint vert;
+    public GLuint geom;
+    public GLuint program;
 
-    GLuint modelMatrixID;
-    GLuint viewMatrixID;
-    GLuint projectionMatrixID;
-    Texture texture;
+    public GLuint modelMatrixID;
+    public GLuint viewMatrixID;
+    public GLuint projectionMatrixID;
+    public Texture texture;
 
-    /* functions */
-    void (*Load)(struct Component_Material* self, char *file);
-)
-
-
-#ifdef BUILD
-    /* shared static variables among instances of components should be
-     * placed in the FUNCTIONS block. */
-    /* function to compile a single shader of the given type */
-    static GLuint CompileShader(const GLchar* shader, GLuint type);
-    /* function to compile program from given shaders */
-    static GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
-            char **attributes, int numAttributes);
-    /* IDs of loaded programs (materials) */
-    static GHashTable* materials;
-    /* IDs of all loaded shaders */
-    static GHashTable* fragShaders;
-    static GHashTable* vertShaders;
-    static GHashTable* geomShaders;
-    /* translation table from material names -> IDs */
-    static GHashTable* fragShaderNames;
-    static GHashTable* vertShaderNames;
-    static GHashTable* geomShaderNames;
-
-    /* unique functions */
-    static void Load(Component_Material* self, char *file) 
+    void Load(char *file) 
     {
         gpointer lup;
         GLuint v;
@@ -270,7 +256,7 @@ COMPONENT(Material,
     }
 
     /* Start and Update are part of all components */
-    static void Start(Component_Material* self) 
+    void Start() 
     {
         if(materials == NULL) materials = g_hash_table_new(g_int_hash, g_direct_equal);
         if(fragShaders == NULL) fragShaders = g_hash_table_new(g_int_hash, g_int_equal);
@@ -279,25 +265,23 @@ COMPONENT(Material,
         if(fragShaderNames == NULL) fragShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
         if(vertShaderNames == NULL) vertShaderNames = g_hash_table_new(g_int_hash, g_int_equal);
         if(geomShaderNames == NULL) geomShaderNames = g_hash_table_new(g_str_hash, g_int_equal);
-        self->Load = Load;
+
         if(self->file != NULL) {
             self->Load(self, self->file);
         }
     }
-    static void Update(Component_Material* self) 
+    void Update() 
     {
 
     }
 
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
         puts("material collision");
     }
 #endif
 #elif defined SW_RENDER
     /* TODO: software renderer material component */
-
 #else 
 #error "no rendering method selected."
-#endif
 #endif

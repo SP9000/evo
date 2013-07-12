@@ -8,72 +8,54 @@
 /* Bryce Wilson                                                              */
 /* created: April, 2013                                                      */
 /*****************************************************************************/
-#ifndef COMPONENT_MODEL
-#define COMPONENT_MODEL
-
-/* attribute types for the model */
-#define MODEL_ATTRIBUTE_NONE   0
-#define MODEL_ATTRIBUTE_VERTEX 1
-#define MODEL_ATTRIBUTE_COLOR  2
-#define MODEL_ATTRIBUTE_NORMAL 3
-#define MODEL_ATTRIBUTE_TEXCO  4
-
 /* the # of floats each attribute uses */
 #define MODEL_ATTRIBUTE_VERTEX_SIZE 3
 #define MODEL_ATTRIBUTE_COLOR_SIZE  4
 #define MODEL_ATTRIBUTE_NORMAL_SIZE 3
 #define MODEL_ATTRIBUTE_TEXCO_SIZE  2
 
-#include "../component.h"
+/* attribute types for the model */
+enum {
+    MODEL_ATTRIBUTE_NONE,
+    MODEL_ATTRIBUTE_VERTEX,
+    MODEL_ATTRIBUTE_COLOR,
+    MODEL_ATTRIBUTE_NORMAL,
+    MODEL_ATTRIBUTE_TEXCO   
+};
 
-/**
- * Model structure.
- * This is holds the data for the data for the position, normal, and color for
- * each vertex in the model.
- */
-COMPONENT(Model,
+COMPONENT Model {
     /* the file to load the model properties from */
-    PUBLIC char* file;
+    public char* file;
 
     /* the transform component associated with this model. */
-    struct Component_Transform* transform;
+    public Component_Transform* transform;
     /* the material associated with this model. */
-    struct Component_Material* mat;
+    public Component_Material* mat;
     /* buffers for each attribute of the model */
-    float** attributes;
+    public float** attributes;
     /* a table of MODEL_ATTRIBUTE_* ID's to tell the contents of attributes */
-    int* attributeTable;
+    public int* attributeTable;
     /* the # of unique per-vertex attributes */
-    int numAttributes;
+    public int numAttributes;
 
     /* VBO ID's for rendering with OpenGL-2.0+. */
-    GLuint* vboIDs;
-    GLuint vao;
+    public GLuint* vboIDs;
+    public GLuint vao;
 
     /* The type of primitive to render as. e.g. GL_LINES, GL_TRIANGLES... */
-    GLuint primitive;
+    public GLuint primitive;
     /* The offset of the next unassigned vertex. */
-    unsigned int numVertices;
+    public unsigned int numVertices;
     /* Submodels of this model. For example: a leg may be a subgroup of body */
-    struct tagModel* subgroups;
+    public Component_Model* subgroups;
 
-    void (*LoadPLY)(struct Component_Model* self, char* file);
-    void (*BufferAttribute)(struct Component_Model* self, int attribute, float *data);
-    int  (*GetAttributeSize)(int id);
-    void (*AddAttribute)(struct Component_Model* self, int attribute);
-    void (*SetAttribute)(struct Component_Model* self, int attribute, int offset, float* val);
-    void (*Free)(struct Component_Model* self);
-)
-
-
-#ifdef BUILD
     /**
      * Get the number of floats the attribute of the given ID uses.
      * @param id the ID of the attribute to get the number of floats used by.
      * @return the number of floats the given attribute uses or negative if unknown
      *  type.
      */
-    static int GetAttributeSize(int id) 
+    int GetAttributeSize(int id) 
     {
         switch(id) {
         case MODEL_ATTRIBUTE_VERTEX:
@@ -98,7 +80,7 @@ COMPONENT(Model,
      * @return the location of the buffer for the given attribute or NULL if the
      *  attribute doesn't exist in the given model.
      */
-    static float* GetAttributeBuffer(Component_Model* self, int attribute)
+    float* GetAttributeBuffer(int attribute)
     {
         int i;
         for(i = 0; i < self->numAttributes; ++i) {
@@ -109,8 +91,6 @@ COMPONENT(Model,
         return NULL;
     }
 
-
-
     /**
      * Add an attribute of the the given type to the model.
      * This function allocates a buffer of numVertices size for the given attribute.
@@ -118,7 +98,7 @@ COMPONENT(Model,
      * @param m the model to add the attribute to.
      * @param val the value to append to the given attribute buffer.
      */
-    static void AddAttribute(Component_Model* self, int attribute)
+    void AddAttribute(int attribute)
     {
         int i;
         int attrSize; 
@@ -155,7 +135,7 @@ COMPONENT(Model,
     }
 
     /* helper function to set an attribute at a given offset */
-    static void CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
+    void CopyAttribute(float* dst, int dstOffset, float* src, int srcOffset, int type)
     {
         int i;
         int size = GetAttributeSize(type);
@@ -177,7 +157,7 @@ COMPONENT(Model,
      * @param offset the vertex-offset of the attribute to set.
      * @param val the value to set the attribute to.
      */
-    static void SetAttribute(Component_Model* self, int attribute, int offset, float* val) 
+    void SetAttribute(int attribute, int offset, float* val) 
     {
         int attrSize; 
         int i;
@@ -210,7 +190,7 @@ COMPONENT(Model,
       * @param m the model to load into.
       * @param file the file to load the model from.
       */
-    static void LoadPLY(Component_Model* self, char* file)
+    void LoadPLY(char* file)
     {
         int* faceBuff;
         int* faceSizeBuff;
@@ -397,7 +377,7 @@ COMPONENT(Model,
      * @param data the data to buffer (an array of floats ATTRIBUTE_XX_SIZE *
      *   numVertices) floats long.
      */
-    static void BufferAttribute(Component_Model* self, int attribute, float* data)
+    void BufferAttribute(int attribute, float* data)
     {
         int i;
         float* dst;
@@ -419,7 +399,7 @@ COMPONENT(Model,
      * Free all the resources used by the given model.
      * @param self the model to free the resources of.
      */
-    static void Free(Component_Model* self)
+    void Free()
     {
         int i;
         for(i = 0; i < self->numAttributes; ++i) {
@@ -429,18 +409,11 @@ COMPONENT(Model,
         free(self->vboIDs);
     }
 
-    static void Start(Component_Model* self)
+    void Start()
     {
         self->mat = Component_GetAs(Material);
         self->transform = Component_GetAs(Transform);
         Draw_OptimizeModel(self);
-
-        self->LoadPLY = LoadPLY;
-        self->BufferAttribute = BufferAttribute;
-        self->AddAttribute = AddAttribute;
-        self->SetAttribute = SetAttribute;
-        self->Free = Free;
-        self->GetAttributeSize = GetAttributeSize;
 
         self->numVertices = 0;
         self->numAttributes = 0;
@@ -451,14 +424,14 @@ COMPONENT(Model,
         }
     }
 
-    static void Update(Component_Model* self) 
+    void Update() 
     {
 
     }
 
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
         puts("model collision");
     }
-#endif
-#endif
+}
+

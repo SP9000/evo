@@ -5,40 +5,26 @@
 /* Bryce Wilson                                                              */
 /* July 1, 2013                                                              */
 /*****************************************************************************/
-#ifndef COMPONENT_CAMERA
-#define COMPONENT_CAMERA
+COMPONENT Camera {
+    public Component_Transform* transform;
+    public float fov;
+    public float aspect;
+    public float nearZ;
+    public float farZ;
 
-#include "../component.h"
+    public Mat4x4 modelMat;
+    public Mat4x4 viewMat;
+    public Mat4x4 projectionMat;
 
-COMPONENT(Camera,
-    struct Component_Transform* transform;
-    float fov;
-    float aspect;
-    float nearZ;
-    float farZ;
-
-    Mat4x4 modelMat;
-    Mat4x4 viewMat;
-    Mat4x4 projectionMat;
-
-    void (*Perspective)(struct Component_Camera* self,
-        float fov, float aspect, float nearZ, float farZ);
-    void (*Orthographic)(struct Component_Camera* self,
-        float left, float right, float top, float bottom, float nearZ, float farZ);
-)
-
-
-#ifdef BUILD
-    void Perspective(Component_Camera* self, float fov, float aspect, 
-            float nearZ, float farZ)
+    public void Perspective(float fov, float aspect, float nearZ, float farZ)
     {
         Mat4x4LoadIdentity(self->modelMat);
         Mat4x4LoadIdentity(self->viewMat);
         Mat4x4LoadIdentity(self->projectionMat);
         Mat4x4PerspMat(self->projectionMat, fov, aspect, nearZ, farZ);
     }
-    static void Orthographic(Component_Camera* self,
-        float left, float right, float top, float bottom, float nearZ, float farZ)
+    public void Orthographic(float left, float right, float top, float bottom,
+            float nearZ, float farZ)
     {
         Mat4x4LoadIdentity(self->modelMat);
         Mat4x4LoadIdentity(self->viewMat);
@@ -46,23 +32,19 @@ COMPONENT(Camera,
         Mat4x4OrthoMat(self->projectionMat, 
                 left, right, top, bottom, nearZ, farZ);
     }
-    static void Start(Component_Camera* self) 
+    void Start() 
     {
         self->transform = Component_GetAs(Transform);
         Mat4x4LoadIdentity(self->modelMat);
         Mat4x4LoadIdentity(self->viewMat);
         Mat4x4LoadIdentity(self->projectionMat);
-
-        self->Orthographic = Orthographic;
-        self->Perspective = Perspective;
     }
-    static void Update(Component_Camera* self) 
+    void Update() 
     {
 
     }
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
         puts("camera collision");
     }
-#endif
-#endif
+}

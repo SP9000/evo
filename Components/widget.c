@@ -8,9 +8,6 @@
 /* Bryce Wilson                                                              */
 /* created: June 5, 2013                                                     */
 /*****************************************************************************/
-#ifndef COMPONENT_WIDGET
-#define COMPONENT_WIDGET
-
 /* flags that widget generates no events */
 #define WIDGET_PLAIN     0x00000000
 /* an event is generated when the widget is resized */
@@ -20,41 +17,41 @@
 /* an event is generated when the widget is clicked */
 #define WIDGET_CLICKABLE 0x00000004
 
-#include "../component.h"
+/* helper function to free all of a widget's subwidgets */
+void FreeWidgetRecursive(gpointer data, gpointer user_data)
+{
+    Component_Widget* w = (Component_Widget*)data;
 
-/**
- * The widget structure.
- * Widgets are physically similar to models, but carry a little extra
- * information to assist in prettily laying out the GUI. When setting the
- * coordinates of the model within the widget, use a scale from 0 to 1 to allow
- * for flexible sizing on monitors of all resolutions.
- */
-COMPONENT(Widget,
+    w->contents->Free(w->contents);
+    w->background->Free(w->background);
+
+    /* recursively free all the subwidgets of this widget */
+    if(w->children != NULL) {
+        g_slist_foreach(w->children, FreeWidgetRecursive, NULL);
+    }
+    free(w);
+}
+
+COMPONENT Widget {
     /* the lower left corner and width/height of the widget */
-    Rect rect;
+    public Rect rect;
     /* the minimum dimensions of the widget */
-    float minW;
-    float minH;
+    public float minW;
+    public float minH;
     /* maximum dimensions of the widget or 0 for no limit */
-    float maxW;
-    float maxH;
+    public float maxW;
+    public float maxH;
     /* flags for various attributes of the widget e.g. GUILAYOUT_RESIZABLE */
-    uint32_t flags;
+    public uint32_t flags;
     /* the background that is displayed by this widget - not scrolled */
-    struct Component_Model* background;
+    public Component_Model* background;
     /* the contents that this window displays - can be scrolled. */
-    struct Component_Model* contents;
+    public Component_Model* contents;
     /* the children of the widget - a list of widgets */
-    GSList* children;
+    public GSList* children;
     /* the parent widget of this widget. NULL if this is the root widget */
-    struct Component_Widget* parent;
+    public Component_Widget* parent;
 
-    void (*AddWidget)(struct Component_Widget* self, 
-        struct Component_Widget* p, float x, float y);
-)
-
-
-#ifdef BUILD
     /**
      * Add the specified widget to the specified parent widget. 
      * @param w the widget to add.
@@ -62,30 +59,16 @@ COMPONENT(Widget,
      * @param x the x location to add the widget at (range 0-1).
      * @param y the y location to add the widget at (range 0-1).
      */
-    static void AddWidget(Component_Widget* self, Component_Widget* p, float x, float y)
+    void AddWidget(Component_Widget* p, float x, float y)
     {
         self->children = g_slist_append(self->children, (gpointer)p);
-    }
-    /* helper function to free all of a widget's subwidgets */
-    static void FreeWidgetRecursive(gpointer data, gpointer user_data)
-    {
-        Component_Widget* w = (Component_Widget*)data;
-
-        w->contents->Free(w->contents);
-        w->background->Free(w->background);
-
-        /* recursively free all the subwidgets of this widget */
-        if(w->children != NULL) {
-            g_slist_foreach(w->children, FreeWidgetRecursive, NULL);
-        }
-        free(w);
     }
     /**
      * Remove the specified widget from the GUILayout system.
      * The widget is deleted upon removal and its resources freed.
      * @param w the widget to remove.
      */
-    static void RemoveWidget(Component_Widget* self)
+    void RemoveWidget()
     {
         /* remove link from parent to this widget */
         if(self->parent) {
@@ -95,17 +78,15 @@ COMPONENT(Widget,
         FreeWidgetRecursive((gpointer)self->children, NULL);
     }
 
-    static void Start(Component_Widget* self) 
+    void Start() 
     {
-        self->AddWidget = AddWidget;
     }
-    static void Update(Component_Widget* self)
-    {
-
-    }
-    static void Collide(Entity* other)
+    void Update()
     {
 
     }
-#endif
-#endif
+    void Collide(Entity* other)
+    {
+
+    }
+}
