@@ -7,8 +7,6 @@
 /* created: June 18, 2013                                                    */
 /*****************************************************************************/
 
-/* TODO: this file needs a bit of work... functions that didn't take self, etc.*/
-
 #ifdef OPENGL_2
 typedef struct tagTexture {
     /* the ID of the texture itself (as given by glGenTextures) */
@@ -33,6 +31,82 @@ static GHashTable* geomShaders;
 static GHashTable* fragShaderNames;
 static GHashTable* vertShaderNames;
 static GHashTable* geomShaderNames;
+
+
+/* compile a shader of the given type */
+GLuint CompileShader(const GLchar* shader, GLuint type) 
+{
+    GLuint s;
+    GLsizei len;
+    int success;
+    GLchar* log;
+
+    s = glCreateShader(type);
+    glShaderSource(s, 1, &shader, NULL);
+    glCompileShader(s);
+    glGetShaderiv(s, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
+    if(len > 0) {
+        log = malloc(sizeof(GLchar) * len);
+        glGetShaderInfoLog(s, len, &len, log);
+        puts(log);
+        free(log);
+    }
+    if(success == GL_FALSE) {
+        if(type == GL_VERTEX_SHADER) {
+            fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
+        }
+        else if(type == GL_FRAGMENT_SHADER) {
+            fprintf(stderr, "Error: fragment shader was not compiled successfully.\n");
+        }
+        else if(type == GL_GEOMETRY_SHADER) {
+            fprintf(stderr, "Error: geometry shader was not compiled successfully.\n");
+        }
+        else {
+            fprintf(stderr, "Error: shader was not compiled successfully.\n");
+        }
+        exit(EXIT_FAILURE);
+    }
+    return s;
+}
+
+/* compile a shader program from the given shaders and attributes */
+GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
+    char **attributes, int numAttributes) 
+{
+    int i;
+    int success;
+    char* log;
+    int len;
+    GLuint program;
+
+    program = glCreateProgram();
+    glAttachShader(program, vertShader);
+    if(geomShader != 0) {
+        glAttachShader(program, geomShader);
+    }
+    glAttachShader(program, fragShader);
+
+    for(i = 0; i < numAttributes; i++) {
+        glBindAttribLocation(program, i, attributes[i]);
+    }
+
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+    if(len > 0) {
+        log = malloc(sizeof(GLchar) * len);
+        glGetProgramInfoLog(program, len, &len, log);
+        puts(log);
+        free(log);
+    }
+
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if(success == GL_FALSE) {
+        fprintf(stderr, "Error: shader could not be linked successfully.\n");
+        exit(EXIT_FAILURE);
+    }
+    return program;
+}
 
 COMPONENT Material {
     public char* file;
@@ -182,78 +256,6 @@ COMPONENT Material {
         self->texture.id = 0;
     }
 
-    GLuint CompileShader(const GLchar* shader, GLuint type) 
-    {
-        GLuint s;
-        GLsizei len;
-        int success;
-        GLchar* log;
-
-        s = glCreateShader(type);
-        glShaderSource(s, 1, &shader, NULL);
-        glCompileShader(s);
-        glGetShaderiv(s, GL_COMPILE_STATUS, &success);
-        glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
-        if(len > 0) {
-            log = malloc(sizeof(GLchar) * len);
-            glGetShaderInfoLog(s, len, &len, log);
-            puts(log);
-            free(log);
-        }
-        if(success == GL_FALSE) {
-            if(type == GL_VERTEX_SHADER) {
-                fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
-            }
-            else if(type == GL_FRAGMENT_SHADER) {
-                fprintf(stderr, "Error: fragment shader was not compiled successfully.\n");
-            }
-            else if(type == GL_GEOMETRY_SHADER) {
-                fprintf(stderr, "Error: geometry shader was not compiled successfully.\n");
-            }
-            else {
-                fprintf(stderr, "Error: shader was not compiled successfully.\n");
-            }
-            exit(EXIT_FAILURE);
-        }
-        return s;
-    }
-
-    GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader, 
-        char **attributes, int numAttributes) 
-    {
-        int i;
-        int success;
-        char* log;
-        int len;
-        GLuint program;
-
-        program = glCreateProgram();
-        glAttachShader(program, vertShader);
-        if(geomShader != 0) {
-            glAttachShader(program, geomShader);
-        }
-        glAttachShader(program, fragShader);
-
-        for(i = 0; i < numAttributes; i++) {
-            glBindAttribLocation(program, i, attributes[i]);
-        }
-
-        glLinkProgram(program);
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
-        if(len > 0) {
-            log = malloc(sizeof(GLchar) * len);
-            glGetProgramInfoLog(program, len, &len, log);
-            puts(log);
-            free(log);
-        }
-
-        glGetProgramiv(program, GL_LINK_STATUS, &success);
-        if(success == GL_FALSE) {
-            fprintf(stderr, "Error: shader could not be linked successfully.\n");
-            exit(EXIT_FAILURE);
-        }
-        return program;
-    }
 
     /* Start and Update are part of all components */
     void Start() 
@@ -279,7 +281,7 @@ COMPONENT Material {
     {
         puts("material collision");
     }
-#endif
+}
 #elif defined SW_RENDER
     /* TODO: software renderer material component */
 #else 

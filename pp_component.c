@@ -3,16 +3,18 @@
 /* preprocessor for component files.                                         */
 /* This program reads component (.c) files and produces a .h and .c file that*/
 /* can be included/compiled to use the component within the engine.          */
-/* by using the scene2c program.                                             */
 /*                                                                           */
 /* Bryce Wilson                                                              */
 /* Created: July 9, 2013                                                     */
 /*****************************************************************************/
 #include <ctype.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 #include "glib.h"
 #include "util.h"
+#include "cJSON.h"
 
 #define ATTRIBUTE_MAX_NAME_SIZE 64
 #define ATTRIBUTE_MAX_TYPE_NAME_SIZE 64
@@ -20,9 +22,21 @@
 /* who makes a MB function after comment removal!? */
 #define ATTRIBUTE_MAX_BODY_SIZE 1048576
 
-#include "cJSON.h"
-
+/* states for pre-component definition FSM */
 enum {
+    STATE_SEEK_COMPONENT_NAME,
+    STATE_GET_COMPONENT_NAME,
+    STATE_SEEK_COMPONENT_BODY,
+    STATE_SEEK_SUPER,
+    STATE_GET_SUPER,
+    STATE_SEEK_COMPONENT_BRACE,
+    STATE_COMPONENT_FOUND
+};
+
+/* states for parsing attributes FSM */
+enum {
+    STATE_BLOCK_COMMENT,
+    STATE_LINE_COMMENT,
     STATE_IS_PUBLIC,
     STATE_SEEK_NAME, 
     STATE_TYPE_DECLARE,
@@ -57,16 +71,14 @@ typedef struct tagAttribute {
     char* name;
 
     GList* parameters;    //if function
-    char* definition;    //if function
+    char* definition;     //if function
 }Attribute;
 
 
 FILE* header_fp;
 FILE* c_fp;
 
-//void write_json(cJSON* json, char* type, char* name);
-void component_to_c_h(char* in_file, char* out_header, char* out_c);
-void ReadComponent(cJSON* c);
+void help();
 
 /* given pointer at start of a block, returns pointer to end of { } block. */
 char* get_block(char* text);
@@ -74,133 +86,418 @@ char* get_block(char* text);
 void simplify(char* text);
 
 int get_type(char* text);
-Attribute* get_attribute(char** text_loc);
+Attribute* get_attribute(FILE* file);
 Attribute* new_attribute(char* name, char* type, GList* prototype, char* body);
+long get_attributes(char* in_file, GSList* attributes);
+
+void write_attributes(char* name, GSList* attributes, FILE* header_fp, FILE* c_fp);
+void write_c_file(char* name, GSList* attributes,
+    char* infile, char* outfile, long component_end);
+void write_header(char* name, GSList* attributes, char* outfile);
+long get_component_start(FILE* fp);
+
+
+char* out_dir;
+char* in_dir;
 
 int main(int argc, char** argv)
 {
-    if(argc != 4) {
-        puts("Usage: ./thisprogram <input component file> <output header file> <output c file>");
-        exit(1);
+    DIR* component_dir;
+    int num_components;
+    struct dirent* ent;
+    int i;
+    char* components[512];
+    char in_buff[512];
+    char out_buff[512];
+    in_dir = NULL;
+    out_dir = NULL;
+
+    for(i = 1; i < argc; ++i) {
+        if(strncmp(argv[i], "help", 4) == 0) {
+            help();
+        }
+        else if(strncmp(argv[i], "-I", 2) == 0) {
+            in_dir = argv[++i];
+        }
+        else if(strncmp(argv[i], "-O", 2) == 0) {
+            out_dir = argv[++i];
+        }
+        else {
+            fprintf(stderr, "Unrecognized argument %s\n", argv[i]);
+            help();
+        }
     }
-    component_to_c_h(argv[1], argv[2], argv[3]);
-    
+    if(in_dir == NULL) {
+        fprintf(stderr, "Error: no component directory specified.\n");
+        fprintf(stderr, "Use argument -help for help message.\n");
+        exit(-1);
+    }
+    if(out_dir == NULL) {
+        fprintf(stderr, "Error: no output directory specified.\n");
+        fprintf(stderr, "Use argument -help for help message.\n");
+        exit(-1);
+    }
+    if((component_dir = opendir(in_dir)) != NULL) {
+        for(i = 0, num_components = 0; (ent = readdir(component_dir)); ++i) {
+            struct stat s;
+            strcpy(in_buff, in_dir);
+            strcat(in_buff, ent->d_name);
+            stat(in_buff, &s);
+            /* only process file if it is not hidden and not a directory */
+            if(!S_ISDIR(s.st_mode) && ent->d_name[0] != '.') {
+                components[num_components] = (char*)malloc(sizeof(char)*(strlen(ent->d_name)+1));
+                strcpy(components[num_components], ent->d_name);
+                ++num_components;
+            }
+        }
+        closedir(component_dir);
+    }
+    else {
+        fprintf(stderr, "Error: couldn't open directory: %s\n", in_dir);
+    }
+    for(i = 0; i < num_components; ++i) {
+        char* pch;
+        long component_end;
+        GSList* attributes = NULL;
+
+        puts(components[i]);
+        strcpy(in_buff, in_dir);
+        strcat(in_buff, components[i]);
+        strcpy(out_buff, out_dir);
+        strcat(out_buff, components[i]);
+
+        component_end = get_attributes(in_buff, attributes);
+        write_c_file(components[i], attributes, in_buff, out_buff, component_end);
+
+        /* TODO: will break with no extension...assumes 1 char extension */
+        for(pch = &out_buff[strlen(out_buff)]; *pch != '.'; --pch);
+        *(pch+1) = 'h';
+        write_header(components[i], attributes, out_buff);
+    }
     return 0;
 }
 
-void component_to_c_h(char* in_file, char* out_header, char* out_c)
+long get_attributes(char* in_file, GSList* attributes)
 {
-    char* text;
-    char* pch;
-    char* name;
     FILE* in_fp;
-    FILE* header_fp;
-    FILE* c_fp;
-    cJSON* root;
-    cJSON* json_attributes;
-    GSList* attributes;
-    GSList* it;
+
+    int done;
+    int i;
+    int state;
+    char name[64];
+    char super_component[64];
+    char super_file[256];
+
 
     /* open input file */
-    in_fp = fopen(in_file, "r");
+    in_fp = fopen(in_file, "rb");
     if(in_fp == NULL) {
         fprintf(stderr, "Error: couldn't open file %s for reading\n", in_file);
         exit(-1);
     }
-    /* open output files (*.c and *.h) */
-    header_fp = fopen(out_header, "w");
-    if(header_fp == NULL) {
-        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_header);
-        exit(-2);
-    }
-    c_fp = fopen(out_c, "w");
-    if(c_fp == NULL) {
-        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_c);
-        exit(-3);
+    /* move the file to the component start */
+    get_component_start(in_fp);
+    
+    /* find the super component (if any) and the component name */
+    super_component[0] = '\0';
+    for(done = 0, state = STATE_SEEK_COMPONENT_NAME; !done; ) {
+        char c = fgetc(in_fp);
+        switch(state) {
+            case STATE_SEEK_COMPONENT_NAME:
+                if(!isspace(c)) {
+                    state = STATE_GET_COMPONENT_NAME;
+                    name[0] = c;
+                    i = 1;
+                }
+                break;
+
+            case STATE_GET_COMPONENT_NAME:
+                if(c== '{') { 
+                    name[i] = '\0';
+                    state = STATE_COMPONENT_FOUND;
+                }
+                if(isspace(c)) {
+                    name[i] = '\0';
+                    state = STATE_SEEK_COMPONENT_BODY;
+                }
+                else {
+                    name[i] = c;
+                    ++i;
+                }
+                break;
+
+            case STATE_SEEK_COMPONENT_BODY:
+                if(c == ':') {
+                    i = 0;
+                    state = STATE_SEEK_SUPER;
+                }
+                else if(c == '{') {
+                    state = STATE_COMPONENT_FOUND;
+                }
+                else if(!isspace(c)) {
+                    fprintf(stderr, "Error: unexpected character(s) found after "
+                            "COMPONENT %s\n", name);
+                    exit(-9);
+                }
+                break;
+
+            case STATE_SEEK_SUPER:
+                if(c == '{') {
+                    fprintf(stderr, "Error: expected super-component after :");
+                    exit(-10);
+                }
+                if(!isspace(c)) {
+                    state = STATE_GET_SUPER;
+                    super_component[0] = c;
+                    i = 1;
+                }
+                break;
+
+            case STATE_GET_SUPER:
+                if(c == '{') {
+                    super_component[i] = '\0';
+                    state = STATE_COMPONENT_FOUND;
+                }
+                else if(isspace(c)) {
+                    super_component[i] = '\0';
+                    state = STATE_SEEK_COMPONENT_BRACE;
+                }
+                else {
+                    super_component[i] = c;
+                    ++i;
+                }
+                break;
+
+            case STATE_SEEK_COMPONENT_BRACE:
+                if(c == '{') {
+                    state = STATE_COMPONENT_FOUND;
+                }
+                else if(!isspace(c)) {
+                    fprintf(stderr, "Error: unexpected character(s) found after "
+                            "COMPONENT %s : %s\n", name, super_component);
+                    exit(-9);
+                }
+                break;
+
+           case STATE_COMPONENT_FOUND:
+                done = 1;
+                break;
+        }
     }
 
-    /* write some friendly messages */
-    fprintf(header_fp, 
-            "/***************************************************************/\n"
-            "/* This is a generated component header file...                */\n"
-            "/* Do whatever you want with it. I really don't care.          */\n"
-            "/***************************************************************/\n\n");
-    fprintf(c_fp, 
+    /* is there a super component? If so, get its attributes recursively */
+    if(super_component[0]) {
+        strcpy(super_file, out_dir);
+        strcat(super_file, super_component);
+        get_attributes(super_file, attributes);
+    }
+
+    /* read attributes */
+    while(!feof(in_fp)) {
+        Attribute* a;
+        char c;
+        /* eat spaces */
+        do {
+            c = fgetc(in_fp);
+        }while(isspace(c));
+        ungetc(c, in_fp);
+
+        /* if floating '}' found, assume we're at the end */
+        if(c == '}') {
+            break;
+        }
+        a = get_attribute(in_fp);
+        if(a == NULL) {
+            fprintf(stderr, "Error: failed to retrieve attribute.\n");
+            exit(-6);
+        }
+        attributes = g_slist_append(attributes, (gpointer)a);
+    }
+    return ftell(in_fp);
+}
+
+long get_component_start(FILE* fp)
+{
+    /* find COMPONENT definition  TODO: comments not supported here */
+    int state;
+    char buff[10];
+    for(state = 0; state != 9; ) {
+        buff[state] = fgetc(fp);
+        if(buff[state] == "COMPONENT"[state]) {
+            ++state;
+        }
+        if(feof(fp)) {
+            fprintf(stderr, "Error: no COMPONENT definition found\n");
+            exit(-4);
+        }
+    }
+    return ftell(fp);
+}
+
+void write_c_file(char* name, GSList* attributes,
+    char* in_filename, char* out_filename, long component_end)
+{
+    int i;
+    GSList* it;
+    FILE* infile;
+    FILE* outfile;
+    long component_offset;
+
+    infile = fopen(in_filename, "rb");
+    if(infile == NULL) {
+        fprintf(stderr, "Error: couldn't open file %s for reading\n", in_filename);
+        exit(-10);
+    }
+
+    outfile = fopen(out_filename, "wb");
+    if(outfile == NULL) {
+        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_filename);
+        exit(-11);
+    }
+
+    component_offset = get_component_start(infile);
+    fprintf(outfile, 
             "/***************************************************************/\n"
             "/* This is a generated component C file...                     */\n"
             "/* Do whatever you want with it. I really don't care.          */\n"
             "/***************************************************************/\n\n");
+    fprintf(outfile, "\n#include \"..\\component.h\"\n");
 
-    /*
-    root = cJSON_CreateObject();
-    json_attributes=cJSON_CreateObject();
-    cJSON_AddItemToObject(root, component_name, json_attributes);
-    */
-
-    /* read the input file */
-    UtilReadFile(in_file, &text);
-    /* simplify the input */
-    simplify(text);
-
-    /* find Component:: definition */
-    pch = strstr(text, "COMPONENT");
-    if(pch == NULL) {
-        fprintf(stderr, "Error: no COMPONENT definition found\n");
-        exit(-4);
-    }
-    
-    /* copy everything before the component definition to the C file */
-    for(; text != pch; ++text) {
-        fputc(*text, c_fp);
+    /* write everything before the component declaration to the C file */
+    fseek(infile, 0, SEEK_SET);
+    for(i = 0; i < component_offset; ++i) {
+        fputc(fgetc(infile), outfile);
     }
 
-    /* get the name of the component */
-    pch = strtok(pch, " ");
-    name = pch = strtok(NULL, " ");
+    /* write attributes */
+    fprintf(outfile, "typedef struct Component_%s {\n", name);
+    fprintf(outfile, "    Component base;\n");
 
-    /* move pointer to the meat of the component */
-    pch += strlen(name) + 1;
-    if(*pch == '{') {
-        ++pch;
-    }
-    else if(*pch+1 == '{') {
-        pch += 2;
-    }
-    else {
-        fprintf(stderr, "Error: expected '{' after \"Component %s\"\n", name);
-        exit(-5);
-    }
-    text = pch;
-
-    attributes = NULL;
-    /* read attributes */
-    while(*text) {
-        Attribute* a;
-
-        /* eat spaces */
-        while(isspace(*text)) ++text;
-        /* if floating '}' found, assume we're at the end */
-        if(*text == '}') {
-            break;
+    /* variables - public must go first to be compatible with what the */
+    /* outside world believes to be the structure looks like           */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)(it->data))->public) {
+            if(!((Attribute*)it->data)->is_function) {
+                fprintf(outfile, "    %s %s;\n", 
+                        ((Attribute*)it->data)->type,
+                        ((Attribute*)it->data)->name);
+            }
         }
-
-        a = get_attribute(&text);
-        if(a != NULL) {
-            attributes = g_slist_append(attributes, (gpointer)a);
+    }
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(!((Attribute*)(it->data))->public) {
+            if(!((Attribute*)it->data)->is_function) {
+                fprintf(outfile, "    %s %s;\n", 
+                        ((Attribute*)it->data)->type,
+                        ((Attribute*)it->data)->name);
+            }
+        }
+    }
+    /* function pointer variables */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)it->data)->is_function) {
+            GList* jt;
+            fprintf(outfile, "    %s (*%s)(Component_%s*",
+                    ((Attribute*)it->data)->type,
+                    ((Attribute*)it->data)->name,
+                    name);
+            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(outfile, ", ");
+                fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+            }
+            fprintf(outfile, ");\n");
         }
     }
 
-    /**************************** write header *******************************/
-    fprintf(header_fp, "#ifndef COMPONENT_%s\n#define COMPONENT_%s\n", 
+    /* function prototypes */
+    fprintf(outfile, "}Component_%s;\n", name);
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)it->data)->is_function) {
+            GList* jt;
+            fprintf(outfile, "static %s %s(Component_%s* self", 
+                    ((Attribute*)it->data)->type,
+                    ((Attribute*)it->data)->name,
+                    name);
+            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(outfile, ", %s %s", 
+                        ((Attribute*)jt->data)->type,
+                        ((Attribute*)jt->data)->name);
+            }
+            fprintf(outfile, ");\n");
+        }
+    }
+
+    /* Component_X_New definition */
+    fprintf(outfile, "Component* Component_%s_New()\n{\n", name);
+    fprintf(outfile, "    Component_%s* self = "
+           "(Component_%s*)malloc(sizeof(Component_%s));\n", name, name, name);
+    fprintf(outfile, "    self->base.start = Start;\n");
+    fprintf(outfile, "    self->base.update = Update;\n");
+    fprintf(outfile, "    self->base.collide = Collide;\n");
+    fprintf(outfile, "    self->base.id = CID_%s;\n", name);
+    /* assign function pointers to the function they should be set to */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)it->data)->is_function) {
+            fprintf(outfile, "    self->%s = %s;\n", 
+                    (((Attribute*)it->data))->name,
+                    (((Attribute*)it->data))->name);
+        }
+    }
+    fprintf(outfile, "}\n");
+
+    /* function bodies */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        if(((Attribute*)it->data)->is_function) {
+            GList* jt;
+            fprintf(outfile, "%s %s(Component_%s* self",
+                    ((Attribute*)it->data)->type,
+                    ((Attribute*)it->data)->name,
+                    name);
+            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(outfile, ", %s %s", ((Attribute*)jt->data)->type,
+                        ((Attribute*)jt->data)->name);
+            }
+            fprintf(outfile, ")\n{\n%s\n}\n", 
+                    (((Attribute*)it->data))->definition);
+        }
+    }
+
+    /* write everything after the component declaration to the C file */
+    fseek(infile, component_end, SEEK_SET);
+    while(!feof(infile)) {
+        fputc(fgetc(infile), outfile);
+    }
+}
+
+void write_header(char* name, GSList* attributes, char* out_filename)
+{
+    FILE* outfile;
+    GSList* it;
+
+    outfile = fopen(out_filename, "wb");
+    if(outfile == NULL) {
+        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_filename);
+        exit(-11);
+    }
+
+    /* write some friendly messages */
+    fprintf(outfile, 
+            "/***************************************************************/\n"
+            "/* This is a generated component header file...                */\n"
+            "/* Do whatever you want with it. I really don't care.          */\n"
+            "/***************************************************************/\n\n");
+
+    /* write attributes */
+    fprintf(outfile, "#ifndef COMPONENT_%s\n#define COMPONENT_%s\n", 
             name, name);
-    fprintf(header_fp, "typedef struct Component_%s {\n", name);
-    fprintf(header_fp, "    Component base;\n");
+    fprintf(outfile, "typedef struct Component_%s {\n", name);
+    fprintf(outfile, "    Component base;\n");
 
     /* variables */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         if(((Attribute*)(it->data))->public) {
             if(!((Attribute*)it->data)->is_function) {
-                fprintf(header_fp, "    %s %s;\n", 
+                fprintf(outfile, "    %s %s;\n", 
                         ((Attribute*)it->data)->type,
                         ((Attribute*)it->data)->name);
             }
@@ -210,172 +507,25 @@ void component_to_c_h(char* in_file, char* out_header, char* out_c)
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         if(((Attribute*)(it->data))->public) {
             if(((Attribute*)it->data)->is_function) {
-                /* TODO */
-            }
-        }
-    }
-
-    fprintf(header_fp, "}Component_%s;\n", name);
-    fprintf(header_fp, "Component* Component_%s_New();\n", name);
-    fprintf(header_fp, "#endif\n");
-
-    /***************************** write C file ******************************/
-    fprintf(c_fp, "#include \"..\\component.h\"\n");
-    fprintf(c_fp, "typedef struct Component_%s {\n", name);
-    fprintf(c_fp, "    Component base;\n");
-
-    /* variables - public must go first to be compatible with what the */
-    /* outside world believes to be the structure looks like           */
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)(it->data))->public) {
-            if(!((Attribute*)it->data)->is_function) {
-                fprintf(c_fp, "    %s %s;\n", 
+                GList* jt;
+                fprintf(outfile, "    %s (*%s)(Component_%s*",
                         ((Attribute*)it->data)->type,
-                        ((Attribute*)it->data)->name);
+                        ((Attribute*)it->data)->name,
+                        name);
+                for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                    fprintf(outfile, ", ");
+                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+                }
+                fprintf(outfile, ");\n");
             }
         }
     }
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(!((Attribute*)(it->data))->public) {
-            if(!((Attribute*)it->data)->is_function) {
-                fprintf(c_fp, "    %s %s;\n", 
-                        ((Attribute*)it->data)->type,
-                        ((Attribute*)it->data)->name);
-            }
-        }
-    }
-    /* function pointer variables */
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
-            GList* jt;
-            fprintf(c_fp, "    %s (*%s)(Component_%s*",
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name,
-                    name);
-            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
-                fprintf(c_fp, ", ");
-                fprintf(c_fp, "%s", ((Attribute*)jt->data)->type);
-            }
-            fprintf(c_fp, ");\n");
-        }
-    }
 
-    /* function prototypes */
-    fprintf(c_fp, "}Component_%s;\n", name);
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
-            GList* jt;
-            fprintf(c_fp, "static %s %s(Component_%s* self", 
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name,
-                    name);
-            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
-                fprintf(c_fp, ", %s %s", 
-                        ((Attribute*)jt->data)->type,
-                        ((Attribute*)jt->data)->name);
-            }
-            fprintf(c_fp, ");\n");
-        }
-    }
-
-    /* Component_X_New definition */
-    fprintf(c_fp, "Component* Component_%s_New()\n{\n", name);
-    fprintf(c_fp, "    Component_%s* self = "
-           "(Component_%s*)malloc(sizeof(Component_%s));\n", name, name, name);
-    fprintf(c_fp, "    self->base.start = Start;\n");
-    fprintf(c_fp, "    self->base.update = Update;\n");
-    fprintf(c_fp, "    self->base.collide = Collide;\n");
-    fprintf(c_fp, "    self->base.id = CID_%s;\n", name);
-    /* assign function pointers to the function they should be set to */
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
-            fprintf(c_fp, "    self->%s = %s;\n", 
-                    (((Attribute*)it->data))->name,
-                    (((Attribute*)it->data))->name);
-        }
-    }
-    fprintf(c_fp, "}\n");
-
-    /* function bodies */
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
-            GList* jt;
-            fprintf(c_fp, "%s %s(Component_%s* self",
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name,
-                    name);
-            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
-                fprintf(c_fp, ", %s %s", ((Attribute*)jt->data)->type,
-                        ((Attribute*)jt->data)->name);
-            }
-            fprintf(c_fp, ")\n{\n%s\n}\n", 
-                    (((Attribute*)it->data))->definition);
-        }
-    }
-
-    /* write JSON skeleton TODO: */
-
-    /* cleanup */
-    fclose(c_fp);
-    fclose(header_fp);
-    /*
-    out = cJSON_Print(root);
-    cJSON_Delete(root); 
-    printf("%s\n", out);
-    free(out);
-    */
+    /* close 'er up */
+    fprintf(outfile, "}Component_%s;\n", name);
+    fprintf(outfile, "Component* Component_%s_New();\n", name);
+    fprintf(outfile, "#endif\n");
 }
-
-#if 0
-void write_json(cJSON* json, char* type, char* name)
-{
-    /* determine what type we're dealing with and create the 
-     * appropriate JSON for that type. */
-    switch(get_type(type)) {
-        case TYPE_INT:
-            cJSON_AddNumberToObject(attributes, name, 0);
-            break;
-        case TYPE_FLOAT:
-            cJSON_AddNumberToObject(attributes, name, 0);
-            break;
-        case TYPE_STRING:
-            cJSON_AddStringToObject(attributes, name, "");
-            break;
-        case TYPE_BOOL:
-            cJSON_AddFalseToObject(attributes, name);
-            break;
-        case TYPE_VECTOR2:
-            tmp = cJSON_CreateObject();
-            cJSON_AddNumberToObject(tmp, "x", 0);
-            cJSON_AddNumberToObject(tmp, "y", 0);
-            cJSON_AddItemToObject(attributes, name, tmp);
-            break;
-        case TYPE_VECTOR3:
-            tmp = cJSON_CreateObject();
-            cJSON_AddNumberToObject(tmp, "x", 0);
-            cJSON_AddNumberToObject(tmp, "y", 0);
-            cJSON_AddNumberToObject(tmp, "z", 0);
-            cJSON_AddItemToObject(attributes, name, tmp);
-            break;
-        case TYPE_RECT:
-            tmp = cJSON_CreateObject();
-            cJSON_AddNumberToObject(tmp, "x", 0);
-            cJSON_AddNumberToObject(tmp, "y", 0);
-            cJSON_AddNumberToObject(tmp, "w", 0);
-            cJSON_AddNumberToObject(tmp, "h", 0);
-            cJSON_AddItemToObject(attributes, name, tmp);
-            break;
-        case TYPE_AABB:
-            cJSON_AddNumberToObject(tmp, "w", 0);
-            cJSON_AddNumberToObject(tmp, "h", 0);
-            cJSON_AddNumberToObject(tmp, "d", 0);
-            cJSON_AddItemToObject(attributes, name, tmp);
-            break;
-        default:
-            break;
-    }
-}
-#endif
 
 void simplify(char* text)
 {
@@ -398,12 +548,6 @@ void simplify(char* text)
                 }
                 ++text;
             }
-        }
-        /* turn all whitespace into a single space */
-        else if(isspace(*text)) {
-            while(isspace(*(++text)));
-            --text;
-            *new++ = *text;
         }
         else {
             *new++ = *text;
@@ -486,7 +630,7 @@ Attribute* new_attribute(char* name, char* type, GList* parameters, char* body)
     return a;
 }
 
-Attribute* get_attribute(char** text_loc)
+Attribute* get_attribute(FILE* file)
 {
     int i;
     Attribute* a;
@@ -501,9 +645,9 @@ Attribute* get_attribute(char** text_loc)
     int public = 0;
     int is_function = 0;
     int paren_cnt = 0;
-    char* text = *text_loc;
 
     int state = STATE_IS_PUBLIC;
+    int save_state = state;
 
     name_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_NAME_SIZE);
     param_name_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_NAME_SIZE);
@@ -516,25 +660,69 @@ Attribute* get_attribute(char** text_loc)
     }
 
     body_buff[0] = '\0';
-
     parameters = NULL;
 
-    /* I hate state machines */
-    for(; !done; ++text) {
+    while(!done) {
+        char c = fgetc(file);
+
+        /* comment? */
+        if(state != STATE_BLOCK_COMMENT && 
+                state != STATE_LINE_COMMENT &&
+                c == '/') {
+            char c2 = fgetc(file);
+            if(c2 == '*') {
+                save_state = state;
+                state = STATE_BLOCK_COMMENT;
+            }
+            else if(c2 == '/') {
+                save_state = state;
+                state = STATE_LINE_COMMENT;
+            }
+            else {
+                ungetc(c2, file);
+            }
+        }
+
+        /* I hate state machines */
         switch(state) {
-            /* test if public or not */
-            case STATE_IS_PUBLIC:
-                if(isspace(*text)) {
-                    continue;
+            /* done with a line comment? */
+            case STATE_LINE_COMMENT:
+                if(c == '\n') {
+                    state = save_state;
                 }
-                if(strncmp(text, "public", 6) == 0) {
-                    if(isspace(*(text+6))) {
-                        public = 1;
-                        text += 7;
+                break;
+
+            /* done with a block comment? */
+            case STATE_BLOCK_COMMENT:
+                if(c == '*') {
+                    if(fgetc(file) == '/') {
+                        state = save_state;
                     }
                 }
-                if(!isspace(*text)) {
-                    type_buff[0] = *text;
+                break;
+
+            /* test if public or not */
+            case STATE_IS_PUBLIC:
+                /* it's almost a thing of beauty isn't it? */
+                if(c == 'p')  {
+                    if(fgetc(file) == 'u') 
+                        if(fgetc(file) == 'b') 
+                            if(fgetc(file) == 'l') 
+                                if(fgetc(file) == 'i') 
+                                    if(fgetc(file) == 'c') 
+                                        if(isspace(fgetc(file))) {
+                                            public = 1;
+                                            break;
+                                        }
+                                        else ungetc(' ', file);
+                                    else ungetc('c', file);
+                                else ungetc('i', file);
+                            else ungetc('l', file);
+                        else ungetc('b', file);
+                    else ungetc('u', file);
+                }
+                if(!isspace(c)) {
+                    type_buff[0] = c;
                     state = STATE_TYPE_DECLARE;
                     i = 1;
                 }
@@ -542,8 +730,8 @@ Attribute* get_attribute(char** text_loc)
 
             /* get the type of the attribute declaration */
             case STATE_TYPE_DECLARE:
-                if(!isspace(*text)) {
-                    type_buff[i] = *text;
+                if(!isspace(c)) {
+                    type_buff[i] = c;
                     ++i;
                 }
                 else {
@@ -555,38 +743,38 @@ Attribute* get_attribute(char** text_loc)
 
             /* get the name of the attribute & check if function or not */
             case STATE_SEEK_NAME:
-                if(isspace(*text)) {
+                if(isspace(c)) {
                     name_buff[i] = '\0';
                     state = STATE_CHECK_IF_FUNCTION;
                     i = 0;
                 }
-                else if(*text == ';') {
+                else if(c == ';') {
                     name_buff[i] = '\0';
                     state = STATE_DONE;
                     i = 0;
                 }
-                else if(*text == '(') {
+                else if(c == '(') {
                     name_buff[i] = '\0';
                     paren_cnt = 1;
                     state = STATE_FUNCTION_PROTOTYPE;
                     i = 0;
                 }
                 else {
-                    name_buff[i] = *text;
+                    name_buff[i] = c;
                     ++i;
                 }
                 break;
 
             /* check if the attribute is a function or variable */
             case STATE_CHECK_IF_FUNCTION:
-                if(*text == '(') {
+                if(c == '(') {
                     paren_cnt = 1;
                     state = STATE_FUNCTION_PROTOTYPE;
                 }
-                if(*text == ';') {
+                if(c == ';') {
                     state = STATE_DONE;
                 }
-                else if(!isspace(*text)) {
+                else if(!isspace(c)) {
                     fprintf(stderr, "Error: expected ';' at end of declaration"
                             " of attribute %s\n", name_buff);
                     return NULL;
@@ -596,17 +784,17 @@ Attribute* get_attribute(char** text_loc)
             /* get everything in the parentheses for the function prototype */
             case STATE_FUNCTION_PROTOTYPE:
                 is_function = 1;
-                if(*text == '(') {
+                if(c == '(') {
                     ++paren_cnt;
                 }
-                else if(*text == ')') {
+                else if(c == ')') {
                     --paren_cnt;
                     if(paren_cnt == 0) {
                         state = STATE_FUNCTION_BEGIN;
                     }
                 }
-                else if(!isspace(*text)) {
-                    param_type_buff[0] = *text;
+                else if(!isspace(c)) {
+                    param_type_buff[0] = c;
                     state = STATE_SEEK_PARAM_TYPE;
                     i = 1;
                 }
@@ -614,34 +802,34 @@ Attribute* get_attribute(char** text_loc)
 
             /* search for the type declaration for the parameter */
             case STATE_SEEK_PARAM_TYPE:
-                if(*text == ',') {
+                if(c == ',') {
                     fprintf(stderr, "Error: expected name for parameter before"
                             "','\n");
                     return NULL;
                 }
-                if(!isspace(*text)) {
+                if(!isspace(c)) {
                     state = STATE_GET_PARAM_TYPE;
-                    param_type_buff[i] = *text;
+                    param_type_buff[i] = c;
                     ++i;
                 }
                 break;
              
             /* get the type of the next parameter for the function */
             case STATE_GET_PARAM_TYPE:
-                if(isspace(*text)) {
+                if(isspace(c)) {
                     state = STATE_SEEK_PARAM_NAME;
                     param_type_buff[i] = '\0';
                     i = 0;
                 }
                 else {
-                    param_type_buff[i] = *text;
+                    param_type_buff[i] = c;
                     ++i;
                 }
                 break;
 
             /* get the name of the parameter */
             case STATE_SEEK_PARAM_NAME:
-                if(*text == ')') {
+                if(c == ')') {
                     --paren_cnt;
                     if(paren_cnt == 0) {
                         /* add last parameter and begin reading the body */
@@ -655,7 +843,7 @@ Attribute* get_attribute(char** text_loc)
                         break;
                     }
                 }
-                else if(isspace(*text) || *text == ',') {
+                else if(isspace(c) || c == ',') {
                     state = STATE_FUNCTION_PROTOTYPE;
                     param_name_buff[i] = '\0';
                     a = new_attribute(param_name_buff, param_type_buff, NULL, NULL);
@@ -663,7 +851,7 @@ Attribute* get_attribute(char** text_loc)
                     a->public = 0;
                     parameters = g_list_append(parameters, (gpointer)a);
                     /* more parameters */
-                    if(*text == ',') {
+                    if(c == ',') {
                         state = STATE_SEEK_PARAM_TYPE;
                         i = 0;
                     }
@@ -674,17 +862,17 @@ Attribute* get_attribute(char** text_loc)
                     }
                 }
                 else {
-                    param_name_buff[i] = *text;
+                    param_name_buff[i] = c;
                     ++i;
                 }
                 break;
 
             /* check if there are more parameters to the function */
             case STATE_IS_MORE_PARAMS:
-                if(*text == ',') {
+                if(c == ',') {
                     state = STATE_SEEK_PARAM_TYPE;
                 }
-                else if(*text == ')') {
+                else if(c == ')') {
                     --paren_cnt;
                     if(paren_cnt == 0) {
                         state = STATE_FUNCTION_BEGIN;
@@ -693,7 +881,7 @@ Attribute* get_attribute(char** text_loc)
 
             /* find the start of the function body - the opening brace '{' */
             case STATE_FUNCTION_BEGIN:
-                if(*text == '{') {
+                if(c == '{') {
                     state = STATE_FUNCTION_BODY;
                     paren_cnt = 1;
                 }
@@ -701,10 +889,10 @@ Attribute* get_attribute(char** text_loc)
 
             /* get the body of the function */
             case STATE_FUNCTION_BODY:
-                if(*text == '{') {
+                if(c == '{') {
                     ++paren_cnt;
                 }
-                else if(*text == '}') {
+                else if(c == '}') {
                     --paren_cnt;
                     if(paren_cnt == 0) {
                         body_buff[i] = '\0';
@@ -712,7 +900,7 @@ Attribute* get_attribute(char** text_loc)
                         break;
                     }
                 }
-                body_buff[i] = *text;
+                body_buff[i] = c;
                 ++i;
                 break;
 
@@ -735,7 +923,16 @@ Attribute* get_attribute(char** text_loc)
     free(name_buff);
     free(type_buff);
     free(body_buff);
-    *text_loc = text;
     return a;
 }
  
+void help()
+{
+    puts("command line arguments:");
+    puts("-help: display this help message");
+    puts("-I <directory>: specify the directory of the component "
+            "files to process");
+    puts("-O <directory>: specify the directory where the processed "
+            "component files should be placed");
+}
+

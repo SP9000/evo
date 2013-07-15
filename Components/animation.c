@@ -24,7 +24,7 @@ typedef struct AnimationCmd {
 
     /* model to serve as root for this operation (all subgroups of model will
      * also have this operation applied). */
-    struct Component_Model* base;
+    Component_Model* base;
 
     /* amount to scale/translate/rotate by */
     Vector3 value;

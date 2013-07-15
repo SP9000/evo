@@ -45,7 +45,7 @@ COMPONENT Model {
     /* The type of primitive to render as. e.g. GL_LINES, GL_TRIANGLES... */
     public GLuint primitive;
     /* The offset of the next unassigned vertex. */
-    public unsigned int numVertices;
+    public unsigned numVertices;
     /* Submodels of this model. For example: a leg may be a subgroup of body */
     public Component_Model* subgroups;
 
