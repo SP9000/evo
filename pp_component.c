@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include "glib.h"
@@ -80,15 +81,10 @@ FILE* c_fp;
 
 void help();
 
-/* given pointer at start of a block, returns pointer to end of { } block. */
-char* get_block(char* text);
-/* turns all whitespace into a single space and deletes comments */
-void simplify(char* text);
-
 int get_type(char* text);
 Attribute* get_attribute(FILE* file);
 Attribute* new_attribute(char* name, char* type, GList* prototype, char* body);
-long get_attributes(char* in_file, GSList* attributes);
+long get_attributes(char* in_file, GSList** attributes);
 
 void write_attributes(char* name, GSList* attributes, FILE* header_fp, FILE* c_fp);
 void write_c_file(char* name, GSList* attributes,
@@ -106,6 +102,8 @@ int main(int argc, char** argv)
     int num_components;
     struct dirent* ent;
     int i;
+    char* pch;
+    char* pch2;
     char* components[512];
     char in_buff[512];
     char out_buff[512];
@@ -146,7 +144,10 @@ int main(int argc, char** argv)
             /* only process file if it is not hidden and not a directory */
             if(!S_ISDIR(s.st_mode) && ent->d_name[0] != '.') {
                 components[num_components] = (char*)malloc(sizeof(char)*(strlen(ent->d_name)+1));
-                strcpy(components[num_components], ent->d_name);
+                for(pch = ent->d_name, pch2 = components[num_components]; 
+                    pch != strchr(ent->d_name, '.'); ++pch) {
+                    *pch2++ = *pch;
+                }
                 ++num_components;
             }
         }
@@ -156,28 +157,28 @@ int main(int argc, char** argv)
         fprintf(stderr, "Error: couldn't open directory: %s\n", in_dir);
     }
     for(i = 0; i < num_components; ++i) {
-        char* pch;
         long component_end;
         GSList* attributes = NULL;
 
-        puts(components[i]);
         strcpy(in_buff, in_dir);
         strcat(in_buff, components[i]);
+        strcat(in_buff, ".c");
         strcpy(out_buff, out_dir);
         strcat(out_buff, components[i]);
+        strcat(out_buff, ".c");
 
-        component_end = get_attributes(in_buff, attributes);
+        component_end = get_attributes(in_buff, &attributes);
         write_c_file(components[i], attributes, in_buff, out_buff, component_end);
 
-        /* TODO: will break with no extension...assumes 1 char extension */
-        for(pch = &out_buff[strlen(out_buff)]; *pch != '.'; --pch);
-        *(pch+1) = 'h';
+        strcpy(out_buff, out_dir);
+        strcat(out_buff, components[i]);
+        strcat(out_buff, ".h");
         write_header(components[i], attributes, out_buff);
     }
     return 0;
 }
 
-long get_attributes(char* in_file, GSList* attributes)
+long get_attributes(char* in_file, GSList** attributes)
 {
     FILE* in_fp;
 
@@ -197,7 +198,6 @@ long get_attributes(char* in_file, GSList* attributes)
     }
     /* move the file to the component start */
     get_component_start(in_fp);
-    
     /* find the super component (if any) and the component name */
     super_component[0] = '\0';
     for(done = 0, state = STATE_SEEK_COMPONENT_NAME; !done; ) {
@@ -287,8 +287,9 @@ long get_attributes(char* in_file, GSList* attributes)
 
     /* is there a super component? If so, get its attributes recursively */
     if(super_component[0]) {
-        strcpy(super_file, out_dir);
+        strcpy(super_file, in_dir);
         strcat(super_file, super_component);
+        strcat(super_file, ".c");
         get_attributes(super_file, attributes);
     }
 
@@ -311,7 +312,7 @@ long get_attributes(char* in_file, GSList* attributes)
             fprintf(stderr, "Error: failed to retrieve attribute.\n");
             exit(-6);
         }
-        attributes = g_slist_append(attributes, (gpointer)a);
+        *attributes = g_slist_append(*attributes, (gpointer)a);
     }
     return ftell(in_fp);
 }
@@ -325,6 +326,9 @@ long get_component_start(FILE* fp)
         buff[state] = fgetc(fp);
         if(buff[state] == "COMPONENT"[state]) {
             ++state;
+        }
+        else {
+            state = 0;
         }
         if(feof(fp)) {
             fprintf(stderr, "Error: no COMPONENT definition found\n");
@@ -361,11 +365,12 @@ void write_c_file(char* name, GSList* attributes,
             "/* This is a generated component C file...                     */\n"
             "/* Do whatever you want with it. I really don't care.          */\n"
             "/***************************************************************/\n\n");
+    fprintf(outfile, "#define BUILD_COMPONENT_%s\n", name);
     fprintf(outfile, "\n#include \"..\\component.h\"\n");
 
     /* write everything before the component declaration to the C file */
     fseek(infile, 0, SEEK_SET);
-    for(i = 0; i < component_offset; ++i) {
+    for(i = 0; i < component_offset - sizeof("COMPONENT"); ++i) {
         fputc(fgetc(infile), outfile);
     }
 
@@ -463,9 +468,13 @@ void write_c_file(char* name, GSList* attributes,
     }
 
     /* write everything after the component declaration to the C file */
-    fseek(infile, component_end, SEEK_SET);
-    while(!feof(infile)) {
-        fputc(fgetc(infile), outfile);
+    fseek(infile, component_end+1, SEEK_SET);
+    while(1) {
+        char c = fgetc(infile);
+        if(feof(infile)) {
+            break;
+        }
+        fputc(c, outfile);
     }
 }
 
@@ -490,6 +499,7 @@ void write_header(char* name, GSList* attributes, char* out_filename)
     /* write attributes */
     fprintf(outfile, "#ifndef COMPONENT_%s\n#define COMPONENT_%s\n", 
             name, name);
+    fprintf(outfile, "#ifndef BUILD_COMPONENT_%s\n", name);
     fprintf(outfile, "typedef struct Component_%s {\n", name);
     fprintf(outfile, "    Component base;\n");
 
@@ -523,63 +533,9 @@ void write_header(char* name, GSList* attributes, char* out_filename)
 
     /* close 'er up */
     fprintf(outfile, "}Component_%s;\n", name);
+    fprintf(outfile, "#endif\n");
     fprintf(outfile, "Component* Component_%s_New();\n", name);
     fprintf(outfile, "#endif\n");
-}
-
-void simplify(char* text)
-{
-    char* new = text;
-    for(; *text; ++text) {
-        /* delete any comments */
-        if(*text == '/') {
-            /* block comment */
-            if(*(text+1) == '*') {
-                while((*text != '*') || (*(text+1) != '/')) {
-                    ++text;
-                }
-                /* get past comment */
-                ++text;
-            }
-            /* line comment */
-            else if(*(text+1) == '/') {
-                while(*text != '\n') {
-                    ++text;
-                }
-                ++text;
-            }
-        }
-        else {
-            *new++ = *text;
-        }
-    }
-    *new = '\0';
-}
-
-char* get_block(char* text)
-{
-    char* block = text;
-    int brace_cnt = 0;
-    for(; *text; ++text) {
-        if(*text == '{') {
-            ++brace_cnt;
-        }
-        else if(*text == '}') {
-            --brace_cnt;
-            if(brace_cnt == 0) {
-                /* find next whitespace */
-                while(!isspace(*text)) {
-                    ++text;
-                }
-                /* replace whitespace with terminating NULL */
-                text = '\0';
-                /* point text to 1 character after block */
-                ++text;
-                return block;
-            }
-        }
-    }
-    return NULL;
 }
 
 int get_type(char* text)
@@ -649,6 +605,9 @@ Attribute* get_attribute(FILE* file)
     int state = STATE_IS_PUBLIC;
     int save_state = state;
 
+    long cur;
+    char public_buff[7];
+
     name_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_NAME_SIZE);
     param_name_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_NAME_SIZE);
     type_buff = (char*)malloc(sizeof(char) * ATTRIBUTE_MAX_TYPE_NAME_SIZE);
@@ -695,31 +654,27 @@ Attribute* get_attribute(FILE* file)
             /* done with a block comment? */
             case STATE_BLOCK_COMMENT:
                 if(c == '*') {
-                    if(fgetc(file) == '/') {
+                    char c2 = fgetc(file);
+                    if(c2 == '/') {
                         state = save_state;
+                    }
+                    else {
+                        ungetc(c2, file);
                     }
                 }
                 break;
 
             /* test if public or not */
             case STATE_IS_PUBLIC:
-                /* it's almost a thing of beauty isn't it? */
-                if(c == 'p')  {
-                    if(fgetc(file) == 'u') 
-                        if(fgetc(file) == 'b') 
-                            if(fgetc(file) == 'l') 
-                                if(fgetc(file) == 'i') 
-                                    if(fgetc(file) == 'c') 
-                                        if(isspace(fgetc(file))) {
-                                            public = 1;
-                                            break;
-                                        }
-                                        else ungetc(' ', file);
-                                    else ungetc('c', file);
-                                else ungetc('i', file);
-                            else ungetc('l', file);
-                        else ungetc('b', file);
-                    else ungetc('u', file);
+                cur = ftell(file);
+                public_buff[0] = c;
+                fread(public_buff+1, sizeof(char), 6, file);
+                if(strncmp(public_buff, "public ", 7) == 0) {
+                    public = 1;
+                    break;
+                }
+                else {
+                    fseek(file, cur, SEEK_SET);
                 }
                 if(!isspace(c)) {
                     type_buff[0] = c;
@@ -789,9 +744,8 @@ Attribute* get_attribute(FILE* file)
                 }
                 else if(c == ')') {
                     --paren_cnt;
-                    if(paren_cnt == 0) {
-                        state = STATE_FUNCTION_BEGIN;
-                    }
+                    paren_cnt = 1;
+                    state = STATE_FUNCTION_BEGIN;
                 }
                 else if(!isspace(c)) {
                     param_type_buff[0] = c;
