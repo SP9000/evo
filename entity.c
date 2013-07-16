@@ -24,7 +24,7 @@ void Entity_Start(Entity* e)
     for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
         /* get the component and start it */
         Component* c = (Component*)clist->data;
-        c->start(c);
+        c->Start(c);
 
         /* add certain types of components to parts of the engine */
         switch(c->id) {
@@ -68,7 +68,7 @@ void Entity_Collide(Entity* e, Entity* other)
     GSList* clist;
     for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
         Component* c = (Component*)clist->data;
-        c->collide(other);
+        c->Collide(other);
     }
     
 }
@@ -82,7 +82,7 @@ void Entity_Update()
     for(eit = entities; eit != NULL; eit = g_slist_next(eit)) {
         /* update all components for this entity */
         for(cit = ((Entity*)(eit->data))->components; cit != NULL; cit = g_slist_next(cit)) {
-            ((Component*)(cit->data))->update(cit->data);
+            ((Component*)(cit->data))->Update(cit->data);
         }
     }
 }

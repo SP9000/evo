@@ -15,6 +15,16 @@ extern "C"
 /* GLib has lots of useful types... */
 #include "glib.h"
 #include "matrix.h"
+#include <GL/glew.h>
+
+typedef struct tagTexture {
+    /* the ID of the texture itself (as given by glGenTextures) */
+    GLuint id;
+    /* the location of the texture in the shader program it's attacked to */
+    GLuint loc;
+    /* the handle of the sampler used this texture (given by glGenSamplers). */
+    GLuint sampler;
+}Texture;
 
 /**
  * A basic type for representing a point in 2-dimensional space.

@@ -30,12 +30,12 @@ typedef void (*Component_CollideFunc)(struct Entity* e);
  */
 typedef struct Component {
     /* the start function, called upon adding this to an entity */
-    Component_StartFunc start;
+    void (*Start)();
     /* the update function, called once a frame */
-    Component_UpdateFunc update;
+    void (*Update)();
     /* the collide function, called when this component's entity collides with
      * another */
-    Component_CollideFunc collide;
+    void (*Collide)();
     /* the entity this componennt is attached to */
     struct Entity* entity;
     /* the ID of the component (tells what type it is) */
@@ -59,28 +59,6 @@ Component* Component_Get(Component* self, int id);
  */
 #define Component_GetAs(TYPE) \
     (Component_##TYPE *)Component_Get((Component*)self, CID_##TYPE)
-
-/* don't build these components, only insert their definitions */
-#ifdef BUILD
-#define BUILDING
-#undef BUILD
-#endif
-/* define the macro for NOT building, and include all standard components */
-#include "definecomponent.h"
-
-/* include definitions for all standard components */
-#include "stdcomponents.h"
-
-/* include definitions for all app components */
-#include "App/appcomponents.h"
-
-/* if we were building a component, continue */
-#ifdef BUILDING
-#undef BUILDING
-#define BUILD
-/* and redefine the macro so that building will work */
-#include "definecomponent.h"
-#endif
 
 #ifdef __cplusplus
 }

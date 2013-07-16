@@ -8,7 +8,7 @@ APPLICATION_SOURCES=$(wildcard App/Components/*.c)
 APPLICATION_OBJECTS=$(addprefix obj/,$(notdir $(APPLICATION_SOURCES:.c=.o)))
 
 # component sources 
-COMPONENT_SOURCES=$(wildcard Components/*.c)
+COMPONENT_SOURCES=$(wildcard Gen/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files
@@ -34,11 +34,11 @@ $(SERVER_EXECUTABLE): $(SERVER_OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) -UBUILD -c $< -o $@ 
 
-obj/%.o: Components/%.c
+obj/%.o: Gen/%.c
 	$(CC) $(CFLAGS) -DBUILD -c $< -o $@ 
 
-obj/%.o: App/Components/%.c
-	$(CC) $(CFLAGS) -DBUILD -c $< -o $@ 
+#obj/%.o: App/Components/%.c
+	#$(CC) $(CFLAGS) -DBUILD -c $< -o $@ 
 
 clean:
 	rm -f *.o

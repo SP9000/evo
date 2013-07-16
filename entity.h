@@ -21,7 +21,7 @@ extern "C" {
 #include "component.h"
 #include "collision.h"
 #include "draw.h"
-#include "stdcomponents.h"
+#include "Gen/all.h"
 #include "glib.h"
 #include "scene.h"
 #include "util.h"

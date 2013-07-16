@@ -25,7 +25,7 @@ extern "C" {
 #include "guilayout.h"
 #include "scene.h"
 #include "types.h"
-#include "stdcomponents.h"
+#include "Gen/all.h"
 
 extern Component_Camera* main_cam;
 

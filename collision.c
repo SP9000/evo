@@ -138,7 +138,7 @@ void Collision_Detect()
                     printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
                             c1->transform->pos.x, c1->transform->pos.y, c1->transform->pos.z,
                             c2->transform->pos.x, c2->transform->pos.y, c2->transform->pos.z);
-                    Entity_Collide(c1->base.entity, c2->base.entity);
+                    Entity_Collide(c1->entity, c2->entity);
                     fflush(stdout);
                 }
             }

@@ -35,7 +35,7 @@ int Draw_Init()
         /* Initialize GUI camera. Unlike scene cameras the GUI camera is 
          * non-negotiable. You're going to go to Hogwarts, you're going to do
          * spells, and that'll be that! */
-        guiCam = Component_New_Camera(NULL);
+        guiCam = Component_Camera_New();
         guiCam->Orthographic(guiCam, 0.0f, (float)screen->w, (float)screen->h, 
                 0.0f, 0.01f, 100.0f);
     }
@@ -168,7 +168,7 @@ void Draw_OptimizeModel(Component_Model* m) {
     m->vboIDs = (GLuint*)malloc(m->numAttributes * sizeof(GLuint));
     glGenBuffers(m->numAttributes, m->vboIDs);
     for(i = 0; i < m->numAttributes; ++i) {
-        int attrSize = m->GetAttributeSize(m->attributeTable[i]);
+        int attrSize = m->GetAttributeSize(m, m->attributeTable[i]);
         glBindBuffer(GL_ARRAY_BUFFER, m->vboIDs[i]);
         glBufferData(GL_ARRAY_BUFFER, sizeof(float) * attrSize * m->numVertices,
                 m->attributes[i], GL_STATIC_DRAW);

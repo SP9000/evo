@@ -17,7 +17,7 @@ extern "C" {
 #include <stdio.h>
 #include "entity.h"
 #include "glib.h"
-#include "stdcomponents.h"
+#include "Gen/all.h"
 
 /************************** types of colliders *******************************/
 /* Box collider - the AABB represents the collider's dimensions. */

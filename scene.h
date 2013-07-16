@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #include "glib.h"
-#include "stdcomponents.h"
+#include "Gen/all.h"
 
 /**
  * Initialize the scene system.

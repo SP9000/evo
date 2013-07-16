@@ -5,27 +5,17 @@
 /* Bryce Wilson                                                              */
 /* July 8, 2013                                                              */
 /*****************************************************************************/
-#ifndef COMPONENT_PLAYERMOTOR
-#define COMPONENT_PLAYERMOTOR
-
-#include <SDL/SDL.h>
-#include "../../input.h"
-#include "../../component.h"
-
-COMPONENT(PlayerMotor,
-    struct Component_Transform* transform;
+COMPONENT PlayerMotor {
+    Component_Transform* transform;
     float fallSpeed;
     float jumpHeight;
     float speed;
-)
 
-
-#ifdef BUILD
-    static void Start(Component_PlayerMotor* self) 
+    void Start()
     {
         self->transform = Component_GetAs(Transform);
     }
-    static void Update(Component_PlayerMotor* self) 
+    void Update() 
     {   
         if(Input_KeyDown(SDLK_RIGHT)) {
             self->transform->pos.x -= self->speed * time_delta;
@@ -34,9 +24,8 @@ COMPONENT(PlayerMotor,
             self->transform->pos.x += self->speed * time_delta;
         }
     }
-    static void Collide(Entity* e)
+    void Collide(Entity* e)
     {
 
     }
-#endif
-#endif
+}

@@ -4,6 +4,6 @@
 #include "modelgen.h"
 #include "draw.h"
 #include "collision.h"
-#include "stdcomponents.h"
+#include "Gen/all.h"
 
 #endif

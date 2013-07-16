@@ -7,6 +7,8 @@
 /* Bryce Wilson                                                              */
 /* Created: July 9, 2013                                                     */
 /*****************************************************************************/
+
+/* TODO: add default attributes to each component: Start, Update, Collide, etc. */
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -40,6 +42,7 @@ enum {
     STATE_LINE_COMMENT,
     STATE_IS_PUBLIC,
     STATE_SEEK_NAME, 
+    STATE_GET_NAME,
     STATE_TYPE_DECLARE,
     STATE_CHECK_IF_FUNCTION,
     STATE_FUNCTION_PROTOTYPE,
@@ -52,6 +55,7 @@ enum {
     STATE_GET_PARAM_TYPE
 };
 
+/* ID's for various types */
 enum {
     TYPE_INT,
     TYPE_FLOAT,
@@ -65,48 +69,120 @@ enum {
     TYPE_AABB  
 };
 
+/* the struct for the attributes contained by the COMPONENT definitions */
 typedef struct tagAttribute {
     int public;
     int is_function;
     char* type;
     char* name;
 
-    GList* parameters;    //if function
-    char* definition;     //if function
+    GList* parameters;    /* if function */
+    char* definition;     /* if function */
 }Attribute;
 
 
-FILE* header_fp;
-FILE* c_fp;
-
+/**
+ * Display a help message
+ */
 void help();
 
+/**
+ * Check if the given attribute name exists by default in components.
+ * @param a the attribute to check.
+ * @return nonzero if the attribute is a default of components else zero.
+ */
+int is_default_attribute(char* a);
+
+/**
+ * Get the type ID of the given string.
+ * @param text the string representation of the type to get the ID of.
+ * @return the ID of the given type.
+ */
 int get_type(char* text);
-Attribute* get_attribute(FILE* file);
+
+/**
+ * Get one or more attributes from the given file.
+ * @param file the file to retrieve the attribute(s) from.
+ * @return a list of one or more attributes or NULL if none are left
+ */
+GSList* get_attribute(FILE* file);
+
+/**
+ * Create/allocate a new attribute of the given parameters.
+ * @param name the name of the new attribute.
+ * @param type the type of the new attribute.
+ * @param prototype a list of attributes if this is a function, else NULL.
+ * @param body the body of this if it's a function, else NULL.
+ * @return the attribute with the given parameters.
+ */
 Attribute* new_attribute(char* name, char* type, GList* prototype, char* body);
+
+/**
+ * Get all of the attributes from the given file.
+ * @param in_file the file to retrieve the attributes of.
+ * @param attributes the list to store the found attributes.
+ * @return the offset where the end of the COMPONENT was found...don't ask...
+ */
 long get_attributes(char* in_file, GSList** attributes);
 
-void write_attributes(char* name, GSList* attributes, FILE* header_fp, FILE* c_fp);
+/**
+ * Write a C file using the given file and attributes.
+ * @param name the name of the component to write the file for.
+ * @param attributes the attributes that the component contains.
+ * @param infile the component file.
+ * @param outfile the file to write to.
+ * @param component_end the location of the end of the COMPONENT definition...
+ */
 void write_c_file(char* name, GSList* attributes,
     char* infile, char* outfile, long component_end);
+
+/**
+ * Write the header file for the component.
+ * @param name the name of the component.
+ * @attributes the attributes of the component.
+ * @param outfile the file to create from the given information.
+ */
 void write_header(char* name, GSList* attributes, char* outfile);
+
+/**
+ * Move the given file pointer to the start of the component.
+ * @param fp the file pointer to move.
+ * @return the offset from the start of the file to the new position.
+ */
 long get_component_start(FILE* fp);
 
+/**
+ * Retrieve a list of all the components within the given directory.
+ * @param path the directory to get all the components from.
+ * @param components where to store the name of all the components.
+ * @param component_paths where to store the paths of all the components.
+ * @param num_components this is a recursive function, call with 0.
+ * @return the number of components found.
+ */
+int get_all_components(char* path, char** components, char** component_paths,
+        int num_components);
+
+/**
+ * A compare function for comparing an attribute to a string by name.
+ */
+gint compare_attribute(gconstpointer a, gconstpointer b);
 
 char* out_dir;
 char* in_dir;
+FILE* header_fp;
+FILE* c_fp;
 
+/*****************************************************************************/
 int main(int argc, char** argv)
 {
-    DIR* component_dir;
     int num_components;
-    struct dirent* ent;
     int i;
     char* pch;
-    char* pch2;
     char* components[512];
+    char* component_paths[512];
     char in_buff[512];
     char out_buff[512];
+    FILE* include;
     in_dir = NULL;
     out_dir = NULL;
 
@@ -135,47 +211,99 @@ int main(int argc, char** argv)
         fprintf(stderr, "Use argument -help for help message.\n");
         exit(-1);
     }
-    if((component_dir = opendir(in_dir)) != NULL) {
-        for(i = 0, num_components = 0; (ent = readdir(component_dir)); ++i) {
-            struct stat s;
-            strcpy(in_buff, in_dir);
-            strcat(in_buff, ent->d_name);
-            stat(in_buff, &s);
-            /* only process file if it is not hidden and not a directory */
-            if(!S_ISDIR(s.st_mode) && ent->d_name[0] != '.') {
-                components[num_components] = (char*)malloc(sizeof(char)*(strlen(ent->d_name)+1));
-                for(pch = ent->d_name, pch2 = components[num_components]; 
-                    pch != strchr(ent->d_name, '.'); ++pch) {
-                    *pch2++ = *pch;
-                }
-                ++num_components;
-            }
-        }
-        closedir(component_dir);
-    }
-    else {
-        fprintf(stderr, "Error: couldn't open directory: %s\n", in_dir);
-    }
+    num_components = get_all_components(in_dir, components, component_paths, 0);
     for(i = 0; i < num_components; ++i) {
         long component_end;
         GSList* attributes = NULL;
 
-        strcpy(in_buff, in_dir);
-        strcat(in_buff, components[i]);
-        strcat(in_buff, ".c");
         strcpy(out_buff, out_dir);
         strcat(out_buff, components[i]);
         strcat(out_buff, ".c");
 
-        component_end = get_attributes(in_buff, &attributes);
-        write_c_file(components[i], attributes, in_buff, out_buff, component_end);
+        component_end = get_attributes(component_paths[i], &attributes);
+        puts(component_paths[i]);
+        write_c_file(components[i], attributes, component_paths[i], out_buff, component_end);
 
         strcpy(out_buff, out_dir);
         strcat(out_buff, components[i]);
         strcat(out_buff, ".h");
         write_header(components[i], attributes, out_buff);
     }
+
+    /* make file to include all components + define enumerations to ID them */
+    strcpy(out_buff, out_dir);
+    strcat(out_buff, "all.h");
+    strcpy(in_buff, in_dir);
+    while((pch = strchr(in_buff, '/'))) {
+        *pch = '_';
+    }
+    include = fopen(out_buff, "wb");
+    fprintf(include, "#ifndef COMPONENTS_%s\n", in_buff);
+    fprintf(include, "#define COMPONENTS_%s\n", in_buff);
+    fprintf(include, "#include \"../component.h\"\n");
+    fprintf(include, "#include \"../types.h\"\n\n");
+    if(include == NULL) {
+        fprintf(stderr, "Error: failed to create include file %s\n", out_buff);
+        exit(-1);
+    }
+    for(i = 0; i < num_components; ++i) {
+        fprintf(include, "typedef struct Component_%s Component_%s;\n",
+               components[i], components[i]);
+    }
+    fprintf(include, "\n");
+    for(i = 0; i < num_components; ++i) {
+        fprintf(include, "#include \"%s.h\"\n", components[i]);
+    }
+    fprintf(include, "\nenum {\n");
+    for(i = 0; i < num_components; ++i) {
+        fprintf(include, "    CID_%s,\n", components[i]);
+    }
+    fprintf(include, "};\n");
+    fprintf(include, "#endif\n");
     return 0;
+}
+
+int get_all_components(char* path, char** components, char** component_paths, int num_components)
+{
+    DIR* dir;
+    struct dirent* ent;
+    char* pch;
+    struct stat s;
+
+    if((dir = opendir(path)) == NULL) {
+        fprintf(stderr, "Error: couldn't open directory: %s\n", path);
+        perror("");
+        return -1;
+    }
+
+    while((ent = readdir(dir))) {
+        /* only process file if it is not hidden and not a directory */
+        char sub_path[1024];
+        snprintf(sub_path, sizeof(sub_path)-1, "%s%s",
+              path, ent->d_name);
+        stat(sub_path, &s);
+        if(ent->d_name[0] == '.') {
+            continue;
+        }
+        if(!S_ISDIR(s.st_mode)) {
+            components[num_components] = (char*)malloc(sizeof(char)*
+                    (strlen(ent->d_name)+1));
+            component_paths[num_components] = (char*)malloc(sizeof(char)*
+                    (strlen(sub_path)+1));
+            strcpy(component_paths[num_components], sub_path);
+            pch = strchr(ent->d_name, '.');
+            *pch = '\0';
+            strcpy(components[num_components], ent->d_name);
+            ++num_components;
+        }
+        else {
+            strcat(sub_path, "/");
+            num_components = get_all_components(sub_path, components, 
+                    component_paths, num_components);
+        }
+    }
+    closedir(dir);
+    return num_components;
 }
 
 long get_attributes(char* in_file, GSList** attributes)
@@ -188,7 +316,6 @@ long get_attributes(char* in_file, GSList** attributes)
     char name[64];
     char super_component[64];
     char super_file[256];
-
 
     /* open input file */
     in_fp = fopen(in_file, "rb");
@@ -295,8 +422,11 @@ long get_attributes(char* in_file, GSList** attributes)
 
     /* read attributes */
     while(!feof(in_fp)) {
-        Attribute* a;
+        GSList* attrs;
+        GSList* prev;
+        GSList* it;
         char c;
+
         /* eat spaces */
         do {
             c = fgetc(in_fp);
@@ -307,12 +437,20 @@ long get_attributes(char* in_file, GSList** attributes)
         if(c == '}') {
             break;
         }
-        a = get_attribute(in_fp);
-        if(a == NULL) {
+        attrs = get_attribute(in_fp);
+        if(attrs == NULL) {
             fprintf(stderr, "Error: failed to retrieve attribute.\n");
             exit(-6);
         }
-        *attributes = g_slist_append(*attributes, (gpointer)a);
+        for(it = attrs; it != NULL; it = g_slist_next(it)) {
+            Attribute* a = (Attribute*)it->data;
+            prev = g_slist_find_custom(*attributes, a->name, compare_attribute);
+            if(prev) {
+                free(prev->data);
+                *attributes = g_slist_remove_link(*attributes, prev);
+            }
+            *attributes = g_slist_append(*attributes, (gpointer)a);
+        }
     }
     return ftell(in_fp);
 }
@@ -366,6 +504,7 @@ void write_c_file(char* name, GSList* attributes,
             "/* Do whatever you want with it. I really don't care.          */\n"
             "/***************************************************************/\n\n");
     fprintf(outfile, "#define BUILD_COMPONENT_%s\n", name);
+    fprintf(outfile, "\n#include \"all.h\"\n");
     fprintf(outfile, "\n#include \"..\\component.h\"\n");
 
     /* write everything before the component declaration to the C file */
@@ -376,39 +515,47 @@ void write_c_file(char* name, GSList* attributes,
 
     /* write attributes */
     fprintf(outfile, "typedef struct Component_%s {\n", name);
-    fprintf(outfile, "    Component base;\n");
+    fprintf(outfile, "    void (*Start)(Component_%s*);\n", name);
+    fprintf(outfile, "    void (*Update)(Component_%s*);\n", name);
+    fprintf(outfile, "    void (*Collide)(Component_%s*, Entity*);\n", name);
+    fprintf(outfile, "    struct Entity* entity;\n");
+    fprintf(outfile, "    unsigned id;\n\n");
 
     /* variables - public must go first to be compatible with what the */
     /* outside world believes to be the structure looks like           */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)(it->data))->public) {
-            if(!((Attribute*)it->data)->is_function) {
-                fprintf(outfile, "    %s %s;\n", 
-                        ((Attribute*)it->data)->type,
-                        ((Attribute*)it->data)->name);
+        Attribute* a = (Attribute*)it->data;
+        if(is_default_attribute(a->name)) {
+            continue;
+        }
+        if(a->public) {
+            if(!a->is_function) {
+                fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
     }
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(!((Attribute*)(it->data))->public) {
-            if(!((Attribute*)it->data)->is_function) {
-                fprintf(outfile, "    %s %s;\n", 
-                        ((Attribute*)it->data)->type,
-                        ((Attribute*)it->data)->name);
+        Attribute* a = (Attribute*)it->data;
+        if(is_default_attribute(a->name)) {
+            continue;
+        }
+        if(!a->public) {
+            if(!a->is_function) {
+                fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
     }
     /* function pointer variables */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
+        Attribute* a = (Attribute*)it->data;
+        if(is_default_attribute(a->name)) {
+            continue;
+        }
+        if(a->is_function) {
             GList* jt;
-            fprintf(outfile, "    %s (*%s)(Component_%s*",
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name,
-                    name);
-            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
-                fprintf(outfile, ", ");
-                fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+            fprintf(outfile, "    %s (*%s)(Component_%s*", a->type, a->name, name);
+            for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(outfile, ", %s", ((Attribute*)jt->data)->type);
             }
             fprintf(outfile, ");\n");
         }
@@ -417,13 +564,11 @@ void write_c_file(char* name, GSList* attributes,
     /* function prototypes */
     fprintf(outfile, "}Component_%s;\n", name);
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->is_function) {
             GList* jt;
-            fprintf(outfile, "static %s %s(Component_%s* self", 
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name,
-                    name);
-            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+            fprintf(outfile, "static %s %s(Component_%s* self", a->type, a->name, name);
+            for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
                 fprintf(outfile, ", %s %s", 
                         ((Attribute*)jt->data)->type,
                         ((Attribute*)jt->data)->name);
@@ -436,34 +581,36 @@ void write_c_file(char* name, GSList* attributes,
     fprintf(outfile, "Component* Component_%s_New()\n{\n", name);
     fprintf(outfile, "    Component_%s* self = "
            "(Component_%s*)malloc(sizeof(Component_%s));\n", name, name, name);
-    fprintf(outfile, "    self->base.start = Start;\n");
-    fprintf(outfile, "    self->base.update = Update;\n");
-    fprintf(outfile, "    self->base.collide = Collide;\n");
-    fprintf(outfile, "    self->base.id = CID_%s;\n", name);
+    fprintf(outfile, "    self->Start = Start;\n");
+    fprintf(outfile, "    self->Update = Update;\n");
+    fprintf(outfile, "    self->Collide = Collide;\n");
+    fprintf(outfile, "    self->id = CID_%s;\n", name);
     /* assign function pointers to the function they should be set to */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
-            fprintf(outfile, "    self->%s = %s;\n", 
-                    (((Attribute*)it->data))->name,
-                    (((Attribute*)it->data))->name);
+        Attribute* attr = (Attribute*)it->data;
+        if(is_default_attribute(attr->name)) {
+            continue;
+        }
+        Attribute* a = (Attribute*)it->data;
+        if(a->is_function) {
+            fprintf(outfile, "    self->%s = %s;\n", a->name, a->name);
         }
     }
+    fprintf(outfile, "    return self;\n");
     fprintf(outfile, "}\n");
 
     /* function bodies */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)it->data)->is_function) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->is_function) {
             GList* jt;
-            fprintf(outfile, "%s %s(Component_%s* self",
-                    ((Attribute*)it->data)->type,
-                    ((Attribute*)it->data)->name,
-                    name);
-            for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+            fprintf(outfile, "%s %s(Component_%s* self", a->type, a->name, name);
+            for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
                 fprintf(outfile, ", %s %s", ((Attribute*)jt->data)->type,
                         ((Attribute*)jt->data)->name);
             }
             fprintf(outfile, ")\n{\n%s\n}\n", 
-                    (((Attribute*)it->data))->definition);
+                    a->definition);
         }
     }
 
@@ -500,8 +647,13 @@ void write_header(char* name, GSList* attributes, char* out_filename)
     fprintf(outfile, "#ifndef COMPONENT_%s\n#define COMPONENT_%s\n", 
             name, name);
     fprintf(outfile, "#ifndef BUILD_COMPONENT_%s\n", name);
+    fprintf(outfile, "#include \"all.h\"\n");
     fprintf(outfile, "typedef struct Component_%s {\n", name);
-    fprintf(outfile, "    Component base;\n");
+    fprintf(outfile, "    void (*Start)(Component_%s*);\n", name);
+    fprintf(outfile, "    void (*Update)(Component_%s*);\n", name);
+    fprintf(outfile, "    void (*Collide)(Component_%s*, Entity*);\n", name);
+    fprintf(outfile, "    struct Entity* entity;\n");
+    fprintf(outfile, "    unsigned id;\n\n");
 
     /* variables */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
@@ -586,7 +738,7 @@ Attribute* new_attribute(char* name, char* type, GList* parameters, char* body)
     return a;
 }
 
-Attribute* get_attribute(FILE* file)
+GSList* get_attribute(FILE* file)
 {
     int i;
     Attribute* a;
@@ -596,6 +748,7 @@ Attribute* get_attribute(FILE* file)
     char* param_name_buff;
     char* param_type_buff;
     GList* parameters;
+    GSList* attrs = NULL;
 
     int done = 0;
     int public = 0;
@@ -696,22 +849,42 @@ Attribute* get_attribute(FILE* file)
                 }
                 break;
 
-            /* get the name of the attribute & check if function or not */
             case STATE_SEEK_NAME:
+                if(!isspace(c)) {
+                    name_buff[0] = c;
+                    state = STATE_GET_NAME;
+                    i = 1;
+                }
+                break;
+
+            /* get the name of the attribute & check if function or not */
+            case STATE_GET_NAME:
                 if(isspace(c)) {
                     name_buff[i] = '\0';
                     state = STATE_CHECK_IF_FUNCTION;
                     i = 0;
                 }
+                /* it was a variable and we've found the end of its name */
                 else if(c == ';') {
                     name_buff[i] = '\0';
                     state = STATE_DONE;
                     i = 0;
                 }
+                /* it's a function, get the prototype */
                 else if(c == '(') {
                     name_buff[i] = '\0';
                     paren_cnt = 1;
                     state = STATE_FUNCTION_PROTOTYPE;
+                    i = 0;
+                }
+                /* it was a variable and there're more of the same type to come */
+                else if(c == ',') {
+                    name_buff[i] = '\0';
+                    a = new_attribute(name_buff, type_buff, parameters, body_buff);
+                    a->is_function = is_function;
+                    a->public = public;
+                    attrs = g_slist_append(attrs, a);
+                    state = STATE_SEEK_NAME;
                     i = 0;
                 }
                 else {
@@ -726,8 +899,17 @@ Attribute* get_attribute(FILE* file)
                     paren_cnt = 1;
                     state = STATE_FUNCTION_PROTOTYPE;
                 }
-                if(c == ';') {
+                else if(c == ';') {
                     state = STATE_DONE;
+                }
+                else if(c == ',') {
+                    name_buff[i] = '\0';
+                    a = new_attribute(name_buff, type_buff, parameters, body_buff);
+                    a->is_function = is_function;
+                    a->public = public;
+                    attrs = g_slist_append(attrs, a);
+                    i = 0;
+                    state = STATE_SEEK_NAME;
                 }
                 else if(!isspace(c)) {
                     fprintf(stderr, "Error: expected ';' at end of declaration"
@@ -870,16 +1052,36 @@ Attribute* get_attribute(FILE* file)
         }
     }
     a = new_attribute(name_buff, type_buff, parameters, body_buff);
-
     a->is_function = is_function;
     a->public = public;
+
+    attrs = g_slist_append(attrs, a);
 
     free(name_buff);
     free(type_buff);
     free(body_buff);
-    return a;
+    return attrs;
+}
+
+int is_default_attribute(char* a)
+{
+    if(strncmp(a, "Start", 6) == 0 || strncmp(a, "Update", 7) == 0 ||
+        strncmp(a, "Collide", 8) == 0 || strncmp(a, "entity", 7) == 0 ||
+            strncmp(a, "id", 3) == 0) {
+        return 1;
+    }
+    return 0;
 }
  
+gint compare_attribute(gconstpointer a, gconstpointer b)
+{
+    Attribute* a1 = (Attribute*)a;
+    char* a2 = (char*)b;
+
+    int s = (strlen(a1->name) > strlen(a2)) ? strlen(a1->name) : strlen(a2);
+    return strncmp(a1->name, a2, s);
+}
+
 void help()
 {
     puts("command line arguments:");
