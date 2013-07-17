@@ -1,0 +1,14 @@
+ply
+format ascii 1.0
+element vertex 4
+property float x
+property float y
+property float z
+element face 2
+-1.000000 1.000000 0.0
+1.000000 1.000000 0.0
+0.000000 1.000000 0.0
+0.000000 -1.000000 0.0
+0 1
+2 3
+end_header

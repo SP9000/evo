@@ -1,0 +1,11 @@
+element vertex 4
+property float x
+property float y
+property float z
+element face 1
+end_header
+0.000000 0.000000 0.000000
+1.000000 0.000000 0.000000
+1.000000 1.000000 0.000000
+0.000000 1.000000 0.000000
+0 1 2 3

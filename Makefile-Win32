@@ -1,7 +1,7 @@
 CLIENT_LIBS = -lenet -lws2_32 -lwinmm -lmingw32 -lSDLmain -lSDL -lopengl32 -lglu32 -lglew32 -lm -lglib-2.0 
 SERVER_LIBS = -lenet -lws2_32 -lwinmm
 
-CFLAGS = -std=c99 `pkg-config --cflags --libs glib-2.0` -Wall -DOPENGL_2
+CFLAGS = `pkg-config --cflags --libs glib-2.0` -Wall -DOPENGL_2
 
 # application component sources 
 APPLICATION_SOURCES=$(wildcard App/Components/*.c)
@@ -12,7 +12,7 @@ COMPONENT_SOURCES=$(wildcard Gen/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files
-CLIENT_SOURCES=App/app.c client.c client_packet.c collision.c component.c draw.c entity.c guilayout.c input.c matrix.c modelgen.c scene.c timer.c util.c cJSON.c 
+CLIENT_SOURCES=App/app.c client.c client_packet.c collision.c component.c draw.c entity.c input.c matrix.c modelgen.c scene.c timer.c util.c cJSON.c 
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 
 #server source files
@@ -32,14 +32,12 @@ $(SERVER_EXECUTABLE): $(SERVER_OBJECTS)
 	$(CC) $(CFLAGS) -o $@ $(SERVER_OBJECTS) $(SERVER_LIBS) 
 
 .c.o:
-	$(CC) $(CFLAGS) -UBUILD -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 obj/%.o: Gen/%.c
-	$(CC) $(CFLAGS) -DBUILD -c $< -o $@ 
-
-#obj/%.o: App/Components/%.c
-	#$(CC) $(CFLAGS) -DBUILD -c $< -o $@ 
+	$(CC) $(CFLAGS) -c $< -o $@ 
 
 clean:
 	rm -f *.o
 	rm -f obj/*.o
+	rm -f App/*.o

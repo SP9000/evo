@@ -46,9 +46,5 @@ COMPONENT Animation {
     {
         
     }
-    void Test(int a, float b, Component* c)
-    {
-        int d = a * b;
-    }
 }
 

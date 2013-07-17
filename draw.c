@@ -222,13 +222,16 @@ void Draw_Model(Component_Model* m)
 
 void Draw_Widget(Component_Widget* w)
 {
+    GSList* it;
     glScissor(w->rect.x * screen->w, w->rect.y * screen->h, 
             w->rect.w * screen->w, w->rect.h * screen->h);
-    /* draw the widget background */
+    /* draw the widget's background */
     Draw_Model(w->background);
 
-    /* draw the widget contents */
-    Draw_Model(w->contents);
+    /* draw the widget's contents */
+    for(it = w->contents; it != NULL; it = g_slist_next(it)) {
+        Draw_Model((Component_Model*)it->data);
+    }
 }
 
 void Draw_MoveCamera(float x, float y, float z)
@@ -262,14 +265,12 @@ DrawTarget* Draw_NewTarget(int w, int h)
     glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, 
             GL_TEXTURE_2D, target->texID, 0);
     
-    goto wat;
     /* create and attach depth buffer */
     glBindRenderbufferEXT(GL_RENDERBUFFER, target->depthID);
     glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, 
         GL_DEPTH_COMPONENT24, screen->w, screen->h);
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
         GL_RENDERBUFFER_EXT, target->depthID);
-wat:
 
     status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER);
     if(status != GL_FRAMEBUFFER_COMPLETE) {

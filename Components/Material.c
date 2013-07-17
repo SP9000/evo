@@ -114,7 +114,7 @@ COMPONENT Material {
     public GLuint projectionMatrixID;
     public Texture texture;
 
-    void Load(char *file) 
+    void Load(char* file) 
     {
         gpointer lup;
         GLuint v;

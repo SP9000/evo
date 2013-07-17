@@ -22,7 +22,6 @@ extern "C" {
 #include <GL/glew.h>
 #include "glib.h"
 #include "matrix.h"
-#include "guilayout.h"
 #include "scene.h"
 #include "types.h"
 #include "Gen/all.h"

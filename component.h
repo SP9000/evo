@@ -13,10 +13,14 @@
 extern "C" {
 #endif
 
+#include "input.h"
 #include "timer.h"
 #include "types.h"
+#include "util.h"
 
 typedef struct Entity Entity;
+
+#include "Gen\all.h"
 
 typedef void (*Component_StartFunc)();
 typedef void (*Component_UpdateFunc)();

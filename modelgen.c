@@ -1,11 +1,52 @@
-#if 0
 #include "modelgen.h"
 
-Model* ModelGen_Text(char *text, float w, float h)
+/*****************************************************************************/
+void write_header(FILE* fp)
+{
+    fprintf(fp, "ply\n");
+    fprintf(fp, "format ascii 1.0\n");
+}
+void write_property(FILE* fp, char* type, char* name)
+{
+    fprintf(fp, "property %s %s\n", type, name);
+}
+void write_end_header(FILE* fp)
+{
+    fprintf(fp, "end_header\n");
+}
+void write_element(FILE* fp, char* name, int size)
+{
+    fprintf(fp, "element %s %d\n", name, size);
+    if(strncmp(name, "vertex", 7) == 0) {
+        write_property(fp, "float", "x");
+        write_property(fp, "float", "y");
+        write_property(fp, "float", "z");
+    }
+    else if(strncmp(name, "color", 6) == 0) {
+        write_property(fp, "float", "r");
+        write_property(fp, "float", "g");
+        write_property(fp, "float", "b");
+        write_property(fp, "float", "a");
+    }
+}
+FILE* open_file(char* dir, char* file)
+{
+    FILE* fp;
+    char path[512];
+    strcpy(path, dir);
+    strcat(path, file);
+    fp = fopen(path, "w");
+    if(!fp) {
+        fprintf(stderr, "Error: couldn't open file %s for writing\n", path);
+    }
+    return fp;
+}
+
+/*****************************************************************************/
+void ModelGen_Charset()
 {
     int i;
-    int modelOff;
-    Model* m;
+    int j;
 
     /* # of lines in each character */
     int charSizes[] = {
@@ -37,7 +78,7 @@ Model* ModelGen_Text(char *text, float w, float h)
         3, /* Z */
     };
     /* lines for each character */
-    GLfloat font[26][5*4] = {
+    float font[26][5*4] = {
     {-1,-1,0,1, 0,1,1,-1, -.5f,0,.5f,0},                                /* A */
     {-1,1,-1,-1, -1,1,1,.5f, 1,.5f,-1,0, -1,0,1,-.5f, 1,-.5f,-1,-1},    /* B */
     {-1,1,1,1, -1,1,-1,-1, -1,-1,1,-1},                                 /* C */
@@ -66,105 +107,48 @@ Model* ModelGen_Text(char *text, float w, float h)
     {-1,1,1,1, 1,1,-1,-1, -1,-1, 1,-1}                                  /* Z */
     };
 
-    Color color = {0.0f, 0.0f, 1.0f, 1.0f};
-    m = Model_New();
-    for(i = 0; i < strlen(text); ++i) {
-        m->numVertices += charSizes[i]*2;
+    for(i = 0; i < 26; ++i) {
+        FILE* fp;
+        char dir[] = "StdAssets/Models/Charset/";
+        char file[31];
+
+        strcpy(file, " .ply");
+        file[0] = 'A'+i;
+        if(!(fp = open_file(dir, file))) {
+            return;
+        }
+        write_header(fp);
+        write_element(fp, "vertex", charSizes[i]*2);
+        write_element(fp, "face", charSizes[i]);
+
+        for(j = 0; j < charSizes[i]*2; ++j) {
+            fprintf(fp, "%f %f 0.0\n", font[i][j*2], font[i][j*2+1]);
+        }
+        for(j = 0; j < charSizes[i]; ++j) {
+            fprintf(fp, "%d %d\n", j*2, j*2+1);
+        }
+        write_end_header(fp);
+        fclose(fp);
     }
-    Model_AddAttribute(m, MODEL_ATTRIBUTE_VERTEX);
-    Model_AddAttribute(m, MODEL_ATTRIBUTE_COLOR);
+}
 
-    /* add all vertices contained in the given string */
-    float x = 3.0f;
-    float y = 20.0f;
-    float scale = 3;
-    modelOff = 0;
-    while(*text) {
-        if(*text != ' ') {
-            int idx = (*text) - 'A';
-            Vertex v;
-            v[2] = .9f;
+/*****************************************************************************/
+void ModelGen_GUI()
+{
+    FILE* fp;
+    char dir[] = "StdAssets/Models/GUI/";
 
-            /* add all vertices that compose this character */
-            for(i = 0; i < charSizes[idx]*4; i += 4) {
-                /* (x1, y1) */
-                v[0] = (font[idx][i] + x) * scale;   
-                v[1] = (font[idx][i+1] + y) * scale;
-                Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff, color);
-                Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff, v);
-
-                /* (x2, y2) */
-                v[0] = (font[idx][i+2] + x) * scale; 
-                v[1] = (font[idx][i+3] + y) * scale; 
-                Model_SetAttribute(m, MODEL_ATTRIBUTE_COLOR, modelOff+1, color);
-                Model_SetAttribute(m, MODEL_ATTRIBUTE_VERTEX, modelOff+1, v);
-                
-                modelOff += 2;
-            }
-        }
-        x += scale;
-        /* keep text inside bounds given */
-        if(x >= w) {
-            y -= scale;
-            x = 0.0f;
-        }
-        /* break if no more room left for text */
-        if(y >= h) {
-            break;
-        }
-        text++;
+    /* Button.ply */
+    if(!(fp = open_file(dir, "Button.ply"))) {
+        return;
     }
-    m->primitive = GL_LINES;
-    Draw_OptimizeModel(m);
-    return m;
+    write_element(fp, "vertex", 4);
+    write_element(fp, "face", 1);
+    write_end_header(fp);
+    fprintf(fp, "%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n", 
+            0.0f,0.0f,0.0f, 1.0f,0.0f,0.0f, 1.0f,1.0f,0.0f, 0.0f,1.0f,0.0f);
+    fprintf(fp, "%d %d %d %d", 0, 1, 2, 3);
+    fclose(fp);
 }
 
-Model* ModelGen_Rect(float x, float y, float z, float w, float h)
-{
-    Model* m;
-    float scale = 1.0f;
-    float sx = x*scale;
-    float sy = y*scale;
-    float sw = w*scale;
-    float sh = h*scale;
 
-    float v[] = {sx,    sy, z,
-                 sx+sw, sy, z,
-                 sx+sw, sy+sh, z,
-                 sx,    sy+sh, z};
-    /* create model and buffer vertex data */
-    m = Model_New();
-    m->numVertices = 4;
-    Model_BufferAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
-    m->primitive = GL_QUADS;
-    return m;
-}
-
-Model* ModelGen_Box(float x, float y, float z, float w, float h, float d)
-{
-    Model* m;
-    float v[] = {x,y,z, x+w,y,z, x+w,y+h,z, x,y+h,z,         /* front face  */
-                 x,y,z, x,y,z+d, x,y+h,z+d, x,y+h,z,         /* left face   */
-                 x,y,z+d, x+w,y,z+d, x+w,y+h,z+d, x,y+h,z+d, /* back face   */
-                 x+w,y,z, x+w,y,z+d, x+w,y+h,z+d, x+w,y+h,z, /* right face  */
-                 x,y+h,z, x+w,y+h,z, x+w,y+h,z+d, x,y+h,z+d, /* top face    */
-                 x,y,z, x+w,y,z, x+w,y,z+d, x,y,z+d          /* bottom face */
-    };  
-    m = Model_New();
-    m->numVertices = 24;
-    m->primitive = GL_QUADS;
-    Model_BufferAttribute(m, MODEL_ATTRIBUTE_VERTEX, v);
-    return m;
-}
-
-/*
-Model* ModelGen_Circle(float radius, int resolution)
-{
-    float theta;
-    int i;
-    float dTheta = resolution / (2 * M_PI);
-    for(i = 0, theta = 0.0f; i < resolution; ++i, theta += 
-}
-
-*/
-#endif

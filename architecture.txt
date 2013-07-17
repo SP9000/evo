@@ -5,12 +5,12 @@ The only user created code for this engine should be contained within the
 application's "entities". Entities are defined by the components that they
 are made up of. 
          _____________     _____________
-        [  ENTITY 1   ]   [   ENTITY 2  ]
-        [ COMPONENT 1 ]   [ COMPONENT 1 ]
-        [ COMPONENT 2 ]   [ COMPONENT 2 ]    ....  
-        [    ...      ]   [     ...     ]
-        [ COMPONENT N ]   [ COMPONENT N ]
-        [_____________]   [_____________]
+        |  ENTITY 1   |   |   ENTITY 2  |
+        | COMPONENT 1 |   | COMPONENT 1 |
+        | COMPONENT 2 |   | COMPONENT 2 |    ....  
+        |    ...      |   |     ...     |
+        | COMPONENT N |   | COMPONENT N |
+        |_____________|   |_____________|
            /   |    \            
         [...] [...] [...]
          /|\   /|\   /|\ 
@@ -19,49 +19,40 @@ are made up of.
 *                               Components                                    *
 *******************************************************************************
 Components are the building blocks of entities.  All components contain certain
-functions i.e. Start and Update. These are called upon creation of a component
-and every frame to update the component respectively. Components also may 
-contain other functions as well as variables to store various information. 
+functions. Most importantly Start and Update. These are called upon creation of 
+a component and every frame to update the component respectively. Components 
+also may contain other functions as well as variables to store various 
+information. 
 
 The basic structure of a component looks something like this.
 "private" variables are only accessible to the component itself. This is the 
 default scope of variables and functions declared in a component.
-         ________________________________
-        [           Example              ]
-        [  void Start()                  ]
-        [  void Update()                 ]
-        [  void Collide(Entity* other)   ]
-        [  Entity* other                 ]
-        [  int id;                       ]
-        [  void (*DoSomething)(int flag) ]
-        [            private             ]
-        [  float x                       ] 
-        [  float y                       ]
-        [  AABB boundingBox              ]
-        [________________________________]
-Here is an example of how the above component is defined within the component
-file.  The component file generates both a .c and a header (.h) file. 
+
+Below is an example of a component is defined within the component file and how
+the generated component structure looks.  
+The component file generates both a .c and a header (.h) file. 
 Everything before and after the COMPONENT definition is copied directly to the
 .c file. This can be used for local typedefs, static variables, etc. 
 The .c files are compiled separately from all other compilation units. The .h
 files generated allow other components knowledge of the component and all its
 public members.
 Default attributes are generated if they don't exist, and are always public.
-
-COMPONENT Example {
-    float x;
-    float y;
-    AABB boundingBox;
-    public DoSomething(int flag)
-    {
-    }
-    void Start()
-    {
-    }
-    void Update() 
-    {
-    }
-}
+______________________________________________________________________
+COMPONENT Example {                  |           Example              |
+    float x;                         |  void Start()                  |
+    float y;                         |  void Update()                 |
+    AABB boundingBox;                |  void Collide(Entity* other)   |
+    public DoSomething(int flag)     |  Entity* e                     |
+    {                                |  int id;                       |
+    }                                |  void (*DoSomething)(int flag) |
+    void Start()                     |            private             |
+    {                                |  float x                       | 
+    }                                |  float y                       |
+    void Update()                    |  AABB boundingBox              |
+    {                                |________________________________|
+    }                                |
+}                                    |
+_____________________________________|
 
 *******************************************************************************
 *                          Subsystems                                         *
@@ -78,7 +69,7 @@ Collision:
 When a Collider component is added to the engine, the entity to which it is
 attached is added to this subsystem. The collision subsystem performs 
 collision detection on the colliders within it. When a collision is detected,
-the colliding entity's components are all notified with by calling their 
+the colliding entity's components are all notified by calling their 
 Collide() function.
 
 Scene:
@@ -86,9 +77,9 @@ When a Model component is added to the engine, it gets added as well to the
 scene subsystem. This subsystem is responsible for rendering all visible
 objects within the current context.
  ____________________       ___________________
-[      COLLISION     ]      [       SCENE      ] 
-[ ENTITY 1(Collider) ]      [  ENTITY 1(Model) ]
-[ ENTITY 3(Collider) ]      [  ENTITY 2(Model) ]
-[ ENTITY 5(Collider) ]      [  ENTITY 4(Model) ]
-[____________________]      [__________________]
+|      COLLISION     |      |       SCENE      | 
+| ENTITY 1(Collider) |      |  ENTITY 1(Model) |
+| ENTITY 3(Collider) |      |  ENTITY 2(Model) |
+| ENTITY 5(Collider) |      |  ENTITY 4(Model) |
+|____________________|      |__________________|
 

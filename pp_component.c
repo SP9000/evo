@@ -8,7 +8,8 @@
 /* Created: July 9, 2013                                                     */
 /*****************************************************************************/
 
-/* TODO: add default attributes to each component: Start, Update, Collide, etc. */
+/* TODO: allow multiple "word" types. e.g. "char *", "unsigned int", etc.    */
+
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -16,8 +17,6 @@
 #include <string.h>
 #include <sys/stat.h>
 #include "glib.h"
-#include "util.h"
-#include "cJSON.h"
 
 #define ATTRIBUTE_MAX_NAME_SIZE 64
 #define ATTRIBUTE_MAX_TYPE_NAME_SIZE 64
@@ -161,6 +160,17 @@ long get_component_start(FILE* fp);
  */
 int get_all_components(char* path, char** components, char** component_paths,
         int num_components);
+
+/**
+ * Compare the string at the current position in the given FILE to the given
+ * string. If no match is found, the file pointer is returned to its original
+ * position.
+ * @param fp the file-pointer to compare the string with.
+ * @param str the string to compare with the file.
+ * @param len the number of characters to compare.
+ * @return 0 if a match is found, else nonzero.
+ */
+int fstrncmp(FILE* fp, char* str, int len);
 
 /**
  * A compare function for comparing an attribute to a string by name.
@@ -504,7 +514,6 @@ void write_c_file(char* name, GSList* attributes,
             "/* Do whatever you want with it. I really don't care.          */\n"
             "/***************************************************************/\n\n");
     fprintf(outfile, "#define BUILD_COMPONENT_%s\n", name);
-    fprintf(outfile, "\n#include \"all.h\"\n");
     fprintf(outfile, "\n#include \"..\\component.h\"\n");
 
     /* write everything before the component declaration to the C file */
@@ -514,7 +523,7 @@ void write_c_file(char* name, GSList* attributes,
     }
 
     /* write attributes */
-    fprintf(outfile, "typedef struct Component_%s {\n", name);
+    fprintf(outfile, "\ntypedef struct Component_%s {\n", name);
     fprintf(outfile, "    void (*Start)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Update)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Collide)(Component_%s*, Entity*);\n", name);
@@ -560,11 +569,17 @@ void write_c_file(char* name, GSList* attributes,
             fprintf(outfile, ");\n");
         }
     }
+    fprintf(outfile, "}Component_%s;\n\n", name);
 
     /* function prototypes */
-    fprintf(outfile, "}Component_%s;\n", name);
+    fprintf(outfile, "static void Start(Component_%s*);\n", name);
+    fprintf(outfile, "static void Update(Component_%s*);\n", name);
+    fprintf(outfile, "static void Collide(Component_%s*, Entity* other);\n", name);
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         Attribute* a = (Attribute*)it->data;
+        if(is_default_attribute(a->name)) {
+            continue;
+        }
         if(a->is_function) {
             GList* jt;
             fprintf(outfile, "static %s %s(Component_%s* self", a->type, a->name, name);
@@ -578,7 +593,7 @@ void write_c_file(char* name, GSList* attributes,
     }
 
     /* Component_X_New definition */
-    fprintf(outfile, "Component* Component_%s_New()\n{\n", name);
+    fprintf(outfile, "Component_%s* Component_%s_New()\n{\n", name, name);
     fprintf(outfile, "    Component_%s* self = "
            "(Component_%s*)malloc(sizeof(Component_%s));\n", name, name, name);
     fprintf(outfile, "    self->Start = Start;\n");
@@ -686,7 +701,7 @@ void write_header(char* name, GSList* attributes, char* out_filename)
     /* close 'er up */
     fprintf(outfile, "}Component_%s;\n", name);
     fprintf(outfile, "#endif\n");
-    fprintf(outfile, "Component* Component_%s_New();\n", name);
+    fprintf(outfile, "Component_%s* Component_%s_New();\n", name, name);
     fprintf(outfile, "#endif\n");
 }
 
@@ -819,15 +834,11 @@ GSList* get_attribute(FILE* file)
 
             /* test if public or not */
             case STATE_IS_PUBLIC:
-                cur = ftell(file);
-                public_buff[0] = c;
-                fread(public_buff+1, sizeof(char), 6, file);
-                if(strncmp(public_buff, "public ", 7) == 0) {
-                    public = 1;
-                    break;
-                }
-                else {
-                    fseek(file, cur, SEEK_SET);
+                if(c == 'p') {
+                    if(fstrncmp(file, "ublic ", 6) == 0) {
+                        public = 1;
+                        break;
+                    }
                 }
                 if(!isspace(c)) {
                     type_buff[0] = c;
@@ -1061,6 +1072,24 @@ GSList* get_attribute(FILE* file)
     free(type_buff);
     free(body_buff);
     return attrs;
+}
+
+int fstrncmp(FILE* fp, char* str, int len)
+{
+    int i;
+    long pos = ftell(fp);
+    for(i = 0; i < len; ++i) {
+        char c = fgetc(fp);
+        if(c != *str++) {
+            fseek(fp, pos, SEEK_SET);
+            return 1;
+        }
+        if(feof(fp)) {
+            fseek(fp, pos, SEEK_SET);
+            return -1;
+        }
+    }
+    return 0;
 }
 
 int is_default_attribute(char* a)

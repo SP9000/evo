@@ -76,8 +76,7 @@ COMPONENT Model {
     }
 
     /**
-     * Get the address of the specified attribute's buffer in the given model.
-     * @param m the mode to find the buffer in.
+     * Get the address of the specified attribute's buffer in this model.
      * @param attribute the attribute who's buffer is to be located.
      * @return the location of the buffer for the given attribute or NULL if the
      *  attribute doesn't exist in the given model.
@@ -94,10 +93,9 @@ COMPONENT Model {
     }
 
     /**
-     * Add an attribute of the the given type to the model.
+     * Add an attribute of the given type to this model.
      * This function allocates a buffer of numVertices size for the given attribute.
      * to determine where to place the other attributes.
-     * @param m the model to add the attribute to.
      * @param val the value to append to the given attribute buffer.
      */
     void AddAttribute(int attribute)
@@ -153,8 +151,7 @@ COMPONENT Model {
     }
 
     /**
-     * Set the specified attribute of the given model to the specified value.
-     * @param m the model to set the attribute of.
+     * Set the specified attribute of this model to the specified value.
      * @param attribute the type of the attribute to set.
      * @param offset the vertex-offset of the attribute to set.
      * @param val the value to set the attribute to.
@@ -189,7 +186,6 @@ COMPONENT Model {
 
     /**
       * Load a .ply model from file.
-      * @param m the model to load into.
       * @param file the file to load the model from.
       */
     void LoadPLY(char* file)
@@ -373,8 +369,7 @@ COMPONENT Model {
     }
 
     /**
-     * Add the buffer of the given attribute type to the model.
-     * @param m the model to add the attribute to.
+     * Add the buffer of the given attribute type to this model.
      * @param attribute the type of the attribute to add.
      * @param data the data to buffer (an array of floats ATTRIBUTE_XX_SIZE *
      *   numVertices) floats long.
@@ -398,8 +393,40 @@ COMPONENT Model {
     }
 
     /**
-     * Free all the resources used by the given model.
-     * @param self the model to free the resources of.
+     * Get the axis-aligned bounding box for this model.
+     * @return the axis-aligned bounding box for this model.
+     */
+    public AABB GetAABB()
+    {
+        int i;
+        float min_x, min_y, min_z;
+        float max_x, max_y, max_z;
+        float* vertices = self->GetAttributeBuffer(self, MODEL_ATTRIBUTE_VERTEX);
+        for(i = 0; i < self->numAttributes; i += 3) {
+            if(vertices[i] < min_x) {
+                min_x = vertices[i];
+            }
+            if(vertices[i] > max_x) {
+                max_x = vertices[i];
+            }
+            if(vertices[i+1] < min_y) {
+                min_y = vertices[i];
+            }
+            if(vertices[i+1] > max_y) {
+                max_y = vertices[i+1];
+            }
+            if(vertices[i+2] < min_z) {
+                min_z = vertices[i];
+            }
+            if(vertices[i+2] > max_z) {
+                max_z = vertices[i+2];
+            }
+        }
+        return (AABB){max_x-min_x, max_y-min_y, max_z-min_z};
+    }
+
+    /**
+     * Free all the resources used by this model.
      */
     public void Free()
     {
@@ -415,7 +442,6 @@ COMPONENT Model {
     {
         self->mat = Component_GetAs(Material);
         self->transform = Component_GetAs(Transform);
-        Draw_OptimizeModel(self);
 
         self->numVertices = 0;
         self->numAttributes = 0;
@@ -424,6 +450,7 @@ COMPONENT Model {
         if(self->file != NULL) {
             self->LoadPLY(self, self->file);
         }
+        Draw_OptimizeModel(self);
     }
 
     void Update() 

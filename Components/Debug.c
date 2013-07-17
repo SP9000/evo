@@ -13,9 +13,11 @@ COMPONENT Debug {
         self->transform = Component_GetAs(Transform);
         self->col = Component_GetAs(Collider);
         if(self->col) {
+            /*
             AABB aabb = self->col->aabb;
-            /* c->colModel = ModelGen_Box(c->transform->x, c->transform->y, c->transform->z,
-                    aabb.w, aabb.h, aabb.d); */
+             c->colModel = ModelGen_Box(c->transform->x, c->transform->y, c->transform->z,
+                    aabb.w, aabb.h, aabb.d);
+            */
         }
     }
 

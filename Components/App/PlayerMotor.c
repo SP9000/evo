@@ -7,9 +7,9 @@
 /*****************************************************************************/
 COMPONENT PlayerMotor {
     Component_Transform* transform;
-    float fallSpeed;
-    float jumpHeight;
-    float speed;
+    public float fallSpeed;
+    public float jumpHeight;
+    public float speed;
 
     void Start()
     {
@@ -17,10 +17,10 @@ COMPONENT PlayerMotor {
     }
     void Update() 
     {   
-        if(Input_KeyDown(SDLK_RIGHT)) {
+        if(Input_KeyDown(INPUT_KEY_RIGHT)) {
             self->transform->pos.x -= self->speed * time_delta;
         }
-        if(Input_KeyDown(SDLK_LEFT)) {
+        if(Input_KeyDown(INPUT_KEY_LEFT)) {
             self->transform->pos.x += self->speed * time_delta;
         }
     }
