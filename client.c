@@ -86,6 +86,8 @@ int main(int argc, char **argv)
         "***************************************");
     fflush(stdout);
     App_Start();
+    puts("Application initialized");
+    fflush(stdout);
 
     /* Capture mouse */
     SDL_WM_GrabInput(SDL_GRAB_ON);

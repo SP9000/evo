@@ -48,8 +48,19 @@ void App_Start()
 
     ModelGen_Charset();
     ModelGen_GUI();
-    puts("Application initialized");
-    fflush(stdout);
+
+    Entity* a = Entity_New();
+    Component_Transform* t3 = Component_Transform_New();
+        t3->pos.x = 0; t3->pos.y = 0; t3->pos.z = 3;
+        t3->scale.x = 1; t3->scale.y = 1; t3->scale.z = 1;
+    Component_Model* mo3 = Component_Model_New();
+        mo3->file = "StdAssets/Models/Charset/A.ply";
+    Component_Material* m3 = Component_Material_New();
+        m3->file = "test.mat";
+    Entity_AddComponent(a, (Component*)t3);
+    Entity_AddComponent(a, (Component*)mo3);
+    Entity_AddComponent(a, (Component*)m3);
+    Entity_Start(a);
 }
 
 void App_Update()

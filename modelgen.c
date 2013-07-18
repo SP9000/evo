@@ -120,14 +120,14 @@ void ModelGen_Charset()
         write_header(fp);
         write_element(fp, "vertex", charSizes[i]*2);
         write_element(fp, "face", charSizes[i]);
+        write_end_header(fp);
 
         for(j = 0; j < charSizes[i]*2; ++j) {
             fprintf(fp, "%f %f 0.0\n", font[i][j*2], font[i][j*2+1]);
         }
         for(j = 0; j < charSizes[i]; ++j) {
-            fprintf(fp, "%d %d\n", j*2, j*2+1);
+            fprintf(fp, "2 %d %d\n", j*2, j*2+1);
         }
-        write_end_header(fp);
         fclose(fp);
     }
 }
@@ -147,7 +147,7 @@ void ModelGen_GUI()
     write_end_header(fp);
     fprintf(fp, "%f %f %f\n%f %f %f\n%f %f %f\n%f %f %f\n", 
             0.0f,0.0f,0.0f, 1.0f,0.0f,0.0f, 1.0f,1.0f,0.0f, 0.0f,1.0f,0.0f);
-    fprintf(fp, "%d %d %d %d", 0, 1, 2, 3);
+    fprintf(fp, "4 %d %d %d %d", 0, 1, 2, 3);
     fclose(fp);
 }
 

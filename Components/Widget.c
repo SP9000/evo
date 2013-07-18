@@ -9,12 +9,15 @@
 /*****************************************************************************/
 
 /* TODO: maybe #ifdef Widget and make a separate version for when mouse input
- * is not needed (fewer or no default functions for input)
+ * is not needed (fewer or no default callbacks for input-events)
  */
 
 void FreeWidgetRecursive(gpointer data, gpointer user_data);
 
 COMPONENT Widget {
+    /*************************************************************************/
+    /*                            Data                                       */
+    /*************************************************************************/
     /* the lower left corner and width/height of the widget */
     public Rect rect;
     /* the minimum dimensions of the widget */
@@ -34,6 +37,54 @@ COMPONENT Widget {
     /* the parent widget of this widget. NULL if this is the root widget */
     public Component_Widget* parent;
 
+    /*************************************************************************/
+    /*                            Callbacks                                  */
+    /*************************************************************************/
+    /** 
+     * Called when this widget becomes focused (ususally by being clicked).
+     */
+    public void (*OnFocus)();
+    /**
+     * Called when the mouse is moved over this widget.
+     * Even if the widget is not focused, this function is called on it.
+     * The coordinates given are from 0-1 as with all widget functions.
+     * @param 1 the relative x position of the mouse from the lower-left.
+     * @param 2 the relative y position of the mouse from the lower-right.
+     */
+    public void (*OnMoveOver)(float, float);
+    /**
+     * Called when the left mouse button is pressed on this widget.
+     * The coordinates given are from 0-1 as with all widget functions.
+     * @param 1 the relative x position of the mouse from the lower-left.
+     * @param 2 the relative y position of the mouse from the lower-right.
+     */
+    public void (*OnLClick)(float, float);
+    /**
+     * Called when the right mouse button is pressed on this widget.
+     * The coordinates given are from 0-1 as with all widget functions.
+     * @param 1 the relative x position of the mouse from the lower-left.
+     * @param 2 the relative y position of the mouse from the lower-right.
+     */
+    public void (*OnRClick)(float, float);
+    /**
+     * Called when the scroll-wheel is moved while this widget is focused.
+     * @param 1 the amount the wheel was scrolled (up is positive).
+     */
+    public void (*OnScroll)(int);
+    /**
+     * Called when a key is pressed down while this widget is focused.
+     * @param 1 the key that was pressed.
+     */
+    public void (*OnKeyDown)(int);
+    /**
+     * Called when a key is released while this widget is focused.
+     * @param 1 the key that was released.
+     */
+    public void (*OnKeyUp)(int);
+
+    /*************************************************************************/
+    /*                            Functions                                  */
+    /*************************************************************************/
     /**
      * Add the specified widget to this widget's children.
      * @param w the widget to add.
@@ -59,87 +110,35 @@ COMPONENT Widget {
         FreeWidgetRecursive((gpointer)self->children, NULL);
     }
 
-    /** 
-     * Called when this widget becomes focused (ususally by being clicked).
-     */
-    public void OnFocus()
-    {
-
-    }
-
+    /*************************************************************************/
+    /*                        Default Functions                              */
+    /*************************************************************************/
     /**
-     * Called when the mouse is moved over this widget.
-     * Even if the widget is not focused, this function is called on it.
-     * The coordinates given are from 0-1 as with all widget functions.
-     * @param x the relative x position of the mouse from the lower-left.
-     * @param y the relative y position of the mouse from the lower-right.
+     * Start this component.
+     * Called when the entity this is attached to is "Start"ed.
      */
-    public void OnMoveOver(float x, float y)
-    {
-
-    }
-
-    /**
-     * Called when the left mouse button is pressed on this widget.
-     * The coordinates given are from 0-1 as with all widget functions.
-     * @param x the relative x position of the mouse from the lower-left.
-     * @param y the relative y position of the mouse from the lower-right.
-     */
-    public void OnLClick(float x, float y)
-    {
-
-    }
-
-    /**
-     * Called when the right mouse button is pressed on this widget.
-     * The coordinates given are from 0-1 as with all widget functions.
-     * @param x the relative x position of the mouse from the lower-left.
-     * @param y the relative y position of the mouse from the lower-right.
-     */
-    public void OnRClick(float x, float y)
-    {
-
-    }
-
-    /**
-     * Called when the scroll-wheel is moved while this widget is focused.
-     * @param amount the amount the wheel was scrolled (up is positive).
-     */
-    public void OnScroll(int amount)
-    {
-
-    }
-
-    /**
-     * Called when a key is pressed down while this widget is focused.
-     * @param key the key that was pressed.
-     */
-    public void OnKeyDown(int key)
-    {
-
-    }
-
-    /**
-     * Called when a key is released while this widget is focused.
-     * @param key the key that was released.
-     */
-    public void OnKeyUp(int key)
-    {
-    }
-
     void Start() 
     {
 
     }
+    /**
+     * Update the component.
+     * Called every frame.
+     */
     void Update()
     {
 
     }
+    /**
+     * Handle collision with another entity.
+     * @param other the other colliding entity.
+     */
     void Collide(Entity* other)
     {
 
     }
 }
+/*****************************************************************************/
 
 /* helper function to free all of a widget's subwidgets */
 void FreeWidgetRecursive(gpointer data, gpointer user_data)

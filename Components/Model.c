@@ -291,8 +291,13 @@ COMPONENT Model {
         for(i = 0, curFace = 0; curFace < numFaces; ++curFace) {
             fgets(lineBuff, 2048, fp);
             faceSizeBuff[curFace] = atoi(strtok(lineBuff, " \t"));
-
-            if(faceSizeBuff[curFace] == 3) {
+            if(faceSizeBuff[curFace] == 2) {
+                faceBuff[i] = atoi(strtok(NULL, " \t"));
+                faceBuff[i+1] = atoi(strtok(NULL, " \t"));
+                self->numVertices += 2;
+                i += 2;
+            }
+            else if(faceSizeBuff[curFace] == 3) {
                 faceBuff[i] = atoi(strtok(NULL, " \t"));
                 faceBuff[i+1] = atoi(strtok(NULL, " \t"));
                 faceBuff[i+2] = atoi(strtok(NULL, " \t"));
@@ -315,6 +320,9 @@ COMPONENT Model {
             self->attributes[i] = (float*)malloc(sizeof(float) * self->numVertices *
                     self->GetAttributeSize(self, self->attributeTable[i]));
         }
+
+        /* default to triangles */
+        self->primitive = GL_TRIANGLES;
 
         /* expand vertex/normal/color information from indexed face information */
         for(i = 0, j = 0, curFace = 0; curFace < numFaces; ++curFace) {
@@ -351,12 +359,24 @@ COMPONENT Model {
                 i += 6;
                 j += 4;
             }
+            /* line, simply expand */
+            else if(faceSizeBuff[curFace] == 2) {
+                for(k = 0; k < self->numAttributes; ++k) {
+                    CopyAttribute(self, self->attributes[k],i,
+                            tmpAttributes[k],faceBuff[j], self->attributeTable[k]);
+                    CopyAttribute(self, self->attributes[k],i+1,
+                            tmpAttributes[k],faceBuff[j+1], self->attributeTable[k]);
+                    self->primitive = GL_LINES;
+                }
+                i += 2;
+                j += 2;
+            }
             else {
-                fprintf(stderr, "Error: unsupported number of vertices per face\n");
+                fprintf(stderr, "Error: unsupported number of vertices "
+                       " per face (%d)\n", faceSizeBuff[curFace]);
                 break;
             }
         }
-        self->primitive = GL_TRIANGLES;
 
         /* cleanup temporary buffers */
         for(i = 0; i < self->numAttributes; ++i) {

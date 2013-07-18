@@ -21,7 +21,7 @@ CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 SERVER_SOURCES=server/server.c
 SERVER_OBJECTS=$(SERVER_SOURCES:.c=.o)
 
-#execuables
+#executables
 CLIENT_EXECUTABLE=Client
 SERVER_EXECUTABLE=Server
 

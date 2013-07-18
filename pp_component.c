@@ -8,8 +8,6 @@
 /* Created: July 9, 2013                                                     */
 /*****************************************************************************/
 
-/* TODO: allow multiple "word" types. e.g. "char *", "unsigned int", etc.    */
-
 #include <ctype.h>
 #include <dirent.h>
 #include <stdio.h>
@@ -39,19 +37,32 @@ enum {
 enum {
     STATE_BLOCK_COMMENT,
     STATE_LINE_COMMENT,
-    STATE_IS_PUBLIC,
+    STATE_IS_MODIFIER,
     STATE_SEEK_NAME, 
     STATE_GET_NAME,
     STATE_TYPE_DECLARE,
     STATE_CHECK_IF_FUNCTION,
     STATE_FUNCTION_PROTOTYPE,
+    STATE_FUNCTION_PTR_PROTOTYPE,
     STATE_FUNCTION_BODY,
     STATE_FUNCTION_BEGIN,
-    STATE_DONE,
     STATE_SEEK_PARAM_NAME,
     STATE_SEEK_PARAM_TYPE,
+    STATE_IS_PARAM_POINTER,
+    STATE_SEEK_END,
+    STATE_DONE,
+    
     STATE_IS_MORE_PARAMS,
     STATE_GET_PARAM_TYPE
+};
+
+/* possible types an attribute may be. */
+enum {
+    UNDEFINED,
+    VARIABLE,
+    FUNCTION,
+    FUNCTION_PTR,
+    FUNCTION_PTR_MAYBE
 };
 
 /* ID's for various types */
@@ -70,13 +81,21 @@ enum {
 
 /* the struct for the attributes contained by the COMPONENT definitions */
 typedef struct tagAttribute {
+    /* if nonzero, this attribute is to be exposed */
     int public;
-    int is_function;
+    /* what...kind of attribute this is (VARIABLE, FUNCTION, etc.) */
+    int kind; 
+    /* the name of this attributes type e.g. "unsigned const int" */
     char* type;
+    /* the name of this attribute */
     char* name;
 
-    GList* parameters;    /* if function */
-    char* definition;     /* if function */
+    /* if kind is FUNCTION or FUNCTION_PTR, the attribute parameters */
+    GList* parameters;    
+    /* modifiers to the type e.g. short, const, etc. */
+    GList* modifiers;
+    /* if kind is FUNCTION. */
+    char* definition; 
 }Attribute;
 
 
@@ -114,7 +133,7 @@ GSList* get_attribute(FILE* file);
  * @param body the body of this if it's a function, else NULL.
  * @return the attribute with the given parameters.
  */
-Attribute* new_attribute(char* name, char* type, GList* prototype, char* body);
+Attribute* new_attribute(char* name, char* type, GList* modifiers, GList* parameters, char* body);
 
 /**
  * Get all of the attributes from the given file.
@@ -171,6 +190,19 @@ int get_all_components(char* path, char** components, char** component_paths,
  * @return 0 if a match is found, else nonzero.
  */
 int fstrncmp(FILE* fp, char* str, int len);
+
+/**
+ * Append the given character to the given string.
+ * @param str the string to append the character to.
+ * @param c the character to append.
+ */
+void strappend(char* str, char c);
+
+/**
+ * Initialize the string.
+ * @str the string to set to empty.
+ */
+void strclr(char* str);
 
 /**
  * A compare function for comparing an attribute to a string by name.
@@ -497,22 +529,24 @@ void write_c_file(char* name, GSList* attributes,
 
     infile = fopen(in_filename, "rb");
     if(infile == NULL) {
-        fprintf(stderr, "Error: couldn't open file %s for reading\n", in_filename);
+        fprintf(stderr, "Error: couldn't open file %s for reading\n", 
+                in_filename);
         exit(-10);
     }
 
     outfile = fopen(out_filename, "wb");
     if(outfile == NULL) {
-        fprintf(stderr, "Error: couldn't open file %s for writing\n", out_filename);
+        fprintf(stderr, "Error: couldn't open file %s for writing\n", 
+                out_filename);
         exit(-11);
     }
 
     component_offset = get_component_start(infile);
     fprintf(outfile, 
-            "/***************************************************************/\n"
-            "/* This is a generated component C file...                     */\n"
-            "/* Do whatever you want with it. I really don't care.          */\n"
-            "/***************************************************************/\n\n");
+      "/***************************************************************/\n"
+      "/* This is a generated component C file...                     */\n"
+      "/* Do whatever you want with it. I really don't care.          */\n"
+      "/***************************************************************/\n\n");
     fprintf(outfile, "#define BUILD_COMPONENT_%s\n", name);
     fprintf(outfile, "\n#include \"..\\component.h\"\n");
 
@@ -538,19 +572,55 @@ void write_c_file(char* name, GSList* attributes,
             continue;
         }
         if(a->public) {
-            if(!a->is_function) {
+            if(a->kind == VARIABLE) {
                 fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
     }
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         Attribute* a = (Attribute*)it->data;
+        if(a->public) {
+            if(a->kind == FUNCTION_PTR) {
+                GList* jt;
+                fprintf(outfile, "    %s (%s)(",
+                       a->type, a->name);
+                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                    if(jt != a->parameters) {
+                        fprintf(outfile, ", ");
+                    }
+                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+                }
+                fprintf(outfile, ");\n");
+            }
+        }
+    }
+
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
         if(is_default_attribute(a->name)) {
             continue;
         }
         if(!a->public) {
-            if(!a->is_function) {
+            if(a->kind == VARIABLE) {
                 fprintf(outfile, "    %s %s;\n", a->type, a->name);
+            }
+        }
+    }
+    /* unassigned function pointers */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(!a->public) {
+            if(a->kind == FUNCTION_PTR) {
+                GList* jt;
+                fprintf(outfile, "    %s (%s)(",
+                       a->type, a->name);
+                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                    if(jt != a->parameters) {
+                        fprintf(outfile, ", ");
+                    }
+                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+                }
+                fprintf(outfile, ");\n");
             }
         }
     }
@@ -560,7 +630,7 @@ void write_c_file(char* name, GSList* attributes,
         if(is_default_attribute(a->name)) {
             continue;
         }
-        if(a->is_function) {
+        if(a->kind == FUNCTION) {
             GList* jt;
             fprintf(outfile, "    %s (*%s)(Component_%s*", a->type, a->name, name);
             for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
@@ -580,7 +650,7 @@ void write_c_file(char* name, GSList* attributes,
         if(is_default_attribute(a->name)) {
             continue;
         }
-        if(a->is_function) {
+        if(a->kind == FUNCTION) {
             GList* jt;
             fprintf(outfile, "static %s %s(Component_%s* self", a->type, a->name, name);
             for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
@@ -607,7 +677,7 @@ void write_c_file(char* name, GSList* attributes,
             continue;
         }
         Attribute* a = (Attribute*)it->data;
-        if(a->is_function) {
+        if(a->kind == FUNCTION) {
             fprintf(outfile, "    self->%s = %s;\n", a->name, a->name);
         }
     }
@@ -617,7 +687,7 @@ void write_c_file(char* name, GSList* attributes,
     /* function bodies */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         Attribute* a = (Attribute*)it->data;
-        if(a->is_function) {
+        if(a->kind == FUNCTION) {
             GList* jt;
             fprintf(outfile, "%s %s(Component_%s* self", a->type, a->name, name);
             for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
@@ -672,24 +742,40 @@ void write_header(char* name, GSList* attributes, char* out_filename)
 
     /* variables */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)(it->data))->public) {
-            if(!((Attribute*)it->data)->is_function) {
-                fprintf(outfile, "    %s %s;\n", 
-                        ((Attribute*)it->data)->type,
-                        ((Attribute*)it->data)->name);
+        Attribute* a = (Attribute*)it->data;
+        if(a->public) {
+            if(a->kind == VARIABLE) {
+                fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
     }
-    /* function pointer variables */
+    /* unassigned function pointers */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        if(((Attribute*)(it->data))->public) {
-            if(((Attribute*)it->data)->is_function) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->public) {
+            if(a->kind == FUNCTION_PTR) {
+                GList* jt;
+                fprintf(outfile, "    %s (%s)(",
+                       a->type, a->name);
+                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                    if(jt != a->parameters) {
+                        fprintf(outfile, ", ");
+                    }
+                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+                }
+                fprintf(outfile, ");\n");
+            }
+        }
+    }
+    /* function pointers to defined functions */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->public) {
+            if(a->kind == FUNCTION) {
                 GList* jt;
                 fprintf(outfile, "    %s (*%s)(Component_%s*",
-                        ((Attribute*)it->data)->type,
-                        ((Attribute*)it->data)->name,
-                        name);
-                for(jt = ((Attribute*)it->data)->parameters; jt != NULL; jt = g_list_next(jt)) {
+                       a->type, a->name, name);
+                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
                     fprintf(outfile, ", ");
                     fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
                 }
@@ -734,7 +820,7 @@ int get_type(char* text)
     return 0;
 }
 
-Attribute* new_attribute(char* name, char* type, GList* parameters, char* body)
+Attribute* new_attribute(char* name, char* type, GList* modifiers, GList* parameters, char* body)
 {
     Attribute* a = (Attribute*)malloc(sizeof(Attribute));
     a->name = (char*)malloc((1+strlen(name))*sizeof(char));
@@ -743,14 +829,37 @@ Attribute* new_attribute(char* name, char* type, GList* parameters, char* body)
     a->type = (char*)malloc((1+strlen(type))*sizeof(char));
     strcpy(a->type, type);
 
+    a->modifiers = modifiers;
     a->parameters = parameters;
 
     if(body != NULL && strlen(body) > 0) {
         a->definition = (char*)malloc((1+strlen(body))*sizeof(char));
         strcpy(a->definition, body);
     }
-
     return a;
+}
+void a_set_type(Attribute* a, char* type)
+{
+    a->type = (char*)malloc((1+strlen(type))*sizeof(char));
+    strcpy(a->type, type);
+}
+void a_set_name(Attribute* a, char* name)
+{
+    a->name = (char*)malloc((1+strlen(name))*sizeof(char));
+    strcpy(a->name, name);
+}
+void a_add_modifier(Attribute* a, char* m)
+{
+    a->modifiers = g_list_append(a->modifiers, m);
+}
+void a_add_parameter(Attribute* a, Attribute* param)
+{
+    a->parameters = g_list_append(a->parameters, (gpointer)param); 
+}
+void a_set_body(Attribute* a, char* body)
+{
+    a->definition = (char*)malloc((1+strlen(body))*sizeof(char));
+    strcpy(a->definition, body);
 }
 
 GSList* get_attribute(FILE* file)
@@ -762,15 +871,18 @@ GSList* get_attribute(FILE* file)
     char* body_buff;
     char* param_name_buff;
     char* param_type_buff;
-    GList* parameters;
+    GList* modifiers = NULL;
+    GList* parameters = NULL;
     GSList* attrs = NULL;
 
     int done = 0;
     int public = 0;
-    int is_function = 0;
     int paren_cnt = 0;
+    int brace_cnt = 0;
+    int type_found = 0;
+    int kind = VARIABLE;
 
-    int state = STATE_IS_PUBLIC;
+    int state = STATE_IS_MODIFIER;
     int save_state = state;
 
     long cur;
@@ -786,25 +898,46 @@ GSList* get_attribute(FILE* file)
         exit(-8);
     }
 
-    body_buff[0] = '\0';
-    parameters = NULL;
-
+    strclr(type_buff);
+    strclr(name_buff);
+    strclr(body_buff);
+    strclr(param_type_buff);
+    strclr(param_name_buff);
+    paren_cnt = 0;
     while(!done) {
         char c = fgetc(file);
+
+        /* update parentheses and brace counts */
+        if(c == '(') {
+            ++paren_cnt;
+        }
+        else if(c == ')') {
+            --paren_cnt;
+        }
+        else if(c == '{') {
+            ++brace_cnt;
+        }
+        else if(c == '}') {
+            --brace_cnt;
+        }
 
         /* comment? */
         if(state != STATE_BLOCK_COMMENT && 
                 state != STATE_LINE_COMMENT &&
                 c == '/') {
             char c2 = fgetc(file);
+
+            /* block comment */
             if(c2 == '*') {
                 save_state = state;
                 state = STATE_BLOCK_COMMENT;
             }
+            /* line comment */
             else if(c2 == '/') {
                 save_state = state;
                 state = STATE_LINE_COMMENT;
             }
+            /* it wasn't a comment after all :D */
             else {
                 ungetc(c2, file);
             }
@@ -818,7 +951,6 @@ GSList* get_attribute(FILE* file)
                     state = save_state;
                 }
                 break;
-
             /* done with a block comment? */
             case STATE_BLOCK_COMMENT:
                 if(c == '*') {
@@ -833,117 +965,156 @@ GSList* get_attribute(FILE* file)
                 break;
 
             /* test if public or not */
-            case STATE_IS_PUBLIC:
-                if(c == 'p') {
-                    if(fstrncmp(file, "ublic ", 6) == 0) {
-                        public = 1;
-                        break;
-                    }
+            case STATE_IS_MODIFIER:
+                /* is this a type modifier? */
+                fseek(file, -1, SEEK_CUR);
+                if(fstrncmp(file, "public ", 7) == 0) {
+                    public = 1;
+                    break;
                 }
-                if(!isspace(c)) {
-                    type_buff[0] = c;
-                    state = STATE_TYPE_DECLARE;
-                    i = 1;
+                else if(fstrncmp(file, "const ", 6) == 0) {
+                    modifiers = g_list_append(modifiers, "const");
+                }
+                else if(fstrncmp(file, "static ", 7) == 0) {
+                    modifiers = g_list_append(modifiers, "static");
+                }
+                else if(fstrncmp(file, "register ", 8) == 0) {
+                    modifiers = g_list_append(modifiers, "register");
+                }
+                else if(fstrncmp(file, "volatile ", 9) == 0) {
+                    modifiers = g_list_append(modifiers, "volatile");
+                }
+                else if(fstrncmp(file, "auto ", 5) == 0) {
+                    modifiers = g_list_append(modifiers, "auto");
+                }
+
+                /* not a modifier, must be the type...unless programmer dum */ 
+                else {
+                    /* restore c */
+                    c = fgetc(file);
+                    if(!isspace(c)) {
+                        if(!type_found) {
+                            ungetc(c, file);
+                            state = STATE_TYPE_DECLARE;
+                        }
+                        else if(c == '*') {
+                            strappend(type_buff, '*');
+                        }
+                        else if(c == '(') {
+                            kind = FUNCTION_PTR_MAYBE;
+                            state = STATE_GET_NAME;
+                        }
+                        else {
+                            ungetc(c, file);
+                            state = STATE_GET_NAME;
+                        }
+                    }
                 }
                 break;
 
             /* get the type of the attribute declaration */
             case STATE_TYPE_DECLARE:
                 if(!isspace(c)) {
-                    type_buff[i] = c;
-                    ++i;
+                    strappend(type_buff,  c);
                 }
                 else {
-                    type_buff[i] = '\0';
-                    state = STATE_SEEK_NAME;
-                    i = 0;
+                    type_found = 1;
+                    state = STATE_IS_MODIFIER;
                 }
                 break;
 
-            case STATE_SEEK_NAME:
-                if(!isspace(c)) {
-                    name_buff[0] = c;
-                    state = STATE_GET_NAME;
-                    i = 1;
-                }
-                break;
 
             /* get the name of the attribute & check if function or not */
             case STATE_GET_NAME:
-                if(isspace(c)) {
-                    name_buff[i] = '\0';
+                if(paren_cnt > 1) {
+                    fprintf(stderr, "Error: too many fucking parentheses (%d) "
+                            "in attribute of type %s\n", paren_cnt, type_buff);
+                    return NULL;
+                }
+                if(isspace(c) && (paren_cnt == 0)) {
                     state = STATE_CHECK_IF_FUNCTION;
-                    i = 0;
                 }
                 /* it was a variable and we've found the end of its name */
-                else if(c == ';') {
-                    name_buff[i] = '\0';
+                else if(c == ';' && (paren_cnt == 0)) {
+                    kind = VARIABLE;
                     state = STATE_DONE;
-                    i = 0;
                 }
-                /* it's a function, get the prototype */
-                else if(c == '(') {
-                    name_buff[i] = '\0';
-                    paren_cnt = 1;
-                    state = STATE_FUNCTION_PROTOTYPE;
-                    i = 0;
+                /* it's a function or a function pointer, get the prototype */
+                else if(c == '(' && (paren_cnt == 1)) {
+                    if(name_buff[0] == '*' && kind == FUNCTION_PTR_MAYBE) {
+                        kind = FUNCTION_PTR;
+                        state = STATE_FUNCTION_PTR_PROTOTYPE;
+                    }
+                    else {
+                        kind = FUNCTION;
+                        state = STATE_FUNCTION_PROTOTYPE;
+                    }
                 }
-                /* it was a variable and there're more of the same type to come */
-                else if(c == ',') {
-                    name_buff[i] = '\0';
-                    a = new_attribute(name_buff, type_buff, parameters, body_buff);
-                    a->is_function = is_function;
+                /* it was a variable and there's more of the same type to come */
+                else if(c == ',' && (paren_cnt == 0)) {
+                    a = new_attribute(name_buff, type_buff, modifiers, parameters, body_buff);
                     a->public = public;
+                    a->kind = VARIABLE;
                     attrs = g_slist_append(attrs, a);
                     state = STATE_SEEK_NAME;
-                    i = 0;
                 }
                 else {
-                    name_buff[i] = c;
-                    ++i;
+                    if(c != '(' && c != ')') {
+                        strappend(name_buff, c);
+                    }
                 }
                 break;
 
-            /* check if the attribute is a function or variable */
+            /* check if the attribute is a function/function ptr or variable */
             case STATE_CHECK_IF_FUNCTION:
                 if(c == '(') {
-                    paren_cnt = 1;
-                    state = STATE_FUNCTION_PROTOTYPE;
+                    if(kind == FUNCTION_PTR_MAYBE) {
+                        kind = FUNCTION_PTR;
+                        state = STATE_FUNCTION_PTR_PROTOTYPE;
+                    }
+                    else {
+                        kind = FUNCTION;
+                        state = STATE_FUNCTION_PROTOTYPE;
+                    }
                 }
-                else if(c == ';') {
+                /* it was a variable and we've found the end of its name */
+                else if(c == ';' && (paren_cnt == 0)) {
                     state = STATE_DONE;
                 }
-                else if(c == ',') {
-                    name_buff[i] = '\0';
-                    a = new_attribute(name_buff, type_buff, parameters, body_buff);
-                    a->is_function = is_function;
+                /* it was a variable and there's more of the same type to come */
+                else if(c == ',' && (paren_cnt == 0)) {
+                    a = new_attribute(name_buff, type_buff, modifiers, parameters, body_buff);
+                    a->kind = VARIABLE;
                     a->public = public;
                     attrs = g_slist_append(attrs, a);
-                    i = 0;
                     state = STATE_SEEK_NAME;
                 }
                 else if(!isspace(c)) {
                     fprintf(stderr, "Error: expected ';' at end of declaration"
-                            " of attribute %s\n", name_buff);
+                            " of attribute %s %s\n", type_buff, name_buff);
                     return NULL;
                 }
                 break;
 
-            /* get everything in the parentheses for the function prototype */
+            /* function: find all the attributes between the parentheses */
             case STATE_FUNCTION_PROTOTYPE:
-                is_function = 1;
-                if(c == '(') {
-                    ++paren_cnt;
-                }
-                else if(c == ')') {
-                    --paren_cnt;
-                    paren_cnt = 1;
+                /* all parentheses are closed, start reading body */
+                if(paren_cnt == 0) {
                     state = STATE_FUNCTION_BEGIN;
                 }
                 else if(!isspace(c)) {
-                    param_type_buff[0] = c;
+                    ungetc(c, file);
                     state = STATE_SEEK_PARAM_TYPE;
-                    i = 1;
+                }
+                break;
+
+            /* function ptr: find all the attributes between the parentheses */
+            case STATE_FUNCTION_PTR_PROTOTYPE:
+                /* parentheses closed, look for the semicolon */
+                if(paren_cnt == 0) {
+                    state = STATE_SEEK_END;
+                }
+                else if(!isspace(c)) {
                 }
                 break;
 
@@ -954,64 +1125,68 @@ GSList* get_attribute(FILE* file)
                             "','\n");
                     return NULL;
                 }
-                if(!isspace(c)) {
+                else if(!isspace(c)) {
+                    ungetc(c, file);
                     state = STATE_GET_PARAM_TYPE;
-                    param_type_buff[i] = c;
-                    ++i;
                 }
                 break;
              
             /* get the type of the next parameter for the function */
             case STATE_GET_PARAM_TYPE:
                 if(isspace(c)) {
-                    state = STATE_SEEK_PARAM_NAME;
-                    param_type_buff[i] = '\0';
-                    i = 0;
+                    state = STATE_IS_PARAM_POINTER;
                 }
                 else {
-                    param_type_buff[i] = c;
-                    ++i;
+                    strappend(param_type_buff, c);
+                }
+                break;
+
+            /* we've found the type, but add as many asterisks as we find */
+            case STATE_IS_PARAM_POINTER:
+                if(c == '*') {
+                    strappend(param_type_buff, c);
+                }
+                else if(!isspace(c)) {
+                    ungetc(c, file);
+                    /* if it's a function: get the name. ptr: don't care. */
+                    if(kind == FUNCTION)  {
+                        state = STATE_SEEK_PARAM_NAME;
+                    }
+                    else {
+                        state = STATE_IS_MORE_PARAMS;
+                    }
                 }
                 break;
 
             /* get the name of the parameter */
             case STATE_SEEK_PARAM_NAME:
-                if(c == ')') {
-                    --paren_cnt;
-                    if(paren_cnt == 0) {
-                        /* add last parameter and begin reading the body */
-                        param_name_buff[i] = '\0';
-                        a = new_attribute(param_name_buff, param_type_buff, NULL, NULL);
-                        a->is_function = 0;
+                if(paren_cnt == 0 || isspace(c) || c == ',') {
+                        /* add parameter */
+                        a = new_attribute(param_name_buff, param_type_buff, 
+                                modifiers, NULL, NULL);
+                        a->kind = FUNCTION;
                         a->public = 0;
                         parameters = g_list_append(parameters, (gpointer)a);
-                        state = STATE_FUNCTION_BEGIN;
-                        i = 0;
-                        break;
+
+                        /* closing parentheses: begin reading the body */
+                        if(c == '(') {
+                            state = STATE_FUNCTION_BEGIN;
+                            break;
+                        }
+                        /* more parameters */
+                        else if(c == ',') {
+                            state = STATE_SEEK_PARAM_TYPE;
+                            strclr(param_type_buff);
+                            strclr(param_name_buff);
+                        }
+                        /* maybe more parameters */
+                        else {
+                            state = STATE_IS_MORE_PARAMS;
+                        }
                     }
-                }
-                else if(isspace(c) || c == ',') {
-                    state = STATE_FUNCTION_PROTOTYPE;
-                    param_name_buff[i] = '\0';
-                    a = new_attribute(param_name_buff, param_type_buff, NULL, NULL);
-                    a->is_function = 0;
-                    a->public = 0;
-                    parameters = g_list_append(parameters, (gpointer)a);
-                    /* more parameters */
-                    if(c == ',') {
-                        state = STATE_SEEK_PARAM_TYPE;
-                        i = 0;
-                    }
-                    /* possibly no more parameters */
                     else {
-                        state = STATE_IS_MORE_PARAMS;
-                        i = 0;
+                        strappend(param_name_buff, c);
                     }
-                }
-                else {
-                    param_name_buff[i] = c;
-                    ++i;
-                }
                 break;
 
             /* check if there are more parameters to the function */
@@ -1019,36 +1194,44 @@ GSList* get_attribute(FILE* file)
                 if(c == ',') {
                     state = STATE_SEEK_PARAM_TYPE;
                 }
-                else if(c == ')') {
-                    --paren_cnt;
-                    if(paren_cnt == 0) {
+                /* if function: get body. if ptr: we're done */
+                else if(paren_cnt == 0) {
+                    if(kind == FUNCTION) {
                         state = STATE_FUNCTION_BEGIN;
                     }
+                    else {
+                        state = STATE_SEEK_END;
+                    }
                 }
+                break;
 
             /* find the start of the function body - the opening brace '{' */
             case STATE_FUNCTION_BEGIN:
                 if(c == '{') {
                     state = STATE_FUNCTION_BODY;
-                    paren_cnt = 1;
                 }
                 break; 
 
             /* get the body of the function */
             case STATE_FUNCTION_BODY:
-                if(c == '{') {
-                    ++paren_cnt;
+                if(brace_cnt == 0) {
+                    state = STATE_DONE;
                 }
-                else if(c == '}') {
-                    --paren_cnt;
-                    if(paren_cnt == 0) {
-                        body_buff[i] = '\0';
-                        state = STATE_DONE;
-                        break;
-                    }
+                else {
+                    strappend(body_buff, c);
                 }
-                body_buff[i] = c;
-                ++i;
+                break;
+
+            /* search for the semicolon */
+            case STATE_SEEK_END:
+                if(c == ';') {
+                    state = STATE_DONE;
+                }
+                else if(!isspace(c)) {
+                    fprintf(stderr, "Error: expected ';' after %s %s %s\n", 
+                            type_buff, name_buff, param_type_buff);
+                    return NULL;
+                }
                 break;
 
             /* we're done */
@@ -1062,10 +1245,9 @@ GSList* get_attribute(FILE* file)
                 return NULL;
         }
     }
-    a = new_attribute(name_buff, type_buff, parameters, body_buff);
-    a->is_function = is_function;
+    a = new_attribute(name_buff, type_buff, modifiers, parameters, body_buff);
+    a->kind = kind;
     a->public = public;
-
     attrs = g_slist_append(attrs, a);
 
     free(name_buff);
@@ -1090,6 +1272,26 @@ int fstrncmp(FILE* fp, char* str, int len)
         }
     }
     return 0;
+}
+
+void strappend(char* str, char c)
+{
+    static char* prev = NULL;
+    static int off;
+
+    /* since this is likely to be called repeatedly, only do strlen on new */
+    /* strings                                                             */
+    if(prev != str) {
+        off = strlen(str);
+        prev = str;
+    }
+    str[off++] = c;
+    str[off] = '\0';
+}
+
+void strclr(char* str)
+{
+    str[0] = '\0';
 }
 
 int is_default_attribute(char* a)
