@@ -2,6 +2,23 @@
 
 void App_Start()
 {
+    int i;
+
+    Component_Model* font[26];
+    for(i = 0; i < 26; ++i) {
+        char dir[] = "StdAssets/Models/Charset/";
+        char file[31];
+        char path[64];
+        strcpy(file, " .ply");
+        file[0] = 'A' + i;
+        strcpy(path, dir);
+        strcat(path, file);
+
+        font[i] = Component_Model_New();
+        font[i]->file = path;
+        font[i]->Start(font[i]);
+    }
+
     /* background */
     Entity* bg = Entity_New();
     Component_Transform* t1 = Component_Transform_New();
@@ -53,13 +70,15 @@ void App_Start()
     Component_Transform* t3 = Component_Transform_New();
         t3->pos.x = 0; t3->pos.y = 0; t3->pos.z = 3;
         t3->scale.x = 1; t3->scale.y = 1; t3->scale.z = 1;
-    Component_Model* mo3 = Component_Model_New();
-        mo3->file = "StdAssets/Models/Charset/A.ply";
+    Component_Text* text = Component_Text_New();
+        text->text = "HELLO WORLD";
+        text->font = font;
     Component_Material* m3 = Component_Material_New();
         m3->file = "test.mat";
     Entity_AddComponent(a, (Component*)t3);
-    Entity_AddComponent(a, (Component*)mo3);
+    Entity_AddComponent(a, (Component*)text);
     Entity_AddComponent(a, (Component*)m3);
+    return;
     Entity_Start(a);
 }
 

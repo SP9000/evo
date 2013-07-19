@@ -20,7 +20,7 @@ extern "C" {
 
 typedef struct Entity Entity;
 
-#include "Gen\all.h"
+#include "Gen/all.h"
 
 typedef void (*Component_StartFunc)();
 typedef void (*Component_UpdateFunc)();

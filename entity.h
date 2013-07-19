@@ -33,6 +33,7 @@ extern "C" {
 typedef struct Entity {
     int numChildren;
     int numComponents;
+    Entity* parent;
     GSList* children;
     GSList* components;
 }Entity;
@@ -49,6 +50,13 @@ Entity* Entity_New();
  * @param c the component to add to the entity.
  */
 void Entity_AddComponent(Entity* e, Component* c);
+
+/**
+ * Add the given entity as a child to the given parent.
+ * @param parent the entity to add the child to.
+ * @param child the entity to add to the parent.
+ */
+void Entity_AddChild(Entity* parent, Entity* child);
 
 /**
  * Get the component of the specified type from the entity.

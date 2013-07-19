@@ -188,7 +188,7 @@ COMPONENT Model {
       * Load a .ply model from file.
       * @param file the file to load the model from.
       */
-    void LoadPLY(char* file)
+    public void LoadPLY(char* file)
     {
         int* faceBuff;
         int* faceSizeBuff;

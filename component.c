@@ -2,5 +2,8 @@
 
 Component* Component_Get(Component* self, int id) 
 {
-    return Entity_GetComponent(self->entity, id);
+    if(self->entity != NULL) {
+        return Entity_GetComponent(self->entity, id);
+    }
+    return NULL;
 }

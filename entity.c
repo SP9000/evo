@@ -18,6 +18,12 @@ void Entity_AddComponent(Entity* e, Component* c)
     c->entity = e;
 }
 
+void Entity_AddChild(Entity* parent, Entity* child)
+{
+    parent->children = g_slist_append(parent->children, child);
+    child->parent = parent;
+}
+
 void Entity_Start(Entity* e)
 {
     GSList* clist;

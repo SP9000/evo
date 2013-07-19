@@ -10,7 +10,7 @@ APPLICATION_SOURCES=$(wildcard App/Components/*.c)
 APPLICATION_OBJECTS=$(addprefix obj/,$(notdir $(APPLICATION_SOURCES:.c=.o)))
 
 # component sources 
-COMPONENT_SOURCES=$(wildcard Components/*.c)
+COMPONENT_SOURCES=$(wildcard Gen/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files

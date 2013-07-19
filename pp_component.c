@@ -548,7 +548,7 @@ void write_c_file(char* name, GSList* attributes,
       "/* Do whatever you want with it. I really don't care.          */\n"
       "/***************************************************************/\n\n");
     fprintf(outfile, "#define BUILD_COMPONENT_%s\n", name);
-    fprintf(outfile, "\n#include \"..\\component.h\"\n");
+    fprintf(outfile, "\n#include \"../component.h\"\n");
 
     /* write everything before the component declaration to the C file */
     fseek(infile, 0, SEEK_SET);
@@ -670,6 +670,7 @@ void write_c_file(char* name, GSList* attributes,
     fprintf(outfile, "    self->Update = Update;\n");
     fprintf(outfile, "    self->Collide = Collide;\n");
     fprintf(outfile, "    self->id = CID_%s;\n", name);
+    fprintf(outfile, "    self->entity = NULL;\n");
     /* assign function pointers to the function they should be set to */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         Attribute* attr = (Attribute*)it->data;
@@ -1276,17 +1277,9 @@ int fstrncmp(FILE* fp, char* str, int len)
 
 void strappend(char* str, char c)
 {
-    static char* prev = NULL;
-    static int off;
-
-    /* since this is likely to be called repeatedly, only do strlen on new */
-    /* strings                                                             */
-    if(prev != str) {
-        off = strlen(str);
-        prev = str;
-    }
-    str[off++] = c;
-    str[off] = '\0';
+    int off = strlen(str);
+    str[off] = c;
+    str[off+1] = '\0';
 }
 
 void strclr(char* str)
