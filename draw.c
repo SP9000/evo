@@ -14,6 +14,7 @@ static Component_Model* postPassRect;
 /* The current camera. */
 static Component_Camera* activeCam;
 static Component_Camera* guiCam;
+static Component_Camera* cameras;
 
 int Draw_Init()
 {
@@ -24,7 +25,7 @@ int Draw_Init()
 
     /* Turn on double buffering. */
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);   
-    screen = SDL_SetVideoMode(960, 540, 32, SDL_OPENGL);
+    screen = SDL_SetVideoMode(960, 540, 32, SDL_OPENGL | SDL_RESIZABLE);
     
     /* Initialize OpenGL. */
     if(glewInit() == GLEW_OK) {
@@ -96,6 +97,25 @@ void Draw_StartFrame()
     Mat4x4LoadIdentity(activeCam->viewMat);
     Mat4x4Translate(activeCam->viewMat, -activeCam->transform->pos.x, 
             -activeCam->transform->pos.y, activeCam->transform->pos.z);
+}
+
+void Draw_ResizeScreen(int w, int h)
+{
+    screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
+    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+
+    if(activeCam == NULL) {
+        return;
+    }
+    if(activeCam->orthographic) {
+        activeCam->Orthographic(activeCam, 0.0f, (float)screen->w, (float)screen->h, 
+                0.0f, 0.01f, 100.0f);
+    }
+    else {
+        activeCam->Perspective(activeCam, activeCam->fov, 
+                (float)w / (float)h,
+                activeCam->nearZ, activeCam->farZ);
+    }
 }
 
 void Draw_FinishFrame()

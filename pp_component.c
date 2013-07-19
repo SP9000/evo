@@ -368,36 +368,33 @@ long get_attributes(char* in_file, GSList** attributes)
     /* move the file to the component start */
     get_component_start(in_fp);
     /* find the super component (if any) and the component name */
-    super_component[0] = '\0';
+    strclr(name);
+    strclr(super_component);
+    strclr(super_file);
     for(done = 0, state = STATE_SEEK_COMPONENT_NAME; !done; ) {
         char c = fgetc(in_fp);
         switch(state) {
             case STATE_SEEK_COMPONENT_NAME:
                 if(!isspace(c)) {
                     state = STATE_GET_COMPONENT_NAME;
-                    name[0] = c;
-                    i = 1;
+                    strappend(name, c);
                 }
                 break;
 
             case STATE_GET_COMPONENT_NAME:
                 if(c== '{') { 
-                    name[i] = '\0';
                     state = STATE_COMPONENT_FOUND;
                 }
                 if(isspace(c)) {
-                    name[i] = '\0';
                     state = STATE_SEEK_COMPONENT_BODY;
                 }
                 else {
-                    name[i] = c;
-                    ++i;
+                    strappend(name, c);
                 }
                 break;
 
             case STATE_SEEK_COMPONENT_BODY:
                 if(c == ':') {
-                    i = 0;
                     state = STATE_SEEK_SUPER;
                 }
                 else if(c == '{') {
@@ -417,23 +414,19 @@ long get_attributes(char* in_file, GSList** attributes)
                 }
                 if(!isspace(c)) {
                     state = STATE_GET_SUPER;
-                    super_component[0] = c;
-                    i = 1;
+                    strappend(super_component, c);
                 }
                 break;
 
             case STATE_GET_SUPER:
                 if(c == '{') {
-                    super_component[i] = '\0';
                     state = STATE_COMPONENT_FOUND;
                 }
                 else if(isspace(c)) {
-                    super_component[i] = '\0';
                     state = STATE_SEEK_COMPONENT_BRACE;
                 }
                 else {
-                    super_component[i] = c;
-                    ++i;
+                    strappend(super_component, c);
                 }
                 break;
 
@@ -571,57 +564,23 @@ void write_c_file(char* name, GSList* attributes,
         if(is_default_attribute(a->name)) {
             continue;
         }
-        if(a->public) {
-            if(a->kind == VARIABLE) {
-                fprintf(outfile, "    %s %s;\n", a->type, a->name);
-            }
+        if(a->public && a->kind == VARIABLE) {
+            fprintf(outfile, "    %s %s;\n", a->type, a->name);
         }
     }
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
         Attribute* a = (Attribute*)it->data;
-        if(a->public) {
-            if(a->kind == FUNCTION_PTR) {
-                GList* jt;
-                fprintf(outfile, "    %s (%s)(",
-                       a->type, a->name);
-                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
-                    if(jt != a->parameters) {
-                        fprintf(outfile, ", ");
-                    }
-                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+        if(a->public && a->kind == FUNCTION_PTR) {
+            GList* jt;
+            fprintf(outfile, "    %s (%s)(",
+                   a->type, a->name);
+            for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                if(jt != a->parameters) {
+                    fprintf(outfile, ", ");
                 }
-                fprintf(outfile, ");\n");
+                fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
             }
-        }
-    }
-
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        Attribute* a = (Attribute*)it->data;
-        if(is_default_attribute(a->name)) {
-            continue;
-        }
-        if(!a->public) {
-            if(a->kind == VARIABLE) {
-                fprintf(outfile, "    %s %s;\n", a->type, a->name);
-            }
-        }
-    }
-    /* unassigned function pointers */
-    for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        Attribute* a = (Attribute*)it->data;
-        if(!a->public) {
-            if(a->kind == FUNCTION_PTR) {
-                GList* jt;
-                fprintf(outfile, "    %s (%s)(",
-                       a->type, a->name);
-                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
-                    if(jt != a->parameters) {
-                        fprintf(outfile, ", ");
-                    }
-                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
-                }
-                fprintf(outfile, ");\n");
-            }
+            fprintf(outfile, ");\n");
         }
     }
     /* function pointer variables */
@@ -630,7 +589,48 @@ void write_c_file(char* name, GSList* attributes,
         if(is_default_attribute(a->name)) {
             continue;
         }
-        if(a->kind == FUNCTION) {
+        if(a->public && a->kind == FUNCTION) {
+            GList* jt;
+            fprintf(outfile, "    %s (*%s)(Component_%s*", a->type, a->name, name);
+            for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                fprintf(outfile, ", %s", ((Attribute*)jt->data)->type);
+            }
+            fprintf(outfile, ");\n");
+        }
+    }
+
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(is_default_attribute(a->name)) {
+            continue;
+        }
+        if(!a->public && a->kind == VARIABLE) {
+            fprintf(outfile, "    %s %s;\n", a->type, a->name);
+        }
+    }
+    /* unassigned function pointers */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(!a->public && a->kind == FUNCTION_PTR) {
+            GList* jt;
+            fprintf(outfile, "    %s (%s)(",
+                   a->type, a->name);
+            for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                if(jt != a->parameters) {
+                    fprintf(outfile, ", ");
+                }
+                fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+            }
+            fprintf(outfile, ");\n");
+        }
+    }
+    /* function pointer variables */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(is_default_attribute(a->name)) {
+            continue;
+        }
+        if(!a->public && a->kind == FUNCTION) {
             GList* jt;
             fprintf(outfile, "    %s (*%s)(Component_%s*", a->type, a->name, name);
             for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {

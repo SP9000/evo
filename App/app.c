@@ -4,6 +4,7 @@ void App_Start()
 {
     int i;
 
+    /*
     Component_Model* font[26];
     for(i = 0; i < 26; ++i) {
         char dir[] = "StdAssets/Models/Charset/";
@@ -17,7 +18,9 @@ void App_Start()
         font[i] = Component_Model_New();
         font[i]->file = path;
         font[i]->Start(font[i]);
+        font[i]->file = NULL;
     }
+    */
 
     /* background */
     Entity* bg = Entity_New();
@@ -65,7 +68,9 @@ void App_Start()
 
     ModelGen_Charset();
     ModelGen_GUI();
+    return;
 
+    /*
     Entity* a = Entity_New();
     Component_Transform* t3 = Component_Transform_New();
         t3->pos.x = 0; t3->pos.y = 0; t3->pos.z = 3;
@@ -75,11 +80,13 @@ void App_Start()
         text->font = font;
     Component_Material* m3 = Component_Material_New();
         m3->file = "test.mat";
+        m3->Start(m3);
+        m3->file = NULL;
     Entity_AddComponent(a, (Component*)t3);
     Entity_AddComponent(a, (Component*)text);
     Entity_AddComponent(a, (Component*)m3);
-    return;
     Entity_Start(a);
+    */
 }
 
 void App_Update()

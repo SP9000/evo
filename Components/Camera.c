@@ -16,21 +16,24 @@ COMPONENT Camera {
     public Mat4x4 viewMat;
     public Mat4x4 projectionMat;
 
+    public bool orthographic;
+
     public void Perspective(float fov, float aspect, float nearZ, float farZ)
     {
-        Mat4x4LoadIdentity(self->modelMat);
-        Mat4x4LoadIdentity(self->viewMat);
-        Mat4x4LoadIdentity(self->projectionMat);
         Mat4x4PerspMat(self->projectionMat, fov, aspect, nearZ, farZ);
+        self->orthographic = false;
+        self->fov = fov;
+        self->aspect = aspect;
+        self->nearZ = nearZ;
+        self->farZ = farZ;
     }
     public void Orthographic(float left, float right, float top, float bottom,
             float nearZ, float farZ)
     {
-        Mat4x4LoadIdentity(self->modelMat);
-        Mat4x4LoadIdentity(self->viewMat);
         Mat4x4LoadIdentity(self->projectionMat);
         Mat4x4OrthoMat(self->projectionMat, 
                 left, right, top, bottom, nearZ, farZ);
+        self->orthographic = true;
     }
     void Start() 
     {

@@ -13,9 +13,24 @@ extern "C"
 #endif
 
 /* GLib has lots of useful types... */
+#include <GL/glew.h>
+#include <stdbool.h>
 #include "glib.h"
 #include "matrix.h"
-#include <GL/glew.h>
+
+/* attribute types for the model */
+enum {
+    MODEL_ATTRIBUTE_NONE,
+    MODEL_ATTRIBUTE_VERTEX,
+    MODEL_ATTRIBUTE_COLOR,
+    MODEL_ATTRIBUTE_NORMAL,
+    MODEL_ATTRIBUTE_TEXCO   
+};
+/* the # of floats each attribute uses */
+#define MODEL_ATTRIBUTE_VERTEX_SIZE 3
+#define MODEL_ATTRIBUTE_COLOR_SIZE  4
+#define MODEL_ATTRIBUTE_NORMAL_SIZE 3
+#define MODEL_ATTRIBUTE_TEXCO_SIZE  2
 
 typedef struct tagTexture {
     /* the ID of the texture itself (as given by glGenTextures) */

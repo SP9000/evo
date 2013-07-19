@@ -130,6 +130,16 @@ void Draw_Widget(Component_Widget* w);
 void Draw_MoveCamera(float x, float y, float z);
 
 /**
+ * Resize the display to the given width and height.
+ * This function notifies all cameras of the change so they can update their
+ * aspect ratios and recalculate their projection matricies as well.
+ * TODO: no it doesn't.
+ * @param w the new width of the screen.
+ * @param h the new height of the screen.
+ */
+void Draw_ResizeScreen(int w, int h);
+
+/**
  * Use the given camera to render the everything until a new camera is set.
  * @param cam the camera to render the following draws with.
  */

@@ -90,7 +90,7 @@ int main(int argc, char **argv)
     fflush(stdout);
 
     /* Capture mouse */
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    /* SDL_WM_GrabInput(SDL_GRAB_ON); */
 
     /* Main game loop. */
     while(run) {
@@ -149,6 +149,9 @@ int main(int argc, char **argv)
             switch(inputEvent.type) {
             case SDL_QUIT: 
                 run = 0;
+                break;
+            case SDL_VIDEORESIZE:
+                Draw_ResizeScreen(inputEvent.resize.w, inputEvent.resize.h);
                 break;
             case SDL_KEYDOWN:
                 if(inputEvent.key.keysym.sym == SDLK_ESCAPE) {
