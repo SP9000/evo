@@ -34,6 +34,7 @@ void App_Start()
     Entity_AddComponent(bg, (Component*)t1);
     Entity_AddComponent(bg, (Component*)mo1);
     Entity_AddComponent(bg, (Component*)m1);
+    Entity_AddComponent(bg, Component_ModelRenderer_New());
     Entity_Start(bg);
 
     /* monkey */
@@ -51,6 +52,7 @@ void App_Start()
     Entity_AddComponent(monkey, (Component*)mo2);
     Entity_AddComponent(monkey, (Component*)m2);
     Entity_AddComponent(monkey, (Component*)pm);
+    Entity_AddComponent(monkey, Component_ModelRenderer_New());
     Entity_Start(monkey);
 
     /* camera */

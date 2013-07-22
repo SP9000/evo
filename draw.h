@@ -93,14 +93,6 @@ void Draw_SetTarget(DrawTarget* target);
 Texture Draw_TargetToTexture(DrawTarget* target);
 
 /**
- * Generate handles to VBOs for the given model.
- * You must call this function before calling DrawModel.
- * @param m the model to generate VBO ID's for.
- * @param attributes flags for each attribute to generate for.
- */
-void Draw_OptimizeModel(Component_Model* m);
-
-/**
  * Draw GUI ontop of the currently rendered scene.
  * Draw the root widget and all children of it ontop of whatever was last 
  * rendered.

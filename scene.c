@@ -1,7 +1,7 @@
 #include "scene.h"
 
 /* TODO: nice "spatial" representation we got here */
-static GSList* scene;
+GSList* scene;
 static Component_Widget* guiRoot;
 
 void ForeachWidgetRecursive(Component_Widget* w, 
@@ -33,14 +33,6 @@ void Scene_AddWidget(Component_Widget* w)
     /* parent is given, add this widget to that parent's children */
     else {
         w->parent->children = g_slist_append(w->parent->children, w);
-    }
-}
-
-void Scene_Foreach(void (*func)(Component_Model*))
-{
-    GSList* it;
-    for(it = scene; it != NULL; it = g_slist_next(it)) {
-        func((Component_Model*)(it->data));
     }
 }
 

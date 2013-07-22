@@ -30,9 +30,7 @@ void Entity_Start(Entity* e)
     for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
         /* get the component and start it */
         Component* c = (Component*)clist->data;
-        puts("DIE"); fflush(stdout);
         c->Start(c);
-        puts("DEATH"); fflush(stdout);
 
         /* add certain types of components to parts of the engine */
         switch(c->id) {

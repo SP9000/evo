@@ -16,6 +16,8 @@ extern "C" {
 #include "glib.h"
 #include "Gen/all.h"
 
+extern GSList* scene;
+
 /**
  * Initialize the scene system.
  * @return zero on success, nonzero on failure.
@@ -41,20 +43,6 @@ void Scene_Add(Component_Model* m);
  * @param w The widget to add to the GUI scene.
  */
 void Scene_AddWidget(Component_Widget* w);
-
-/**
- * Run the given function with the given user data over all models in the
- * scene.
- * @param func the function to run on all objects in the scene.
- */
-void Scene_Foreach(void (*func)(Component_Model*));
-
-/**
- * Run the given function with the given user data over all widgets in the
- * scene.
- * @param func the function to run on all widgets in the scene.
- */
-void Scene_ForeachWidget(void (*func)(Component_Widget*));
 
 #ifdef __cplusplus
 }

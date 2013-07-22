@@ -15,24 +15,12 @@
 #define MODEL_ATTRIBUTE_TEXCO_SIZE  2
 
 #include "../draw.h"
-
-/* attribute types for the model */
-enum {
-    MODEL_ATTRIBUTE_NONE,
-    MODEL_ATTRIBUTE_VERTEX,
-    MODEL_ATTRIBUTE_COLOR,
-    MODEL_ATTRIBUTE_NORMAL,
-    MODEL_ATTRIBUTE_TEXCO   
-};
-
 COMPONENT Model {
     /* the file to load the model properties from */
     public char* file;
 
     /* the transform component associated with this model. */
     public Component_Transform* transform;
-    /* the material associated with this model. */
-    public Component_Material* mat;
     /* buffers for each attribute of the model */
     public float** attributes;
     /* a table of MODEL_ATTRIBUTE_* ID's to tell the contents of attributes */
@@ -156,7 +144,7 @@ COMPONENT Model {
      * @param offset the vertex-offset of the attribute to set.
      * @param val the value to set the attribute to.
      */
-    void SetAttribute(int attribute, int offset, float* val) 
+    public void SetAttribute(int attribute, int offset, float* val) 
     {
         int attrSize; 
         int i;
@@ -446,6 +434,34 @@ COMPONENT Model {
     }
 
     /**
+     * Generate handles to VBOs for the given model.
+     * You must call this function before calling DrawModel.
+     * @param m the model to generate VBO ID's for.
+     * @param attributes flags for each attribute to generate for.
+     */
+    void Optimize() {
+        int i;
+        
+        /* create a VAO for the model */
+        glGenVertexArrays(1, &self->vao);
+        glBindVertexArray(self->vao);
+
+        /* buffer all the attributes of the model into VBO's */
+        self->vboIDs = (GLuint*)malloc(self->numAttributes * sizeof(GLuint));
+        glGenBuffers(self->numAttributes, self->vboIDs);
+        for(i = 0; i < self->numAttributes; ++i) {
+            int attrSize = self->GetAttributeSize(self, self->attributeTable[i]);
+            glBindBuffer(GL_ARRAY_BUFFER, self->vboIDs[i]);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(float) * attrSize * self->numVertices,
+                    self->attributes[i], GL_STATIC_DRAW);
+            glVertexAttribPointer((GLuint)i, attrSize, GL_FLOAT, GL_FALSE, 0, 0);
+            glEnableVertexAttribArray(i);
+        }
+        /* Unbind. */
+        glBindVertexArray(0);
+    }
+
+    /**
      * Free all the resources used by this model.
      */
     public void Free()
@@ -460,7 +476,6 @@ COMPONENT Model {
 
     void Start()
     {
-        self->mat = Component_GetAs(Material);
         self->transform = Component_GetAs(Transform);
 
         self->numVertices = 0;
@@ -469,8 +484,8 @@ COMPONENT Model {
 
         if(self->file != NULL) {
             self->LoadPLY(self, self->file);
+            self->Optimize(self);
         }
-        Draw_OptimizeModel(self);
     }
 
     void Update() 

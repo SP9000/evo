@@ -9,6 +9,7 @@
 /*****************************************************************************/
 
 COMPONENT Renderer {
+    public Component_Material* material;
 
     /**
      * All functions which inherit Render should override this. 
@@ -31,3 +32,4 @@ COMPONENT Renderer {
 
     }
 }
+

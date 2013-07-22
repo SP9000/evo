@@ -154,7 +154,15 @@ void Draw_FinishFrame()
 
 void Draw_Scene()
 {
-    Scene_Foreach(Draw_Model);
+    puts("m....");
+    GSList* it;
+    for(it = scene; it != NULL; it = g_slist_next(it)) {
+        puts("...");
+        Entity* e = (Entity*)it->data;
+        Component_Renderer* r = (Component_Renderer*)Entity_GetComponent(e, CID_Renderer);
+        r->Render(r);
+    }
+    puts("mmkay");
 }
 
 void Draw_GUI()
@@ -171,37 +179,16 @@ void Draw_GUI()
     activeCam = guiCam;
 
     glEnable(GL_SCISSOR_TEST);
-    Scene_ForeachWidget(Draw_Widget);
+    //Scene_ForeachWidget(Draw_Widget);
     glDisable(GL_SCISSOR_TEST);
 
     activeCam = saveCam;
 }
 
-void Draw_OptimizeModel(Component_Model* m) {
-    int i;
-    
-    /* create a VAO for the model */
-    glGenVertexArrays(1, &m->vao);
-    glBindVertexArray(m->vao);
-
-    /* buffer all the attributes of the model into VBO's */
-    m->vboIDs = (GLuint*)malloc(m->numAttributes * sizeof(GLuint));
-    glGenBuffers(m->numAttributes, m->vboIDs);
-    for(i = 0; i < m->numAttributes; ++i) {
-        int attrSize = m->GetAttributeSize(m, m->attributeTable[i]);
-        glBindBuffer(GL_ARRAY_BUFFER, m->vboIDs[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(float) * attrSize * m->numVertices,
-                m->attributes[i], GL_STATIC_DRAW);
-        glVertexAttribPointer((GLuint)i, attrSize, GL_FLOAT, GL_FALSE, 0, 0);
-        glEnableVertexAttribArray(i);
-    }
-    /* Unbind. */
-    glBindVertexArray(0);
-}
-
 
 void Draw_Model(Component_Model* m)
 {
+#if 0
     /* translate */
     Mat4x4Push(activeCam->viewMat);
     Mat4x4Translate(activeCam->viewMat, -m->transform->pos.x, -m->transform->pos.y, m->transform->pos.z);
@@ -238,6 +225,7 @@ void Draw_Model(Component_Model* m)
 
     /* restore camera */
     Mat4x4Pop(activeCam->viewMat);
+#endif
 }
 
 void Draw_Widget(Component_Widget* w)
@@ -302,6 +290,7 @@ DrawTarget* Draw_NewTarget(int w, int h)
 void Draw_SetCamera(Component_Camera* cam)
 {
     activeCam = cam;
+    main_cam = cam;
 }
 
 void Draw_SetTarget(DrawTarget* target)
@@ -311,7 +300,7 @@ void Draw_SetTarget(DrawTarget* target)
         glEnable(GL_TEXTURE_2D);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, activeTarget->texID);
-        glUniform1i(glGetUniformLocation(postPassRect->mat->program, "tex"), 0);
+        //glUniform1i(glGetUniformLocation(postPassRect->mat->program, "tex"), 0);
     }
     else {
         glBindTexture(GL_TEXTURE_2D, 0);
