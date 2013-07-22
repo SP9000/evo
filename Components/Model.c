@@ -86,7 +86,7 @@ COMPONENT Model {
      * to determine where to place the other attributes.
      * @param val the value to append to the given attribute buffer.
      */
-    void AddAttribute(int attribute)
+    public void AddAttribute(int attribute)
     {
         int i;
         int attrSize; 
@@ -439,7 +439,7 @@ COMPONENT Model {
      * @param m the model to generate VBO ID's for.
      * @param attributes flags for each attribute to generate for.
      */
-    void Optimize() {
+    public void Optimize() {
         int i;
         
         /* create a VAO for the model */
@@ -472,12 +472,14 @@ COMPONENT Model {
         }
         free(self->attributeTable);
         free(self->vboIDs);
+        self->numVertices = 0;
+        self->numAttributes = 0;
+        self->subgroups = NULL;
     }
 
     void Start()
     {
         self->transform = Component_GetAs(Transform);
-
         self->numVertices = 0;
         self->numAttributes = 0;
         self->subgroups = NULL;

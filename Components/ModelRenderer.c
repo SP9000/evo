@@ -26,10 +26,12 @@ COMPONENT ModelRenderer : Renderer {
     }
     public void Render()
     {
-        puts("started from the bottom"); fflush(stdout);
         Mat4x4Push(main_cam->viewMat);
         Mat4x4Translate(main_cam->viewMat, -self->model->transform->pos.x, 
             -self->model->transform->pos.y, self->model->transform->pos.z);
+        main_cam->viewMat[0] *= self->transform->scale.x;
+        main_cam->viewMat[5] *= self->transform->scale.y;
+        main_cam->viewMat[10] *= self->transform->scale.z;
 
         /* Bind the models' vertex attribute object. */
         glBindVertexArray(self->model->vao);
@@ -59,7 +61,6 @@ COMPONENT ModelRenderer : Renderer {
         glBindVertexArray(0);
 
         Mat4x4Pop(main_cam->viewMat);
-        puts("Now we up");
     }
 }
 

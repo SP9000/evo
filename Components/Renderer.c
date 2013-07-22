@@ -12,12 +12,17 @@ COMPONENT Renderer {
     public Component_Material* material;
 
     /**
+     * What layer this renderer should be displayed on. 
+     * e.g. RENDER_LAYER_GUI or RENDER_LAYER_MAIN. 
+     */
+    public int layer;
+
+    /**
      * All functions which inherit Render should override this. 
      * This is where you put drawing code.
      */
     public void Render()
     {
-
     }
     void Start()
     {

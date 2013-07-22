@@ -132,10 +132,10 @@ void Draw_MoveCamera(float x, float y, float z);
 void Draw_ResizeScreen(int w, int h);
 
 /**
- * Use the given camera to render the everything until a new camera is set.
- * @param cam the camera to render the following draws with.
+ * Add the given camera to the list of cameras.
+ * @param cam the camera to be added and used henceforth for rendering. 
  */
-void Draw_SetCamera(Component_Camera* cam);
+void Draw_AddCamera(Component_Camera* cam);
 
 #ifdef __cplusplus
 }

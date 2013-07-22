@@ -1,60 +1,31 @@
 #include "scene.h"
 
 /* TODO: nice "spatial" representation we got here */
-GSList* scene;
-static Component_Widget* guiRoot;
+GSList* scene_layers[32];
 
 void ForeachWidgetRecursive(Component_Widget* w, 
         void (*func)(Component_Widget*));
 
 int Scene_Init()
 {
-    scene = NULL;
+    int i;
+    for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
+        scene_layers[i] = NULL;
+    }
     return 0;
 }
 
 int Scene_Quit()
 {
-    g_slist_free(scene);
+    int i;
+    for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
+        g_slist_free(scene_layers[i]);
+    }
     return 0;
 }
 
-void Scene_Add(Component_Model* m)
+void Scene_Add(Component_Renderer* r)
 {
-    scene = g_slist_append(scene, (gpointer)m);
+    int i;
+    scene_layers[r->layer] = g_slist_append(scene_layers[r->layer], (gpointer)r);
 }
-
-void Scene_AddWidget(Component_Widget* w)
-{
-    /* if parent is NULL, make this widget the new root widget */
-    if(w->parent == NULL) {
-        guiRoot = w;
-    }
-    /* parent is given, add this widget to that parent's children */
-    else {
-        w->parent->children = g_slist_append(w->parent->children, w);
-    }
-}
-
-void Scene_ForeachWidget(void (*func)(Component_Widget*))
-{
-    /* no GUI */
-    if(guiRoot == NULL) {
-        return;
-    }
-
-    /* recursively call func on all the widgets */
-    ForeachWidgetRecursive(guiRoot, func);
-}
-
-void ForeachWidgetRecursive(Component_Widget* w, 
-        void (*func)(Component_Widget*))
-{
-    GSList* it;
-    for(it = w->children; it != NULL; it = g_slist_next(it)) {
-        Component_Widget* next = (Component_Widget*)(it->data);
-        ForeachWidgetRecursive(next, func);
-    }
-    func(w);
-}
-

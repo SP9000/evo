@@ -14,7 +14,7 @@ static Component_Model* postPassRect;
 /* The current camera. */
 static Component_Camera* activeCam;
 static Component_Camera* guiCam;
-static Component_Camera* cameras;
+static GSList* cameras;
 
 int Draw_Init()
 {
@@ -93,28 +93,27 @@ void Draw_StartFrame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-    /* position the camera */
-    Mat4x4LoadIdentity(activeCam->viewMat);
-    Mat4x4Translate(activeCam->viewMat, -activeCam->transform->pos.x, 
-            -activeCam->transform->pos.y, activeCam->transform->pos.z);
 }
 
 void Draw_ResizeScreen(int w, int h)
 {
+    GSList* it;
     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-
-    if(activeCam == NULL) {
-        return;
-    }
-    if(activeCam->orthographic) {
-        activeCam->Orthographic(activeCam, 0.0f, (float)screen->w, (float)screen->h, 
-                0.0f, 0.01f, 100.0f);
-    }
-    else {
-        activeCam->Perspective(activeCam, activeCam->fov, 
-                (float)w / (float)h,
-                activeCam->nearZ, activeCam->farZ);
+    for(it = cameras; it != NULL; it = g_slist_next(it)) {
+        Component_Camera* c = (Component_Camera*)it->data;
+        if(c == NULL) {
+            return;
+        }
+        if(c->orthographic) {
+            c->Orthographic(c, 0.0f, (float)screen->w, (float)screen->h, 
+                    0.0f, 0.01f, 100.0f);
+        }
+        else {
+            c->Perspective(c, c->fov, 
+                    (float)w / (float)h,
+                    c->nearZ, c->farZ);
+        }
     }
 }
 
@@ -154,15 +153,25 @@ void Draw_FinishFrame()
 
 void Draw_Scene()
 {
-    puts("m....");
     GSList* it;
-    for(it = scene; it != NULL; it = g_slist_next(it)) {
-        puts("...");
-        Entity* e = (Entity*)it->data;
-        Component_Renderer* r = (Component_Renderer*)Entity_GetComponent(e, CID_Renderer);
-        r->Render(r);
+    for(it = cameras; it != NULL; it = g_slist_next(it)) {
+        int i;
+        Component_Camera* cam = (Component_Camera*)it->data;
+        /* position the camera */
+        Mat4x4LoadIdentity(cam->viewMat);
+        Mat4x4Translate(cam->viewMat, -cam->transform->pos.x, 
+                -cam->transform->pos.y, cam->transform->pos.z);
+        for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
+            main_cam = cam;
+            if((1 << i) & cam->render_layers) {
+                GSList* jt;
+                for(jt = scene_layers[i]; jt != NULL; jt = g_slist_next(jt)) {
+                    Component_Renderer* r = (Component_Renderer*)jt->data;
+                    r->Render(r);
+                }
+            }
+        }
     }
-    puts("mmkay");
 }
 
 void Draw_GUI()
@@ -244,9 +253,12 @@ void Draw_Widget(Component_Widget* w)
 
 void Draw_MoveCamera(float x, float y, float z)
 {
+    /* 
+     * TODO:
     activeCam->transform->pos.x += x;
     activeCam->transform->pos.y += y;
     activeCam->transform->pos.z += z;
+    */
 }
 
 DrawTarget* Draw_NewTarget(int w, int h)
@@ -287,10 +299,9 @@ DrawTarget* Draw_NewTarget(int w, int h)
     return target;
 }
 
-void Draw_SetCamera(Component_Camera* cam)
+void Draw_AddCamera(Component_Camera* cam)
 {
-    activeCam = cam;
-    main_cam = cam;
+    cameras = g_slist_append(cameras, (gpointer)cam);
 }
 
 void Draw_SetTarget(DrawTarget* target)
@@ -314,3 +325,4 @@ Texture Draw_TargetToTexture(DrawTarget* target)
     t.id = target->texID;
     return t;
 }
+

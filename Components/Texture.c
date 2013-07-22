@@ -20,26 +20,37 @@ COMPONENT Texture {
     {
         int bpp;
         GLenum format;
+        SDL_Surface* temp_surf;
+        SDL_Surface* surface;
+        Uint32 colorkey;
 
         self->id = (GLuint)g_hash_table_lookup(loadedTextures, (gpointer)file);
         if(self->id != 0) {
             return;
         }
-        SDL_Surface* surface = SDL_LoadBMP(file);
-        if(surface == NULL) {
+
+        temp_surf = SDL_LoadBMP(file);
+        if(temp_surf == NULL) {
             fprintf(stderr, "Error: couldn't load file %s\n", file);
             return;
         }
+        colorkey = SDL_MapRGB(temp_surf->format, 0, 0, 0);
+        SDL_SetColorKey(temp_surf, SDL_SRCCOLORKEY, colorkey);
+        surface = SDL_DisplayFormatAlpha(temp_surf);
+        SDL_FreeSurface(temp_surf);
+
         bpp = surface->format->BytesPerPixel;
         if(bpp == 4) {
             if(surface->format->Rmask == 0x000000ff) {
+                puts("RGBA");
                 format = GL_RGBA;
             }
             else {
+                puts("BGRA");
                 format = GL_BGRA;
             }
         }
-        if(bpp == 3) {
+        else if(bpp == 3) {
             if(surface->format->Rmask == 0x0000000ff) {
                 format = GL_RGB;
             }

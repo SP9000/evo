@@ -3,7 +3,6 @@
 uniform sampler2D tex;
 
 in  vec2 ex_Texco;
-//layout(location = 0) 
 out vec4 out_Color;
 
 void main() 

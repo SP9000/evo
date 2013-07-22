@@ -16,6 +16,7 @@ COMPONENT Camera {
     public Mat4x4 viewMat;
     public Mat4x4 projectionMat;
 
+    public uint32_t render_layers;
     public bool orthographic;
 
     public void Perspective(float fov, float aspect, float nearZ, float farZ)

@@ -37,17 +37,18 @@ void Entity_Start(Entity* e)
         case CID_Collider:
             Collision_AddCollider((Component_Collider*)c);
             break;
-        case CID_Model:
-            Scene_Add((Component_Model*)c);
+        case CID_Renderer:
+        case CID_ModelRenderer:
+        case CID_TextRenderer:
+            Scene_Add((Component_Renderer*)c);
             break;
         case CID_Widget:
-            Scene_AddWidget((Component_Widget*)c);
+            //Scene_AddWidget((Component_Widget*)c);
             break;
         case CID_Camera:
             /* If no camera has been created, set this one as the main cam. */
             if(!main_cam) {
-                main_cam = (Component_Camera*)c;
-                Draw_SetCamera(main_cam);
+                Draw_AddCamera((Component_Camera*)c);
             }
             break;
         default:

@@ -16,7 +16,7 @@ extern "C" {
 #include "glib.h"
 #include "Gen/all.h"
 
-extern GSList* scene;
+extern GSList* scene_layers[32];
 
 /**
  * Initialize the scene system.
@@ -31,18 +31,10 @@ int Scene_Init();
 int Scene_Quit();
 
 /**
- * Add the given model to the scene.
- * @param m the model to add to the scene.
+ * Add the given renderer to the scene.
+ * @param r the renderer to add to the scene.
  */
-void Scene_Add(Component_Model* m);
-
-/**
- * Add the given widget to the GUI portion of the display. 
- * The GUI is described in two-dimensions as opposed to the (typically) 3D
- * scene. It is drawn ontop of the scene. 
- * @param w The widget to add to the GUI scene.
- */
-void Scene_AddWidget(Component_Widget* w);
+void Scene_Add(Component_Renderer* r);
 
 #ifdef __cplusplus
 }
