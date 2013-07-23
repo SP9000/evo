@@ -12,6 +12,7 @@
 
 #include "../draw.h"
 COMPONENT TextRenderer : Renderer {
+    public Rect* rect;
     public char* font;
     public int len;
     public float font_size;
@@ -19,8 +20,9 @@ COMPONENT TextRenderer : Renderer {
     public char* init_text;
     public GString* text;
     Component_Model* model;
-    Component_Texture* font_texture;
     Component_Transform* transform;
+
+    Texture font_texture;
 
     void Start() 
     {
@@ -28,9 +30,7 @@ COMPONENT TextRenderer : Renderer {
         self->transform = Component_GetAs(Transform);
         self->material = Component_GetAs(Material);
         if(self->font != NULL) {
-            self->font_texture = Component_Texture_New();
-            self->font_texture->Start(self->font_texture);
-            self->font_texture->LoadBMP(self->font_texture, self->font);
+            self->font_texture = Texture_LoadBMP(self->font);
         }
         self->text = g_string_new(NULL);
         if(self->init_text != NULL) {
@@ -61,6 +61,8 @@ COMPONENT TextRenderer : Renderer {
             self->model->file = NULL;
         self->model->Start(self->model);
 
+        vertex[0] = 0.0f;
+        vertex[1] = 0.0f;
         vertex[2] = -1.0f;
         self->model->numVertices = 4 * self->text->len;
         self->model->AddAttribute(self->model, MODEL_ATTRIBUTE_VERTEX);
@@ -70,8 +72,6 @@ COMPONENT TextRenderer : Renderer {
             /* upper left */
             texco[0] = (self->text->str[i] % 16) * uv_w;
             texco[1] = (self->text->str[i] / 16) * uv_h;
-            vertex[0] = i*ch_w;
-            vertex[1] = 0.0f;
             self->model->SetAttribute(self->model, MODEL_ATTRIBUTE_VERTEX, i*4, vertex);
             self->model->SetAttribute(self->model, MODEL_ATTRIBUTE_TEXCO, i*4, texco);
 
@@ -92,6 +92,15 @@ COMPONENT TextRenderer : Renderer {
             vertex[0] -= ch_w;
             self->model->SetAttribute(self->model, MODEL_ATTRIBUTE_VERTEX, i*4+3, vertex);
             self->model->SetAttribute(self->model, MODEL_ATTRIBUTE_TEXCO, i*4+3, texco);
+
+            /* move to the next line? */
+            if(vertex[0] < self->rect->w) {
+                vertex[1] -= ch_h;
+                vertex[0] += ch_w;
+            }
+            else {
+                vertex[0] = 0.0f;
+            }
         }
         self->model->primitive = GL_QUADS;
         self->model->Optimize(self->model);
@@ -99,6 +108,10 @@ COMPONENT TextRenderer : Renderer {
 
     public void Render()
     {
+        /* TODO: delete */
+        Rect r = {0.0f,0.0f,1.0f,1.0f};
+        Draw_Texture(self->font_texture, &r);
+
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
         Mat4x4Push(main_cam->viewMat);
@@ -124,7 +137,7 @@ COMPONENT TextRenderer : Renderer {
         GLint loc = glGetUniformLocation(self->material->program, "tex");
         glActiveTexture(GL_TEXTURE0 + 0);
         glUniform1i(loc, 0); 
-        glBindTexture(GL_TEXTURE_2D, self->font_texture->id);
+        glBindTexture(GL_TEXTURE_2D, self->font_texture.id);
         glEnable(GL_TEXTURE_2D);
 
         /* bind attribute array and draw */

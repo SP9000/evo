@@ -36,8 +36,6 @@ COMPONENT Model {
     public GLuint primitive;
     /* The offset of the next unassigned vertex. */
     public unsigned numVertices;
-    /* Submodels of this model. For example: a leg may be a subgroup of body */
-    public Component_Model* subgroups;
 
     /**
      * Get the number of floats the attribute of the given ID uses.
@@ -382,7 +380,7 @@ COMPONENT Model {
      * @param data the data to buffer (an array of floats ATTRIBUTE_XX_SIZE *
      *   numVertices) floats long.
      */
-    void BufferAttribute(int attribute, float* data)
+    public void BufferAttribute(int attribute, float* data)
     {
         int i;
         float* dst;
@@ -474,7 +472,6 @@ COMPONENT Model {
         free(self->vboIDs);
         self->numVertices = 0;
         self->numAttributes = 0;
-        self->subgroups = NULL;
     }
 
     void Start()
@@ -482,7 +479,6 @@ COMPONENT Model {
         self->transform = Component_GetAs(Transform);
         self->numVertices = 0;
         self->numAttributes = 0;
-        self->subgroups = NULL;
 
         if(self->file != NULL) {
             self->LoadPLY(self, self->file);

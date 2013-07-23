@@ -12,7 +12,7 @@ COMPONENT_SOURCES=$(wildcard Gen/*.c)
 COMPONENT_OBJECTS=$(addprefix obj/,$(notdir $(COMPONENT_SOURCES:.c=.o)))
 
 #client source files
-CLIENT_SOURCES=App/app.c client.c client_packet.c collision.c component.c draw.c entity.c input.c matrix.c modelgen.c scene.c timer.c util.c cJSON.c 
+CLIENT_SOURCES=App/app.c client.c client_packet.c collision.c component.c draw.c entity.c input.c matrix.c modelgen.c scene.c texture.c timer.c types.c util.c cJSON.c 
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
 
 #server source files

@@ -112,7 +112,6 @@ COMPONENT Material {
     public GLuint modelMatrixID;
     public GLuint viewMatrixID;
     public GLuint projectionMatrixID;
-    public Texture texture;
 
     void Load(char* file) 
     {
@@ -244,9 +243,6 @@ COMPONENT Material {
         self->modelMatrixID        = glGetUniformLocation(self->program, "Model");
         self->viewMatrixID         = glGetUniformLocation(self->program, "View");
         self->projectionMatrixID   = glGetUniformLocation(self->program, "Projection");
-
-        /* no textures for now */
-        self->texture.id = 0;
     }
 
 

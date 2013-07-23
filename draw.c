@@ -16,6 +16,10 @@ static Component_Camera* activeCam;
 static Component_Camera* guiCam;
 static GSList* cameras;
 
+/* components for drawing textured quads */
+static Component_Model* tex_quad;
+static Component_Material* tex_mat;
+
 int Draw_Init()
 {
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -54,6 +58,21 @@ int Draw_Init()
     }
 
     main_cam = NULL;
+
+    /* create a rectangle for drawing quads */
+    float uvs[] = {0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f};
+    float vtxs[] = {0.0f,0.0f,0.0f, 1.0f,0.0f,0.0f, 1,1,0, 0.0f,1.0f,0.0f};
+    tex_quad = Component_Model_New();
+        tex_quad->file = NULL;
+    tex_quad->Start(tex_quad);
+    tex_quad->numVertices = 4;
+    tex_quad->BufferAttribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
+    tex_quad->BufferAttribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
+    tex_mat = Component_Material_New();
+        tex_mat->file = "tex.mat";
+    tex_mat->Start(tex_mat);
+    tex_quad->primitive = GL_QUADS;
+    tex_quad->Optimize(tex_quad);
 
     /* wider lines */
     glLineWidth(2);
@@ -241,13 +260,6 @@ void Draw_Widget(Component_Widget* w)
     GSList* it;
     glScissor(w->rect.x * screen->w, w->rect.y * screen->h, 
             w->rect.w * screen->w, w->rect.h * screen->h);
-    /* draw the widget's background */
-    Draw_Model(w->background);
-
-    /* draw the widget's contents */
-    for(it = w->contents; it != NULL; it = g_slist_next(it)) {
-        Draw_Model((Component_Model*)it->data);
-    }
 }
 
 void Draw_MoveCamera(float x, float y, float z)
@@ -258,6 +270,47 @@ void Draw_MoveCamera(float x, float y, float z)
     activeCam->transform->pos.y += y;
     activeCam->transform->pos.z += z;
     */
+}
+
+void Draw_Texture(Texture tex, Rect* rect)
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
+    /* save state */
+    Mat4x4Push(main_cam->viewMat);
+    Mat4x4LoadIdentity(main_cam->viewMat);
+    Mat4x4Translate(main_cam->viewMat, -rect->x, -rect->y, 0.0f);
+    main_cam->viewMat[0] *= rect->w;
+    main_cam->viewMat[5] *= rect->h;
+
+    /* use the model's material's shader */
+    glUseProgram(tex_mat->program);
+
+    glUniformMatrix4fv(tex_mat->modelMatrixID, 1, GL_FALSE, 
+            main_cam->modelMat);
+    glUniformMatrix4fv(tex_mat->viewMatrixID, 1, GL_FALSE, 
+            main_cam->viewMat);
+    glUniformMatrix4fv(tex_mat->projectionMatrixID, 1, GL_FALSE, 
+            main_cam->projectionMat);
+
+    /* bind the texture */
+    GLint loc = glGetUniformLocation(tex_mat->program, "tex");
+    glActiveTexture(GL_TEXTURE0 + 0);
+    glUniform1i(loc, 0); 
+    glBindTexture(GL_TEXTURE_2D, tex.id);
+    glEnable(GL_TEXTURE_2D);
+
+    /* bind attribute array and draw */
+    glBindVertexArray(tex_quad->vao);
+    glDrawArrays(GL_QUADS, 0, 4);
+    glBindVertexArray(0);
+
+    /* restore */
+    Mat4x4Pop(main_cam->viewMat);
+    glDisable(GL_BLEND);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glDisable(GL_TEXTURE_2D);
 }
 
 DrawTarget* Draw_NewTarget(int w, int h)
@@ -302,6 +355,7 @@ void Draw_AddCamera(Component_Camera* cam)
 {
     cameras = g_slist_append(cameras, (gpointer)cam);
 }
+
 
 void Draw_SetTarget(DrawTarget* target)
 {

@@ -1,4 +1,23 @@
 *******************************************************************************
+*                               Types                                         *
+*******************************************************************************
+Types are basic structures or primitives that behave just as you would expect
+them to in C. These are not kept in components because it is likely that a 
+single component will request multiple of these types as members while an 
+entity may only have one of a single type of component. Additionally, these are
+very simple for the most part and the overhead of putting them in components is
+too great. 
+
+So far these are the following types aside from standard C primitives.
+---------------------------------------
+>GUIContent
+>Mat4x4
+>Rect
+>Texture
+>Vector2
+>Vector3
+---------------------------------------
+*******************************************************************************
 *                              Entities                                       *
 *******************************************************************************
 The only user created code for this engine should be contained within the 

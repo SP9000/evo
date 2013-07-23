@@ -28,6 +28,13 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
+    /* Initialize the texture system */
+    puts("Initializing texture");
+    if(Texture_Init() != 0) {
+        fprintf(stderr, "Error initializing texture\n");
+        exit(EXIT_FAILURE);
+    }
+
     /* Initialize the scene */
     puts("Initializing scene");
     if(Scene_Init() != 0) {

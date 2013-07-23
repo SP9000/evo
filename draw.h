@@ -23,6 +23,7 @@ extern "C" {
 #include "glib.h"
 #include "matrix.h"
 #include "scene.h"
+#include "texture.h"
 #include "types.h"
 #include "Gen/all.h"
 
@@ -136,6 +137,13 @@ void Draw_ResizeScreen(int w, int h);
  * @param cam the camera to be added and used henceforth for rendering. 
  */
 void Draw_AddCamera(Component_Camera* cam);
+
+/**
+ * Draw the given texture within the bounds of the given rect.
+ * @param tex the texture to draw.
+ * @param rect the rectangle to draw the texture within.
+ */
+void Draw_Texture(Texture tex, Rect* rect);
 
 #ifdef __cplusplus
 }

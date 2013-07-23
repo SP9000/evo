@@ -47,12 +47,12 @@ COMPONENT ModelRenderer : Renderer {
                 main_cam->projectionMat);
 
         /* bind any samplers (textures) the material uses */
-        if(self->material->texture.id != 0) {
-            glUniform1i(self->material->texture.loc, 0); /* TODO: use glProgramUniform in material.c */
-            glActiveTexture(GL_TEXTURE0 + 0);
-            glBindTexture(GL_TEXTURE_2D, self->material->texture.id);
-            glBindSampler(0, self->material->texture.sampler); 
-        }
+        //if(self->material->texture.id != 0) {
+            //glUniform1i(self->material->texture.loc, 0); /* TODO: use glProgramUniform in material.c */
+            //glActiveTexture(GL_TEXTURE0 + 0);
+            //glBindTexture(GL_TEXTURE_2D, self->material->texture.id);
+            //glBindSampler(0, self->material->texture.sampler); 
+        //}
 
         /* bind attribute array and draw */
         glBindVertexArray(self->model->vao);

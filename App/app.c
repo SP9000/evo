@@ -5,6 +5,7 @@ void App_Start()
     int i;
 
     /* background */
+    /*
     Entity* bg = Entity_New();
     Component_Transform* t1 = Component_Transform_New();
         t1->pos.x = 10; t1->pos.y = 10; t1->pos.z = -1;
@@ -20,6 +21,7 @@ void App_Start()
     Entity_AddComponent(bg, (Component*)m1);
     Entity_AddComponent(bg, (Component*)mr1);
     Entity_Start(bg);
+    */
 
     /* monkey */
     Entity* monkey = Entity_New();
@@ -79,8 +81,10 @@ void App_Start()
         m3->file = NULL;
     Component_TextRenderer* tr1 = Component_TextRenderer_New();
         tr1->font = "TestAssets/font.bmp";
-        tr1->init_text = "HELLO WORLD";
+        tr1->init_text = "HELLOWORLD";
         tr1->layer = RENDER_LAYER_GUI;
+        Rect trect = {0.0f,0.0f,0.10f,0.0f};
+        tr1->rect = &trect;
     Entity_AddComponent(a, (Component*)t3);
     Entity_AddComponent(a, (Component*)m3);
     Entity_AddComponent(a, (Component*)tr1);

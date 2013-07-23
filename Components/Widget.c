@@ -28,10 +28,6 @@ COMPONENT Widget {
     public float maxH;
     /* flags for various attributes of the widget TODO: needed? */
     public uint32_t flags;
-    /* the background that is displayed by this widget - not scrolled */
-    public Component_Model* background;
-    /* the contents that this window displays - list of models */
-    public GSList* contents;
     /* the children of the widget - a list of widgets */
     public GSList* children;
     /* the parent widget of this widget. NULL if this is the root widget */
@@ -144,14 +140,6 @@ COMPONENT Widget {
 void FreeWidgetRecursive(gpointer data, gpointer user_data)
 {
     Component_Widget* w = (Component_Widget*)data;
-    GSList* it; 
-
-    for(it = w->contents; it != NULL; it = g_slist_next(it)) {
-        Component_Model* m = (Component_Model*)it->data;
-        m->Free(m);
-    }
-    w->background->Free(w->background);
-
     /* recursively free all the subwidgets of this widget */
     if(w->children != NULL) {
         g_slist_foreach(w->children, FreeWidgetRecursive, NULL);
