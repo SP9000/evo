@@ -102,12 +102,11 @@ void Draw_ResizeScreen(int w, int h)
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
     for(it = cameras; it != NULL; it = g_slist_next(it)) {
         Component_Camera* c = (Component_Camera*)it->data;
-        if(c == NULL) {
-            return;
-        }
         if(c->orthographic) {
-            c->Orthographic(c, 0.0f, (float)screen->w, (float)screen->h, 
+            /*
+            c->Orthographic(c, 0.0f, c->w, ->h, 
                     0.0f, 0.01f, 100.0f);
+            */
         }
         else {
             c->Perspective(c, c->fov, 
@@ -161,8 +160,8 @@ void Draw_Scene()
         Mat4x4LoadIdentity(cam->viewMat);
         Mat4x4Translate(cam->viewMat, -cam->transform->pos.x, 
                 -cam->transform->pos.y, cam->transform->pos.z);
+        main_cam = cam;
         for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
-            main_cam = cam;
             if((1 << i) & cam->render_layers) {
                 GSList* jt;
                 for(jt = scene_layers[i]; jt != NULL; jt = g_slist_next(jt)) {

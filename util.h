@@ -15,6 +15,11 @@ extern "C" {
 #include <malloc.h>
 #include <stdio.h>
 
+#define GL_CHECK_ERRORS \
+    if(glGetError()) { \
+        fprintf(stderr, "Error: GL error %d\n", glGetError()); \
+    }
+
 /**
  * A macro from comp.std.c made by Laurent Deniau.
  * Returns the # of arguments from __VA_ARGS__

@@ -24,6 +24,9 @@ COMPONENT Texture {
         SDL_Surface* surface;
         Uint32 colorkey;
 
+        if(loadedTextures == NULL) {
+            loadedTextures = g_hash_table_new(g_str_hash, g_str_equal);
+        }
         self->id = (GLuint)g_hash_table_lookup(loadedTextures, (gpointer)file);
         if(self->id != 0) {
             return;
@@ -42,11 +45,9 @@ COMPONENT Texture {
         bpp = surface->format->BytesPerPixel;
         if(bpp == 4) {
             if(surface->format->Rmask == 0x000000ff) {
-                puts("RGBA");
                 format = GL_RGBA;
             }
             else {
-                puts("BGRA");
                 format = GL_BGRA;
             }
         }
@@ -74,9 +75,6 @@ COMPONENT Texture {
 
     void Start() 
     {
-        if(loadedTextures == NULL) {
-            loadedTextures == g_hash_table_new(g_str_hash, g_str_equal);
-        }
     }
     void Update() 
     {
