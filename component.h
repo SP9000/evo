@@ -33,6 +33,8 @@ typedef void (*Component_CollideFunc)(struct Entity* e);
  * of this struct (even in order).
  */
 typedef struct Component {
+    /* the awake function, called when the component is created */
+    void (*Awake)();
     /* the start function, called upon adding this to an entity */
     void (*Start)();
     /* the update function, called once a frame */

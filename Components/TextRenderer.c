@@ -14,14 +14,13 @@
 COMPONENT TextRenderer : Renderer {
     public Rect* rect;
     public char* font;
-    public int len;
     public float font_size;
-
     public char* init_text;
-    public GString* text;
+
+    getset GString* text;
+
     Component_Model* model;
     Component_Transform* transform;
-
     Texture font_texture;
 
     void Start() 
@@ -57,8 +56,7 @@ COMPONENT TextRenderer : Renderer {
         float ch_h = self->font_size;
         
         g_string_assign(self->text, new_text);
-        self->model = Component_Model_New();
-            self->model->file = NULL;
+        self->model = Component_Model_New(NULL);
         self->model->Start(self->model);
 
         vertex[0] = 0.0f;
@@ -108,30 +106,25 @@ COMPONENT TextRenderer : Renderer {
 
     public void Render()
     {
-        /* TODO: delete */
-        Rect r = {0.0f,0.0f,1.0f,1.0f};
-        Draw_Texture(self->font_texture, &r);
-
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        Mat4x4Push(main_cam->viewMat);
-        Mat4x4LoadIdentity(main_cam->viewMat);
-        Mat4x4Translate(main_cam->viewMat, -self->transform->pos.x, 
-            -self->transform->pos.y, self->transform->pos.z);
-        main_cam->viewMat[0] *= self->transform->scale.x;
-        main_cam->viewMat[5] *= self->transform->scale.y;
-        main_cam->viewMat[10] *= self->transform->scale.z;
+        Mat4x4Push(&main_cam->viewMat);
+        Mat4x4LoadIdentity(&main_cam->viewMat);
+        Mat4x4Translate(&main_cam->viewMat, -self->transform->pos.x, 
+            -self->transform->pos.y, -1.0f); //self->transform->pos.z);
+        main_cam->viewMat.a00 *= self->transform->scale.x;
+        main_cam->viewMat.a11 *= self->transform->scale.y;
 
         /* use the model's material's shader */
         glUseProgram(self->material->program);
 
         /* set matrices */
         glUniformMatrix4fv(self->material->modelMatrixID, 1, GL_FALSE, 
-                main_cam->modelMat);
+                Mat4x4Pack(&main_cam->modelMat));
         glUniformMatrix4fv(self->material->viewMatrixID, 1, GL_FALSE, 
-                main_cam->viewMat);
+                Mat4x4Pack(&main_cam->viewMat));
         glUniformMatrix4fv(self->material->projectionMatrixID, 1, GL_FALSE, 
-                main_cam->projectionMat);
+                Mat4x4Pack(&main_cam->projectionMat));
 
         /* bind the font texture */
         GLint loc = glGetUniformLocation(self->material->program, "tex");
@@ -146,7 +139,7 @@ COMPONENT TextRenderer : Renderer {
                 self->model->numVertices);
         glBindVertexArray(0);
 
-        Mat4x4Pop(main_cam->viewMat);
+        Mat4x4Pop(&main_cam->viewMat);
         glDisable(GL_BLEND);
         glBindTexture(GL_TEXTURE_2D, 0);
         glDisable(GL_TEXTURE_2D);

@@ -20,22 +20,22 @@ COMPONENT Model {
     public char* file;
 
     /* the transform component associated with this model. */
-    public Component_Transform* transform;
+    getset Component_Transform* transform;
     /* buffers for each attribute of the model */
-    public float** attributes;
+    getset float** attributes;
     /* a table of MODEL_ATTRIBUTE_* ID's to tell the contents of attributes */
-    public int* attributeTable;
+    getset int* attributeTable;
     /* the # of unique per-vertex attributes */
-    public int numAttributes;
+    getset int numAttributes;
 
     /* VBO ID's for rendering with OpenGL-2.0+. */
-    public GLuint* vboIDs;
-    public GLuint vao;
+    getset GLuint* vboIDs;
+    getset GLuint vao;
 
     /* The type of primitive to render as. e.g. GL_LINES, GL_TRIANGLES... */
-    public GLuint primitive;
+    getset GLuint primitive;
     /* The offset of the next unassigned vertex. */
-    public unsigned numVertices;
+    getset unsigned numVertices;
 
     /**
      * Get the number of floats the attribute of the given ID uses.

@@ -9,7 +9,7 @@
 /*****************************************************************************/
 
 COMPONENT Renderer {
-    public Component_Material* material;
+    getset Component_Material* material;
 
     /**
      * What layer this renderer should be displayed on. 

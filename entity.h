@@ -85,6 +85,11 @@ void Entity_Collide(Entity* e, Entity* other);
  */
 void Entity_Update();
 
+/**
+ * A macro to retrieve and cast the desired component from an entity.
+ */
+#define Entity_Get(X, Y) ((Component_##Y *)Entity_GetComponent(X, CID_##Y))
+
 
 #ifdef __cplusplus
 }

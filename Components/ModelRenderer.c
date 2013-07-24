@@ -7,7 +7,7 @@
 /*****************************************************************************/
 #include "../draw.h"
 COMPONENT ModelRenderer : Renderer {
-    public Component_Model* model;
+    getset Component_Model* model;
     Component_Transform* transform;
 
     void Start() 
@@ -26,12 +26,12 @@ COMPONENT ModelRenderer : Renderer {
     }
     public void Render()
     {
-        Mat4x4Push(main_cam->viewMat);
-        Mat4x4Translate(main_cam->viewMat, -self->model->transform->pos.x, 
+        Mat4x4Push(&main_cam->viewMat);
+        Mat4x4Translate(&main_cam->viewMat, -self->model->transform->pos.x, 
             -self->model->transform->pos.y, self->model->transform->pos.z);
-        main_cam->viewMat[0] *= self->transform->scale.x;
-        main_cam->viewMat[5] *= self->transform->scale.y;
-        main_cam->viewMat[10] *= self->transform->scale.z;
+        main_cam->viewMat.a00 *= self->transform->scale.x;
+        main_cam->viewMat.a11 *= self->transform->scale.y;
+        main_cam->viewMat.a22 *= self->transform->scale.z;
 
         /* Bind the models' vertex attribute object. */
         glBindVertexArray(self->model->vao);
@@ -40,11 +40,11 @@ COMPONENT ModelRenderer : Renderer {
 
         /* set matrices */
         glUniformMatrix4fv(self->material->modelMatrixID, 1, GL_FALSE, 
-                main_cam->modelMat);
+                Mat4x4Pack(&main_cam->modelMat));
         glUniformMatrix4fv(self->material->viewMatrixID, 1, GL_FALSE, 
-                main_cam->viewMat);
+                Mat4x4Pack(&main_cam->viewMat));
         glUniformMatrix4fv(self->material->projectionMatrixID, 1, GL_FALSE, 
-                main_cam->projectionMat);
+                Mat4x4Pack(&main_cam->projectionMat));
 
         /* bind any samplers (textures) the material uses */
         //if(self->material->texture.id != 0) {
@@ -60,7 +60,7 @@ COMPONENT ModelRenderer : Renderer {
                 self->model->numVertices);
         glBindVertexArray(0);
 
-        Mat4x4Pop(main_cam->viewMat);
+        Mat4x4Pop(&main_cam->viewMat);
     }
 }
 

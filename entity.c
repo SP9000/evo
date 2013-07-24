@@ -61,6 +61,9 @@ void Entity_Start(Entity* e)
 Component* Entity_GetComponent(Entity* e, int cid)
 {
     GSList* clist;
+    if(!e) {
+        return NULL;
+    }
     for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
         Component* c = (Component*)clist->data;
         if(c->id == cid) {

@@ -104,14 +104,14 @@ GLuint CompileProgram(GLuint vertShader, GLuint fragShader, GLuint geomShader,
 COMPONENT Material {
     public char* file;
 
-    public GLuint frag;
-    public GLuint vert;
-    public GLuint geom;
-    public GLuint program;
+    getset GLuint frag;
+    getset GLuint vert;
+    getset GLuint geom;
+    getset GLuint program;
 
-    public GLuint modelMatrixID;
-    public GLuint viewMatrixID;
-    public GLuint projectionMatrixID;
+    getset GLuint modelMatrixID;
+    getset GLuint viewMatrixID;
+    getset GLuint projectionMatrixID;
 
     void Load(char* file) 
     {

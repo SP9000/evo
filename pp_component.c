@@ -79,10 +79,16 @@ enum {
     TYPE_AABB  
 };
 
+enum {
+    ACCESS_PRIVATE,
+    ACCESS_PUBLIC,
+    ACCESS_GETSET
+};
+
 /* the struct for the attributes contained by the COMPONENT definitions */
 typedef struct tagAttribute {
     /* if nonzero, this attribute is to be exposed */
-    int public;
+    int access;
     /* what...kind of attribute this is (VARIABLE, FUNCTION, etc.) */
     int kind; 
     /* the name of this attributes type e.g. "unsigned const int" */
@@ -581,6 +587,7 @@ void write_c_file(char* name, GSList* attributes,
 
     /* write attributes */
     fprintf(outfile, "\ntypedef struct Component_%s {\n", name);
+    fprintf(outfile, "    void (*Awake)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Start)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Update)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Collide)(Component_%s*, Entity*);\n", name);
@@ -596,15 +603,15 @@ void write_c_file(char* name, GSList* attributes,
             if(is_default_attribute(a->name)) {
                 continue;
             }
-            if(a->level == level && a->public && a->kind == VARIABLE) {
+            if(a->level == level && a->access != ACCESS_PRIVATE && a->kind == VARIABLE) {
                 fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
         for(it = attributes; it != NULL; it = g_slist_next(it)) {
             Attribute* a = (Attribute*)it->data;
-            if(a->level == level && a->public && a->kind == FUNCTION_PTR) {
+            if(a->level == level && a->access != ACCESS_PRIVATE && a->kind == FUNCTION_PTR) {
                 GList* jt;
-                fprintf(outfile, "    %s (%s)(",
+                fprintf(outfile, "    %s (*%s)(",
                        a->type, a->name);
                 for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
                     if(jt != a->parameters) {
@@ -621,7 +628,7 @@ void write_c_file(char* name, GSList* attributes,
             if(is_default_attribute(a->name)) {
                 continue;
             }
-            if(a->level == level && a->public && a->kind == FUNCTION) {
+            if(a->level == level && a->access != ACCESS_PRIVATE && a->kind == FUNCTION) {
                 GList* jt;
                 fprintf(outfile, "    %s (*%s)(Component_%s*", 
                         a->type, a->name, name);
@@ -638,14 +645,14 @@ void write_c_file(char* name, GSList* attributes,
             if(is_default_attribute(a->name)) {
                 continue;
             }
-            if(a->level == level && !a->public && a->kind == VARIABLE) {
+            if(a->level == level && a->access == ACCESS_PRIVATE && a->kind == VARIABLE) {
                 fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
         /* unassigned function pointers */
         for(it = attributes; it != NULL; it = g_slist_next(it)) {
             Attribute* a = (Attribute*)it->data;
-            if(a->level == level && !a->public && a->kind == FUNCTION_PTR) {
+            if(a->level == level && a->access == ACCESS_PRIVATE && a->kind == FUNCTION_PTR) {
                 GList* jt;
                 fprintf(outfile, "    %s (%s)(",
                        a->type, a->name);
@@ -664,7 +671,7 @@ void write_c_file(char* name, GSList* attributes,
             if(is_default_attribute(a->name)) {
                 continue;
             }
-            if(a->level == level && !a->public && a->kind == FUNCTION) {
+            if(a->level == level && a->access == ACCESS_PRIVATE && a->kind == FUNCTION) {
                 GList* jt;
                 fprintf(outfile, "    %s (*%s)(Component_%s*", 
                         a->type, a->name, name);
@@ -679,6 +686,7 @@ void write_c_file(char* name, GSList* attributes,
     fprintf(outfile, "}Component_%s;\n\n", name);
 
     /* function prototypes */
+    fprintf(outfile, "static void Awake(Component_%s*);\n", name);
     fprintf(outfile, "static void Start(Component_%s*);\n", name);
     fprintf(outfile, "static void Update(Component_%s*);\n", name);
     fprintf(outfile, "static void Collide(Component_%s*, Entity* other);\n", name);
@@ -701,9 +709,38 @@ void write_c_file(char* name, GSList* attributes,
     }
 
     /* Component_X_New definition */
-    fprintf(outfile, "Component_%s* Component_%s_New()\n{\n", name, name);
+    fprintf(outfile, "Component_%s* Component_%s_New(", name, name);
+    /* create parameters for every public variable */
+    for(i = 0, it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->access == ACCESS_PUBLIC && !is_default_attribute(a->name)) {
+            if(a->kind == FUNCTION) {
+                continue;
+            }
+            if(i++ != 0) {
+                fprintf(outfile, ", ");
+            }
+            if(a->kind == VARIABLE) {
+                fprintf(outfile, "%s %s", a->type, a->name);
+            }
+            else if(a->kind == FUNCTION_PTR) {
+                GList* jt;
+                fprintf(outfile, "%s (*%s)(",
+                       a->type, a->name);
+                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                    if(jt != a->parameters) {
+                        fprintf(outfile, ", ");
+                    }
+                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+                }
+                fprintf(outfile, ")");
+            }
+        }
+    }
+    fprintf(outfile, ") {\n");
     fprintf(outfile, "    Component_%s* self = "
            "(Component_%s*)malloc(sizeof(Component_%s));\n", name, name, name);
+    fprintf(outfile, "    self->Awake = Awake;\n");
     fprintf(outfile, "    self->Start = Start;\n");
     fprintf(outfile, "    self->Update = Update;\n");
     fprintf(outfile, "    self->Collide = Collide;\n");
@@ -711,15 +748,23 @@ void write_c_file(char* name, GSList* attributes,
     fprintf(outfile, "    self->entity = NULL;\n");
     /* assign function pointers to the function they should be set to */
     for(it = attributes; it != NULL; it = g_slist_next(it)) {
-        Attribute* attr = (Attribute*)it->data;
-        if(is_default_attribute(attr->name)) {
-            continue;
-        }
         Attribute* a = (Attribute*)it->data;
-        if(a->kind == FUNCTION) {
+        if(a->kind == FUNCTION && !is_default_attribute(a->name)) {
             fprintf(outfile, "    self->%s = %s;\n", a->name, a->name);
         }
     }
+    /* assign public variables */
+    for(it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->access == ACCESS_PUBLIC && !is_default_attribute(a->name)) {
+            /* assign member variables to the corresponding parameter */
+            if(a->kind == VARIABLE || a->kind == FUNCTION_PTR) {
+                fprintf(outfile, "    self->%s = %s;\n", a->name, a->name);
+            }
+        }
+    }
+
+    fprintf(outfile, "    self->Awake(self);\n");
     fprintf(outfile, "    return self;\n");
     fprintf(outfile, "}\n");
 
@@ -736,6 +781,24 @@ void write_c_file(char* name, GSList* attributes,
             fprintf(outfile, ")\n{\n%s\n}\n", 
                     a->definition);
         }
+    }
+
+    /* create bodies for default functions if they're not defined */
+    it = g_slist_find_custom(attributes, "Awake", compare_attribute);
+    if(!it) {
+        fprintf(outfile, "void Awake(Component_%s* self) {}\n", name);
+    }
+    it = g_slist_find_custom(attributes, "Start", compare_attribute);
+    if(!it) {
+        fprintf(outfile, "void Start(Component_%s* self) {}\n", name);
+    }
+    it = g_slist_find_custom(attributes, "Update", compare_attribute);
+    if(!it) {
+        fprintf(outfile, "void Update(Component_%s* self) {}\n", name);
+    }
+    it = g_slist_find_custom(attributes, "Collide", compare_attribute);
+    if(!it) {
+        fprintf(outfile, "void Update(Component_%s* self, Entity* e) {}\n", name);
     }
 
     /* write everything after the component declaration to the C file */
@@ -774,6 +837,7 @@ void write_header(char* name, GSList* attributes, char* out_filename, int max_le
     fprintf(outfile, "#ifndef BUILD_COMPONENT_%s\n", name);
     fprintf(outfile, "#include \"all.h\"\n");
     fprintf(outfile, "typedef struct Component_%s {\n", name);
+    fprintf(outfile, "    void (*Awake)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Start)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Update)(Component_%s*);\n", name);
     fprintf(outfile, "    void (*Collide)(Component_%s*, Entity*);\n", name);
@@ -784,16 +848,16 @@ void write_header(char* name, GSList* attributes, char* out_filename, int max_le
     for(i = max_level; i >= 0; --i) {
         for(it = attributes; it != NULL; it = g_slist_next(it)) { 
             Attribute* a = (Attribute*)it->data;
-            if(a->level == i && a->public && a->kind == VARIABLE) {
+            if(a->level == i && a->access != ACCESS_PRIVATE && a->kind == VARIABLE) {
                 fprintf(outfile, "    %s %s;\n", a->type, a->name);
             }
         }
         /* unassigned function pointers */
         for(it = attributes; it != NULL; it = g_slist_next(it)) {
             Attribute* a = (Attribute*)it->data;
-            if(a->level == i && a->public && a->kind == FUNCTION_PTR) {
+            if(a->level == i && a->access != ACCESS_PRIVATE && a->kind == FUNCTION_PTR) {
                 GList* jt;
-                fprintf(outfile, "    %s (%s)(",
+                fprintf(outfile, "    %s (*%s)(",
                        a->type, a->name);
                 for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
                     if(jt != a->parameters) {
@@ -807,7 +871,7 @@ void write_header(char* name, GSList* attributes, char* out_filename, int max_le
         /* function pointers to defined functions */
         for(it = attributes; it != NULL; it = g_slist_next(it)) {
             Attribute* a = (Attribute*)it->data;
-            if(a->level == i && a->public && a->kind == FUNCTION) {
+            if(a->level == i && a->access != ACCESS_PRIVATE && a->kind == FUNCTION) {
                 GList* jt;
                 fprintf(outfile, "    %s (*%s)(Component_%s*",
                        a->type, a->name, name);
@@ -823,7 +887,35 @@ void write_header(char* name, GSList* attributes, char* out_filename, int max_le
     /* close 'er up */
     fprintf(outfile, "}Component_%s;\n", name);
     fprintf(outfile, "#endif\n");
-    fprintf(outfile, "Component_%s* Component_%s_New();\n", name, name);
+    fprintf(outfile, "Component_%s* Component_%s_New(", name, name);
+    /* create parameters for every public variable */
+    for(i = 0, it = attributes; it != NULL; it = g_slist_next(it)) {
+        Attribute* a = (Attribute*)it->data;
+        if(a->access == ACCESS_PUBLIC && !is_default_attribute(a->name)) {
+            if(a->kind == FUNCTION) {
+                continue;
+            }
+            if(i++ != 0) {
+                fprintf(outfile, ", ");
+            }
+            if(a->kind == VARIABLE) {
+                fprintf(outfile, "%s %s", a->type, a->name);
+            }
+            else if(a->kind == FUNCTION_PTR) {
+                GList* jt;
+                fprintf(outfile, "%s (%s)(",
+                       a->type, a->name);
+                for(jt = a->parameters; jt != NULL; jt = g_list_next(jt)) {
+                    if(jt != a->parameters) {
+                        fprintf(outfile, ", ");
+                    }
+                    fprintf(outfile, "%s", ((Attribute*)jt->data)->type);
+                }
+                fprintf(outfile, ")");
+            }
+        }
+    }
+    fprintf(outfile, ");\n");
     fprintf(outfile, "#endif\n");
 }
 
@@ -914,7 +1006,7 @@ GSList* get_attribute(FILE* file, int level)
     GSList* attrs = NULL;
 
     int done = 0;
-    int public = 0;
+    int access = ACCESS_PRIVATE;
     int paren_cnt = 0;
     int brace_cnt = 0;
     int type_found = 0;
@@ -1007,8 +1099,12 @@ GSList* get_attribute(FILE* file, int level)
                 /* is this a type modifier? */
                 fseek(file, -1, SEEK_CUR);
                 if(fstrncmp(file, "public ", 7) == 0) {
-                    public = 1;
+                    access = ACCESS_PUBLIC;
                     break;
+                }
+                else if(fstrncmp(file, "getset ", 7) == 0) {
+                   access = ACCESS_GETSET;
+                   break;
                 }
                 else if(fstrncmp(file, "const ", 6) == 0) {
                     modifiers = g_list_append(modifiers, "const");
@@ -1080,6 +1176,8 @@ GSList* get_attribute(FILE* file, int level)
                 /* it's a function or a function pointer, get the prototype */
                 else if(c == '(' && (paren_cnt == 1)) {
                     if(name_buff[0] == '*' && kind == FUNCTION_PTR_MAYBE) {
+                        /* don't include the asterisk in the name */
+                        ++name_buff;
                         kind = FUNCTION_PTR;
                         state = STATE_FUNCTION_PTR_PROTOTYPE;
                     }
@@ -1091,7 +1189,7 @@ GSList* get_attribute(FILE* file, int level)
                 /* it was a variable and there's more of the same type to come */
                 else if(c == ',' && (paren_cnt == 0)) {
                     a = new_attribute(name_buff, type_buff, modifiers, parameters, body_buff, level);
-                    a->public = public;
+                    a->access = access;
                     a->kind = VARIABLE;
                     attrs = g_slist_append(attrs, a);
                     state = STATE_SEEK_NAME;
@@ -1123,7 +1221,7 @@ GSList* get_attribute(FILE* file, int level)
                 else if(c == ',' && (paren_cnt == 0)) {
                     a = new_attribute(name_buff, type_buff, modifiers, parameters, body_buff, level);
                     a->kind = VARIABLE;
-                    a->public = public;
+                    a->access = access;
                     attrs = g_slist_append(attrs, a);
                     state = STATE_SEEK_NAME;
                 }
@@ -1203,7 +1301,7 @@ GSList* get_attribute(FILE* file, int level)
                         a = new_attribute(param_name_buff, param_type_buff, 
                                 modifiers, NULL, NULL, level);
                         a->kind = FUNCTION;
-                        a->public = 0;
+                        a->access = ACCESS_PRIVATE;
                         parameters = g_list_append(parameters, (gpointer)a);
 
                         /* closing parentheses: begin reading the body */
@@ -1285,7 +1383,7 @@ GSList* get_attribute(FILE* file, int level)
     }
     a = new_attribute(name_buff, type_buff, modifiers, parameters, body_buff, level);
     a->kind = kind;
-    a->public = public;
+    a->access = access;
     attrs = g_slist_append(attrs, a);
 
     free(name_buff);
@@ -1326,8 +1424,11 @@ void strclr(char* str)
 
 int is_default_attribute(char* a)
 {
-    if(strncmp(a, "Start", 6) == 0 || strncmp(a, "Update", 7) == 0 ||
-        strncmp(a, "Collide", 8) == 0 || strncmp(a, "entity", 7) == 0 ||
+    if(strncmp(a, "Awake", 6) == 0 ||
+            strncmp(a, "Start", 6) == 0 || 
+            strncmp(a, "Update", 7) == 0 ||
+            strncmp(a, "Collide", 8) == 0 || 
+            strncmp(a, "entity", 7) == 0 ||
             strncmp(a, "id", 3) == 0) {
         return 1;
     }
