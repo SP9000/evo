@@ -154,7 +154,7 @@ extern "C" {
 typedef union tagInputButton {
     uint8_t key;
     uint8_t joy;
-}InputButton;
+}TvInputButton;
 
 /**
  * This structure represents the physical device used to communicate with the 
@@ -165,41 +165,41 @@ typedef struct tagInputDevice {
     int type;
     /* if device is a joystick, this holds the reference to it */
     SDL_Joystick* joy;
-}InputDevice;
+}TvInputDevice;
 
 /**
  * Initialize the input system. 
  */
-int Input_Init();
+int tv_input_init();
 
 /**
  * Call upon exiting the client to cleanup input.
  */
-void Input_Quit();
+void tv_input_quit();
 
 /**
  * Calling this scans the input for the device. 
  * Call this every frame if you want input.
  */
-void Input_Update();
+void tv_input_update();
 
 /**
  * Check if the given key is currently down.
  * @return zero if key is not down, nonzero if it is.
  */
-int Input_KeyDown(SDLKey key);
+int tv_input_keydown(SDLKey key);
 
 /**
  * Get the position of the mouse in the X direction.
  * @return the current mouse X position.
  */
-int Input_MouseX();
+int tv_input_mouse_x();
 
 /**
  * Get the position of the mouse in the Y direction.
  * @return the current mouse Y position.
  */
-int Input_MouseY();
+int tv_input_mouse_y();
 
 #ifdef __cplusplus
 }

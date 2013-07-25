@@ -1,15 +1,15 @@
 #include "timer.h"
 
-float time_delta;
+float tv_time_delta;
 
-int Time_Init()
+int tv_time_init()
 {
-    time_delta = 0.0f;
+    tv_time_delta = 0.0f;
     return 0;
 }
 
-void Time_Update()
+void tv_time_update()
 {
-    time_delta = (SDL_GetTicks()/1000.0f) - time_delta;
+    tv_time_delta = (SDL_GetTicks()/1000.0f) - tv_time_delta;
 }
 

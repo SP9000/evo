@@ -19,12 +19,12 @@ static gint YCompare(gconstpointer a, gconstpointer b);
 static gint ZCompare(gconstpointer a, gconstpointer b);
 
 
-void Collision_Init()
+void tv_collision_init()
 {
     colliders = NULL;
 }
 
-void Collision_AddCollider(Component_Collider* col)
+void tv_collision_add_collider(Component_Collider* col)
 {
     colliders = g_list_append(colliders, col);
     xSorted = g_list_insert_sorted(xSorted, (gpointer)col, XCompare);
@@ -43,10 +43,11 @@ void Collision_RemoveCollider(Component_Collider* col)
 
 }
 
-void Collision_Detect()
+void tv_collision_detect()
 {
     GList* i;
     GList* j;
+	GList* possibleCollisions;
 
     Component_Collider* c1;
     Component_Collider* c2;
@@ -55,7 +56,7 @@ void Collision_Detect()
     collidingY = g_hash_table_new(NULL, ColEqual);
     collidingZ = g_hash_table_new(NULL, ColEqual);
 
-    GList* possibleCollisions = NULL;
+    possibleCollisions = NULL;
 
     /* Check X */
     for(i = xSorted, j = g_list_next(xSorted); i != NULL; j = g_list_next(j)) {
@@ -138,7 +139,7 @@ void Collision_Detect()
                     printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
                             c1->transform->pos.x, c1->transform->pos.y, c1->transform->pos.z,
                             c2->transform->pos.x, c2->transform->pos.y, c2->transform->pos.z);
-                    Entity_Collide(c1->entity, c2->entity);
+					tv_entity_collide(c1->entity, c2->entity);
                     fflush(stdout);
                 }
             }
@@ -149,7 +150,7 @@ void Collision_Detect()
     
 }
 
-void Collision_Update()
+void tv_collision_update()
 {
 
 }
@@ -157,8 +158,8 @@ void Collision_Update()
 
 gboolean ColEqual(gconstpointer a, gconstpointer b)
 {
-    Collision* c1 = (Collision*)a;
-    Collision* c2 = (Collision*)b;
+    TvCollision* c1 = (Collision*)a;
+    TvCollision* c2 = (Collision*)b;
     if(((c1->col1 == c2->col1) && (c1->col2 == c2->col2)) ||
             ((c1->col2 == c2->col1) && (c1->col1 == c2->col2))) {
         return TRUE;

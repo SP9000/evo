@@ -2,25 +2,41 @@
 
 void App_Start()
 {
-    ModelGen_Charset();
+	Entity* bg;
+	Entity* monkey;
+	Entity* a;
+	Entity* cam;
+	Entity* gui_cam;
+
+	Component_Transform* transform1;
+	Vector3 transform1_pos = {10.0f,10.0f,-1.0f};
+	Vector3 transform1_scale = {20.0f,20.0f,1.0f};
+	Component_Model* model1;
+	Component_Material* material1;
+	Component_ModelRenderer* modelrenderer1;
+
+	Component_Transform* t2;
+
+	Component_Transform* t3;
+
+	ModelGen_Charset();
     ModelGen_GUI();
 
     /* background */
-    Entity* bg = Entity_New();
-    Component_Transform* t1 = Component_Transform_New(
-            (Vector3){10.0f,10.0f,-1.0f},   /* position */
-            (Vector3){20.0f,20.0f,1.0f});   /* scale */
-    Component_Model* mo1 = Component_Model_New("StdAssets/Models/quad.ply");
-    Component_Material* m1 = Component_Material_New("test.mat");
-    Component_ModelRenderer* mr1 = Component_ModelRenderer_New(RENDER_LAYER_MAIN);
-    Entity_AddComponent(bg, (Component*)t1);
-    Entity_AddComponent(bg, (Component*)mo1);
-    Entity_AddComponent(bg, (Component*)m1);
-    Entity_AddComponent(bg, (Component*)mr1);
+    bg = Entity_New();
+    transform1 = Component_Transform_New(transform1_pos, transform1_scale);
+    model1 = Component_Model_New("StdAssets/Models/quad.ply");
+    material1 = Component_Material_New("test.mat");
+    modelrenderer1 = Component_ModelRenderer_New(RENDER_LAYER_MAIN);
+    Entity_AddComponent(bg, (Component*)transform1);
+    Entity_AddComponent(bg, (Component*)model1);
+    Entity_AddComponent(bg, (Component*)material1);
+    Entity_AddComponent(bg, (Component*)modelrenderer1);
     Entity_Start(bg);
-
+}
+#if 0
     /* monkey */
-    Entity* monkey = Entity_New();
+    monkey = Entity_New();
     Component_Transform* t2 = Component_Transform_New(
             (Vector3){0.0f,0.0f,1.0f},   /* position */
             (Vector3){1.0f,1.0f,1.0f});  /* scale */
@@ -36,7 +52,7 @@ void App_Start()
     Entity_Start(monkey);
 
     /* scene camera */
-    Entity* cam = Entity_New();
+    cam = Entity_New();
     Entity_AddComponent(cam, Component_Transform_New(
         (Vector3){0.0f,0.0f,-7.0f},   /* position */
         (Vector3){1.0f,1.0f,1.0f}));  /* scale */
@@ -49,7 +65,7 @@ void App_Start()
             0.01f, 100.0f);
 
     /* GUI camera */
-    Entity* gui_cam = Entity_New();
+    gui_cam = Entity_New();
     Component_Transform* t4 = Component_Transform_New(
         (Vector3){0.0f,0.0f,-7.0f},   /* position */
         (Vector3){1.0f,1.0f,1.0f});  /* scale */
@@ -90,3 +106,4 @@ void App_Quit()
 
 }
 
+#endif

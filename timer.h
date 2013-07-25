@@ -13,16 +13,16 @@
 
 #include <SDL/SDL.h>
 
-extern float time_delta;
+extern float tv_time_delta;
 
 /**
  * Initialize the main timers for the engine.
  */
-int Time_Init();
+int tv_time_init();
 
 /**
  * Update the engines' timers.
  */
-void Time_Update();
+void tv_time_update();
 
 #endif

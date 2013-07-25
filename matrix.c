@@ -1,34 +1,35 @@
 #include "matrix.h"
 
-static Mat4x4 matrixStack[MATRIX_STACK_SIZE];
-static int matrixSP = 0;
+static TvMat4x4 matrix_stack[MATRIX_STACK_SIZE];
+static int matrix_sp = 0;
 
-void Mat4x4Push(Mat4x4* mat)
+void tv_mat4x4_push(TvMat4x4* mat)
 {
-    matrixStack[matrixSP] = *mat;
-    ++matrixSP;
+    matrix_stack[matrix_sp] = *mat;
+    ++matrix_sp;
 }
 
-void Mat4x4Pop(Mat4x4* mat)
+void tv_mat4x4_pop(TvMat4x4* mat)
 {
-    --matrixSP;
-    if(matrixSP < 0) {
+    --matrix_sp;
+    if(matrix_sp < 0) {
         fprintf(stderr, "Error: matrix stack pointer negative\n");
         return;
     }
-    *mat = matrixStack[matrixSP];
+    *mat = matrix_stack[matrix_sp];
 }
 
-void Mat4x4LoadIdentity(Mat4x4* mat)
+void tv_mat4x4_load_identity(TvMat4x4* mat)
 {
     mat->a00 = mat->a11 = mat->a22 = mat->a33 = 1.0f;
     mat->a01 = mat->a02 = mat->a03 = mat->a10 = mat->a12 = mat->a13 = mat->a20 = mat->a21 = mat->a23 = mat->a30 = mat->a31 = mat->a32 = 0.0f;
 }
 
-void Mat4x4PerspMat(Mat4x4* mat, float fov, float aspect, float zNear, float zFar)
+void tv_mat4x4_perspective(TvMat4x4* mat, float fov, float aspect, float zNear, float zFar)
 {
-    Mat4x4LoadIdentity(mat);
-    float f = 1.0f / (tan(fov * (PI / 360.0f)));
+	float f;
+    tv_mat4x4_load_identity(mat);
+    f = 1.0f / (float)(tan(fov * (PI / 360.0f)));
     mat->a00 = f / aspect;
     mat->a11 = f;
     mat->a22 = (zFar + zNear) / (zNear - zFar);
@@ -37,47 +38,47 @@ void Mat4x4PerspMat(Mat4x4* mat, float fov, float aspect, float zNear, float zFa
     mat->a33 = 0.0f;
 }
 
-void Mat4x4Translate(Mat4x4* mat, float x, float y, float z)
+void tv_mat4x4_translate(TvMat4x4* mat, float x, float y, float z)
 {
-    Mat4x4 tmat;
-    Mat4x4LoadIdentity(&tmat);
+    TvMat4x4 tmat;
+    tv_mat4x4_load_identity(&tmat);
     tmat.a30 = x;
     tmat.a31 = y;
     tmat.a32 = z;
-    Mat4x4Multiply(mat, &tmat);
+    tv_mat4x4_load_identity(mat, &tmat);
 }
 
-void Mat4x4Scale(Mat4x4* mat, float x, float y, float z)
+void tv_mat4x4_scale(TvMat4x4* mat, float x, float y, float z)
 {
     mat->a00 *= x;
     mat->a11 *= y;
     mat->a22 *= z;
 }
 
-void Mat4x4Rotate(Mat4x4* mat, float angle, float x, float y, float z)
+void tv_mat4x4_rotate(TvMat4x4* mat, float angle, float x, float y, float z)
 {
     /* TODO: dafuq???? */
-    Mat4x4 tMat;
+    TvMat4x4 tMat;
     if(x != 0.0f) {
-        Mat4x4LoadIdentity(&tMat);
-        tMat.a11 = cos(angle);
-        tMat.a12 = -sin(angle);
-        tMat.a21 = sin(angle);
-        tMat.a22 = cos(angle);
-        Mat4x4Multiply(mat, &tMat);
+        tv_mat4x4_load_identity(&tMat);
+        tMat.a11 = (float)cos(angle);
+        tMat.a12 = -(float)sin(angle);
+        tMat.a21 = (float)sin(angle);
+        tMat.a22 = (float)cos(angle);
+        tv_mat4x4_multiply(mat, &tMat);
     }
     if(y != 0.0f) {
-        Mat4x4LoadIdentity(&tMat);
+        tv_mat4x4_load_identity(&tMat);
     }
     if(z != 0.0f) {
-        Mat4x4LoadIdentity(&tMat);
+        tv_mat4x4_load_identity(&tMat);
     }
 }
 
-void Mat4x4OrthoMat(Mat4x4* mat, float left, float right, float top, float bottom, float nearZ, float farZ)
+void tv_mat4x4_orthographic(TvMat4x4* mat, float left, float right, float top, float bottom, float nearZ, float farZ)
 {
     /* TODO: ??? */
-    mat->a00 = 2.0 / (right - left);
+    mat->a00 = 2.0f / (right - left);
     mat->a01 = 0;
     mat->a02 = 0;
     mat->a03 = 0;
@@ -98,9 +99,9 @@ void Mat4x4OrthoMat(Mat4x4* mat, float left, float right, float top, float botto
     mat->a33 = 1;
 }
 
-void Mat4x4Multiply(Mat4x4* A, Mat4x4* B)
+void tv_mat4x4_multiply(TvMat4x4* A, TvMat4x4* B)
 {
-    Mat4x4 C;
+    TvMat4x4 C;
     C.a00 = A->a00 * B->a00 + A->a01 * B->a10 + A->a02 * B->a20 + A->a03 * B->a30;
     C.a01 = A->a00 * B->a01 + A->a01 * B->a11 + A->a02 * B->a21 + A->a03 * B->a31;
     C.a02 = A->a00 * B->a02 + A->a01 * B->a12 + A->a02 * B->a22 + A->a03 * B->a32;
@@ -121,7 +122,7 @@ void Mat4x4Multiply(Mat4x4* A, Mat4x4* B)
 }
 
 #ifndef JANKY
-float* Mat4x4Pack(Mat4x4* mat)
+float* Mat4x4Pack(TvMat4x4* mat)
 {
     mat->packed[0] = mat->a00;
     mat->packed[1] = mat->a01;

@@ -6,7 +6,7 @@ SDL_Surface *screen;
 Component_Camera* main_cam;
 
 /* The draw target for the pre-post-pass rendering */
-static DrawTarget* activeTarget;
+static TvDrawTarget* activeTarget;
 
 /* The model that is used for post-processing effects (a simple rect) */
 static Component_Model* postPassRect;
@@ -20,8 +20,12 @@ static GSList* cameras;
 static Component_Model* tex_quad;
 static Component_Material* tex_mat;
 
-int Draw_Init()
+int tv_draw_init()
 {
+	/* textured rect */
+	float uvs[] = {0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f};
+    float vtxs[] = {0.0f,0.0f,0.0f, 1.0f,0.0f,0.0f, 1,1,0, 0.0f,1.0f,0.0f};
+
     if(SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "Error: Unable to initialize SDL: %s", SDL_GetError());
         return -1;
@@ -52,9 +56,6 @@ int Draw_Init()
 
     main_cam = NULL;
 
-    /* create a rectangle for drawing quads */
-    float uvs[] = {0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f};
-    float vtxs[] = {0.0f,0.0f,0.0f, 1.0f,0.0f,0.0f, 1,1,0, 0.0f,1.0f,0.0f};
     tex_quad = Component_Model_New(NULL);
     tex_quad->Start(tex_quad);
     tex_quad->numVertices = 4;
@@ -89,7 +90,7 @@ int Draw_Init()
     */
 }
 
-void Draw_Quit()
+void tv_draw_quit()
 {
     /* TODO */
     return;
@@ -98,7 +99,7 @@ void Draw_Quit()
     glDeleteFramebuffersEXT(1, &activeTarget->fbID);
 }
 
-void Draw_StartFrame()
+void tv_draw_start_frame()
 {
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -106,7 +107,7 @@ void Draw_StartFrame()
 
 }
 
-void Draw_ResizeScreen(int w, int h)
+void tv_draw_resize_screen(int w, int h)
 {
     GSList* it;
     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
@@ -127,7 +128,7 @@ void Draw_ResizeScreen(int w, int h)
     }
 }
 
-void Draw_FinishFrame()
+void tv_draw_finish_frame()
 {
 #if 0
     glDisable(GL_DEPTH_TEST);
@@ -161,15 +162,15 @@ void Draw_FinishFrame()
 #endif
 }
 
-void Draw_Scene()
+void tv_draw_scene()
 {
     GSList* it;
     for(it = cameras; it != NULL; it = g_slist_next(it)) {
         int i;
         Component_Camera* cam = (Component_Camera*)it->data;
         /* position the camera */
-        Mat4x4LoadIdentity(&cam->viewMat);
-        Mat4x4Translate(&cam->viewMat, -cam->transform->pos.x, 
+		tv_mat4x4_load_identity(&cam->viewMat);
+		tv_mat4x4_translate(&cam->viewMat, -cam->transform->pos.x, 
                 -cam->transform->pos.y, cam->transform->pos.z);
         main_cam = cam;
         for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
@@ -184,15 +185,15 @@ void Draw_Scene()
     }
 }
 
-void Draw_GUI()
+void tv_draw_gui()
 {
     Component_Camera* saveCam;
 
     glDisable(GL_DEPTH_TEST);
 
     /* set up GUI "camera" */
-    Mat4x4LoadIdentity(&guiCam->viewMat);
-    Mat4x4Translate(&guiCam->viewMat, 0, 0, -1);
+    tv_mat4x4_load_identity(&guiCam->viewMat);
+    tv_mat4x4_translate(&guiCam->viewMat, 0, 0, -1);
 
     saveCam = activeCam;
     activeCam = guiCam;
@@ -204,75 +205,17 @@ void Draw_GUI()
     activeCam = saveCam;
 }
 
-
-void Draw_Model(Component_Model* m)
+void tv_draw_texture(Texture tex, TvRect* rect)
 {
-#if 0
-    /* translate */
-    Mat4x4Push(activeCam->viewMat);
-    Mat4x4Translate(activeCam->viewMat, -m->transform->pos.x, -m->transform->pos.y, m->transform->pos.z);
-    activeCam->viewMat[0] *= m->transform->scale.x;
-    activeCam->viewMat[5] *= m->transform->scale.y;
-    activeCam->viewMat[10] *= m->transform->scale.z;
+	GLint loc;
 
-    /* Bind the models' vertex attribute object. */
-    glBindVertexArray(m->vao);
-
-    /* use the model's material's shader */
-    glUseProgram(m->mat->program);
-
-    /* set matrices */
-    glUniformMatrix4fv(m->mat->modelMatrixID, 1, GL_FALSE, activeCam->modelMat);
-    glUniformMatrix4fv(m->mat->viewMatrixID, 1, GL_FALSE, activeCam->viewMat);
-    glUniformMatrix4fv(m->mat->projectionMatrixID, 1, GL_FALSE, activeCam->projectionMat);
-
-    /* bind any samplers (textures) the material uses */
-    if(m->mat->texture.id != 0) {
-#if 0
-        glUniform1i(m->mat->texture.loc, 0); /* TODO: use glProgramUniform in material.c */
-        glActiveTexture(GL_TEXTURE0 + 0);
-        glBindTexture(GL_TEXTURE_2D, m->mat->texture.id);
-        glBindSampler(0, m->mat->texture.sampler); 
-#endif
-    }
-
-    /* Draw the model. */
-    glDrawArrays(m->primitive, 0, m->numVertices);
-
-    /* Unbind. */
-    glBindVertexArray(0);
-
-    /* restore camera */
-    Mat4x4Pop(activeCam->viewMat);
-#endif
-}
-
-void Draw_Widget(Component_Widget* w)
-{
-    GSList* it;
-    glScissor(w->rect.x * screen->w, w->rect.y * screen->h, 
-            w->rect.w * screen->w, w->rect.h * screen->h);
-}
-
-void Draw_MoveCamera(float x, float y, float z)
-{
-    /* 
-     * TODO:
-    activeCam->transform->pos.x += x;
-    activeCam->transform->pos.y += y;
-    activeCam->transform->pos.z += z;
-    */
-}
-
-void Draw_Texture(Texture tex, Rect* rect)
-{
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     /* save state */
-    Mat4x4Push(&main_cam->viewMat);
-    Mat4x4LoadIdentity(&main_cam->viewMat);
-    Mat4x4Translate(&main_cam->viewMat, -rect->x, -rect->y, -1.0f);
+    tv_mat4x4_push(&main_cam->viewMat);
+	tv_mat4x4_load_identity(&main_cam->viewMat);
+	tv_mat4x4_translate(&main_cam->viewMat, -rect->x, -rect->y, -1.0f);
     main_cam->viewMat.a00*= rect->w;
     main_cam->viewMat.a11 *= rect->h;
 
@@ -287,7 +230,7 @@ void Draw_Texture(Texture tex, Rect* rect)
             Mat4x4Pack(&main_cam->projectionMat));
 
     /* bind the texture */
-    GLint loc = glGetUniformLocation(tex_mat->program, "tex");
+    loc = glGetUniformLocation(tex_mat->program, "tex");
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(loc, 0); 
     glBindTexture(GL_TEXTURE_2D, tex.id);
@@ -299,16 +242,16 @@ void Draw_Texture(Texture tex, Rect* rect)
     glBindVertexArray(0);
 
     /* restore */
-    Mat4x4Pop(&main_cam->viewMat);
+    tv_mat4x4_pop(&main_cam->viewMat);
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
 }
 
-DrawTarget* Draw_NewTarget(int w, int h)
+TvDrawTarget* tv_draw_new_target(int w, int h)
 {
     GLenum status;
-    DrawTarget* target = (DrawTarget*)malloc(sizeof(DrawTarget));
+    TvDrawTarget* target = (TvDrawTarget*)malloc(sizeof(TvDrawTarget));
 
     glGenFramebuffersEXT(1, &(target->fbID));
     glGenTextures(1, &(target->texID));
@@ -343,13 +286,13 @@ DrawTarget* Draw_NewTarget(int w, int h)
     return target;
 }
 
-void Draw_AddCamera(Component_Camera* cam)
+void tv_draw_add_camera(Component_Camera* cam)
 {
     cameras = g_slist_append(cameras, (gpointer)cam);
 }
 
 
-void Draw_SetTarget(DrawTarget* target)
+void tv_draw_set_target(TvDrawTarget* target)
 {
     if(target == NULL) {
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
@@ -364,7 +307,7 @@ void Draw_SetTarget(DrawTarget* target)
     }
 }
 
-Texture Draw_TargetToTexture(DrawTarget* target)
+Texture tv_draw_target_to_texture(TvDrawTarget* target)
 {
     Texture t;
     t.id = target->texID;

@@ -15,16 +15,28 @@ extern "C"
 #endif
 
 #include <GL/glew.h>
-#include <stdbool.h>
-#include "glib.h"
+#include <glib/glib.h>
+#include <string.h>
 #include "matrix.h"
 #include "texture.h"
 
-/* the # of floats each attribute uses */
-#define MODEL_ATTRIBUTE_VERTEX_SIZE 3
-#define MODEL_ATTRIBUTE_COLOR_SIZE  4
-#define MODEL_ATTRIBUTE_NORMAL_SIZE 3
-#define MODEL_ATTRIBUTE_TEXCO_SIZE  2
+/* boolean */
+typedef int bool;
+#define false 0
+#define true 1
+
+/* primitive types */
+typedef char tvchar;
+typedef int tvint;
+typedef float tvfloat;
+typedef unsigned tvuint;
+typedef bool tvbool;
+typedef uint_32 tvu32;
+
+typedef GArray TvArray;
+typedef GList TvList;
+typedef GHashTable TvHashTable;
+typedef GQueue TvQueue;
 
 /* the number of render layers */
 #define RENDER_LAYER_COUNT  2
@@ -32,27 +44,19 @@ extern "C"
 #define RENDER_LAYER_MAIN   0
 #define RENDER_LAYER_GUI    1
 
-/* attribute types for the model */
-enum {
-    MODEL_ATTRIBUTE_NONE,
-    MODEL_ATTRIBUTE_VERTEX,
-    MODEL_ATTRIBUTE_COLOR,
-    MODEL_ATTRIBUTE_NORMAL,
-    MODEL_ATTRIBUTE_TEXCO   
-};
 /**
  * A basic type for representing a point in 2-dimensional space.
  */
 typedef struct tagVector2 {
     float x, y;
-}Vector2;
+}TvVector2;
 
 /**
  * A basic type for representing a point in 3-dimensional space.
  */
 typedef struct tagVector3 {
     float x, y, z;
-}Vector3;
+}TvVector3;
 
 /**
  * Axis-aligned bounding box.  This is what is used for checking collision
@@ -60,7 +64,7 @@ typedef struct tagVector3 {
  */
 typedef struct tagAABB {
     float w, h, d;
-}AABB;
+}TvAABB;
 
 /**
  * A type for representing a rectangle.
@@ -68,7 +72,7 @@ typedef struct tagAABB {
 typedef struct tagRect {
     float x, y;
     float w, h;
-}Rect;
+}TvRect;
 
 /**
  * A type for holding data useful for basic GUI rendering 
@@ -76,7 +80,7 @@ typedef struct tagRect {
 typedef struct tagGUIContent {
     GString* text;
     Texture texture;
-}GUIContent;
+}TvGUIContent;
 
 /**
  * Checks if the given rectangle contains the given point.
@@ -84,14 +88,14 @@ typedef struct tagGUIContent {
  * @param point the point to determine if is in the bounds of the rect or not.
  * @return nonzero if the rectangle does contain the point, else zero.
  */
-int Rect_ContainsPoint(Rect* r, Vector2* point);
+int tv_rect_contains(TvRect* r, TvVector2* point);
 /**
  * Checks if the given rectangle overlaps the other given rectangle.
  * @param r1 the first rectangle.
  * @param r2 the...second...rectangle.
  * @return nonzero if the rectangles overlap, else zero.
  */
-int Rect_Overlaps(Rect* r, Rect* r2);
+int tv_rect_overlaps(TvRect* r1, TvRect* r2);
 
 #ifdef __cplusplus
 }

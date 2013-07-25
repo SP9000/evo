@@ -1,14 +1,20 @@
 #include "texture.h"
 
-static GHashTable* loadedTextures;
+/* a map of texture filenames to their texture handles to prevent reloading */
+static GHashTable* loaded_textures;
 
-int Texture_Init()
+int tv_texture_init()
 {
-    loadedTextures = g_hash_table_new(g_str_hash, g_str_equal);
+    loaded_textures = g_hash_table_new(g_str_hash, g_str_equal);
     return 0;
 }
 
-Texture Texture_LoadBMP(char* file)
+void tv_texture_quit()
+{
+	
+}
+
+Texture tv_texture_load_bmp(char* file)
 {
     int bpp;
     GLenum format;
@@ -18,7 +24,7 @@ Texture Texture_LoadBMP(char* file)
     Texture tex;
 
     tex.id = 0;
-    tex.id = (GLuint)g_hash_table_lookup(loadedTextures, (gpointer)file);
+    tex.id = (GLuint)g_hash_table_lookup(loaded_textures, (gpointer)file);
     if(tex.id != 0) {
         return tex;
     }

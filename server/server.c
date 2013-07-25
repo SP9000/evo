@@ -2,13 +2,13 @@
 
 int main(int argc, char **argv)
 {
-    ENetAddress address;
+	int shutdown;
+    int serviceResult;
+	ENetAddress address;
     ENetHost *server;
     ENetEvent event;
     address.host = ENET_HOST_ANY;
     address.port = 1234;
-    int shutdown = 0;
-    int serviceResult;
 
     puts("Initializing server");
     if(enet_initialize() != 0) {
@@ -24,6 +24,7 @@ int main(int argc, char **argv)
     }
     
     puts("Starting server");
+	shutdown = 0;
     while(!shutdown) {
         serviceResult = 1;
         while(serviceResult > 0) {

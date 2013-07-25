@@ -47,20 +47,21 @@ typedef struct tagMat4x4 {
 #ifndef JANKY
     float packed[16];
 #endif
-}Mat4x4;
+}TvMat4x4;
 
-void Mat4x4Push(Mat4x4* mat);
-void Mat4x4Pop(Mat4x4* mat);
+void tv_mat4x4_push(TvMat4x4* mat);
+void tv_mat4x4_pop(TvMat4x4* mat);
 
-void Mat4x4LoadIdentity(Mat4x4* mat);
-void Mat4x4Scale(Mat4x4* mat, float x, float y, float z);
-void Mat4x4Translate(Mat4x4* mat, float x, float y, float z);
-void Mat4x4Multiply(Mat4x4* mat1, Mat4x4* mat2);
-void Mat4x4PerspMat(Mat4x4* mat, float fov, float aspect, float zNear, float zFar);
-void Mat4x4OrthoMat(Mat4x4* mat, float left, float right, float top, float bottom, float nearZ, float farZ);
+void tv_mat4x4_load_identity(TvMat4x4* mat);
+void tv_mat4x4_scale(TvMat4x4* mat, float x, float y, float z);
+void tv_mat4x4_translate(TvMat4x4* mat, float x, float y, float z);
+void tv_mat4x4_rotate(TvMat4x4* mat, float angle, float x, float y, float z);
+void tv_mat4x4_multiply(TvMat4x4* mat1, TvMat4x4* mat2);
+void tv_mat4x4_perspective(TvMat4x4* mat, float fov, float aspect, float zNear, float zFar);
+void tv_mat4x4_orthographic(TvMat4x4* mat, float left, float right, float top, float bottom, float nearZ, float farZ);
 
 #ifndef JANKY
-float* Mat4x4Pack(Mat4x4* mat);
+float* Mat4x4Pack(TvMat4x4* mat);
 #endif
 
 #ifdef __cplusplus 

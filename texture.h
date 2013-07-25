@@ -11,7 +11,7 @@
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
-#include "glib.h"
+#include <glib/glib.h>
 
 typedef struct tagTexture {
     unsigned width;
@@ -24,18 +24,18 @@ typedef struct tagTexture {
  * Call this before using any texture functions.
  * @return 0 if successful, else nonzero.
  */
-int Texture_Init();
+int tv_texture_init();
 
 /**
  * Cleanup the texture system by freeing all textures created.
  */
-void Texture_Quit();
+void tv_texture_quit();
 
 /**
  * Load the given bitmap file into a texture and return it.
  * @param file the bitmap file to load into a texture.
  * @return the texture created from the given file.
  */
-Texture Texture_LoadBMP(char* file);
+Texture tv_texture_load_bmp(char* file);
 
 #endif

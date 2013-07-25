@@ -2,9 +2,9 @@
 
 static GSList* entities;
 
-Entity* Entity_New()
+TvEntity* Entity_New()
 {
-    Entity* e = (Entity*)malloc(sizeof(Entity)); 
+    TvEntity* e = (TvEntity*)malloc(sizeof(TvEntity)); 
     e->numChildren = 0; 
     e->numComponents = 0; 
     e->components = NULL; 
@@ -12,19 +12,19 @@ Entity* Entity_New()
     return e;
 }
 
-void Entity_AddComponent(Entity* e, Component* c)
+void tv_entity_add_component(TvEntity* e, Component* c)
 {
     e->components = g_slist_append(e->components, c);
     c->entity = e;
 }
 
-void Entity_AddChild(Entity* parent, Entity* child)
+void tv_entity_add_child(TvEntity* parent, TvEntity* child)
 {
     parent->children = g_slist_append(parent->children, child);
     child->parent = parent;
 }
 
-void Entity_Start(Entity* e)
+void tv_entity_start(TvEntity* e)
 {
     GSList* clist;
     for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
@@ -35,12 +35,12 @@ void Entity_Start(Entity* e)
         /* add certain types of components to parts of the engine */
         switch(c->id) {
         case CID_Collider:
-            Collision_AddCollider((Component_Collider*)c);
+			tv_collision_add_collider((Component_Collider*)c);
             break;
         case CID_Renderer:
         case CID_ModelRenderer:
         case CID_TextRenderer:
-            Scene_Add((Component_Renderer*)c);
+            tv_scene_add((Component_Renderer*)c);
             break;
         case CID_Widget:
             //Scene_AddWidget((Component_Widget*)c);
@@ -48,7 +48,7 @@ void Entity_Start(Entity* e)
         case CID_Camera:
             /* If no camera has been created, set this one as the main cam. */
             if(!main_cam) {
-                Draw_AddCamera((Component_Camera*)c);
+                tv_draw_add_camera((Component_Camera*)c);
             }
             break;
         default:
@@ -58,7 +58,7 @@ void Entity_Start(Entity* e)
     entities = g_slist_append(entities, e);
 }
 
-Component* Entity_GetComponent(Entity* e, int cid)
+Component* Entity_GetComponent(TvEntity* e, int cid)
 {
     GSList* clist;
     if(!e) {
@@ -73,7 +73,7 @@ Component* Entity_GetComponent(Entity* e, int cid)
     return NULL;
 }
 
-void Entity_Collide(Entity* e, Entity* other)
+void Entity_Collide(TvEntity* e, TvEntity* other)
 {
     GSList* clist;
     for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
@@ -91,7 +91,7 @@ void Entity_Update()
     /* foreach entity... */
     for(eit = entities; eit != NULL; eit = g_slist_next(eit)) {
         /* update all components for this entity */
-        for(cit = ((Entity*)(eit->data))->components; cit != NULL; cit = g_slist_next(cit)) {
+        for(cit = ((TvEntity*)(eit->data))->components; cit != NULL; cit = g_slist_next(cit)) {
             ((Component*)(cit->data))->Update(cit->data);
         }
     }

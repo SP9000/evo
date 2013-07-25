@@ -16,7 +16,7 @@ extern "C" {
 #include <malloc.h>
 #include <stdio.h>
 #include "entity.h"
-#include "glib.h"
+#include "types.h"
 #include "Gen/all.h"
 
 /************************** types of colliders *******************************/
@@ -27,31 +27,34 @@ extern "C" {
 /* Plane collider - the AABB's w and h dimensions represent the plane's */
 #define COLLIDER_PLANE 3
 
-typedef struct tagCollision {
+typedef struct tagTvCollision {
     Component_Collider* col1;
     Component_Collider* col2;
-}Collision;
+} TvCollision;
 
 /**
  * Initialize collision for use in the engine 
  */
-void Collision_Init();
+void tv_collision_init();
 
 /**
  * Adds a collider to the internal list of things to be checked for collision
  * between each other.
  * @param col the collider to begin checking collision for.
  */
-void Collision_AddCollider(Component_Collider* col);
+void tv_collision_add_collider(Component_Collider* col);
 
 /**
  * Detect collision between all the colliders that have been added to the game.
  */
-void Collision_Detect();
+void tv_collision_detect();
 
+/**
+ * Call this every frame to update internal collision information as necessary.
+ */
+void tv_collision_update();
 
 #ifdef __cpluplus
 }
 #endif
-
 #endif

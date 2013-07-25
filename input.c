@@ -4,9 +4,9 @@ static Uint8* keyState;
 static int mouseX;
 static int mouseY;
 
-static InputDevice device;
+static TvInputDevice device;
 
-int Input_Init()
+int tv_input_init()
 {
     /* TODO: load settings from file */
 
@@ -22,28 +22,28 @@ int Input_Init()
     return 0;
 }
 
-void Input_Quit()
+void tv_input_quit()
 {
     SDL_JoystickClose(device.joy);
 }
 
-void Input_Update()
+void tv_input_update()
 {
     SDL_GetMouseState(&mouseX, &mouseY);
     keyState = SDL_GetKeyState(NULL);
 }
 
-int Input_KeyDown(SDLKey key)
+int tv_input_keydown(SDLKey key)
 {
     return keyState[key];
 }
 
-int Input_MouseX()
+int tv_input_mouse_x()
 {
     return mouseX;
 }
 
-int Input_MouseY()
+int tv_input_mouse_y()
 {
     return mouseY;
 }

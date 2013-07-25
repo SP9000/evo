@@ -20,7 +20,6 @@ extern "C" {
 #include <SDL/SDL.h>
 #include <stdlib.h>
 #include <GL/glew.h>
-#include "glib.h"
 #include "matrix.h"
 #include "scene.h"
 #include "texture.h"
@@ -29,14 +28,14 @@ extern "C" {
 
 extern Component_Camera* main_cam;
 
-typedef struct tagDrawTarget {
+typedef struct tagTvDrawTarget {
     /* the framebuffer ID of the target. */
     GLuint fbID;
     /* the ID of the texture to render to (if any). */
     GLuint texID;
     /* renderbuffer depth buffer handle */
     GLuint depthID;
-}DrawTarget;
+}TvDrawTarget;
 
 typedef struct tagMap {
     guint32 width, height;
@@ -49,78 +48,56 @@ extern SDL_Surface* screen;
  * Initialize the libraries needed for rendering. 
  * @return the success of the initialization - 0 on success, !0 on error.
  */
-int Draw_Init();
+int tv_draw_init();
 
 
 /**
  * Clean up all libraries and allocations of the rendering system.
  */
-void Draw_Quit();
+void tv_draw_quit();
 
 /**
   * Clear the screen and do anything else necessary before beginning 
   * to render a frame.
   */
-void Draw_StartFrame();
+void tv_draw_start_frame();
 
 /**
  * Do the post processing on the scene and do the final render to the back 
  * buffer.
  */
-void Draw_FinishFrame();
+void tv_draw_finish_frame();
 
 /**
  * Draw all models in the scene.
  */
-void Draw_Scene();
+void tv_draw_scene();
 
 /**
  * Generate a new target to draw to.
  * @return the new target.
  */
-DrawTarget* Draw_NewTarget();
+TvDrawTarget* tv_draw_new_target();
 
 /**
  * Sets the target of the current render.
  * @param target the target to render to. NULL = back buffer.
  */
-void Draw_SetTarget(DrawTarget* target);
+void tv_draw_set_target(TvDrawTarget* target);
 
 /**
  * Returns the given DrawTarget as a texture.
  * @param target the target to get the texture of.
  * @return a texture usable with Material_SetTexture.
  */
-Texture Draw_TargetToTexture(DrawTarget* target);
+Texture tv_draw_target_to_texture(TvDrawTarget* target);
 
 /**
  * Draw GUI ontop of the currently rendered scene.
  * Draw the root widget and all children of it ontop of whatever was last 
  * rendered.
  */
-void Draw_GUI();
-
-/**
- * Draw the given model.
- * Draws the model m, buffering its data to the GPU if this is the first time
- * that the model has been rendered.
- * @param m the model to draw.
- */
-void Draw_Model(Component_Model* m);
-
-/**
- * Draw the given widget.
- * @param w the widget to draw.
- */
-void Draw_Widget(Component_Widget* w);
-
-/**
- * Move the camera by the given X,Y,Z amounts.
- * @param x the amount to move the camera in the X direction.
- * @param y the amount to move the camera in the Y direction.
- * @param z the amount to move the camera in the Z direction.
- */
-void Draw_MoveCamera(float x, float y, float z);
+void tv_draw_gui();
 
 /**
  * Resize the display to the given width and height.
@@ -130,23 +107,22 @@ void Draw_MoveCamera(float x, float y, float z);
  * @param w the new width of the screen.
  * @param h the new height of the screen.
  */
-void Draw_ResizeScreen(int w, int h);
+void tv_draw_resize_screen(int w, int h);
 
 /**
  * Add the given camera to the list of cameras.
  * @param cam the camera to be added and used henceforth for rendering. 
  */
-void Draw_AddCamera(Component_Camera* cam);
+void tv_draw_add_camera(Component_Camera* cam);
 
 /**
  * Draw the given texture within the bounds of the given rect.
  * @param tex the texture to draw.
  * @param rect the rectangle to draw the texture within.
  */
-void Draw_Texture(Texture tex, Rect* rect);
+void tv_draw_texture(Texture tex, TvRect* rect);
 
 #ifdef __cplusplus
 }
 #endif
-
 #endif

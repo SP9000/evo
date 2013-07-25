@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#include "glib.h"
+#include "types.h"
 #include "Gen/all.h"
 
 extern GSList* scene_layers[32];
@@ -22,19 +22,19 @@ extern GSList* scene_layers[32];
  * Initialize the scene system.
  * @return zero on success, nonzero on failure.
  */
-int Scene_Init();
+int tv_scene_init();
 
 /**
  * Destroy all items in the scene and clean up.
  * @return zero on success, nonzero on failure.
  */
-int Scene_Quit();
+int tv_scene_quit();
 
 /**
  * Add the given renderer to the scene.
  * @param r the renderer to add to the scene.
  */
-void Scene_Add(Component_Renderer* r);
+void tv_scene_add(Component_Renderer* r);
 
 #ifdef __cplusplus
 }

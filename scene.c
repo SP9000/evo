@@ -3,10 +3,7 @@
 /* TODO: nice "spatial" representation we got here */
 GSList* scene_layers[32];
 
-void ForeachWidgetRecursive(Component_Widget* w, 
-        void (*func)(Component_Widget*));
-
-int Scene_Init()
+int tv_scene_init()
 {
     int i;
     for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
@@ -15,7 +12,7 @@ int Scene_Init()
     return 0;
 }
 
-int Scene_Quit()
+int tv_scene_quit()
 {
     int i;
     for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
@@ -24,8 +21,7 @@ int Scene_Quit()
     return 0;
 }
 
-void Scene_Add(Component_Renderer* r)
+void tv_scene_add(Component_Renderer* r)
 {
-    int i;
     scene_layers[r->layer] = g_slist_append(scene_layers[r->layer], (gpointer)r);
 }
