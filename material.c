@@ -15,8 +15,8 @@ GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 {
 	GLuint s;
 	GLsizei len;
-	int success;
 	GLchar* log;
+	int success;
 
 	s = glCreateShader(type);
 	glShaderSource(s, 1, &shader, NULL);
@@ -86,13 +86,14 @@ GLuint tv_material_compile_program(GLuint vertShader, GLuint fragShader,
 
 }
 
-GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag, GLuint* geom)
+TvMaterial* tv_material_load(char* file)
 {       
 	gpointer lup;
 	GLuint v;
 	GLuint f;
 	GLuint g;
 	int i;
+	TvMaterial* mat;
 
 	int nAttributes;
 	char** attributes;
@@ -112,7 +113,7 @@ GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag,
 	if(!root) {
 		fprintf(stderr, "Error: JSON parse error before: [%s]\n", 
 			cJSON_GetErrorPtr());
-		return -1;
+		return NULL;
 	}
 
 	root = root->child;
@@ -120,7 +121,7 @@ GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag,
 	if(strncmp(root->string, "material", 8) != 0) {
 		fprintf(stderr, "Error: unrecognized JSON object name %s"
 			" for material\n", root->string); 
-		return -1;
+		return NULL;
 	}
 	/* get all material information */
 	else {
@@ -176,7 +177,6 @@ GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag,
 		/* yes, use saved ID */
 		v = (GLuint)lup;
 	}
-	*vert = v;
 
 	/* get/compile fragment shader */
 	lup = (char*)g_hash_table_lookup(fragShaderNames, fragFile);
@@ -189,7 +189,6 @@ GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag,
 	else {
 		f = (GLuint)lup;
 	}
-	*frag = f;
 
 	/* geometry shader is optional */
 	if(geomFile == NULL) {
@@ -207,14 +206,12 @@ GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag,
 		else {
 			g = (GLuint)lup;
 		}
-		*geom = g;
 	}
 
 	/* compile the shader program */
-	*program = tv_material_compile_program(v, f, g, attributes, nAttributes);
-	
-	/* success */
-	return 0;
+	mat = (TvMaterial*)malloc(sizeof(TvMaterial));
+	mat->program = tv_material_compile_program(v, f, g, attributes, nAttributes);
+	return mat;
 }
 
 void tv_material_get_uniforms(GLuint program, GLuint* model, GLuint* view, GLuint* projection)

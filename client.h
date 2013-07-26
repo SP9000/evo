@@ -25,9 +25,23 @@ extern "C" {
 #include "modelgen.h"
 #include "timer.h"
 
-extern void App_Start();
-extern void App_Update();
-extern void App_Quit();
+
+/**
+ * Set a function to be called every frame.
+ * @param update_func the function to call each frame.
+ */
+void tv_client_set_update_func(void (*update_func)());
+
+/**
+ * Initialize the client.
+ */
+void tv_client_init();
+
+/**
+ * Call this after calling tv_client_init and doing whatever other setup you
+ * need to.
+ */
+void tv_client_start();
 
 #ifdef __cplusplus
 }

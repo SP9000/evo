@@ -3,7 +3,6 @@
 /************************* Rendering variables *******************************/
 /* Screen surface. */
 SDL_Surface *screen;
-TvCamera* main_cam;
 
 /* The draw target for the pre-post-pass rendering */
 static TvDrawTarget* activeTarget;
@@ -11,11 +10,6 @@ static TvDrawTarget* activeTarget;
 /* The model that is used for post-processing effects (a simple rect) */
 static TvModel* postPassRect;
  
-/* The current camera. */
-static TvCamera* activeCam;
-static TvCamera* guiCam;
-static GSList* cameras;
-
 /* components for drawing textured quads */
 static TvModel* tex_quad;
 static TvMaterial* tex_mat;
@@ -56,16 +50,16 @@ int tv_draw_init()
 
     main_cam = NULL;
 
-    tex_quad = Component_Model_New(NULL);
-    tex_quad->Start(tex_quad);
-    tex_quad->numVertices = 4;
-    tex_quad->BufferAttribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
-    tex_quad->BufferAttribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
+	tex_quad = tv_model_new();
+	tex_quad->num_vertices = 4;
+    tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
+	tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
 
-    tex_mat = Component_Material_New("tex.mat");
-    tex_mat->Start(tex_mat);
-    tex_quad->primitive = GL_QUADS;
-    tex_quad->Optimize(tex_quad);
+	tex_mat = tv_material_load("tex.mat");
+	tv_material_get_uniforms(tex_mat->program, 
+		&tex_mat->model_mat, &tex_mat->view_mat, &tex_mat->projection_mat);
+	tex_quad->primitive = GL_QUADS;
+	tv_model_optimize(tex_quad);
 
     /* wider lines */
     glLineWidth(2);
@@ -112,18 +106,18 @@ void tv_draw_resize_screen(int w, int h)
     GSList* it;
     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-    for(it = cameras; it != NULL; it = g_slist_next(it)) {
-        Component_Camera* c = (Component_Camera*)it->data;
-        if(c->orthographic) {
+	for(it = tv_scene_get_cameras(); it != NULL; it = g_slist_next(it)) {
+        TvCamera* c = (TvCamera*)it->data;
+        if(c->ortho) {
             /*
             c->Orthographic(c, 0.0f, c->w, ->h, 
                     0.0f, 0.01f, 100.0f);
             */
         }
         else {
-            c->Perspective(c, c->fov, 
+			tv_camera_perspective(c, c->properties.perspective.fov, 
                     (float)w / (float)h,
-                    c->nearZ, c->farZ);
+					c->properties.perspective.nearZ, c->properties.perspective.farZ);
         }
     }
 }
@@ -164,45 +158,17 @@ void tv_draw_finish_frame()
 
 void tv_draw_scene()
 {
-    GSList* it;
-    for(it = cameras; it != NULL; it = g_slist_next(it)) {
-        int i;
-        Component_Camera* cam = (Component_Camera*)it->data;
-        /* position the camera */
-		tv_mat4x4_load_identity(cam->viewMat);
-		tv_mat4x4_translate(cam->viewMat, -cam->transform->pos.x, 
-                -cam->transform->pos.y, cam->transform->pos.z);
-        main_cam = cam;
-        for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
-            if((1 << i) & cam->render_layers) {
-                GSList* jt;
-                for(jt = scene_layers[i]; jt != NULL; jt = g_slist_next(jt)) {
-                    Component_Renderer* r = (Component_Renderer*)jt->data;
-                    r->Render(r);
-                }
-            }
-        }
-    }
 }
 
 void tv_draw_gui()
 {
-    Component_Camera* saveCam;
-
+	/* TODO */
     glDisable(GL_DEPTH_TEST);
-
     /* set up GUI "camera" */
-    tv_mat4x4_load_identity(guiCam->view_mat);
-	tv_mat4x4_translate(guiCam->view_mat, 0, 0, -1);
-
-    saveCam = activeCam;
-    activeCam = guiCam;
 
     glEnable(GL_SCISSOR_TEST);
     //Scene_ForeachWidget(Draw_Widget);
     glDisable(GL_SCISSOR_TEST);
-
-    activeCam = saveCam;
 }
 
 void tv_draw_texture(Texture tex, TvRect* rect)
@@ -284,11 +250,6 @@ TvDrawTarget* tv_draw_new_target(int w, int h)
         fprintf(stderr, "Warning: draw target not properly supported.\n");
     }
     return target;
-}
-
-void tv_draw_add_camera(TvCamera* cam)
-{
-    cameras = g_slist_append(cameras, (gpointer)cam);
 }
 
 void tv_draw_set_target(TvDrawTarget* target)

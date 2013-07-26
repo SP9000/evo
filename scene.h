@@ -13,10 +13,13 @@
 extern "C" {
 #endif
 
+#include "camera.h"
 #include "types.h"
 #include "component.h"
 
 extern GSList* scene_layers[32];
+
+typedef void (*TvSceneRenderFunc)(TvComponent*);
 
 /**
  * Initialize the scene system.
@@ -36,7 +39,7 @@ int tv_scene_quit();
  * @param layer the layer on which components of this id should be rendered.
  * @param id the id to associate with all that monkey business.
  */
-void tv_scene_register_renderer(void (*render_func)(TvComponent*), tvuint layer, tvuint id);
+void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvuint id);
 
 
 /**
@@ -45,6 +48,17 @@ void tv_scene_register_renderer(void (*render_func)(TvComponent*), tvuint layer,
  * @param c the renderer component to add.
  */
 void tv_scene_add(TvComponent* c);
+
+/**
+ * @return a list of all cameras currently in the scene.
+ */
+GSList* tv_scene_get_cameras();
+
+/**
+ * Add the given camera to the list of cameras.
+ * @param cam the camera to be added and used henceforth for rendering. 
+ */
+void tv_scene_add_camera(TvCamera* cam);
 
 #ifdef __cplusplus
 }

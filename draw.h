@@ -112,12 +112,6 @@ void tv_draw_gui();
 void tv_draw_resize_screen(int w, int h);
 
 /**
- * Add the given camera to the list of cameras.
- * @param cam the camera to be added and used henceforth for rendering. 
- */
-void tv_draw_add_camera(TvCamera* cam);
-
-/**
  * Draw the given texture within the bounds of the given rect.
  * @param tex the texture to draw.
  * @param rect the rectangle to draw the texture within.

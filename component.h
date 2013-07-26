@@ -44,7 +44,7 @@ typedef struct TvComponent {
 }TvComponent;
 
 /* gross forward declaration */
-TvComponent* tv_entity_get_component(TvEntity* e, int cid);
+TvComponent* tv_entity_get_component(TvEntity* e, tvuint id);
 
 /**
  * Retrieves a component that belongs to the same entity as self.
@@ -52,7 +52,7 @@ TvComponent* tv_entity_get_component(TvEntity* e, int cid);
  * @param id the component type (CID) to retrieve.
  * @return the component of the type requested or NULL if none exists.
  */
-TvComponent* tv_component_get(TvComponent* self, int id);
+TvComponent* tv_component_get(TvComponent* self, tvuint id);
 
 /**
  * A convienience macro to retrieve the component of the specified type and 

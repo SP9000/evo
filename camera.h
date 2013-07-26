@@ -19,12 +19,16 @@ typedef struct tagTvCameraOrthographic {
 
 typedef union tagTvCameraProperties {
 	TvCameraOrthographic ortho;
-	tvu32 render_layers;
 	TvCameraPerspective perspective;
 }TvCameraProperties;
 
 typedef struct tagTvCamera {
-	bool ortho;
+	TvVector3 pos;
+	TvVector3 rot;
+	TvVector3 scale;
+	tvbool ortho;
+	tvu32 render_layers;
+
 	TvMat4x4 model_mat;
 	TvMat4x4 view_mat;
 	TvMat4x4 projection_mat;

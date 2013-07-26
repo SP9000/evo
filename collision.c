@@ -2,6 +2,7 @@
 
 /* table of registered collider ID's and their OnCollide functions */
 static TvHashTable* registered_colliders; 
+static TvHashTable* registered_callbacks;
 
 TvHashTable* colliding = NULL;
 static TvHashTable* collidingY = NULL;
@@ -25,19 +26,25 @@ void tv_collision_init()
 {
     colliders = NULL;
 	registered_colliders = g_hash_table_new(g_int_hash, g_int_equal);
+	registered_callbacks = g_hash_table_new(g_int_hash, g_int_equal);
 }
 
-void tv_collision_register_collider(void (*on_collision)(TvEntity*), tvuint id)
+void tv_collision_register_collider(TvCollisionDetectFunc detect_func, tvuint id)
 {
-	g_hash_table_insert(registered_colliders, (gpointer)id, (gpointer)on_collision);
+	g_hash_table_insert(registered_colliders, (gpointer)id, (gpointer)detect_func);
 }
 
-void tv_collision_add_collider(TvComponent* col)
+void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint id)
 {
-    colliders = g_list_append(colliders, col);
-    xSorted = g_list_insert_sorted(xSorted, (gpointer)col, XCompare);
-    ySorted = g_list_insert_sorted(ySorted, (gpointer)col, YCompare);
-    zSorted = g_list_insert_sorted(zSorted, (gpointer)col, ZCompare);
+	g_hash_table_insert(registered_callbacks, (gpointer)id, (gpointer)on_collision);
+}
+
+void tv_collision_add_entity(TvEntity* e)
+{
+    colliders = g_list_append(colliders, (gpointer)e);
+    xSorted = g_list_insert_sorted(xSorted, (gpointer)e, XCompare);
+    ySorted = g_list_insert_sorted(ySorted, (gpointer)e, YCompare);
+    zSorted = g_list_insert_sorted(zSorted, (gpointer)e, ZCompare);
     colliding = g_hash_table_new(NULL, NULL);
 }
 
@@ -57,8 +64,8 @@ void tv_collision_detect()
     GList* j;
 	GList* possibleCollisions;
 
-    Component_Collider* c1;
-    Component_Collider* c2;
+    TvEntity* c1;
+    TvEntity* c2;
 
     /* direct hash, custom equal func */
     collidingY = g_hash_table_new(NULL, ColEqual);
@@ -73,12 +80,12 @@ void tv_collision_detect()
             j = i = g_list_next(i);
         }
         else {
-            c1 = (Component_Collider*)(i->data);
-            c2 = (Component_Collider*)(j->data);
+            c1 = (TvEntity*)(i->data);
+            c2 = (TvEntity*)(j->data);
 
             /* not overlapping? */
-            if((c1->transform->pos.x + c1->aabb.w) <
-                     (c2->transform->pos.x)) {
+            if((c1->pos.x + c1->aabb.w) <
+                     (c2->pos.x)) {
                 j = i = g_list_next(i);
             }
             /* X is overlapping */
@@ -93,11 +100,11 @@ void tv_collision_detect()
             j = i = g_list_next(i);
         }
         else {
-            c1 = (Component_Collider*)(i->data);
-            c2 = (Component_Collider*)(j->data);
+            c1 = (TvEntity*)(i->data);
+            c2 = (TvEntity*)(j->data);
             /* not overlapping? */
-            if((c1->transform->pos.y + c1->aabb.h) < 
-                    (c2->transform->pos.y)) {
+            if((c1->pos.y + c1->aabb.h) < 
+                    (c2->pos.y)) {
                 j = i = g_list_next(i);
             }
             /* overlapping Y */
@@ -115,11 +122,11 @@ void tv_collision_detect()
             j = i = g_list_next(i);
         }
         else {
-            c1 = (Component_Collider*)(i->data);
-            c2 = (Component_Collider*)(j->data);
+            c1 = (TvEntity*)(i->data);
+            c2 = (TvEntity*)(j->data);
             /* not overlapping? */
-            if((c1->transform->pos.z + c1->aabb.d) <
-                    (c2->transform->pos.z)) {
+            if((c1->pos.z + c1->aabb.d) <
+                    (c2->pos.z)) {
                 j = i = g_list_next(i);
             }
             /* overlapping Z */
@@ -133,11 +140,11 @@ void tv_collision_detect()
     
     /* check for matches on all axes, x axis overlap is implicit */
     for(i = possibleCollisions; i != NULL; i = g_list_next(i)) {
-        c1 = (Component_Collider*)i->data;
+        c1 = (TvEntity*)i->data;
         /* check Y overlap */
         if(g_hash_table_lookup(collidingY, i->data) != NULL) {
             /* check Z overlap */
-            c2 = (Component_Collider*)g_hash_table_lookup(collidingZ, i->data);
+            c2 = (TvEntity*)g_hash_table_lookup(collidingZ, i->data);
             if(c2 != NULL) {
                 /* are we already aware of this collision? */
                 if(g_hash_table_lookup(colliding, (gpointer)c1) != (gpointer)c2) {
@@ -145,9 +152,9 @@ void tv_collision_detect()
                     g_hash_table_insert(colliding, (gpointer)c1, (gpointer)c2);
                     g_hash_table_insert(colliding, (gpointer)c2, (gpointer)c1);
                     printf("collision between {%f,%f,%f} and {%f,%f,%f}\n", 
-                            c1->transform->pos.x, c1->transform->pos.y, c1->transform->pos.z,
-                            c2->transform->pos.x, c2->transform->pos.y, c2->transform->pos.z);
-					tv_entity_collide(c1->entity, c2->entity);
+                            c1->pos.x, c1->pos.y, c1->pos.z,
+                            c2->pos.x, c2->pos.y, c2->pos.z);
+					tv_entity_collide(c1, c2);
                     fflush(stdout);
                 }
             }
@@ -155,7 +162,14 @@ void tv_collision_detect()
     }
     /* colliding now contains all pairs of colliders who's AABB's are 
      * overlapping...do more precise detection TODO */
-    
+}
+
+void tv_entity_collide(TvEntity* e, TvEntity* other)
+{
+	if(((TvCollisionDetectFunc)g_hash_table_lookup(registered_colliders, (gpointer)e->collide))(e)) {
+		((TvCollisionCollideFunc)g_hash_table_lookup(registered_callbacks, (gpointer)e->collide))(other);
+		((TvCollisionCollideFunc)g_hash_table_lookup(registered_callbacks, (gpointer)other->collide))(e);
+	}
 }
 
 void tv_collision_update()
@@ -163,11 +177,10 @@ void tv_collision_update()
 
 }
 
-
 gboolean ColEqual(gconstpointer a, gconstpointer b)
 {
-    TvCollision* c1 = (Collision*)a;
-    TvCollision* c2 = (Collision*)b;
+    TvCollision* c1 = (TvCollision*)a;
+    TvCollision* c2 = (TvCollision*)b;
     if(((c1->col1 == c2->col1) && (c1->col2 == c2->col2)) ||
             ((c1->col2 == c2->col1) && (c1->col1 == c2->col2))) {
         return TRUE;
@@ -177,12 +190,12 @@ gboolean ColEqual(gconstpointer a, gconstpointer b)
 
 gint XCompare(gconstpointer a, gconstpointer b)
 {
-    Component_Collider* c1 = (Component_Collider*)a;
-    Component_Collider* c2 = (Component_Collider*)b;
-    if(c1->transform->pos.x < c2->transform->pos.x) {
+    TvEntity* e1 = (TvEntity*)a;
+    TvEntity* e2 = (TvEntity*)b;
+    if(e1->pos.x < e2->pos.x) {
         return -1;
     }
-    else if(c1->transform->pos.x > c2->transform->pos.x) {
+    else if(e1->pos.x > e2->pos.x) {
         return 1;
     }
     else {
@@ -192,12 +205,12 @@ gint XCompare(gconstpointer a, gconstpointer b)
 
 gint YCompare(gconstpointer a, gconstpointer b)
 {
-    Component_Collider* c1 = (Component_Collider*)a;
-    Component_Collider* c2 = (Component_Collider*)b;
-    if(c1->transform->pos.y < c2->transform->pos.y) {
+    TvEntity* e1 = (TvEntity*)a;
+    TvEntity* e2 = (TvEntity*)b;
+    if(e1->pos.y < e2->pos.y) {
         return -1;
     }
-    else if(c1->transform->pos.y > c2->transform->pos.y) {
+    else if(e1->pos.y > e2->pos.y) {
         return 1;
     }
     return 0;
@@ -205,12 +218,12 @@ gint YCompare(gconstpointer a, gconstpointer b)
 
 gint ZCompare(gconstpointer a, gconstpointer b)
 {
-    Component_Collider* c1 = (Component_Collider*)a;
-    Component_Collider* c2 = (Component_Collider*)b;
-    if(c1->transform->pos.z < c2->transform->pos.z) {
+    TvEntity* e1 = (TvEntity*)a;
+    TvEntity* e2 = (TvEntity*)b;
+    if(e1->pos.z < e2->pos.z) {
         return -1;
     }
-    else if(c1->transform->pos.z > c2->transform->pos.z) {
+    else if(e1->pos.z > e2->pos.z) {
         return 1;
     }
     return 0;

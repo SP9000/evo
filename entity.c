@@ -2,7 +2,7 @@
 
 static GSList* entities;
 
-TvEntity* Entity_New()
+TvEntity* tv_entity_new()
 {
     TvEntity* e = (TvEntity*)malloc(sizeof(TvEntity)); 
     e->numChildren = 0; 
@@ -12,7 +12,7 @@ TvEntity* Entity_New()
     return e;
 }
 
-void tv_entity_add_component(TvEntity* e, Component* c)
+void tv_entity_add_component(TvEntity* e, TvComponent* c)
 {
     e->components = g_slist_append(e->components, c);
     c->entity = e;
@@ -35,7 +35,7 @@ void tv_entity_start(TvEntity* e)
     entities = g_slist_append(entities, e);
 }
 
-TvComponent* Entity_GetComponent(TvEntity* e, int cid)
+TvComponent* tv_entity_get_component(TvEntity* e, int cid)
 {
     GSList* clist;
     if(!e) {
@@ -50,16 +50,7 @@ TvComponent* Entity_GetComponent(TvEntity* e, int cid)
     return NULL;
 }
 
-void Entity_Collide(TvEntity* e, TvEntity* other)
-{
-    GSList* clist;
-    for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
-        TvComponent* c = (TvComponent*)clist->data;
-        c->Collide(other);
-    }
-}
-
-void Entity_Update()
+void tv_entity_update()
 {
     GSList* eit;
     GSList* cit;
@@ -67,8 +58,10 @@ void Entity_Update()
     /* foreach entity... */
     for(eit = entities; eit != NULL; eit = g_slist_next(eit)) {
         /* update all components for this entity */
-        for(cit = ((TvEntity*)(eit->data))->components; cit != NULL; cit = g_slist_next(cit)) {
-            ((TvComponent*)(cit->data))->Update(cit->data);
+		TvEntity* e = (TvEntity*)eit->data;
+        for(cit = e->components; cit != NULL; cit = g_slist_next(cit)) {
+			TvComponent* c = (TvComponent*)cit->data;
+			c->Update(c);
         }
     }
 }

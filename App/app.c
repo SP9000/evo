@@ -1,7 +1,17 @@
 #include "app.h"
 
+int main(int argc, char** argv)
+{
+	puts("invoked"); fflush(stdout);
+	tv_client_init();
+	tv_client_start();
+	return 0;
+}
+
+#if 0
 void App_Start()
 {
+
 	Entity* bg;
 	Entity* monkey;
 	Entity* a;
@@ -34,7 +44,7 @@ void App_Start()
     Entity_AddComponent(bg, (Component*)modelrenderer1);
     Entity_Start(bg);
 }
-#if 0
+
     /* monkey */
     monkey = Entity_New();
     Component_Transform* t2 = Component_Transform_New(

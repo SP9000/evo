@@ -23,15 +23,15 @@ TvModel* tv_model_load_ply(tvchar* file)
 	if(model) {
 		return model;
 	}
-	else {
-		model = (TvModel*)malloc(sizeof(TvModel));
-	}
 
 	/* open the file and verify it is a .ply file */
 	fp = fopen(file, "r");
 	if(fp == NULL) {
 		fprintf(stderr, "Error: could not open %s\n", file);
+		return NULL;
 	}
+
+	model = (TvModel*)malloc(sizeof(TvModel));
 	model->attributes = NULL;
 
 	/* read the file header - alloc the buffers to store the model data */
@@ -39,7 +39,7 @@ TvModel* tv_model_load_ply(tvchar* file)
 		tvchar a[256];
 		tvchar b[256];
 		tvint c;
-		int num_read = fscanf(fp, "%s %s %d", a, b, c);
+		int num_read = fscanf(fp, "%s %s %d", a, b, &c);
 		if(num_read == 0 || strncmp(a, "comment", 8) == 0) {
 			continue;
 		}
@@ -88,14 +88,14 @@ TvModel* tv_model_load_ply(tvchar* file)
 			int read;
 			if(ma->type != MODEL_ATTRIBUTE_INDEX) {
 				read = fscanf(fp, "%f %f %f %f %f %f", 
-					f_buff[0], f_buff[1], f_buff[2], f_buff[3], f_buff[4], f_buff[5]);
+					&f_buff[0], &f_buff[1], &f_buff[2], &f_buff[3], &f_buff[4], &f_buff[5]);
 				for(j = 0; j < read; ++j) {
 					g_array_append_val(ma->data, f_buff[j]);
 				}
 			}
 			else {
 				read = fscanf(fp, "%d %d %d %d",
-					i_buff[0], i_buff[1], i_buff[2], i_buff[3], i_buff[4], i_buff[5]);
+					&i_buff[0], &i_buff[1], &i_buff[2], &i_buff[3], &i_buff[4], &i_buff[5]);
 				for(j = 1; j < read; ++j) {
 					g_array_append_val(ma->data, i_buff[j]);
 				}
@@ -103,6 +103,7 @@ TvModel* tv_model_load_ply(tvchar* file)
 		}
 	}
 	g_hash_table_insert(loaded_model_names, file, (gpointer)model);
+	return model;
 }
 
 void tv_model_add_attribute(TvModel* model, tvuint attribute)
@@ -116,12 +117,13 @@ void tv_model_buffer_attribute(TvModel* model, tvuint attribute, tvfloat* buffer
 
 TvAABB tv_model_get_aabb(TvModel* model)
 {
-
+	TvAABB aabb;
+	return aabb;
 }
 
 TvModel* tv_model_new()
 {
-
+	return (TvModel*)malloc(sizeof(TvModel*));
 }
 
 void tv_model_optimize(TvModel* model)

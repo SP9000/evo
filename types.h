@@ -21,7 +21,7 @@ extern "C" {
 #include "texture.h"
 
 /* boolean */
-typedef int bool;
+typedef int tvbool;
 #define false 0
 #define true 1
 
@@ -30,9 +30,9 @@ typedef char tvchar;
 typedef int tvint;
 typedef float tvfloat;
 typedef unsigned tvuint;
-typedef bool tvbool;
 typedef uint32_t tvu32;
 
+/* data structures */
 typedef GArray TvArray;
 typedef GList TvList;
 typedef GHashTable TvHashTable;

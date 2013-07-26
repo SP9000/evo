@@ -1,16 +1,13 @@
 #include "client.h"
 
-int main(int argc, char **argv) 
+static void (*app_update)();
+static ENetHost *client;
+static ENetPeer *peer;
+static ENetAddress address;
+static ENetEvent event;
+
+void tv_client_init()
 {
-    ENetHost *client;
-    ENetPeer *peer;
-    ENetEvent event;
-    ENetAddress address;
-    int serviceResult;
-    int run = 1;
-
-    SDL_Event inputEvent;
-
     /* Initialize the client */
     puts("\nInitializing client\n"
     "****************************************");
@@ -23,27 +20,27 @@ int main(int argc, char **argv)
 
     /* Initialize draw. */
     puts("Initializing draw");
-    if(Draw_Init() != 0) {
+	if(tv_draw_init() != 0) {
         fprintf(stderr, "Error initializing Draw\n");
         exit(EXIT_FAILURE);
     }
 
     /* Initialize the texture system */
     puts("Initializing texture");
-    if(Texture_Init() != 0) {
+	if(tv_texture_init() != 0) {
         fprintf(stderr, "Error initializing texture\n");
         exit(EXIT_FAILURE);
     }
 
     /* Initialize the scene */
     puts("Initializing scene");
-    if(Scene_Init() != 0) {
+	if(tv_scene_init() != 0) {
         fprintf(stderr, "Error: could not initialize the scene\n");
         exit(EXIT_FAILURE);
     }
 
     /* Initialize the input system */
-    if(Input_Init() != 0) {
+	if(tv_input_init() != 0) {
     }
 
     puts("Starting client");
@@ -89,16 +86,20 @@ int main(int argc, char **argv)
     
 
     /* start the application */
-    puts("Core initialized...starting application\n"
+    puts("Core initialized...\n"
         "***************************************");
-    fflush(stdout);
-    App_Start();
-    puts("Application initialized");
-    fflush(stdout);
+}
 
-    /* Capture mouse */
+void tv_client_start() 
+{
+	SDL_Event inputEvent;
+	int serviceResult;
+	int run = 1;
+
+	puts("Client starting.\n");
+
+	/* Capture mouse */
     /* SDL_WM_GrabInput(SDL_GRAB_ON); */
-
     /* Main game loop. */
     while(run) {
         unsigned char keysPressed[16];
@@ -158,7 +159,7 @@ int main(int argc, char **argv)
                 run = 0;
                 break;
             case SDL_VIDEORESIZE:
-                Draw_ResizeScreen(inputEvent.resize.w, inputEvent.resize.h);
+				tv_draw_resize_screen(inputEvent.resize.w, inputEvent.resize.h);
                 break;
             case SDL_KEYDOWN:
                 if(inputEvent.key.keysym.sym == SDLK_ESCAPE) {
@@ -179,16 +180,16 @@ int main(int argc, char **argv)
         /* If mouse is at edge of screen, pan */
         SDL_GetMouseState(&mouseX, &mouseY);
         if(mouseX < 5) {
-            Draw_MoveCamera(-0.1f, 0, 0);
+            //Draw_MoveCamera(-0.1f, 0, 0);
         }
         else if(mouseX > screen->w - 5) {
-            Draw_MoveCamera(0.1f, 0, 0);
+            //Draw_MoveCamera(0.1f, 0, 0);
         }
         if(mouseY < 5) {
-            Draw_MoveCamera(0, 0.1f, 0);
+            //Draw_MoveCamera(0, 0.1f, 0);
         }
         else if(mouseY > screen->h - 5) {
-            Draw_MoveCamera(0, -0.1f, 0);
+            //Draw_MoveCamera(0, -0.1f, 0);
         }
 
         /* If there is new input, create/send a packet containing the info to the server. */
@@ -202,23 +203,23 @@ int main(int argc, char **argv)
         }
     
         /* update input information */
-        Input_Update();
+		tv_input_update();
 
         /* perform collision detection */
-        Collision_Detect();
+		tv_collision_detect();
 
         /* update time */
-        Time_Update();
+		tv_time_update();
     
         /* update entities */
-        Entity_Update();
+		tv_entity_update();
     
         /* update the app */
-        App_Update();
+        app_update();
 
         /* Render */
-        Draw_StartFrame();
-        Draw_Scene();
+		tv_draw_start_frame();
+		tv_draw_scene();
         SDL_GL_SwapBuffers();
 
         /* Render GUI TODO */
@@ -232,9 +233,12 @@ int main(int argc, char **argv)
     enet_host_destroy(client);
     enet_deinitialize();
 
-    App_Quit();
-    Input_Quit();
-    Draw_Quit();
+	tv_input_quit();
+	tv_draw_quit();
     SDL_Quit();
-    return 0;
+}
+
+void tv_client_set_update_func(void (*update_func)())
+{
+	app_update = update_func;
 }

@@ -19,7 +19,7 @@ GLuint tv_material_compile_shader(GLchar* shader, GLuint type);
 GLuint tv_material_compile_program(GLuint vertShader, GLuint fragShader,
 								   GLuint geomShader, char **attributes, 
 								   int numAttributes);
-GLuint tv_material_load(char* file, GLuint* program, GLuint* vert, GLuint* frag, GLuint* geom);
+TvMaterial* tv_material_load(char* file);
 void tv_material_get_uniforms(GLuint program, GLuint* model, GLuint* view, GLuint* projection);
 
 #ifdef __cplusplus

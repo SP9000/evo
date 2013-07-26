@@ -6,6 +6,9 @@ GSList* scene_layers[32];
 TvHashTable* renderers_table;
 TvHashTable* renderer_layer_table;
 
+TvCamera* main_cam;
+static GSList* cameras;
+
 int tv_scene_init()
 {
     int i;
@@ -25,7 +28,7 @@ int tv_scene_quit()
     }
     return 0;
 }
-void tv_scene_register_renderer(void (*render_func)(TvComponent*), tvuint layer, tvuint id)
+void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvuint id)
 {
 	g_hash_table_insert(renderers_table, (gpointer)id, (gpointer)render_func);
 	g_hash_table_insert(renderer_layer_table, (gpointer)id, (gpointer)layer);
@@ -35,4 +38,37 @@ void tv_scene_add(TvComponent* c)
 {
 	tvuint layer = (tvuint)g_hash_table_lookup(renderer_layer_table, (gpointer)c->id);
     scene_layers[layer] = g_slist_append(scene_layers[layer], (gpointer)c);
+}
+
+void tv_scene_update()
+{
+	GSList* it;
+    for(it = cameras; it != NULL; it = g_slist_next(it)) {
+        int i;
+        TvCamera* cam = (TvCamera*)it->data;
+        /* position the camera */
+		tv_mat4x4_load_identity(cam->view_mat);
+		tv_mat4x4_translate(cam->view_mat, -cam->pos.x, 
+                -cam->pos.y, cam->pos.z);
+        main_cam = cam;
+        for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
+            if((1 << i) & cam->render_layers) {
+                GSList* jt;
+                for(jt = scene_layers[i]; jt != NULL; jt = g_slist_next(jt)) {
+					TvComponent* c = (TvComponent*)jt;
+					((TvSceneRenderFunc)(g_hash_table_lookup(renderers_table, (gpointer)c->id)))(c);
+                }
+            }
+        }
+    }
+}
+
+GSList* tv_scene_get_cameras()
+{
+	return cameras;
+}
+
+void tv_scene_add_camera(TvCamera* cam)
+{
+	cameras = g_slist_append(cameras, (gpointer)cam);
 }

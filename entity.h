@@ -26,10 +26,19 @@ extern "C" {
 #include "util.h"
 #include "cJSON.h"
 
+
 /**
  * The entity structure. Entities represent all objects in the engine.
  */
 typedef struct TvEntity {
+	TvVector3 pos;
+	TvVector3 rot;
+	TvVector3 scale;
+	TvAABB aabb;
+
+	/* the ID of the collider component (0 if none) attached to the entity */
+	tvuint collide;
+
     int numChildren;
     int numComponents;
     TvEntity* parent;
@@ -63,7 +72,7 @@ void tv_entity_add_child(TvEntity* parent, TvEntity* child);
  * @param cid the ID of the type of the component to get.
  * @return the component if it exists in the entity, NULL otherwise.
  */
-TvComponent* tv_entity_get_component(TvEntity* e, int cid);
+TvComponent* tv_entity_get_component(TvEntity* e, tvuint cid);
 
 /**
  * This is called once all the components have been added to an entity.
@@ -71,13 +80,6 @@ TvComponent* tv_entity_get_component(TvEntity* e, int cid);
  * @param e the entity to start.
  */
 void tv_entity_start(TvEntity* e);
-
-/**
- * Call the collide function on all components for the given entity.
- * @param e the entity to call the collide function for.
- * @param other the entity to pass as a parameter to the collide function.
- */
-void tv_entity_collide(TvEntity* e, TvEntity* other);
 
 /**
  * Update all entities that have been created.

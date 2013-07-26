@@ -7,6 +7,7 @@ extern "C" {
 
 #include "../evo.h"
 #include "entities.h"
+#include "../client.h"
 
 #ifdef __cplusplus
 }
