@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 #include "types.h"
-#include "Gen/all.h"
+#include "component.h"
 
 extern GSList* scene_layers[32];
 
@@ -31,10 +31,20 @@ int tv_scene_init();
 int tv_scene_quit();
 
 /**
- * Add the given renderer to the scene.
- * @param r the renderer to add to the scene.
+ * Associate the given ID with a given render function and render layer.
+ * @param render_func the function to use to render components of the given id.
+ * @param layer the layer on which components of this id should be rendered.
+ * @param id the id to associate with all that monkey business.
  */
-void tv_scene_add(Component_Renderer* r);
+void tv_scene_register_renderer(void (*render_func)(TvComponent*), tvuint layer, tvuint id);
+
+
+/**
+ * Add a component of an ID previously registered with scene_register_renderer
+ * to the scene.
+ * @param c the renderer component to add.
+ */
+void tv_scene_add(TvComponent* c);
 
 #ifdef __cplusplus
 }

@@ -51,9 +51,6 @@
     <ClCompile Include="modelgen.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="pp_component.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="scene.c">
       <Filter>Source Files</Filter>
     </ClCompile>

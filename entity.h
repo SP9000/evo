@@ -21,7 +21,6 @@ extern "C" {
 #include "component.h"
 #include "collision.h"
 #include "draw.h"
-#include "Gen/all.h"
 #include "scene.h"
 #include "types.h"
 #include "util.h"
@@ -49,7 +48,7 @@ TvEntity* entity_new();
  * @param e the entity to add the component to.
  * @param c the component to add to the entity.
  */
-void tv_entity_add_component(TvEntity* e, Component* c);
+void tv_entity_add_component(TvEntity* e, TvComponent* c);
 
 /**
  * Add the given entity as a child to the given parent.
@@ -64,7 +63,7 @@ void tv_entity_add_child(TvEntity* parent, TvEntity* child);
  * @param cid the ID of the type of the component to get.
  * @return the component if it exists in the entity, NULL otherwise.
  */
-Component* tv_entity_get_component(TvEntity* e, int cid);
+TvComponent* tv_entity_get_component(TvEntity* e, int cid);
 
 /**
  * This is called once all the components have been added to an entity.

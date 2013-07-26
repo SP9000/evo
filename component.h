@@ -21,8 +21,6 @@ extern "C" {
 typedef struct TvEntity TvEntity;
 typedef struct TvComponent TvComponent;
 
-#include "Gen/all.h"
-
 /**
  * The component structure. The collection of an entities' components defines
  * its behavior. This layout just defines the base structure of the component.

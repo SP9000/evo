@@ -91,7 +91,6 @@
     <ClCompile Include="matrix.c" />
     <ClCompile Include="model.c" />
     <ClCompile Include="modelgen.c" />
-    <ClCompile Include="pp_component.c" />
     <ClCompile Include="scene.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="timer.c" />

@@ -11,7 +11,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 #ifdef __cplusplus
-extern "C"
+extern "C" {
 #endif
 
 #include <GL/glew.h>
@@ -31,7 +31,7 @@ typedef int tvint;
 typedef float tvfloat;
 typedef unsigned tvuint;
 typedef bool tvbool;
-typedef uint_32 tvu32;
+typedef uint32_t tvu32;
 
 typedef GArray TvArray;
 typedef GList TvList;

@@ -12,8 +12,6 @@ int tv_model_init()
 
 TvModel* tv_model_load_ply(tvchar* file)
 {
-	TvArray* face_buff;
-	TvArray* face_size_buff;
 	TvList* it;
 	TvModel* model;
 	FILE* fp;
@@ -104,7 +102,7 @@ TvModel* tv_model_load_ply(tvchar* file)
 			}
 		}
 	}
-	g_hash_table_insert(loaded_model_names, (gpointer)tv_model_new_handle(), (gpointer)model);
+	g_hash_table_insert(loaded_model_names, file, (gpointer)model);
 }
 
 void tv_model_add_attribute(TvModel* model, tvuint attribute)
@@ -121,7 +119,7 @@ TvAABB tv_model_get_aabb(TvModel* model)
 
 }
 
-tvuint tv_model_new()
+TvModel* tv_model_new()
 {
 
 }

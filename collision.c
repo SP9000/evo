@@ -1,14 +1,17 @@
 #include "collision.h"
 
-GHashTable* colliding = NULL;
-static GHashTable* collidingY = NULL;
-static GHashTable* collidingZ = NULL;
+/* table of registered collider ID's and their OnCollide functions */
+static TvHashTable* registered_colliders; 
+
+TvHashTable* colliding = NULL;
+static TvHashTable* collidingY = NULL;
+static TvHashTable* collidingZ = NULL;
 
 /* lists of all the colldiers sorted on various axes for fast detection */
-static GList* colliders;
-static GList* xSorted;
-static GList* ySorted;
-static GList* zSorted;
+static TvList* colliders;
+static TvList* xSorted;
+static TvList* ySorted;
+static TvList* zSorted;
 
 /* equality function for collision comparison */
 gboolean ColEqual(gconstpointer a, gconstpointer b);
@@ -18,13 +21,18 @@ static gint XCompare(gconstpointer a, gconstpointer b);
 static gint YCompare(gconstpointer a, gconstpointer b);
 static gint ZCompare(gconstpointer a, gconstpointer b);
 
-
 void tv_collision_init()
 {
     colliders = NULL;
+	registered_colliders = g_hash_table_new(g_int_hash, g_int_equal);
 }
 
-void tv_collision_add_collider(Component_Collider* col)
+void tv_collision_register_collider(void (*on_collision)(TvEntity*), tvuint id)
+{
+	g_hash_table_insert(registered_colliders, (gpointer)id, (gpointer)on_collision);
+}
+
+void tv_collision_add_collider(TvComponent* col)
 {
     colliders = g_list_append(colliders, col);
     xSorted = g_list_insert_sorted(xSorted, (gpointer)col, XCompare);
@@ -33,7 +41,7 @@ void tv_collision_add_collider(Component_Collider* col)
     colliding = g_hash_table_new(NULL, NULL);
 }
 
-void Collision_RemoveCollider(Component_Collider* col)
+void Collision_RemoveCollider(TvComponent* col)
 {
     /* get that s*** outta' here */
     colliders = g_list_remove(colliders, (gpointer)col);

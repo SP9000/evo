@@ -20,13 +20,15 @@ extern "C" {
 #include <SDL/SDL.h>
 #include <stdlib.h>
 #include <GL/glew.h>
+#include "camera.h"
+#include "material.h"
 #include "matrix.h"
+#include "model.h"
 #include "scene.h"
 #include "texture.h"
 #include "types.h"
-#include "Gen/all.h"
 
-extern Component_Camera* main_cam;
+extern TvCamera* main_cam;
 
 typedef struct tagTvDrawTarget {
     /* the framebuffer ID of the target. */
@@ -113,7 +115,7 @@ void tv_draw_resize_screen(int w, int h);
  * Add the given camera to the list of cameras.
  * @param cam the camera to be added and used henceforth for rendering. 
  */
-void tv_draw_add_camera(Component_Camera* cam);
+void tv_draw_add_camera(TvCamera* cam);
 
 /**
  * Draw the given texture within the bounds of the given rect.
