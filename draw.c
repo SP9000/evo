@@ -103,11 +103,11 @@ void tv_draw_start_frame()
 
 void tv_draw_resize_screen(int w, int h)
 {
-    GSList* it;
+    TvCameraNode* it;
     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-	for(it = tv_scene_get_cameras(); it != NULL; it = g_slist_next(it)) {
-        TvCamera* c = (TvCamera*)it->data;
+	for(it = tv_scene_get_cameras(); it != NULL; it = it->next) {
+        TvCamera* c = it->cam;
         if(c->ortho) {
             /*
             c->Orthographic(c, 0.0f, c->w, ->h, 

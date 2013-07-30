@@ -32,7 +32,6 @@ typedef struct tagTvCollision {
     TvEntity* col2;
 } TvCollision;
 
-
 typedef tvbool (*TvCollisionDetectFunc)(TvEntity*);
 typedef void (*TvCollisionCollideFunc)(TvEntity*);
 
@@ -63,6 +62,12 @@ void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint
  * @param e the entity to check collision for from here on.
  */
 void tv_collision_add_entity(TvEntity* e);
+
+/**
+ * Removes the specified entity from the collision detection routines.
+ * @param e the entity to remove.
+ */
+void tv_collision_remove_entity(Entity* e);
 
 /**
  * Detect collision between all the colliders that have been added to the game.

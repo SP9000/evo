@@ -27,8 +27,13 @@ typedef struct tagTvModelAttribute {
 	TvArray* data;
 } TvModelAttribute;
 
+typedef struct TvModelAttributeList {
+	TvModelAttribute attr;
+	TvModelAttributeList* next;
+}TvModelAttributeList;
+
 typedef struct tagTvModel {
-	TvList* attributes;
+	TvModelAttributeList* attributes;
 	GLuint* vbo_ids;
 	GLshort* indices;
 	GLuint vao;

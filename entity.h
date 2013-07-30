@@ -26,7 +26,6 @@ extern "C" {
 #include "util.h"
 #include "cJSON.h"
 
-
 /**
  * The entity structure. Entities represent all objects in the engine.
  */
@@ -42,9 +41,14 @@ typedef struct TvEntity {
     int numChildren;
     int numComponents;
     TvEntity* parent;
-    GSList* children;
-    GSList* components;
+    struct TvEntityList* children;
+	TvComponentList* components;
 }TvEntity;
+
+typedef struct TvEntityList {
+	TvEntity e;
+	TvEntityList* next;
+}TvEntityList;
 
 /**
  * Create an empty entity.

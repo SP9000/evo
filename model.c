@@ -12,7 +12,7 @@ int tv_model_init()
 
 TvModel* tv_model_load_ply(tvchar* file)
 {
-	TvList* it;
+	TvModelAttributeList* it;
 	TvModel* model;
 	FILE* fp;
 	
@@ -53,7 +53,7 @@ TvModel* tv_model_load_ply(tvchar* file)
 		/* read all the attributes that are used */
 		if(strncmp(a, "element", 8) == 0) {
 			TvModelAttribute attr;
-			TvModelAttribute* to_add;
+			TvModelAttributeList* to_add;
 			attr.type = MODEL_ATTRIBUTE_NONE;
 			if(strncmp(b, "vertex", 6) == 0) {
 				attr.size = MODEL_ATTRIBUTE_VERTEX_SIZE;
@@ -68,10 +68,9 @@ TvModel* tv_model_load_ply(tvchar* file)
 				attr.type = MODEL_ATTRIBUTE_INDEX;
 			}
 			if(attr.type != MODEL_ATTRIBUTE_NONE) {
-				to_add = (TvModelAttribute*)malloc(sizeof(TvModelAttribute));
-				attr.data = g_array_new(false, false, c);
-				*to_add = attr;
-				model->attributes = g_list_prepend(model->attributes, to_add);
+				to_add = (TvModelAttributeList*)malloc(sizeof(TvModelAttributeList));
+				to_add->attr.data = g_array_new(false, false, c);
+				LL_PREPEND(model->attributes, to_add);
 			}
 		}
 		else if(strncmp(a, "property", 9) == 0) {
@@ -161,10 +160,10 @@ void tv_model_optimize(TvModel* model)
 
 void tv_model_free(TvModel* model)
 {
-	GList* it;
-	for(it = model->attributes; it != NULL; it = g_list_next(it)) {
+	TvModelAttributeList* it;
+	for(it = model->attributes; it != NULL; it = it->next) {
 		TvModelAttribute* a = (TvModelAttribute*)it;
-		g_array_free(a->data, true);
+		utarray_free(a->data);
 	}
-	g_list_free(model->attributes);
+	/* TODO: free LL of attributes */
 }

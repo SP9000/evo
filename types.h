@@ -20,6 +20,11 @@ extern "C" {
 #include "matrix.h"
 #include "texture.h"
 
+#include "tv_array.h"
+#include "tv_hash.h"
+#include "tv_list.h"
+#include "tv_string.h"
+
 /* boolean */
 typedef int tvbool;
 #define false 0
@@ -33,10 +38,9 @@ typedef unsigned tvuint;
 typedef uint32_t tvu32;
 
 /* data structures */
-typedef GArray TvArray;
-typedef GList TvList;
-typedef GHashTable TvHashTable;
-typedef GQueue TvQueue;
+typedef UT_array TvArray;
+typedef UT_hash_table TvHashTable;
+typedef UT_hash_handle TvHashHandle;
 
 /* the number of render layers */
 #define RENDER_LAYER_COUNT  2

@@ -43,6 +43,14 @@ typedef struct TvComponent {
     unsigned id;
 }TvComponent;
 
+/**
+ * A node version of component for lists.
+ */
+typedef struct TvComponentList  {
+	TvComponent* c;
+	TvComponentList* next;
+}TvComponentList;
+
 /* gross forward declaration */
 TvComponent* tv_entity_get_component(TvEntity* e, tvuint id);
 

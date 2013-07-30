@@ -115,6 +115,10 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="tv_array.h" />
+    <ClInclude Include="tv_hash.h" />
+    <ClInclude Include="tv_list.h" />
+    <ClInclude Include="tv_string.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

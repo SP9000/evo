@@ -17,9 +17,17 @@ extern "C" {
 #include "types.h"
 #include "component.h"
 
-extern GSList* scene_layers[32];
-
+typedef struct TvComponentNode {
+	TvComponent* c;
+	ComponentNode* next;
+}ComponentNode;
+typedef struct TvCameraNode {
+	TvCamera* cam;
+	TvCameraNode* next;
+}TvCameraNode;
 typedef void (*TvSceneRenderFunc)(TvComponent*);
+
+TvComponentNode* scene_layers[32];
 
 /**
  * Initialize the scene system.
@@ -41,7 +49,6 @@ int tv_scene_quit();
  */
 void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvuint id);
 
-
 /**
  * Add a component of an ID previously registered with scene_register_renderer
  * to the scene.
@@ -52,7 +59,7 @@ void tv_scene_add(TvComponent* c);
 /**
  * @return a list of all cameras currently in the scene.
  */
-GSList* tv_scene_get_cameras();
+TvCameraNode* tv_scene_get_cameras();
 
 /**
  * Add the given camera to the list of cameras.
