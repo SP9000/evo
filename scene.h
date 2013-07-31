@@ -19,15 +19,15 @@ extern "C" {
 
 typedef struct TvComponentNode {
 	TvComponent* c;
-	ComponentNode* next;
-}ComponentNode;
+	struct ComponentNode* next;
+}TvComponentNode;
 typedef struct TvCameraNode {
 	TvCamera* cam;
-	TvCameraNode* next;
+	struct TvCameraNode* next;
 }TvCameraNode;
 typedef void (*TvSceneRenderFunc)(TvComponent*);
 
-TvComponentNode* scene_layers[32];
+TvComponentList* scene_layers[32];
 
 /**
  * Initialize the scene system.

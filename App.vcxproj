@@ -12,6 +12,21 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c" />
+    <ClCompile Include="Components\Animation.c" />
+    <ClCompile Include="Components\Camera.c" />
+    <ClCompile Include="Components\Collider.c" />
+    <ClCompile Include="Components\Debug.c" />
+    <ClCompile Include="Components\Label.c" />
+    <ClCompile Include="Components\Log.c" />
+    <ClCompile Include="Components\Material.c" />
+    <ClCompile Include="Components\Model.c" />
+    <ClCompile Include="Components\ModelRenderer.c" />
+    <ClCompile Include="Components\Renderer.c" />
+    <ClCompile Include="Components\ScrollWidget.c" />
+    <ClCompile Include="Components\TextRenderer.c" />
+    <ClCompile Include="Components\Texture.c" />
+    <ClCompile Include="Components\Transform.c" />
+    <ClCompile Include="Components\Widget.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h" />

@@ -1,6 +1,6 @@
 #include "entity.h"
 
-static GSList* entities;
+static TvEntityList* entities;
 
 TvEntity* tv_entity_new()
 {
@@ -14,35 +14,39 @@ TvEntity* tv_entity_new()
 
 void tv_entity_add_component(TvEntity* e, TvComponent* c)
 {
-    e->components = g_slist_append(e->components, c);
+	TvComponentList* node = (TvComponentList*)tv_alloc(sizeof(TvComponentList));
+	LL_APPEND(e->components, node);
     c->entity = e;
 }
 
 void tv_entity_add_child(TvEntity* parent, TvEntity* child)
 {
-    parent->children = g_slist_append(parent->children, child);
-    child->parent = parent;
+	TvEntityList* node = (TvEntityList*)tv_alloc(sizeof(TvEntityList));
+	LL_APPEND(parent->children, node);
+	child->parent = parent;
 }
 
 void tv_entity_start(TvEntity* e)
 {
-    GSList* clist;
-    for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
+    TvComponentList* clist;
+	TvEntityList* node;
+    for(clist = e->components; clist != NULL; clist = clist->next) {
         /* get the component and start it */
-        TvComponent* c = (TvComponent*)clist->data;
+        TvComponent* c = (TvComponent*)clist;
         c->Start(c);
     }
-    entities = g_slist_append(entities, e);
+	node = (TvEntityList*)tv_alloc(sizeof(TvEntityList));
+	LL_APPEND(entities, node); 
 }
 
 TvComponent* tv_entity_get_component(TvEntity* e, int cid)
 {
-    GSList* clist;
+    TvComponentList* clist;
     if(!e) {
         return NULL;
     }
-    for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
-        TvComponent* c = (TvComponent*)clist->data;
+    for(clist = e->components; clist != NULL; clist = clist->next) {
+        TvComponent* c = (TvComponent*)clist;
         if(c->id == cid) {
             return c;
         }   
@@ -52,15 +56,15 @@ TvComponent* tv_entity_get_component(TvEntity* e, int cid)
 
 void tv_entity_update()
 {
-    GSList* eit;
-    GSList* cit;
+    TvEntityList* eit;
+    TvComponentList* cit;
 
     /* foreach entity... */
-    for(eit = entities; eit != NULL; eit = g_slist_next(eit)) {
+    for(eit = entities; eit != NULL; eit = eit->next) {
         /* update all components for this entity */
-		TvEntity* e = (TvEntity*)eit->data;
-        for(cit = e->components; cit != NULL; cit = g_slist_next(cit)) {
-			TvComponent* c = (TvComponent*)cit->data;
+		TvEntity* e = (TvEntity*)(eit->e);
+        for(cit = e->components; cit != NULL; cit = cit->next) {
+			TvComponent* c = (TvComponent*)cit;
 			c->Update(c);
         }
     }

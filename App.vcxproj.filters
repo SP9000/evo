@@ -16,10 +16,58 @@
     <Filter Include="Components">
       <UniqueIdentifier>{05eeaa64-da89-4f2a-8b2f-d87f24d9ef5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Standard">
+      <UniqueIdentifier>{b027b75a-34f5-480d-ab9d-53465c9f6f6f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Animation.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Camera.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Collider.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Debug.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Label.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Log.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Material.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Model.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\ModelRenderer.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Renderer.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\ScrollWidget.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\TextRenderer.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Texture.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Transform.c">
+      <Filter>Components\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Components\Widget.c">
+      <Filter>Components\Standard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

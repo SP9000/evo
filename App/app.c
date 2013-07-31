@@ -5,6 +5,7 @@ int main(int argc, char** argv)
 	puts("invoked"); fflush(stdout);
 	tv_client_init();
 	tv_client_start();
+	
 	return 0;
 }
 

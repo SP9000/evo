@@ -40,18 +40,18 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LibraryPath>C:\enet\lib;C:\glew\lib\Release\Win32;C:\glib\lib;C:\SDL\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\enet\lib;C:\glew\lib\Release\Win32;C:\SDL\lib\x86;$(LibraryPath)</LibraryPath>
     <IncludePath>$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(IncludePath)</IncludePath>
-    <LibraryPath>C:\enet\lib;C:\glew\lib\Release\Win32;C:\glib\lib;C:\SDL\lib\x86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\enet\lib;C:\glew\lib\Release\Win32;C:\SDL\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\glib\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -66,7 +66,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\glib\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -94,6 +94,7 @@
     <ClCompile Include="scene.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="timer.c" />
+    <ClCompile Include="tv_alloc.c" />
     <ClCompile Include="types.c" />
     <ClCompile Include="util.c" />
   </ItemGroup>
@@ -115,6 +116,7 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="tv_alloc.h" />
     <ClInclude Include="tv_array.h" />
     <ClInclude Include="tv_hash.h" />
     <ClInclude Include="tv_list.h" />

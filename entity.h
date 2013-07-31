@@ -23,6 +23,7 @@ extern "C" {
 #include "draw.h"
 #include "scene.h"
 #include "types.h"
+#include "tv_alloc.h"
 #include "util.h"
 #include "cJSON.h"
 
@@ -46,8 +47,8 @@ typedef struct TvEntity {
 }TvEntity;
 
 typedef struct TvEntityList {
-	TvEntity e;
-	TvEntityList* next;
+	TvEntity* e;
+	struct TvEntityList* next;
 }TvEntityList;
 
 /**

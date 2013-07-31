@@ -22,8 +22,13 @@ extern "C" {
 #include "collision.h"
 #include "draw.h"
 #include "input.h"
+#include "model.h"
 #include "modelgen.h"
+#include "material.h"
+#include "scene.h"
 #include "timer.h"
+#include "texture.h"
+#include "types.h"
 
 
 /**

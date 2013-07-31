@@ -10,7 +10,7 @@ typedef struct CameraIDtoRenderFuncHash {
 
 
 /* TODO: nice "spatial" representation we got here */
-ComponentNode* scene_layers[32];
+TvComponentList* scene_layers[32];
 ComponentIDtoRenderFuncHash* renderers_table;
 
 TvCamera* main_cam;
@@ -29,7 +29,7 @@ int tv_scene_init()
 int tv_scene_quit()
 {
     int i;
-	ComponentNode* it;
+	TvComponentList* it;
     for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
 		for(it = scene_layers[i]; it != NULL; it = it->next) {
 			/* TODO: free  */
@@ -40,7 +40,7 @@ int tv_scene_quit()
 
 void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvuint id)
 {
-	CameraIDtoRenderFuncHash* entry = (CameraIDtoRenderFuncHash*)malloc(sizeof(CameraIDtoRenderFuncHash));
+	ComponentIDtoRenderFuncHash* entry = (ComponentIDtoRenderFuncHash*)malloc(sizeof(ComponentIDtoRenderFuncHash));
 		entry->cid = id;
 		entry->render_func = render_func;
 	HASH_ADD_INT(renderers_table, cid, entry);
@@ -48,7 +48,7 @@ void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvu
 
 void tv_scene_add(TvComponent* c, tvuint layer)
 {
-	ComponentNode* n = (ComponentNode*)malloc(sizeof(ComponentNode));
+	TvComponentList* n = (TvComponentList*)malloc(sizeof(TvComponentList));
 	LL_PREPEND(scene_layers[layer], n);
 }
 
@@ -65,7 +65,7 @@ void tv_scene_update()
         main_cam = cam;
         for(i = 0; i < RENDER_LAYER_COUNT; ++i) {
             if((1 << i) & cam->render_layers) {
-				ComponentNode* jt;
+				TvComponentList* jt;
 				for(jt = scene_layers[i]; jt != NULL; jt = jt->next) {
 					ComponentIDtoRenderFuncHash* f;
 					TvComponent* c = jt->c;

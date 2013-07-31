@@ -48,7 +48,7 @@ typedef struct TvComponent {
  */
 typedef struct TvComponentList  {
 	TvComponent* c;
-	TvComponentList* next;
+	struct TvComponentList* next;
 }TvComponentList;
 
 /* gross forward declaration */

@@ -40,7 +40,7 @@ typedef struct tagTvDrawTarget {
 }TvDrawTarget;
 
 typedef struct tagMap {
-    guint32 width, height;
+    tvuint width, height;
 }Map;
 
 /* expose the screen surface. h8r's gon' h8 */

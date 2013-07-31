@@ -14,6 +14,7 @@ static TvModel* postPassRect;
 static TvModel* tex_quad;
 static TvMaterial* tex_mat;
 
+
 int tv_draw_init()
 {
 	/* textured rect */
@@ -52,14 +53,14 @@ int tv_draw_init()
 
 	tex_quad = tv_model_new();
 	tex_quad->num_vertices = 4;
-    tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
-	tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
+    //tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
+	//tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
 
 	tex_mat = tv_material_load("tex.mat");
 	tv_material_get_uniforms(tex_mat->program, 
 		&tex_mat->model_mat, &tex_mat->view_mat, &tex_mat->projection_mat);
 	tex_quad->primitive = GL_QUADS;
-	tv_model_optimize(tex_quad);
+	//tv_model_optimize(tex_quad);
 
     /* wider lines */
     glLineWidth(2);

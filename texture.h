@@ -11,12 +11,14 @@
 
 #include <SDL/SDL.h>
 #include <GL/glew.h>
-#include <glib/glib.h>
+#include "types.h"
 
 typedef struct tagTexture {
-    unsigned width;
-    unsigned height;
+	tvchar* name;
+    tvuint width;
+    tvuint height;
     GLuint id;
+	TvHashHandle hh;
 }Texture;
 
 /**
@@ -36,6 +38,6 @@ void tv_texture_quit();
  * @param file the bitmap file to load into a texture.
  * @return the texture created from the given file.
  */
-Texture tv_texture_load_bmp(char* file);
+Texture* tv_texture_load_bmp(char* file);
 
 #endif

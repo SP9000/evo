@@ -18,7 +18,7 @@ COMPONENT ModelRenderer : Renderer {
     }
     void Update() 
     {
-        
+		
     }
     void Collide(Entity* e)
     {

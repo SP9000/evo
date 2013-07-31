@@ -215,7 +215,7 @@ void tv_client_start()
 		tv_entity_update();
     
         /* update the app */
-        app_update();
+        //app_update();
 
         /* Render */
 		tv_draw_start_frame();
@@ -235,6 +235,7 @@ void tv_client_start()
 
 	tv_input_quit();
 	tv_draw_quit();
+	return;
     SDL_Quit();
 }
 

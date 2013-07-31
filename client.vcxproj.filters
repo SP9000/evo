@@ -72,6 +72,9 @@
     <ClCompile Include="camera.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tv_alloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -141,6 +144,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_string.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_alloc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

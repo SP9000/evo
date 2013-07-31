@@ -23,10 +23,11 @@ COMPONENT Renderer {
      */
     public void Render()
     {
+
     }
     void Start()
     {
-
+		tv_scene_register_renderer(self->Render, layer, self->id);
     }
     void Update()
     {

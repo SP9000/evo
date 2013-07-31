@@ -1,11 +1,10 @@
 #include "texture.h"
 
 /* a map of texture filenames to their texture handles to prevent reloading */
-static GHashTable* loaded_textures;
+static Texture* loaded_textures;
 
 int tv_texture_init()
 {
-    loaded_textures = g_hash_table_new(g_str_hash, g_str_equal);
     return 0;
 }
 
@@ -14,19 +13,18 @@ void tv_texture_quit()
 	
 }
 
-Texture tv_texture_load_bmp(char* file)
+Texture* tv_texture_load_bmp(tvchar* file)
 {
     int bpp;
     GLenum format;
     SDL_Surface* temp_surf;
     SDL_Surface* surface;
     Uint32 colorkey;
-    Texture tex;
+    Texture* tex;
 
-    tex.id = 0;
-    tex.id = (GLuint)g_hash_table_lookup(loaded_textures, (gpointer)file);
-    if(tex.id != 0) {
-        return tex;
+	HASH_FIND_PTR(loaded_textures, file, tex);
+    if(tex != NULL) {
+        return NULL;
     }
 
     temp_surf = SDL_LoadBMP(file);
@@ -61,13 +59,15 @@ Texture tv_texture_load_bmp(char* file)
                 file);
         return tex;
     }
-    glGenTextures(1, &tex.id);
-    glBindTexture(GL_TEXTURE_2D, tex.id);
+    glGenTextures(1, &tex->id);
+    glBindTexture(GL_TEXTURE_2D, tex->id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, bpp, surface->w, surface->h, 0, format,
             GL_UNSIGNED_BYTE, surface->pixels);
     SDL_FreeSurface(surface);
+
+	HASH_ADD_PTR(loaded_textures, name, tex);
     return tex;
 }
 
