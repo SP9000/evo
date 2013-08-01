@@ -1,7 +1,7 @@
 #include "texture.h"
 
 /* a map of texture filenames to their texture handles to prevent reloading */
-static Texture* loaded_textures;
+static TvTexture* loaded_textures;
 
 int tv_texture_init()
 {
@@ -13,14 +13,14 @@ void tv_texture_quit()
 	
 }
 
-Texture* tv_texture_load_bmp(tvchar* file)
+TvTexture* tv_texture_load_bmp(tvchar* file)
 {
     int bpp;
     GLenum format;
     SDL_Surface* temp_surf;
     SDL_Surface* surface;
     Uint32 colorkey;
-    Texture* tex;
+    TvTexture* tex;
 
 	HASH_FIND_PTR(loaded_textures, file, tex);
     if(tex != NULL) {

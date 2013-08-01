@@ -62,6 +62,7 @@ void tv_collision_remove_entity(TvEntity* e)
 	/* TODO: */
 }
 
+/* TODO: NO! This crap will not fly! */
 void tv_collision_detect()
 {
     TvEntity* c1;
@@ -110,15 +111,15 @@ void tv_entity_collide(TvEntity* e, TvEntity* other)
 	OnCollideHash* on_collide;
 	DetectCollisionHash* detect;
 	/* do precise collision detection */
-	HASH_FIND_INT(registered_colliders, &e->collide, detect);
+	HASH_FIND_INT(registered_colliders, &e->collider, detect);
 	if(detect) {
 		/* call e's collide function */
-		HASH_FIND_INT(registered_colliders, &e->collide, on_collide);
+		HASH_FIND_INT(registered_colliders, &e->collider, on_collide);
 		if(on_collide) {
 			on_collide->f(other);
 		}
 		/* call other's collide function */
-		HASH_FIND_INT(registered_colliders, &other->collide, on_collide);
+		HASH_FIND_INT(registered_colliders, &other->collider, on_collide);
 		if(on_collide) {
 			on_collide->f(e);
 		}

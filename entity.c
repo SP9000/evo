@@ -5,8 +5,6 @@ static TvEntityList* entities;
 TvEntity* tv_entity_new()
 {
     TvEntity* e = (TvEntity*)malloc(sizeof(TvEntity)); 
-    e->numChildren = 0; 
-    e->numComponents = 0; 
     e->components = NULL; 
     e->children = NULL; 
     return e;

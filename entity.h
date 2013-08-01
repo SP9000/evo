@@ -37,10 +37,14 @@ typedef struct TvEntity {
 	TvAABB aabb;
 
 	/* the ID of the collider component (0 if none) attached to the entity */
-	tvuint collide;
+	tvuint collider;
+	/* the ID of the renderer component (0 if none) attached to the entity */
+	tvuint renderer;
+	/* the ID of the animation component (0 if none) attached to the entity */
+	tvuint animation;
+	/* the ID of the audio-source component (0 if none) attached to the entity */
+	tvuint audio;
 
-    int numChildren;
-    int numComponents;
     TvEntity* parent;
     struct TvEntityList* children;
 	TvComponentList* components;

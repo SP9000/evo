@@ -1,35 +1,23 @@
-/*****************************************************************************/
-/* The camera component - contains information to represent the window(s) to */
-/* render within.                                                            */
-/*                                                                           */
-/* Bryce Wilson                                                              */
-/* July 1, 2013                                                              */
-/*****************************************************************************/
-COMPONENT Camera {
-    getset Component_Transform* transform;
+#include "Camera.h"
 
-	/* the camera from the engine, which this component is a wrapper for */
-	getset TvCamera* cam;
+static void Start(Camera* self);
+static void Update(Camera* self);
 
-    public void Perspective(float fov, float aspect, float nearZ, float farZ)
-    {
-		tv_camera_perspective(self->cam, fov, aspect, nearZ, farZ)
-    }
-    public void Orthographic(float left, float right, float top, float bottom,
-            float nearZ, float farZ)
-    {
-		tv_camera_orthographic(self->cam, left, right, top, bottom, nearZ, farZ);    
-	}
-    void Start() 
-    {
-        self->transform = Component_GetAs(Transform);
-    }
-    void Update() 
-    {
-    }
-    void Collide(Entity* e)
-    {
-        puts("camera collision");
-    }
+void Perspective(Camera* self, float fov, float aspect, float nearZ, float farZ)
+{
+	tv_camera_perspective(self->cam, fov, aspect, nearZ, farZ);
 }
 
+void Orthographic(Camera* self, float left, float right, float top, float bottom,
+        float nearZ, float farZ)
+{
+	tv_camera_orthographic(self->cam, left, right, top, bottom, nearZ, farZ);    
+}
+
+void Start(Camera* self)
+{
+}
+
+void Update(Camera* self)
+{
+}

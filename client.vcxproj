@@ -53,6 +53,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>

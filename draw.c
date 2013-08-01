@@ -172,7 +172,7 @@ void tv_draw_gui()
     glDisable(GL_SCISSOR_TEST);
 }
 
-void tv_draw_texture(Texture tex, TvRect* rect)
+void tv_draw_texture(TvTexture tex, TvRect* rect)
 {
 	GLint loc;
 
@@ -268,9 +268,9 @@ void tv_draw_set_target(TvDrawTarget* target)
     }
 }
 
-Texture tv_draw_target_to_texture(TvDrawTarget* target)
+TvTexture tv_draw_target_to_texture(TvDrawTarget* target)
 {
-    Texture t;
+    TvTexture t;
     t.id = target->texID;
     return t;
 }

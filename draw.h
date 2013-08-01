@@ -92,7 +92,7 @@ void tv_draw_set_target(TvDrawTarget* target);
  * @param target the target to get the texture of.
  * @return a texture usable with Material_SetTexture.
  */
-Texture tv_draw_target_to_texture(TvDrawTarget* target);
+TvTexture tv_draw_target_to_texture(TvDrawTarget* target);
 
 /**
  * Draw GUI ontop of the currently rendered scene.
@@ -116,7 +116,7 @@ void tv_draw_resize_screen(int w, int h);
  * @param tex the texture to draw.
  * @param rect the rectangle to draw the texture within.
  */
-void tv_draw_texture(Texture tex, TvRect* rect);
+void tv_draw_texture(TvTexture tex, TvRect* rect);
 
 #ifdef __cplusplus
 }
