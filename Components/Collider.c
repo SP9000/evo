@@ -1,31 +1,15 @@
-/*****************************************************************************/
-/* The collider component.                                                   */
-/* This component contains information that allows the entity it is attached */
-/* to be checked for collision with other entities that have colliders.      */
-/*                                                                           */
-/* Bryce Wilson                                                              */
-/* Created: June, 2013                                                       */
-/*****************************************************************************/
-COMPONENT Collider {
-    public Component_Transform* transform;
-    public AABB aabb;
+#include "Collider.h"
 
-    void Start()
-    {
-        self->transform = Component_GetAs(Transform);
-        self->aabb.w = 1.0f;
-        self->aabb.h = 1.0f;
-        self->aabb.d = 1.0f;
-    }
+static void Start(Collider* self);
 
-    void Update() 
-    {
-
-    }
-
-    void Collide(Entity* e)
-    {
-        puts("collider collision");
-    }
+void Start(Collider* self)
+{
+	self->base.entity->aabb.w = 1.0f;
+    self->base.entity->aabb.h = 1.0f;
+    self->base.entity->aabb.d = 1.0f;
 }
 
+Collider* collider_new()
+{
+	return (Collider*)tv_alloc(sizeof(Collider));
+}

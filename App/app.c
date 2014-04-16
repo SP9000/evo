@@ -35,7 +35,6 @@ int main(int argc, char** argv)
 	tv_client_set_update_func(app_update);
 	test();
 	tv_client_start();
-
 	return 0;
 }
 

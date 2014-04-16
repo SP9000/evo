@@ -1,66 +1,63 @@
-/*****************************************************************************/
-/* ModelRenderer.c                                                           */
-/* One of the more basic renderers.  This just renders a single model.       */
-/*                                                                           */
-/* Bryce Wilson                                                              */
-/* Created: July 19, 2013                                                    */
-/*****************************************************************************/
-#include "../draw.h"
-COMPONENT ModelRenderer : Renderer {
-    getset Component_Model* model;
-    Component_Transform* transform;
+#include "ModelRenderer.h"
 
-    void Start() 
-    {
-        self->material = Component_GetAs(Material);
-        self->model = Component_GetAs(Model);
-        self->transform = Component_GetAs(Transform);
-    }
-    void Update() 
-    {
-        
-    }
-    void Collide(Entity* e)
-    {
+static void Start(ModelRenderer* self);
+static void Update(ModelRenderer* self);
+static void Render(ModelRenderer* self);
 
-    }
-    public void Render()
-    {
-        Mat4x4Push(&main_cam->viewMat);
-        Mat4x4Translate(&main_cam->viewMat, -self->model->transform->pos.x, 
-            -self->model->transform->pos.y, self->model->transform->pos.z);
-        main_cam->viewMat.a00 *= self->transform->scale.x;
-        main_cam->viewMat.a11 *= self->transform->scale.y;
-        main_cam->viewMat.a22 *= self->transform->scale.z;
+void ModelRenderer_Load(ModelRenderer* self, char* file)
+{
+	self->model = tv_model_load_ply(file);
+}
 
-        /* Bind the models' vertex attribute object. */
-        glBindVertexArray(self->model->vao);
-        /* use the model's material's shader */
-        glUseProgram(self->material->program);
+void Start(ModelRenderer* self) 
+{
+}
 
-        /* set matrices */
-        glUniformMatrix4fv(self->material->modelMatrixID, 1, GL_FALSE, 
-                Mat4x4Pack(&main_cam->modelMat));
-        glUniformMatrix4fv(self->material->viewMatrixID, 1, GL_FALSE, 
-                Mat4x4Pack(&main_cam->viewMat));
-        glUniformMatrix4fv(self->material->projectionMatrixID, 1, GL_FALSE, 
-                Mat4x4Pack(&main_cam->projectionMat));
+void Update(ModelRenderer* self) 
+{
+		
+}
 
-        /* bind any samplers (textures) the material uses */
-        //if(self->material->texture.id != 0) {
-            //glUniform1i(self->material->texture.loc, 0); /* TODO: use glProgramUniform in material.c */
-            //glActiveTexture(GL_TEXTURE0 + 0);
-            //glBindTexture(GL_TEXTURE_2D, self->material->texture.id);
-            //glBindSampler(0, self->material->texture.sampler); 
-        //}
+void Render(ModelRenderer* self)
+{
+	tv_mat4x4_push(main_cam->view_mat);
+	tv_mat4x4_translate(main_cam->view_mat, -self->base.base.entity->pos.x,
+		-self->base.base.entity->pos.y, self->base.base.entity->pos.z);
+    main_cam->view_mat[0] *= self->base.base.entity->pos.x;
+    main_cam->view_mat[5] *= self->base.base.entity->pos.y;
+    main_cam->view_mat[10] *= self->base.base.entity->pos.z;
 
-        /* bind attribute array and draw */
-        glBindVertexArray(self->model->vao);
-        glDrawArrays(self->model->primitive, 0, 
-                self->model->numVertices);
-        glBindVertexArray(0);
+    /* Bind the models' vertex attribute object. */
+    glBindVertexArray(self->model->vao);
+    /* use the model's material's shader */
+    glUseProgram(self->base.material->program);
 
-        Mat4x4Pop(&main_cam->viewMat);
-    }
+    /* set matrices */
+	glUniformMatrix4fv(self->base.material->model_mat, 1, GL_FALSE, 
+            main_cam->model_mat);
+	glUniformMatrix4fv(self->base.material->view_mat, 1, GL_FALSE, 
+            main_cam->view_mat);
+	glUniformMatrix4fv(self->base.material->projection_mat, 1, GL_FALSE, 
+            main_cam->projection_mat);
+
+    /* bind any samplers (textures) the material uses */
+    //if(self->material->texture.id != 0) {
+        //glUniform1i(self->material->texture.loc, 0); /* TODO: use glProgramUniform in material.c */
+        //glActiveTexture(GL_TEXTURE0 + 0);
+        //glBindTexture(GL_TEXTURE_2D, self->material->texture.id);
+        //glBindSampler(0, self->material->texture.sampler); 
+    //}
+
+    /* bind attribute array and draw */
+    glBindVertexArray(self->model->vao);
+    /*
+	glDrawArrays(self->model->primitive, 0, 
+		self->model->num_vertices);
+	*/
+	glDrawElements(self->model->primitive, self->model->num_indices, 
+		GL_UNSIGNED_SHORT, self->model->indices); 
+    glBindVertexArray(0);
+
+	tv_mat4x4_pop(main_cam->view_mat);
 }
 

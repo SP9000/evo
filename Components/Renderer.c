@@ -1,40 +1,11 @@
-/*****************************************************************************/
-/* Render.c                                                                  */
-/* This is the base component for all things that are to be rendered in the  */
-/* engine. Included are some basic functions to add attributes.              */
-/*                                                                           */
-/*                                                                           */
-/* Bryce Wilson                                                              */
-/* Created: July 19, 2013                                                    */
-/*****************************************************************************/
+#include "Renderer.h"
+static void Start(Renderer* self);
+static void Update(Renderer* self);
 
-COMPONENT Renderer {
-    getset Component_Material* material;
-
-    /**
-     * What layer this renderer should be displayed on. 
-     * e.g. RENDER_LAYER_GUI or RENDER_LAYER_MAIN. 
-     */
-    public int layer;
-
-    /**
-     * All functions which inherit Render should override this. 
-     * This is where you put drawing code.
-     */
-    public void Render()
-    {
-    }
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    void Collide(Entity* e)
-    {
-
-    }
+void Start(Renderer* self)
+{
+	tv_scene_register_renderer(self->Render, self->layer, self->base.id);
+	if(self->material->name != NULL) {
+		tv_material_load(self->material->name);
+	}
 }
-
