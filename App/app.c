@@ -1,10 +1,41 @@
 #include "app.h"
 
+
+void app_update() 
+{
+
+}
+
+void test()
+{
+	TvEntity *test_e;
+
+	TvVector3 transform1_pos = {10.0f,10.0f,-1.0f};
+	TvVector3 transform1_scale = {20.0f,20.0f,1.0f};
+	tv_model* model1 = tv_model_new();
+	tv_material *mat1 = tv_material_new();
+	tv_model_renderer *renderer = tv_model_renderer_new();
+
+	tv_model_load_ply(model1, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\beethoven.ply");
+	tv_model_optimize(model1);
+	tv_material_load(mat1, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\test.mat");
+	tv_model_renderer_set_model(renderer, model1);
+
+	test_e = tv_entity_new();
+	tv_entity_add_component(test_e, (tv_component*)model1);
+	tv_entity_add_component(test_e, (tv_component*)mat1);
+	tv_entity_add_component(test_e, (tv_component*)renderer);
+	tv_entity_start(test_e);
+}
+
 int main(int argc, char** argv)
 {
 	puts("invoked"); fflush(stdout);
 	tv_client_init();
+	tv_client_set_update_func(app_update);
+	test();
 	tv_client_start();
+
 	return 0;
 }
 

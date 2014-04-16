@@ -1,8 +1,13 @@
 #ifndef _EVO_H
 #define _EVO_H
 
-#include "modelgen.h"
-#include "draw.h"
 #include "collision.h"
+#include "draw.h"
+#include "model.h"
+#include "modelrenderer.h"
+#include "textrenderer.h"
+#include "modelgen.h"
+#include "material.h"
+#include "renderer.h"
 
 #endif

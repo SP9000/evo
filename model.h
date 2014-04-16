@@ -5,6 +5,7 @@ extern "C" {
 #endif
 
 #include "types.h"
+#include "component.h"
 
 #define MODEL_ATTRIBUTE_VERTEX_SIZE (sizeof(float)*3)
 #define MODEL_ATTRIBUTE_COLOR_SIZE  (sizeof(float)*4)
@@ -21,35 +22,37 @@ enum {
 	MODEL_ATTRIBUTE_INDEX
 };
 
-typedef struct tagTvModelAttribute {
-	tvuint type;
-	tvuint size;
-	TvArray* data;
-} TvModelAttribute;
-
-typedef struct TvModelAttributeList {
-	TvModelAttribute attr;
-	TvModelAttributeList* next;
-}TvModelAttributeList;
-
-typedef struct tagTvModel {
-	TvModelAttributeList* attributes;
-	GLuint* vbo_ids;
-	GLshort* indices;
+COMPONENT(tv_model, tv_component) 
 	GLuint vao;
 	GLuint primitive;
 	GLuint num_vertices;
-}TvModel;
+	GLuint num_indices;
+	tvuint num_attributes;
+
+	TvArray /*TvArray<GLvoid>*/ *attributes;
+	TvArray /*tvuint*/ *attribute_sizes;
+	TvArray /*tvuint*/ *attribute_types;
+	TvArray /*GLshort*/ *indices;
+	GLuint *vbo_ids;
+
+	const tvchar *name;
+	TvHashHandle hh;
+ENDCOMPONENT(tv_model)
 
 int tv_model_init();
-TvModel* tv_model_new();
-TvModel* tv_model_load_ply(tvchar* file);
-void tv_model_add_attribute(TvModel* model, tvuint attribute);
-void tv_model_buffer_attribute(TvModel* model, tvuint attribute, tvfloat* buffer);
+tv_model* tv_model_new();
+void tv_model_load_ply(tv_model *model, tvchar* file);
+void tv_model_add_attribute(tv_model* model, tvuint attribute);
+void tv_model_buffer_attribute(tv_model* model, tvuint attribute, TvArray* buffer);
+void tv_model_set_attribute(tv_model *model, tvuint attribute_id, tvuint vertex, GLfloat *data);
 
-TvAABB tv_model_get_aabb(TvModel* model);
-void tv_model_optimize(TvModel* model);
-void tv_model_free(TvModel* model);
+TvArray* tv_model_get_attribute(tv_model* model, tvuint attribute);
+GLvoid *tv_model_get_attribute_idx(tv_model *model, tvuint index);
+tvuint tv_model_get_attribute_size_idx(tv_model *model, tvuint index);
+
+TvAABB tv_model_get_aabb(tv_model* model);
+void tv_model_optimize(tv_model* model);
+void tv_model_free(tv_model* model);
 
 #ifdef __cplusplus
 }

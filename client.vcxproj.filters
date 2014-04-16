@@ -16,6 +16,18 @@
     <Filter Include="Standard Assets">
       <UniqueIdentifier>{3ac3ac9f-0851-40b2-a7ad-979f84ecefe1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{a97f06ea-15a3-407a-8f5d-d12dab9569dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\Renderers">
+      <UniqueIdentifier>{bc9fa69c-a399-4ba4-99f6-ba74ce02654e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{a9ce3e79-5eac-4baf-aa54-689313688b92}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Components\Renderers">
+      <UniqueIdentifier>{841a4636-66fc-48ce-b6ba-2e6c92491823}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cJSON.c">
@@ -42,9 +54,6 @@
     <ClCompile Include="input.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="material.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="matrix.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -66,11 +75,26 @@
     <ClCompile Include="util.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="model.c">
+    <ClCompile Include="tv_alloc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="modelrenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="textrenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="renderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
     <ClCompile Include="camera.c">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="model.c">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="material.c">
+      <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,9 +125,6 @@
     <ClInclude Include="input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="matrix.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -125,12 +146,6 @@
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tv_hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -142,6 +157,27 @@
     </ClInclude>
     <ClInclude Include="tv_string.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_alloc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="textrenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="modelrenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="renderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="material.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="model.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

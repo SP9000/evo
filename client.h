@@ -23,6 +23,9 @@ extern "C" {
 #include "draw.h"
 #include "input.h"
 #include "modelgen.h"
+#include "renderer.h"
+#include "modelrenderer.h"
+#include "textrenderer.h"
 #include "timer.h"
 
 

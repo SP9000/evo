@@ -5,6 +5,8 @@ extern "C" {
 #endif
 
 #include "types.h"
+#include "tv_alloc.h"
+#include "component.h"
 
 typedef struct tagTvCameraPerspective {
 	float fov;
@@ -12,6 +14,7 @@ typedef struct tagTvCameraPerspective {
 	float nearZ;
 	float farZ;
 }TvCameraPerspective;
+
 typedef struct tagTvCameraOrthographic {
 	tvuint w;
 	tvuint h;
@@ -22,7 +25,7 @@ typedef union tagTvCameraProperties {
 	TvCameraPerspective perspective;
 }TvCameraProperties;
 
-typedef struct tagTvCamera {
+COMPONENT(tv_camera, tv_component)
 	TvVector3 pos;
 	TvVector3 rot;
 	TvVector3 scale;
@@ -33,10 +36,10 @@ typedef struct tagTvCamera {
 	TvMat4x4 view_mat;
 	TvMat4x4 projection_mat;
 	TvCameraProperties properties;
-}TvCamera;
+ENDCOMPONENT(tv_camera)
 
-void tv_camera_perspective(TvCamera* cam, float fov, float aspect, float nearZ, float farZ);
-void tv_camera_orthographic(TvCamera* cam, float left, float right, float top, float bottom,
+void tv_camera_perspective(tv_camera* cam, float fov, float aspect, float nearZ, float farZ);
+void tv_camera_orthographic(tv_camera* cam, float left, float right, float top, float bottom,
             float nearZ, float farZ);
 
 #ifdef __cplusplus

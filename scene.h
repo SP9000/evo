@@ -17,17 +17,19 @@ extern "C" {
 #include "types.h"
 #include "component.h"
 
-typedef struct TvComponentNode {
-	TvComponent* c;
-	ComponentNode* next;
-}ComponentNode;
-typedef struct TvCameraNode {
-	TvCamera* cam;
-	TvCameraNode* next;
-}TvCameraNode;
-typedef void (*TvSceneRenderFunc)(TvComponent*);
+typedef struct tv_componentNode {
+	tv_component* c;
+	struct tv_componentNode* next;
+} tv_componentNode;
 
-TvComponentNode* scene_layers[32];
+typedef struct TvCameraNode {
+	tv_camera* cam;
+	struct TvCameraNode* next;
+}TvCameraNode;
+
+typedef void (*TvSceneRenderFunc)(tv_component*);
+
+tv_componentNode* scene_layers[32];
 
 /**
  * Initialize the scene system.
@@ -54,7 +56,7 @@ void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvu
  * to the scene.
  * @param c the renderer component to add.
  */
-void tv_scene_add(TvComponent* c);
+void tv_scene_add(tv_component* c);
 
 /**
  * @return a list of all cameras currently in the scene.
@@ -65,7 +67,7 @@ TvCameraNode* tv_scene_get_cameras();
  * Add the given camera to the list of cameras.
  * @param cam the camera to be added and used henceforth for rendering. 
  */
-void tv_scene_add_camera(TvCamera* cam);
+void tv_scene_add_camera(tv_camera* cam);
 
 #ifdef __cplusplus
 }

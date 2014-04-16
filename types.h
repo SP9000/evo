@@ -14,16 +14,17 @@
 extern "C" {
 #endif
 
-#include <GL/glew.h>
-#include <glib/glib.h>
-#include <string.h>
-#include "matrix.h"
-#include "texture.h"
+/* picky stuff */
+#define ssize_t size_t
 
+#include <GL/glew.h>
+#include <stdio.h>
+#include <string.h>
 #include "tv_array.h"
 #include "tv_hash.h"
 #include "tv_list.h"
 #include "tv_string.h"
+#include "matrix.h"
 
 /* boolean */
 typedef int tvbool;
@@ -41,6 +42,10 @@ typedef uint32_t tvu32;
 typedef UT_array TvArray;
 typedef UT_hash_table TvHashTable;
 typedef UT_hash_handle TvHashHandle;
+
+typedef void* tvpointer;
+
+typedef UT_string TvString;
 
 /* the number of render layers */
 #define RENDER_LAYER_COUNT  2
@@ -63,6 +68,15 @@ typedef struct tagVector3 {
 }TvVector3;
 
 /**
+ * A type for representing the position, scale, and rotation of an object.
+ */
+typedef struct tagTvTransform {
+	TvVector3 position;
+	TvVector3 scale;
+	TvVector3 rotation;
+}TvTransform;
+
+/**
  * Axis-aligned bounding box.  This is what is used for checking collision
  * between objects.
  */
@@ -79,14 +93,6 @@ typedef struct tagRect {
 }TvRect;
 
 /**
- * A type for holding data useful for basic GUI rendering 
- */
-typedef struct tagGUIContent {
-    GString* text;
-    Texture texture;
-}TvGUIContent;
-
-/**
  * Checks if the given rectangle contains the given point.
  * @param r the rectangle to check for the point within.
  * @param point the point to determine if is in the bounds of the rect or not.
@@ -100,6 +106,10 @@ int tv_rect_contains(TvRect* r, TvVector2* point);
  * @return nonzero if the rectangles overlap, else zero.
  */
 int tv_rect_overlaps(TvRect* r1, TvRect* r2);
+
+extern UT_icd ut_float_icd;
+extern UT_icd ut_short_icd;
+
 
 #ifdef __cplusplus
 }

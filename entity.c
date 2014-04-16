@@ -1,67 +1,109 @@
 #include "entity.h"
 
-static GSList* entities;
+static TvArray /*Entity* */ *entities;
+
+int tv_entity_init()
+{
+	utarray_new(entities, &ut_ptr_icd);
+	return 0;
+}
 
 TvEntity* tv_entity_new()
 {
     TvEntity* e = (TvEntity*)malloc(sizeof(TvEntity)); 
     e->numChildren = 0; 
     e->numComponents = 0; 
-    e->components = NULL; 
-    e->children = NULL; 
+	e->pos.x = 0;
+	e->pos.y = 0;
+	e->pos.z = 0;
+	e->scale.x = 1.0f;
+	e->scale.y = 1.0f;
+	e->scale.z = 1.0f;
+	e->rot.x = 0.0f;
+	e->rot.y = 0.0f;
+	e->rot.z = 0.0f;
+	utarray_new(e->components, &ut_ptr_icd);
+	utarray_new(e->children, &ut_ptr_icd);
     return e;
 }
 
-void tv_entity_add_component(TvEntity* e, TvComponent* c)
+void tv_entity_add_component(TvEntity* e, tv_component* c)
 {
-    e->components = g_slist_append(e->components, c);
-    c->entity = e;
+	c->entity = e;
+	utarray_push_back(e->components, &c);
 }
 
 void tv_entity_add_child(TvEntity* parent, TvEntity* child)
 {
-    parent->children = g_slist_append(parent->children, child);
-    child->parent = parent;
+	child->parent = parent;
+	utarray_push_back(parent->children, &child);
 }
 
 void tv_entity_start(TvEntity* e)
 {
-    GSList* clist;
-    for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
-        /* get the component and start it */
-        TvComponent* c = (TvComponent*)clist->data;
-        c->Start(c);
+	tv_component **c;
+	/* foreach component... */
+	for(c = (tv_component**)utarray_front(e->components); 
+		c != NULL; 
+		c = (tv_component**)utarray_next(e->components, c)) {
+        /* start the component */
+        (*c)->Start(*c);
     }
-    entities = g_slist_append(entities, e);
+	/* add the entity to the internal array of entities. */
+	utarray_push_back(entities, &e);
 }
 
-TvComponent* tv_entity_get_component(TvEntity* e, int cid)
+tv_component* tv_entity_get_component(TvEntity* e, tvuint cid)
 {
-    GSList* clist;
-    if(!e) {
+	tv_component **c;
+	if(e == NULL) {
         return NULL;
     }
-    for(clist = e->components; clist != NULL; clist = g_slist_next(clist)) {
-        TvComponent* c = (TvComponent*)clist->data;
-        if(c->id == cid) {
-            return c;
+	/* iterate through all the components of the given entity looking for a 
+	 * component of the desired ID. */
+	for(c = (tv_component**)utarray_front(e->components); 
+		c != NULL; 
+		c = (tv_component**)utarray_next(e->components, c)) {
+        if((*c)->id == cid) {
+            return *c;
         }   
     }
+	/* a component of the desired ID does not exist within the given entity. */
     return NULL;
 }
 
 void tv_entity_update()
 {
-    GSList* eit;
-    GSList* cit;
-
+	TvEntity **e;
+	TvEntity **child;
+	tv_component **c;
+	
+	/* Run the update component of each component in every entity (including 
+	 * those that are children of other entitites. */
     /* foreach entity... */
-    for(eit = entities; eit != NULL; eit = g_slist_next(eit)) {
-        /* update all components for this entity */
-		TvEntity* e = (TvEntity*)eit->data;
-        for(cit = e->components; cit != NULL; cit = g_slist_next(cit)) {
-			TvComponent* c = (TvComponent*)cit->data;
-			c->Update(c);
-        }
-    }
+    for(e = (TvEntity**)utarray_front(entities); 
+		e != NULL;
+		e = (TvEntity**)utarray_next(entities, e)) 
+	{
+		/* update all components for this entity */
+		for(c = (tv_component**)utarray_front((*e)->components); 
+			c != NULL;
+			c = (tv_component**)utarray_next((*e)->components, c))
+		{
+			(*c)->Update(*c);
+		}
+		/* foreach child of the entity... */
+		for(child = (TvEntity**)utarray_front((*e)->children);
+			child != NULL;
+			child = (TvEntity**)utarray_next((*e)->children, child)) 
+		{
+				/* update all components for this entity */
+				for(c = (tv_component**)utarray_front((*e)->components); 
+					c != NULL;
+					c = (tv_component**)utarray_next((*e)->components, c))
+				{
+					(*c)->Update(*c);
+				}
+		}
+	}
 }

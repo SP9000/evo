@@ -11,7 +11,6 @@ void tv_mat4x4_push(TvMat4x4 mat)
         matrix_stack[offset+i] = mat[i];
     }
     ++matrix_sp;
-
 }
 
 void tv_mat4x4_pop(TvMat4x4 mat)

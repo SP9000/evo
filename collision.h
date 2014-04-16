@@ -15,8 +15,9 @@ extern "C" {
 
 #include <malloc.h>
 #include <stdio.h>
-#include "entity.h"
 #include "types.h"
+#include "entity.h"
+
 
 
 /************************** types of colliders *******************************/
@@ -67,7 +68,7 @@ void tv_collision_add_entity(TvEntity* e);
  * Removes the specified entity from the collision detection routines.
  * @param e the entity to remove.
  */
-void tv_collision_remove_entity(Entity* e);
+void tv_collision_remove_entity(TvEntity* e);
 
 /**
  * Detect collision between all the colliders that have been added to the game.

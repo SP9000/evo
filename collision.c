@@ -1,11 +1,5 @@
 #include "collision.h"
 
-typedef struct ColliderList {
-	TvEntity* e;
-	ColliderList* next;
-	ColliderList* prev;
-}ColliderList;
-
 typedef struct OnCollideHash {
 	tvuint cid;
 	TvCollisionCollideFunc f;
@@ -18,20 +12,15 @@ typedef struct DetectCollisionHash {
 	TvHashHandle hh;
 }DetectCollisionHash;
 
+void tv_entity_collide(TvEntity* e, TvEntity* other);
 
 /* table of registered collider ID's and their OnCollide functions */
 static DetectCollisionHash* registered_colliders; 
 static OnCollideHash* registered_callbacks;
 
 /* lists of all the colldiers sorted on various axes for fast detection */
-static ColliderList* colliders;
-static ColliderList* xSorted;
-
-/* equality function for collision comparison */
-gboolean ColEqual(gconstpointer a, gconstpointer b);
-
-/* comparison functions for sorting */
-static gint XCompare(gconstpointer a, gconstpointer b);
+static UT_array *colliders;
+static UT_array *xSorted;
 
 void tv_collision_init()
 {
@@ -58,47 +47,42 @@ void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint
 
 void tv_collision_add_entity(TvEntity* e)
 {
-	ColliderList* n = (ColliderList*)malloc(sizeof(ColliderList));
-	LL_APPEND(xSorted, n);
+	utarray_push_back(colliders, e);
 	/* TODO //colliding = g_hash_table_new(NULL, NULL); */
 }
 
 void tv_collision_remove_entity(TvEntity* e)
 {
-	ColliderList* node = (ColliderList*)malloc(sizeof(ColliderList));
-
-    /* get that s*** outta' here */
-	LL_SEARCH(xSorted, node, e, XCompare);
-	LL_DELETE(xSorted, node);
+	utarray_erase(colliders,
+		utarray_eltidx(colliders, e),
+		1);
 }
 
 void tv_collision_detect()
 {
-	ColliderList* it;
-    ColliderList* jt;
-	ColliderList* possibleCollisions;
+	TvEntity* c1;
+    TvEntity* c2;
+	UT_array* possibleCollisions;
 	
 	TvCollision* col;
 
-    TvEntity* c1;
-    TvEntity* c2;
-
-
-    possibleCollisions = NULL;
+ 
+	utarray_new(possibleCollisions, &ut_ptr_icd);
 
     /* Check X */
-    for(it = xSorted, jt = it->next; it != NULL; jt = jt->next) {
-        /* end of the list? */
-        if(jt == NULL) {
-            jt = it = it->next;
+    for(c1 = (TvEntity*)xSorted, c2 = (TvEntity*)xSorted+1; 
+		c1 != NULL;
+		c2 = (TvEntity*)utarray_next(xSorted,c2)) {
+
+        /* end of the array? */
+        if(c2 == NULL) {
+            c2 = c1 = (TvEntity*)utarray_next(xSorted, c1);
         }
         else {
-            c1 = it->e;
-			c2 = jt->e;
             /* not overlapping? */
             if((c1->pos.x + c1->aabb.w) <
                      (c2->pos.x)) {
-                jt = it = it->next;
+                c2 = c1 = (TvEntity*)utarray_next(xSorted, c1);
             }
             /* X is overlapping */
             else {
@@ -148,30 +132,4 @@ void tv_entity_collide(TvEntity* e, TvEntity* other)
 void tv_collision_update()
 {
 
-}
-
-gboolean ColEqual(gconstpointer a, gconstpointer b)
-{
-    TvCollision* c1 = (TvCollision*)a;
-    TvCollision* c2 = (TvCollision*)b;
-    if(((c1->col1 == c2->col1) && (c1->col2 == c2->col2)) ||
-            ((c1->col2 == c2->col1) && (c1->col1 == c2->col2))) {
-        return TRUE;
-    }
-    return FALSE;
-}
-
-gint XCompare(gconstpointer a, gconstpointer b)
-{
-    TvEntity* e1 = (TvEntity*)a;
-    TvEntity* e2 = (TvEntity*)b;
-    if(e1->pos.x < e2->pos.x) {
-        return -1;
-    }
-    else if(e1->pos.x > e2->pos.x) {
-        return 1;
-    }
-    else {
-        return 0;
-    }
 }

@@ -15,16 +15,15 @@
 extern "C" {
 #endif
 
+#include "types.h"
 #include <malloc.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "component.h"
-#include "collision.h"
 #include "draw.h"
 #include "scene.h"
-#include "types.h"
 #include "util.h"
 #include "cJSON.h"
+#include "component.h"
 
 /**
  * The entity structure. Entities represent all objects in the engine.
@@ -38,30 +37,31 @@ typedef struct TvEntity {
 	/* the ID of the collider component (0 if none) attached to the entity */
 	tvuint collide;
 
-    int numChildren;
-    int numComponents;
-    TvEntity* parent;
-    struct TvEntityList* children;
-	TvComponentList* components;
+    tvuint numChildren;
+    tvuint numComponents;
+    struct TvEntity  *parent;
+    TvArray /*TvEntity**/ *children;
+	TvArray /*tv_component*/ *components;
 }TvEntity;
 
-typedef struct TvEntityList {
-	TvEntity e;
-	TvEntityList* next;
-}TvEntityList;
+/**
+ * Initializes the entity system.
+ * @return on success, 0, else an error code.
+ */
+int tv_entity_init();
 
 /**
  * Create an empty entity.
  * @return an empty entity.
  */
-TvEntity* entity_new();
+TvEntity* tv_entity_new();
 
 /**
  * Add the given component to the given entity.
  * @param e the entity to add the component to.
  * @param c the component to add to the entity.
  */
-void tv_entity_add_component(TvEntity* e, TvComponent* c);
+void tv_entity_add_component(TvEntity* e, tv_component* c);
 
 /**
  * Add the given entity as a child to the given parent.
@@ -76,7 +76,7 @@ void tv_entity_add_child(TvEntity* parent, TvEntity* child);
  * @param cid the ID of the type of the component to get.
  * @return the component if it exists in the entity, NULL otherwise.
  */
-TvComponent* tv_entity_get_component(TvEntity* e, tvuint cid);
+tv_component* tv_entity_get_component(TvEntity* e, tvuint cid);
 
 /**
  * This is called once all the components have been added to an entity.

@@ -8,11 +8,12 @@ SDL_Surface *screen;
 static TvDrawTarget* activeTarget;
 
 /* The model that is used for post-processing effects (a simple rect) */
-static TvModel* postPassRect;
+static tv_model* postPassRect;
  
 /* components for drawing textured quads */
-static TvModel* tex_quad;
-static TvMaterial* tex_mat;
+static tv_model* tex_quad;
+static tv_material* tex_mat;
+
 
 int tv_draw_init()
 {
@@ -33,7 +34,7 @@ int tv_draw_init()
     if(glewInit() == GLEW_OK) {
         printf("OpenGL extensions availiable\n");
         printf("Shader version %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        glClearColor(0.2f, 0.2f, 0.2f, 0.0f);
+        glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
     }
     /* Initialize legacy OpenGL for older hardware. */
     else {
@@ -48,18 +49,26 @@ int tv_draw_init()
         glLoadIdentity();
     }
 
-    main_cam = NULL;
+    main_cam = tv_camera_new();
+	main_cam->pos.x = 0;
+	main_cam->pos.y = 0;
+	main_cam->pos.z = -10;
+	tv_camera_perspective(main_cam, 90.0f, (float)screen->w / (float)screen->h, .01f, 100.0f);
+    /* position the camera */
+	tv_mat4x4_load_identity(main_cam->view_mat);
+	tv_mat4x4_translate(main_cam->view_mat, -main_cam->pos.x, 
+            -main_cam->pos.y, main_cam->pos.z);
 
-	tex_quad = tv_model_new();
-	tex_quad->num_vertices = 4;
-    tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
-	tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
+	//tex_quad = tv_model_new();
+	//tex_quad->num_vertices = 4;
+    //tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_VERTEX, vtxs);
+	//tv_model_buffer_attribute(tex_quad, MODEL_ATTRIBUTE_TEXCO, uvs);
 
-	tex_mat = tv_material_load("tex.mat");
-	tv_material_get_uniforms(tex_mat->program, 
-		&tex_mat->model_mat, &tex_mat->view_mat, &tex_mat->projection_mat);
-	tex_quad->primitive = GL_QUADS;
-	tv_model_optimize(tex_quad);
+	//tv_material_load(tex_mat, "tex.mat");
+	//tv_material_get_uniforms(tex_mat->program, 
+	//	&tex_mat->model_mat, &tex_mat->view_mat, &tex_mat->projection_mat);
+	//tex_quad->primitive = GL_QUADS;
+	//tv_model_optimize(tex_quad);
 
     /* wider lines */
     glLineWidth(2);
@@ -97,7 +106,7 @@ void tv_draw_start_frame()
 {
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); //TODO: enable
 
 }
 
@@ -107,7 +116,7 @@ void tv_draw_resize_screen(int w, int h)
     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
 	for(it = tv_scene_get_cameras(); it != NULL; it = it->next) {
-        TvCamera* c = it->cam;
+        tv_camera* c = it->cam;
         if(c->ortho) {
             /*
             c->Orthographic(c, 0.0f, c->w, ->h, 
@@ -171,7 +180,7 @@ void tv_draw_gui()
     glDisable(GL_SCISSOR_TEST);
 }
 
-void tv_draw_texture(Texture tex, TvRect* rect)
+void tv_draw_texture(TvTexture tex, TvRect* rect)
 {
 	GLint loc;
 
@@ -267,10 +276,9 @@ void tv_draw_set_target(TvDrawTarget* target)
     }
 }
 
-Texture tv_draw_target_to_texture(TvDrawTarget* target)
+TvTexture tv_draw_target_to_texture(TvDrawTarget* target)
 {
-    Texture t;
+    TvTexture t;
     t.id = target->texID;
     return t;
 }
-

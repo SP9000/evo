@@ -43,6 +43,16 @@ void tv_client_init()
 	if(tv_input_init() != 0) {
     }
 
+	if(tv_entity_init() != 0) {
+		fprintf(stderr, "Error: could not initialize the entity system\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if(tv_component_init() != 0) {
+		fprintf(stderr, "Error: could not initialize the component system\n");
+		exit(EXIT_FAILURE);
+	}
+
     puts("Starting client");
     /* Initialize ENet */
     if(enet_initialize() != 0) {
@@ -84,6 +94,15 @@ void tv_client_init()
         exit(EXIT_FAILURE);
     }
     
+	puts("Registering components.");
+	tv_model_register();
+	tv_material_register();
+	tv_camera_register();
+	tv_renderer_register();
+	tv_model_renderer_register();
+	tv_text_renderer_register();
+
+	printf("%d  %d  %d\n", tv_renderer_id(), tv_model_renderer_id(), tv_text_renderer_id());
 
     /* start the application */
     puts("Core initialized...\n"
@@ -201,7 +220,7 @@ void tv_client_start()
             ENetPacket *epacket = enet_packet_create(packet, packetLen, ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(peer, 0, epacket);
         }
-    
+
         /* update input information */
 		tv_input_update();
 
@@ -213,12 +232,19 @@ void tv_client_start()
     
         /* update entities */
 		tv_entity_update();
-    
+
+		/* update post-entity update handlers */
+		tv_component_update_post_handlers();
+
         /* update the app */
         app_update();
 
         /* Render */
 		tv_draw_start_frame();
+		
+		/* update pre-entity update handlers TODO: should be before tv_entity_update */
+		tv_component_update_pre_handlers();
+
 		tv_draw_scene();
         SDL_GL_SwapBuffers();
 
