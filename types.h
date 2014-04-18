@@ -25,6 +25,7 @@ extern "C" {
 #include "tv_list.h"
 #include "tv_string.h"
 #include "matrix.h"
+#include "tv_vector.h"
 
 /* boolean */
 typedef int tvbool;
@@ -54,26 +55,12 @@ typedef UT_string TvString;
 #define RENDER_LAYER_GUI    1
 
 /**
- * A basic type for representing a point in 2-dimensional space.
- */
-typedef struct tagVector2 {
-    float x, y;
-}TvVector2;
-
-/**
- * A basic type for representing a point in 3-dimensional space.
- */
-typedef struct tagVector3 {
-    float x, y, z;
-}TvVector3;
-
-/**
  * A type for representing the position, scale, and rotation of an object.
  */
 typedef struct tagTvTransform {
-	TvVector3 position;
-	TvVector3 scale;
-	TvVector3 rotation;
+	tv_vector3 position;
+	tv_vector3 scale;
+	tv_vector3 rotation;
 }TvTransform;
 
 /**
@@ -98,7 +85,7 @@ typedef struct tagRect {
  * @param point the point to determine if is in the bounds of the rect or not.
  * @return nonzero if the rectangle does contain the point, else zero.
  */
-int tv_rect_contains(TvRect* r, TvVector2* point);
+int tv_rect_contains(TvRect* r, tv_vector2* point);
 /**
  * Checks if the given rectangle overlaps the other given rectangle.
  * @param r1 the first rectangle.

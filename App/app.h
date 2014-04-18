@@ -8,6 +8,7 @@ extern "C" {
 #include "../evo.h"
 #include "entities.h"
 #include "../client.h"
+#include "playermotor.h"
 
 #ifdef __cplusplus
 }

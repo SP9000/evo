@@ -8,6 +8,7 @@
 #include "textrenderer.h"
 #include "modelgen.h"
 #include "material.h"
+#include "transform.h"
 #include "renderer.h"
 
 #endif

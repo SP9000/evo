@@ -26,9 +26,9 @@ typedef union tagTvCameraProperties {
 }TvCameraProperties;
 
 COMPONENT(tv_camera, tv_component)
-	TvVector3 pos;
-	TvVector3 rot;
-	TvVector3 scale;
+	tv_vector3 pos;
+	tv_vector3 rot;
+	tv_vector3 scale;
 	tvbool ortho;
 	tvu32 render_layers;
 

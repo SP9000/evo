@@ -23,13 +23,12 @@ END_HANDLER_UPDATE
 static void render(tv_component* self)
 {
 	tv_model_renderer *renderer = (tv_model_renderer*)self;
-
 	tv_mat4x4_push(main_cam->view_mat);
-	tv_mat4x4_translate(main_cam->view_mat, -self->entity->pos.x,
-		-self->entity->pos.y, self->entity->pos.z);
-    main_cam->view_mat[0] *= self->entity->scale.x;
-    main_cam->view_mat[5] *= self->entity->scale.y;
-    main_cam->view_mat[10] *= self->entity->scale.z;
+	tv_mat4x4_translate(main_cam->view_mat, -self->entity->transform.pos.x,
+		-self->entity->transform.pos.y, self->entity->transform.pos.z);
+    main_cam->view_mat[0] *= self->entity->transform.scale.x;
+    main_cam->view_mat[5] *= self->entity->transform.scale.y;
+    main_cam->view_mat[10] *= self->entity->transform.scale.z;
 
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(renderer->model->vao);

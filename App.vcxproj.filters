@@ -16,14 +16,26 @@
     <Filter Include="Components">
       <UniqueIdentifier>{05eeaa64-da89-4f2a-8b2f-d87f24d9ef5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Components">
+      <UniqueIdentifier>{f3107bc4-bf2c-45cf-b123-1508e1a35f58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components">
+      <UniqueIdentifier>{e1793271-ebcf-4d89-98ed-42b3c389f2fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="App\playermotor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="App\playermotor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

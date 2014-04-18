@@ -78,6 +78,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="animation.c" />
     <ClCompile Include="camera.c" />
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="client.c" />
@@ -97,11 +98,14 @@
     <ClCompile Include="textrenderer.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="timer.c" />
+    <ClCompile Include="transform.c" />
     <ClCompile Include="tv_alloc.c" />
+    <ClCompile Include="tv_vector.c" />
     <ClCompile Include="types.c" />
     <ClCompile Include="util.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animation.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="client.h" />
@@ -122,13 +126,24 @@
     <ClInclude Include="textrenderer.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="timer.h" />
+    <ClInclude Include="transform.h" />
     <ClInclude Include="tv_alloc.h" />
     <ClInclude Include="tv_array.h" />
     <ClInclude Include="tv_hash.h" />
     <ClInclude Include="tv_list.h" />
     <ClInclude Include="tv_string.h" />
+    <ClInclude Include="tv_vector.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gui.frag" />
+    <None Include="gui.vert" />
+    <None Include="skeletal_anim.vert" />
+    <None Include="test.frag" />
+    <None Include="test.vert" />
+    <None Include="tex.frag" />
+    <None Include="tex.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

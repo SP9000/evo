@@ -80,23 +80,23 @@ void tv_collision_detect()
         }
         else {
             /* not overlapping? */
-            if((c1->pos.x + c1->aabb.w) <
-                     (c2->pos.x)) {
+            if((c1->transform.pos.x + c1->aabb.w) <
+                     (c2->transform.pos.x)) {
                 c2 = c1 = (TvEntity*)utarray_next(xSorted, c1);
             }
             /* X is overlapping */
             else {
-				if(c1->pos.y > c2->pos.y) {
+				if(c1->transform.pos.y > c2->transform.pos.y) {
 					c1 = c2; 
 					c2 = c1;
 				}
-				if(c1->aabb.w + c1->pos.y >= c2->pos.y) {
+				if(c1->aabb.w + c1->transform.pos.y >= c2->transform.pos.y) {
 					/* Y is overlapping */
-					if(c1->pos.z > c2->pos.z) {
+					if(c1->transform.pos.z > c2->transform.pos.z) {
 						c1 = c2; 
 						c2 = c1;
 					}
-					if(c1->aabb.d + c1->pos.z >= c2->pos.z) {
+					if(c1->aabb.d + c1->transform.pos.z >= c2->transform.pos.z) {
 						/* collison */
 						tv_entity_collide(c1, c2);
 						fflush(stdout);

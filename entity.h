@@ -24,14 +24,13 @@ extern "C" {
 #include "util.h"
 #include "cJSON.h"
 #include "component.h"
+#include "transform.h"
 
 /**
  * The entity structure. Entities represent all objects in the engine.
  */
 typedef struct TvEntity {
-	TvVector3 pos;
-	TvVector3 rot;
-	TvVector3 scale;
+	tv_transform transform;
 	TvAABB aabb;
 
 	/* the ID of the collider component (0 if none) attached to the entity */

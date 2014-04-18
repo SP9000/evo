@@ -28,6 +28,12 @@
     <Filter Include="Source Files\Components\Renderers">
       <UniqueIdentifier>{841a4636-66fc-48ce-b6ba-2e6c92491823}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Vertex Shaders">
+      <UniqueIdentifier>{d77266c2-a161-4919-a6b9-bd502e6088d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Fragment Shaders">
+      <UniqueIdentifier>{980daf94-3288-4a40-9597-490abff9c12f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cJSON.c">
@@ -95,6 +101,15 @@
     </ClCompile>
     <ClCompile Include="material.c">
       <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="transform.c">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="animation.c">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_vector.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -179,5 +194,37 @@
     <ClInclude Include="model.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="transform.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="animation.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_vector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gui.vert">
+      <Filter>Resource Files\Vertex Shaders</Filter>
+    </None>
+    <None Include="test.vert">
+      <Filter>Resource Files\Vertex Shaders</Filter>
+    </None>
+    <None Include="tex.vert">
+      <Filter>Resource Files\Vertex Shaders</Filter>
+    </None>
+    <None Include="gui.frag">
+      <Filter>Resource Files\Fragment Shaders</Filter>
+    </None>
+    <None Include="test.frag">
+      <Filter>Resource Files\Fragment Shaders</Filter>
+    </None>
+    <None Include="tex.frag">
+      <Filter>Resource Files\Fragment Shaders</Filter>
+    </None>
+    <None Include="skeletal_anim.vert">
+      <Filter>Resource Files\Vertex Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

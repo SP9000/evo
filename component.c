@@ -1,4 +1,6 @@
 #include "component.h"
+#include "transform.h"
+#include "entity.h"
 
 tvuint tv_cid_component = 0;
 
@@ -15,7 +17,8 @@ typedef struct {
 /* the table of arrays representing the ID's that inherit from other ID's.  */
 static id_inheritance_hash_ *inheritance_table = NULL;
 
-/* these integers hold the next ID that will be assigned to component types. */
+/* these integers hold the next ID that will be assigned to component types. 
+ * 512 is reserved for the transform component. */
 static tvuint next_free_id = TV_COMPONENT_MAX_HANDLERS;
 static tvuint next_free_pre_handler_id = 1;
 static tvuint next_free_post_handler_id = TV_COMPONENT_MAX_PRE_HANDLERS;
@@ -50,6 +53,9 @@ int tv_component_init()
 
 tv_component* tv_component_get(tv_component* self, tvuint id) 
 {
+	if(id == TV_COMPONENT_MAX_HANDLERS) {
+		return (tv_component*)(&(self->entity->transform));
+	}
     return tv_entity_get_component(self->entity, id);
 }
 

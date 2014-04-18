@@ -18,8 +18,8 @@ END_HANDLER_UPDATE
 static void render(tv_component *self)
 {
 	tv_text_renderer *renderer = (tv_text_renderer*)self;
-	TvVector3 pos = self->entity->pos;
-	TvVector3 scale = self->entity->scale;
+	tv_vector3 pos = self->entity->transform.pos;
+	tv_vector3 scale = self->entity->transform.scale;
 
 	GLint loc;
 

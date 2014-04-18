@@ -95,6 +95,9 @@ void tv_client_init()
     }
     
 	puts("Registering components.");
+	/*transform must be the first component registered */
+	tv_transform_register();
+
 	tv_model_register();
 	tv_material_register();
 	tv_camera_register();
