@@ -14,9 +14,9 @@ HANDLER(tv_text_renderer, tv_renderer)
 	TvString *text;
 	tv_model *model;
 	TvTexture *font_texture;
-
-	void (*set_text)(struct tv_text_renderer *self, const tvchar *text);
 ENDHANDLER(tv_text_renderer)
+
+void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text);
 
 #ifdef __cplusplus
 }

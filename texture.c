@@ -8,6 +8,11 @@ int tv_texture_init()
     return 0;
 }
 
+TvTexture *tv_texture_new()
+{
+	return (TvTexture*)tv_alloc(sizeof(TvTexture));
+}
+
 void tv_texture_quit()
 {
 	
@@ -59,7 +64,8 @@ TvTexture* tv_texture_load_bmp(tvchar* file)
                 file);
         return tex;
     }
-    glGenTextures(1, &tex->id);
+	tex = tv_texture_new();
+	glGenTextures(1, &tex->id);
     glBindTexture(GL_TEXTURE_2D, tex->id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

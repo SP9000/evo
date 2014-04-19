@@ -12,6 +12,7 @@
 #include <SDL/SDL.h>
 #include <GL/glew.h>
 #include "types.h"
+#include "tv_alloc.h"
 
 typedef struct tagTvTexture {
 	tvchar* name;
@@ -27,6 +28,8 @@ typedef struct tagTvTexture {
  * @return 0 if successful, else nonzero.
  */
 int tv_texture_init();
+
+TvTexture *tv_texture_new();
 
 /**
  * Cleanup the texture system by freeing all textures created.

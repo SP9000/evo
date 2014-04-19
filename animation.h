@@ -33,6 +33,12 @@ typedef struct tv_animation_keyframe {
 	tv_vector4 rotation_stop;
 }tv_animation_keyframe;
 
+typedef enum {
+	TV_ANIMATION_NOT_PLAYING,
+	TV_ANIMATION_PLAYING,
+	TV_ANIMATION_LOOPING
+}tv_animation_play_type;
+
 /**
  * The animation component.
  */
@@ -42,6 +48,12 @@ COMPONENT(tv_animation, tv_component)
 
 	/* the "time" the animation is currently at (in terms of keyframe time). */
 	tvuint t;
+	/* where the animation's current playback is started. */
+	tvuint play_start;
+	/* where the animation's current playback is set to end. */
+	tvuint play_stop;
+	/* what the animation is currently doing (playing, looping, etc.) */
+	tv_animation_play_type play_type;
 	/* an array of keyframes - this defines how the models are animated. */
 	TvArray /*tv_animation_keyframe*/ *keyframes;
 

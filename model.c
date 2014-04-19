@@ -27,6 +27,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	tv_model* lup;
 	TvArray *attribute;
 	TvArray **attribute_it;
+	TvArray *attribute_num_elements;
 	FILE* fp;
 	tvuint i, j, k;
 	tvchar line_buffer[1024];
@@ -50,6 +51,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	utarray_new(model->attributes, &ut_ptr_icd);
 	utarray_new(model->attribute_types, &ut_int_icd);
 	utarray_new(model->attribute_sizes, &ut_int_icd);
+	utarray_new(attribute_num_elements, &ut_int_icd);
 
 	/* read the file header - alloc the buffers to store the model data */
     while(!feof(fp)) {
@@ -77,15 +79,15 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 			tvuint type = MODEL_ATTRIBUTE_NONE;
 			tvuint size;
 			if(strncmp(b, "vertex", 6) == 0) {
-				size = MODEL_ATTRIBUTE_VERTEX_SIZE;
+				size = MODEL_ATTRIBUTE_VERTEX_NUM_ELEMENTS;
 				type = MODEL_ATTRIBUTE_VERTEX;
 			}
 			else if(strncmp(b, "color", 5) == 0) {
-				size = MODEL_ATTRIBUTE_COLOR_SIZE;
+				size = MODEL_ATTRIBUTE_COLOR_NUM_ELEMENTS;
 				type = MODEL_ATTRIBUTE_COLOR;
 			}
 			else if(strncmp(b, "face", 4) == 0) {
-				size = MODEL_ATTRIBUTE_INDEX_SIZE;
+				size = MODEL_ATTRIBUTE_INDEX_NUM_ELEMENTS;
 				type = MODEL_ATTRIBUTE_INDEX;
 			}
 			if(type != MODEL_ATTRIBUTE_NONE) {
@@ -99,8 +101,9 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 				}
 				utarray_reserve(attribute, c * size);
 				utarray_push_back(model->attributes, &attribute);
-				utarray_push_back(model->attribute_sizes, &c);
+				utarray_push_back(model->attribute_sizes, &size);
 				utarray_push_back(model->attribute_types, &type);
+				utarray_push_back(attribute_num_elements, &c);
 			}
 		}
 		else if(strncmp(a, "property", 9) == 0) {
@@ -115,7 +118,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 
 		tvuint attribute_type = *(tvuint*)(utarray_eltptr(model->attribute_types, i));
 		utarray_clear(*attribute_it);
-		for(j = 0; j < *(tvint*)(utarray_eltptr(model->attribute_sizes, i));  ++j) {
+		for(j = 0; j < *(tvint*)(utarray_eltptr(attribute_num_elements, i));  ++j) {
 			int num_read = 0;
 			float f_buff[6];
 			int i_buff[5];
@@ -174,11 +177,16 @@ void tv_model_add_attribute(tv_model* model, tvuint attribute)
 {
 	UT_icd* icd;
 	TvArray *attr;
+	tvuint num_elements;
 
 	/* for index arrays, set type to be GLshort, otherwise float */
 	icd = (attribute == MODEL_ATTRIBUTE_INDEX) ? &ut_short_icd : &ut_float_icd;
+
+	num_elements = tv_model_get_attribute_num_elements(attribute);
+
 	utarray_new(attr, icd);
 	utarray_push_back(model->attribute_types, &attribute);
+	utarray_push_back(model->attribute_sizes, &num_elements);
 	utarray_push_back(model->attributes, &attr);
 }
 
@@ -196,10 +204,22 @@ void tv_model_set_attribute(tv_model *model, tvuint attribute_id, tvuint vertex,
 	tvuint i;
 
 	attr = tv_model_get_attribute(model, attribute_id);
-	element_size = 4;	/* TODO */
-	
+	element_size = tv_model_get_attribute_num_elements(attribute_id);
+	for(i = vertex*element_size; i < vertex*element_size + element_size; ++i) {
+		utarray_insert(attr, &data[i], i);
+	}
+}
+
+void tv_model_append_attribute(tv_model *model, tvuint attribute_id, GLfloat *data)
+{
+	TvArray *attr;
+	tvuint element_size;
+	tvuint i;
+
+	attr = tv_model_get_attribute(model, attribute_id);
+	element_size = tv_model_get_attribute_num_elements(attribute_id);
 	for(i = 0; i < element_size; ++i) {
-		((GLfloat*)(attr))[vertex * element_size + i] = data[i];
+		utarray_push_back(attr, &data[i]);
 	}
 }
 
@@ -241,7 +261,7 @@ void tv_model_optimize(tv_model* model)
 			sizeof(GLfloat) * utarray_len(*attr),
 			(GLfloat*)utarray_front(*attr),
 			GL_STATIC_DRAW);
-		glVertexAttribPointer((GLuint)i, 3 /* TODO *attr_size */, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer((GLuint)i, *(tvuint*)utarray_eltptr(model->attribute_sizes, i) /* TODO *attr_size */, GL_FLOAT, GL_FALSE, 0, 0);
         glEnableVertexAttribArray(i);
     }
     /* Unbind. */
@@ -263,16 +283,29 @@ void tv_model_free(tv_model* model)
 	utarray_free(model->attribute_sizes);
 }
 
+tvuint tv_model_get_attribute_num_elements(tvuint attribute_id)
+{
+	switch(attribute_id) {
+	case MODEL_ATTRIBUTE_NONE: return 0;
+	case MODEL_ATTRIBUTE_VERTEX: return MODEL_ATTRIBUTE_VERTEX_NUM_ELEMENTS;
+	case MODEL_ATTRIBUTE_COLOR: return MODEL_ATTRIBUTE_COLOR_NUM_ELEMENTS;
+	case MODEL_ATTRIBUTE_NORMAL: return MODEL_ATTRIBUTE_NORMAL_NUM_ELEMENTS;
+	case MODEL_ATTRIBUTE_TEXCO: return MODEL_ATTRIBUTE_TEXCO_NUM_ELEMENTS;
+	case MODEL_ATTRIBUTE_INDEX: return MODEL_ATTRIBUTE_INDEX_NUM_ELEMENTS;
+	}
+	return 0;
+}
+
 TvArray* tv_model_get_attribute(tv_model* model, tvuint attribute)
 {
 	tvuint i;
 	tvuint *type;
 
-	for(type = (tvuint*)utarray_front(model->attributes), i = 0; 
+	for(type = (tvuint*)utarray_front(model->attribute_types), i = 0; 
 		type != 0;
-		type = (tvuint*)utarray_next(model->attributes, type), ++i) {
+		type = (tvuint*)utarray_next(model->attribute_types, type), ++i) {
 		if(*type == attribute) {
-			return (TvArray*)utarray_eltptr(model->attributes, i);
+			return *(TvArray**)utarray_eltptr(model->attributes, i);
 		}
 	}
 	return NULL;

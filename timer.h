@@ -12,8 +12,9 @@
 #define TIMER_H
 
 #include <SDL/SDL.h>
+#include "types.h"
 
-extern float tv_time_delta;
+extern tvfloat tv_time_delta;
 
 /**
  * Initialize the main timers for the engine.

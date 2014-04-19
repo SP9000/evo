@@ -2,14 +2,17 @@
 
 
 HANDLER_NEW(tv_text_renderer, tv_renderer, render, 1)
+	utstring_new(self->text);
+	self->font_size = 0.025f;
+	self->font_texture = tv_texture_new();
+	self->base.render_func = render;
 END_HANDLER_NEW(tv_text_renderer)
 
 HANDLER_START(tv_text_renderer)
-    self->font_size = 0.025f;
     if(self->font != NULL) {
         self->font_texture = tv_texture_load_bmp((char*)self->font);
     }
-	utstring_new(self->text);
+	self->base.material = (tv_material*)tv_component_get((tv_component*)self, tv_material_id());
 END_HANDLER_START
 
 HANDLER_UPDATE(tv_text_renderer)
@@ -59,19 +62,18 @@ static void render(tv_component *self)
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
-
 }
 
-static void set_text(tv_text_renderer *self, const char *text)
+void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
 {
-	int i;
-    float texco[2];
-    float vertex[3];
-    float uv_w = 1.0f / 16.0f;
-    float uv_h = 1.0f / 16.0f;
-    float ch_w = self->font_size;
-    float ch_h = self->font_size;
-        
+	tvuint i;
+    tvfloat texco[2];
+    tvfloat vertex[3];
+    tvfloat uv_w = 1.0f / 16.0f;
+    tvfloat uv_h = 1.0f / 16.0f;
+    tvfloat ch_w = self->font_size;
+    tvfloat ch_h = self->font_size;
+ 
 	utstring_clear(self->text);
 	utstring_printf(self->text, text);
 
@@ -86,28 +88,32 @@ static void set_text(tv_text_renderer *self, const char *text)
 
     for(i = 0; i < utstring_len(self->text); ++i) {
         /* upper left */
-        texco[0] = (utstring_body(self->text)[i] % 16) * uv_w;
-        texco[1] = (utstring_body(self->text)[i] / 16) * uv_h;
-		tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, i*4, vertex);
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, i*4, texco);
+        texco[0] = ((tvfloat)(utstring_body(self->text)[i] % 16)) * uv_w;
+        texco[1] = ((tvfloat)(utstring_body(self->text)[i] / 16)) * uv_h;
+		printf("%f %f  : ", texco[0], texco[1]);
+		tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
+		tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
 
         /* upper right corner */
         texco[0] += uv_w;
         vertex[0] += ch_w;
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, i*4+1, vertex);
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, i*4+1, texco);
+		printf("%f %f  : ", texco[0], texco[1]);
+        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
+        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
 
         /* lower right corner */
         texco[1] += uv_h;
         vertex[1] += ch_h;
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, i*4+2, vertex);
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, i*4+2, texco);
+		printf("%f %f  : ", texco[0], texco[1]);
+        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
+        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
 
         /* lower left corner */
         texco[0] -= uv_w;
         vertex[0] -= ch_w;
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, i*4+3, vertex);
-        tv_model_set_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, i*4+3, texco);
+		printf("%f %f \n", texco[0], texco[1]);
+        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
+        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
 
         /* move to the next line? */
         if(vertex[0] < self->rect.w) {

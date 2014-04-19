@@ -72,7 +72,18 @@ tvuint tv_animation_add_model(tv_animation *animation, tv_model *model)
 
 void tv_animation_play(tv_animation *animation, tvuint start, tvuint stop)
 {
+	animation->play_type = TV_ANIMATION_PLAYING;
+	animation->play_start = start;
+	animation->play_stop = stop;
+	animation->t = start;
+}
 
+void tv_animation_loop(tv_animation *animation, tvuint start, tvuint stop)
+{
+	animation->play_type = TV_ANIMATION_LOOPING;
+	animation->play_start = start;
+	animation->play_stop = stop;
+	animation->t = start;
 }
 
 void tv_animation_translate_recursive_(tv_animation *animation, tvuint curr_bone, tv_vector3 offset, tv_vector4 rotation)
