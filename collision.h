@@ -29,12 +29,12 @@ extern "C" {
 #define COLLIDER_PLANE 3
 
 typedef struct tagTvCollision {
-    TvEntity* col1;
-    TvEntity* col2;
+    tv_entity* col1;
+    tv_entity* col2;
 } TvCollision;
 
-typedef tvbool (*TvCollisionDetectFunc)(TvEntity*);
-typedef void (*TvCollisionCollideFunc)(TvEntity*);
+typedef tvbool (*TvCollisionDetectFunc)(tv_entity*);
+typedef void (*TvCollisionCollideFunc)(tv_entity*);
 
 /**
  * Initialize collision for use in the engine 
@@ -62,13 +62,13 @@ void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint
  * Adds the entity to the internal list of things to be checked for collision.
  * @param e the entity to check collision for from here on.
  */
-void tv_collision_add_entity(TvEntity* e);
+void tv_collision_add_entity(tv_entity* e);
 
 /**
  * Removes the specified entity from the collision detection routines.
  * @param e the entity to remove.
  */
-void tv_collision_remove_entity(TvEntity* e);
+void tv_collision_remove_entity(tv_entity* e);
 
 /**
  * Detect collision between all the colliders that have been added to the game.
@@ -85,7 +85,7 @@ void tv_collision_update();
  * @param e the entity to call the collide function for.
  * @param other the entity to pass as a parameter to the collide function.
  */
-void tv_entity_collide(TvEntity* e, TvEntity* other);
+void tv_entity_collide(tv_entity* e, tv_entity* other);
 
 #ifdef __cpluplus
 }

@@ -18,8 +18,9 @@ extern "C" {
 #include "types.h"
 #include "util.h"
 #include "tv_alloc.h"
+#include "tv_message.h"
 
-typedef struct TvEntity TvEntity;
+typedef struct tv_entity tv_entity;
 typedef struct tv_component tv_component;
 
 /**
@@ -151,13 +152,16 @@ typedef struct tv_component {
     void (*Start)(tv_component*);
     /* the update function, called once a frame */
     void (*Update)(tv_component*);
-    /* the collide function, called when this component's entity collides with
+	/* the message handler, called when this component's entity receives a 
+	 * message */
+	void (*MessageHandler)(tv_message_type, tv_message);
+	/* the collide function, called when this component's entity collides with
      * another */
-    void (*Collide)(tv_component*, TvEntity*);
+	void (*Collide)(tv_component*, tv_entity*);
     /* the ID of the component (tells what type it is) */
     tvuint id;
     /* the entity this componennt is attached to */
-    struct TvEntity* entity;
+    struct tv_entity* entity;
 	/* the ID of the component this component inherits from. */
 	tvuint parent_ids;
 
@@ -227,7 +231,7 @@ void tv_component_update_pre_handlers();
 void tv_component_update_post_handlers();
 
 /* gross forward declaration */
-tv_component* tv_entity_get_component(TvEntity* e, tvuint id);
+tv_component* tv_entity_get_component(tv_entity* e, tvuint id);
 
 /**
  * Checks if the given component inherits the component associated with the given 
@@ -246,6 +250,16 @@ tvbool tv_component_inherits(tv_component* component, tvuint id);
  * @return the component of the type requested or NULL if none exists.
  */
 tv_component* tv_component_get(tv_component* self, tvuint id);
+
+/**
+ * Receives a message sent by an outside entity.
+ * When another entity sends a message, the receiving entity is notified and 
+ * this function is called on all components of that entity.
+ * @param sender the entity that sent the message.
+ * @param message_type the nature of the message that is being received.
+ * @param message the message data.
+ */
+void tv_component_receive_message(tv_entity *sender, tv_message_type message_type, tv_message message);
 
 /**
  * A convienience macro to retrieve the component of the specified type and 

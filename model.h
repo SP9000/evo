@@ -7,6 +7,9 @@ extern "C" {
 #include "types.h"
 #include "component.h"
 
+/* If this is uncommented, integer types are normalized and stored as floats */
+#define TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS 1
+
 #define MODEL_ATTRIBUTE_VERTEX_NUM_ELEMENTS 3
 #define MODEL_ATTRIBUTE_COLOR_NUM_ELEMENTS 4
 #define MODEL_ATTRIBUTE_NORMAL_NUM_ELEMENTS 3
@@ -19,6 +22,8 @@ extern "C" {
 #define MODEL_ATTRIBUTE_TEXCO_SIZE  (sizeof(float)*2)
 #define MODEL_ATTRIBUTE_INDEX_SIZE  (sizeof(GLshort)*1)
 
+#define TV_BUFFER_OFFSET(i) ((char *)NULL + (i))
+
 enum {
     MODEL_ATTRIBUTE_NONE,
     MODEL_ATTRIBUTE_VERTEX,
@@ -28,6 +33,17 @@ enum {
 	MODEL_ATTRIBUTE_INDEX
 };
 
+typedef enum tv_model_property_type {
+	TV_MODEL_PROPERTY_CHAR,
+	TV_MODEL_PROPERTY_UCHAR,
+	TV_MODEL_PROPERTY_SHORT,
+	TV_MODEL_PROPERTY_USHORT,
+	TV_MODEL_PROPERTY_INT,
+	TV_MODEL_PROPERTY_UINT,
+	TV_MODEL_PROPERTY_FLOAT,
+	TV_MODEL_PROPERTY_DOUBLE
+}tv_model_property_type;
+
 COMPONENT(tv_model, tv_component) 
 	GLuint vao;
 	GLuint primitive;
@@ -35,11 +51,20 @@ COMPONENT(tv_model, tv_component)
 	GLuint num_indices;
 	tvuint num_attributes;
 
-	TvArray /*TvArray<GLvoid>*/ *attributes;
-	TvArray /*tvuint*/ *attribute_sizes;
-	TvArray /*tvuint*/ *attribute_types;
+	/* the per vertex attributes this model uses */
+	TvArray *vertices;
+	/* the indices for each face in the model. */
 	TvArray /*GLshort*/ *indices;
-	GLuint *vbo_ids;
+	/* the size of each vertex (with all its attributes) for this model. */
+	tvuint vertex_size;
+	/* the offset in bytes to each vertex property. */
+	TvArray /*tvuint*/ *vertex_property_offsets;
+	TvArray /*tvuint*/ *vertex_property_types;
+	
+	/* the ID of the per-vertex attribute VBO. */
+	GLuint vertex_vbo;
+	/* the ID of the index VBO. */
+	GLuint index_vbo;
 
 	const tvchar *name;
 	TvHashHandle hh;
@@ -54,14 +79,15 @@ int tv_model_init();
  */
 void tv_model_load_ply(tv_model *model, tvchar* file);
 
-/**
- * Allocates room for an attribute of the given type in the given model.
- * No actual data is put in the newly added attributes buffer, this is done by
- * using the add_attribute, insert_attribute, etc. functions.
- * @param model the model to add the given attribute to.
- * @param the attribute to add to the model.
- */
-void tv_model_add_attribute(tv_model* model, tvuint attribute);
+
+void tv_model_vertex_format(tv_model* model, tvuint num_properties, tvuint *property_sizes);
+void tv_model_append_vertex(tv_model *model, GLvoid* data);
+void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data);
+void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data);
+
+void tv_model_append_tri(tv_model* model, tvuint i0, tvuint i1, tvuint i2);
+void tv_model_append_quad(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3);
+
 /**
  * Inserts the given attribute data into the attribute given by the ID.
  * @param model the model to insert the attribute data into.
@@ -70,13 +96,6 @@ void tv_model_add_attribute(tv_model* model, tvuint attribute);
  * @param data the data to insert at the given position.
  */
 void tv_model_insert_attribute(tv_model *model, tvuint attribute_id, GLfloat *data);
-/**
- * Appends  the given attribute data into the attribute given by the ID.
- * @param model the model to append the attribute data into.
- * @param attribute_id the ID of the attribute type e.g. TV_MODEL_COLOR
- * @param data the data to append to the attribute.
- */
-void tv_model_append_attribute(tv_model *model, tvuint attribute_id, GLfloat *data);
 /**
  * Replaces the given attribute data with the given attribute data.
  * @param model the model to set the attribute data.

@@ -104,6 +104,13 @@ tvuint tv_animation_add_model(tv_animation *animation, tv_model *model);
  */
 void tv_animation_play(tv_animation *animation, tvuint start, tvuint stop);
 
+/**
+ * Loads an armature defined in the given file into the given animation.
+ * @param animation the animation to load into.
+ * @param file the file to load from.
+ */
+void tv_animation_load_armature(tv_animation *animation, const tvchar *file);
+
 #ifdef __cplusplus
 }
 #endif

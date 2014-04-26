@@ -36,6 +36,12 @@ COMPONENT(tv_camera, tv_component)
 	TvMat4x4 view_mat;
 	TvMat4x4 projection_mat;
 	TvCameraProperties properties;
+
+	/* the binding index for the global uniforms of this camera. These uniforms
+	 * tell the materials what the global view and projection matricies are */
+	GLuint uniform_binding_index;
+	/* the uniform buffer object for this camera (containing matrices) */
+	GLuint ubo;
 ENDCOMPONENT(tv_camera)
 
 void tv_camera_perspective(tv_camera* cam, float fov, float aspect, float nearZ, float farZ);

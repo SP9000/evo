@@ -8,49 +8,79 @@ void app_update()
 
 void test()
 {
-	/*
-	TvEntity *test_e;	
-	tv_vector3 transform1_pos = {10.0f,10.0f,-7.0f};
-	tv_vector3 transform1_scale = {20.0f,20.0f,1.0f};
+	tv_entity *test_e;	
+	tv_transform* transform1 = tv_transform_new();
+	tv_vector3 transform1_pos = {1.0f,0.0f,-7.0f};
+	tv_vector3 transform1_scale = {1.0f,1.0f,1.0f};
+	tv_vector3 transform1_rot = {0.0f, 0.0f, 0.0f};
 	tv_model* model1 = tv_model_new();
 	tv_material *mat1 = tv_material_new();
 	tv_model_renderer *renderer = tv_model_renderer_new();
 	app_player_motor *pm = app_player_motor_new();
-	pm->speed = 0.5f;
+	
+	tv_entity *test_e2;
+	TvRect trect = {0.0f,0.0f,0.1f,0.1f};
+	tv_vector3 transform2_pos = {10.0f,10.0f,0.0f};
+	tv_vector3 transform2_scale = {1.0f,1.0f,1.0f};
+	tv_vector3 transform2_rot = {0.0f, 0.0f, 0.0f};
+	tv_material *mat2 = tv_material_new();
+	tv_text_renderer *tr = tv_text_renderer_new();
 
-	tv_model_load_ply(model1, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\monkey.ply");
+	tv_entity *test_e3;	
+	tv_transform* transform3 = tv_transform_new();
+	tv_vector3 transform3_pos = {-6.0f,0.0f,-7.0f};
+	tv_vector3 transform3_scale = {1.0f,1.0f,1.0f};
+	tv_vector3 transform3_rot = {0.0f, 0.0f, 0.0f};
+	tv_model* model2 = tv_model_new();
+	tv_material *mat3 = tv_material_new();
+	tv_model_renderer *renderer2 = tv_model_renderer_new();
+	app_player_motor *pm2 = app_player_motor_new();
+
+	pm->speed = 5.0f;
+
+	tv_model_load_ply(model1, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\fairy.ply");
 	tv_model_optimize(model1);
 	tv_material_load(mat1, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\test.mat");
 	tv_model_renderer_set_model(renderer, model1);
+
+	tv_model_load_ply(model2, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\fairy.ply");
+	tv_model_optimize(model2);
+	tv_material_load(mat3, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\test.mat");
+	tv_model_renderer_set_model(renderer2, model2);
 	
-	test_e = tv_entity_new();
+	transform1->pos = transform1_pos;
+	transform1->rot = transform1_rot;
+	transform1->scale = transform1_scale;
+	transform3->pos = transform3_pos;
+	transform3->rot = transform3_rot;
+	transform3->scale = transform3_scale;
+
+	test_e = tv_entity_new(transform1);
 	tv_entity_add_component(test_e, (tv_component*)model1);
 	tv_entity_add_component(test_e, (tv_component*)mat1);
 	tv_entity_add_component(test_e, (tv_component*)renderer);
 	tv_entity_add_component(test_e, (tv_component*)pm);
-	*/
 
-	TvEntity *test_e;
-	TvRect trect = {0.0f,0.0f,0.1f,0.1f};
-	
-	tv_vector3 transform1_pos = {10.0f,10.0f,-7.0f};
-	tv_vector3 transform1_scale = {20.0f,20.0f,1.0f};
-	tv_material *mat1 = tv_material_new();
-	tv_text_renderer *tr = tv_text_renderer_new();
-	app_player_motor *pm = app_player_motor_new();
-	pm->speed = 0.05f;
+	test_e3 = tv_entity_new(transform3);
+	tv_entity_add_component(test_e3, (tv_component*)model2);
+	tv_entity_add_component(test_e3, (tv_component*)mat3);
+	tv_entity_add_component(test_e3, (tv_component*)renderer2);
+	tv_entity_add_component(test_e3, (tv_component*)pm2);
 
-	tv_material_load(mat1, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\tex.mat");
+	pm2->speed = 5.0f;
+
+	tv_material_load(mat2, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\tex.mat");
 	tr->font = "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\font.bmp";
 	tr->rect = trect;
 	tv_text_renderer_set_text(tr, "HELLO WORLD!");
-	tv_camera_orthographic(main_cam, 0.0f, 1.0f, 0.0f, 1.0f, 0.01f, 100.0f);
+	//tv_camera_orthographic(main_cam, 0.0f, 1.0f, 0.0f, 1.0f, 0.01f, 100.0f);
 
-	test_e = tv_entity_new();
-	tv_entity_add_component(test_e, (tv_component*)mat1);
-	tv_entity_add_component(test_e, (tv_component*)tr);
-	tv_entity_add_component(test_e, (tv_component*)pm);
+	test_e2 = tv_entity_new(NULL);
+	tv_entity_add_component(test_e2, (tv_component*)mat1);
+	tv_entity_add_component(test_e2, (tv_component*)tr);
 
+	tv_entity_start(test_e2);
+	tv_entity_start(test_e3);
 	tv_entity_start(test_e);
 }
 

@@ -116,6 +116,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="evo.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="linerenderer.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="matrix.h" />
     <ClInclude Include="model.h" />
@@ -131,16 +132,21 @@
     <ClInclude Include="tv_array.h" />
     <ClInclude Include="tv_hash.h" />
     <ClInclude Include="tv_list.h" />
+    <ClInclude Include="tv_message.h" />
     <ClInclude Include="tv_string.h" />
     <ClInclude Include="tv_vector.h" />
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
+    <ClInclude Include="widget.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="diffuse.fxi" />
+    <None Include="diffuse_lit.mat" />
     <None Include="gui.frag" />
     <None Include="gui.vert" />
     <None Include="skeletal_anim.vert" />
     <None Include="test.frag" />
+    <None Include="test.mat" />
     <None Include="test.vert" />
     <None Include="tex.frag" />
     <None Include="tex.vert" />

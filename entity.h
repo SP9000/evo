@@ -25,11 +25,12 @@ extern "C" {
 #include "cJSON.h"
 #include "component.h"
 #include "transform.h"
+#include "tv_message.h"
 
 /**
  * The entity structure. Entities represent all objects in the engine.
  */
-typedef struct TvEntity {
+typedef struct tv_entity {
 	tv_transform transform;
 	TvAABB aabb;
 
@@ -38,10 +39,10 @@ typedef struct TvEntity {
 
     tvuint numChildren;
     tvuint numComponents;
-    struct TvEntity  *parent;
-    TvArray /*TvEntity**/ *children;
+    struct tv_entity  *parent;
+    TvArray /*tv_entity**/ *children;
 	TvArray /*tv_component*/ *components;
-}TvEntity;
+}tv_entity;
 
 /**
  * Initializes the entity system.
@@ -53,21 +54,21 @@ int tv_entity_init();
  * Create an empty entity.
  * @return an empty entity.
  */
-TvEntity* tv_entity_new();
+tv_entity* tv_entity_new(tv_transform *transform);
 
 /**
  * Add the given component to the given entity.
  * @param e the entity to add the component to.
  * @param c the component to add to the entity.
  */
-void tv_entity_add_component(TvEntity* e, tv_component* c);
+void tv_entity_add_component(tv_entity* e, tv_component* c);
 
 /**
  * Add the given entity as a child to the given parent.
  * @param parent the entity to add the child to.
  * @param child the entity to add to the parent.
  */
-void tv_entity_add_child(TvEntity* parent, TvEntity* child);
+void tv_entity_add_child(tv_entity* parent, tv_entity* child);
 
 /**
  * Get the component of the specified type from the entity.
@@ -75,14 +76,38 @@ void tv_entity_add_child(TvEntity* parent, TvEntity* child);
  * @param cid the ID of the type of the component to get.
  * @return the component if it exists in the entity, NULL otherwise.
  */
-tv_component* tv_entity_get_component(TvEntity* e, tvuint cid);
+tv_component* tv_entity_get_component(tv_entity* e, tvuint cid);
+
+
+/**
+ * Sends a message from one entity to another.
+ * This function sends a message to another entity notifying it of some event.
+ * The message is then sent to each component of the receiving entity.
+ * @param sender the entity that is sending the message.
+ * @param receiver the entity that is to receive the message.
+ * @param message_type the nature of the message being sent.
+ * @param message the message data.
+ */
+void tv_entity_send_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message); 
+
+/**
+ * Receives a message that is sent by another entity.
+ * This function is what is called when a message is sent from another entity.
+ * It notifies the receiver's children and components that a message has 
+ * arrived and leaves it to them to handle it.
+ * @param sender the entity that is sending the message.
+ * @param receiver the entity that is to receive the message.
+ * @param message_type the nature of the message being sent.
+ * @param message the message data.
+ */
+void tv_entity_send_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message);
 
 /**
  * This is called once all the components have been added to an entity.
  * It calls the start function of every component.
  * @param e the entity to start.
  */
-void tv_entity_start(TvEntity* e);
+void tv_entity_start(tv_entity* e);
 
 /**
  * Update all entities that have been created.

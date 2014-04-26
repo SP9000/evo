@@ -34,6 +34,15 @@
     <Filter Include="Resource Files\Fragment Shaders">
       <UniqueIdentifier>{980daf94-3288-4a40-9597-490abff9c12f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Materials">
+      <UniqueIdentifier>{e9b569bd-d913-43ca-857d-cf3dc145bff1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Material Effects">
+      <UniqueIdentifier>{ee4cbd39-1091-4e9b-9e12-98cb3b68ba0f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Components\GUI">
+      <UniqueIdentifier>{caaf7991-4b93-45ab-9af9-64d16297b8b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cJSON.c">
@@ -203,6 +212,15 @@
     <ClInclude Include="tv_vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="tv_message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="widget.h">
+      <Filter>Header Files\Components\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="linerenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="gui.vert">
@@ -225,6 +243,15 @@
     </None>
     <None Include="skeletal_anim.vert">
       <Filter>Resource Files\Vertex Shaders</Filter>
+    </None>
+    <None Include="test.mat">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="diffuse_lit.mat">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="diffuse.fxi">
+      <Filter>Resource Files\Material Effects</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -11,6 +11,7 @@ void tv_model_renderer_set_model(tv_model_renderer *self, tv_model *model)
 HANDLER_NEW(tv_model_renderer, tv_renderer, render, 1)
 	tv_component *c = (tv_component*)self;
 	self->base.render_func = render;
+	self->model = NULL;
 END_HANDLER_NEW(tv_model_renderer)
 
 HANDLER_START(tv_model_renderer)
@@ -22,7 +23,11 @@ END_HANDLER_UPDATE
 
 static void render(tv_component* self)
 {
+	tvuint i;
 	tv_model_renderer *renderer = (tv_model_renderer*)self;
+	if(renderer->model == NULL) {
+		return;
+	}
 	tv_mat4x4_push(main_cam->view_mat);
 	tv_mat4x4_translate(main_cam->view_mat, -self->entity->transform.pos.x,
 		-self->entity->transform.pos.y, self->entity->transform.pos.z);
@@ -52,16 +57,12 @@ static void render(tv_component* self)
     //}
 
     /* bind attribute array and draw */
-	glEnableVertexAttribArray(renderer->model->vao);
+	//glEnableVertexAttribArray(renderer->model->vao);
+
     glBindVertexArray(renderer->model->vao);
-    /*
-	glDrawArrays(self->model->primitive, 0, 
-		self->model->num_vertices);
-	*/
 	glDrawElements(renderer->model->primitive, (GLsizei)utarray_len(renderer->model->indices),
-		GL_UNSIGNED_SHORT, (GLshort*)utarray_front(renderer->model->indices)); 
+		GL_UNSIGNED_SHORT, 0);
     glBindVertexArray(0);
 
 	tv_mat4x4_pop(main_cam->view_mat);
 }
-

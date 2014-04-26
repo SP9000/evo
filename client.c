@@ -6,6 +6,15 @@ static ENetPeer *peer;
 static ENetAddress address;
 static ENetEvent event;
 
+const tvint TV_ERROR_SDL_INIT_FAILED = -1;
+const tvint TV_ERROR_DRAW_INIT_FAILED = -2;
+const tvint TV_ERROR_TEXTURE_INIT_FAILED = -3;
+const tvint TV_ERROR_SCENE_INIT_FAILED = -4;
+const tvint TV_ERROR_INPUT_INIT_FAILED = -5;
+const tvint TV_ERROR_ENTITY_INIT_FAILED = -6;
+const tvint TV_ERROR_HOST_CONNECT_FAILED = -7;
+
+
 void tv_client_init()
 {
     /* Initialize the client */
@@ -15,37 +24,39 @@ void tv_client_init()
     /* Initialize SDL. */
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         fprintf(stderr, "Error initializing SDL\n");
-        exit(EXIT_FAILURE);
+        exit(TV_ERROR_SDL_INIT_FAILED);
     }
 
     /* Initialize draw. */
     puts("Initializing draw");
 	if(tv_draw_init() != 0) {
         fprintf(stderr, "Error initializing Draw\n");
-        exit(EXIT_FAILURE);
+        exit(TV_ERROR_DRAW_INIT_FAILED);
     }
 
     /* Initialize the texture system */
     puts("Initializing texture");
 	if(tv_texture_init() != 0) {
         fprintf(stderr, "Error initializing texture\n");
-        exit(EXIT_FAILURE);
+        exit(TV_ERROR_TEXTURE_INIT_FAILED);
     }
 
     /* Initialize the scene */
     puts("Initializing scene");
 	if(tv_scene_init() != 0) {
         fprintf(stderr, "Error: could not initialize the scene\n");
-        exit(EXIT_FAILURE);
+        exit(TV_ERROR_SCENE_INIT_FAILED);
     }
 
     /* Initialize the input system */
 	if(tv_input_init() != 0) {
+		fprintf(stderr, "Error: could not initialize the input system\n");
+        exit(TV_ERROR_INPUT_INIT_FAILED);
     }
 
 	if(tv_entity_init() != 0) {
 		fprintf(stderr, "Error: could not initialize the entity system\n");
-		exit(EXIT_FAILURE);
+		exit(TV_ERROR_ENTITY_INIT_FAILED);
 	}
 
 	if(tv_component_init() != 0) {
@@ -57,7 +68,7 @@ void tv_client_init()
     /* Initialize ENet */
     if(enet_initialize() != 0) {
         fprintf(stderr, "Error initializing enet\n");
-        exit(EXIT_FAILURE);
+		exit(TV_ERROR_HOST_CONNECT_FAILED);
     }
 
     /* Create a client host with 1 outgoing connection, 2 channels being used,
@@ -104,8 +115,6 @@ void tv_client_init()
 	tv_renderer_register();
 	tv_model_renderer_register();
 	tv_text_renderer_register();
-
-	printf("%d  %d  %d\n", tv_renderer_id(), tv_model_renderer_id(), tv_text_renderer_id());
 
     /* start the application */
     puts("Core initialized...\n"

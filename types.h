@@ -19,6 +19,7 @@ extern "C" {
 
 #include <GL/glew.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include "tv_array.h"
 #include "tv_hash.h"
@@ -27,15 +28,25 @@ extern "C" {
 #include "matrix.h"
 #include "tv_vector.h"
 
+/* macros */
+#define TV_DATA_PTR(i) ((void*)(i))
+
 /* boolean */
 typedef int tvbool;
 #define false 0
 #define true 1
 
+/* fixed size types */
+typedef uint8_t tvbyte;
+typedef uint16_t tvword;
+typedef uint32_t tvdword;
+typedef uint64_t tvqword;
+
 /* primitive types */
 typedef char tvchar;
 typedef int tvint;
 typedef float tvfloat;
+typedef double tvdouble;
 typedef unsigned tvuint;
 typedef uint32_t tvu32;
 

@@ -12,7 +12,7 @@ typedef struct DetectCollisionHash {
 	TvHashHandle hh;
 }DetectCollisionHash;
 
-void tv_entity_collide(TvEntity* e, TvEntity* other);
+void tv_entity_collide(tv_entity* e, tv_entity* other);
 
 /* table of registered collider ID's and their OnCollide functions */
 static DetectCollisionHash* registered_colliders; 
@@ -45,13 +45,13 @@ void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint
 	HASH_ADD_INT(registered_callbacks, cid, entry);
 }
 
-void tv_collision_add_entity(TvEntity* e)
+void tv_collision_add_entity(tv_entity* e)
 {
 	utarray_push_back(colliders, e);
 	/* TODO //colliding = g_hash_table_new(NULL, NULL); */
 }
 
-void tv_collision_remove_entity(TvEntity* e)
+void tv_collision_remove_entity(tv_entity* e)
 {
 	utarray_erase(colliders,
 		utarray_eltidx(colliders, e),
@@ -60,8 +60,8 @@ void tv_collision_remove_entity(TvEntity* e)
 
 void tv_collision_detect()
 {
-	TvEntity* c1;
-    TvEntity* c2;
+	tv_entity* c1;
+    tv_entity* c2;
 	UT_array* possibleCollisions;
 	
 	TvCollision* col;
@@ -70,19 +70,19 @@ void tv_collision_detect()
 	utarray_new(possibleCollisions, &ut_ptr_icd);
 
     /* Check X */
-    for(c1 = (TvEntity*)xSorted, c2 = (TvEntity*)xSorted+1; 
+    for(c1 = (tv_entity*)xSorted, c2 = (tv_entity*)xSorted+1; 
 		c1 != NULL;
-		c2 = (TvEntity*)utarray_next(xSorted,c2)) {
+		c2 = (tv_entity*)utarray_next(xSorted,c2)) {
 
         /* end of the array? */
         if(c2 == NULL) {
-            c2 = c1 = (TvEntity*)utarray_next(xSorted, c1);
+            c2 = c1 = (tv_entity*)utarray_next(xSorted, c1);
         }
         else {
             /* not overlapping? */
             if((c1->transform.pos.x + c1->aabb.w) <
                      (c2->transform.pos.x)) {
-                c2 = c1 = (TvEntity*)utarray_next(xSorted, c1);
+                c2 = c1 = (tv_entity*)utarray_next(xSorted, c1);
             }
             /* X is overlapping */
             else {
@@ -109,7 +109,7 @@ void tv_collision_detect()
      * overlapping...do more precise detection TODO */
 }
 
-void tv_entity_collide(TvEntity* e, TvEntity* other)
+void tv_entity_collide(tv_entity* e, tv_entity* other)
 {
 	OnCollideHash* on_collide;
 	DetectCollisionHash* detect;

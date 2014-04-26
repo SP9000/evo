@@ -108,6 +108,9 @@ void tv_draw_start_frame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST); //TODO: enable
 
+	/* update camera ubo (camera matrices) */
+	glBindBufferRange(GL_UNIFORM_BUFFER, main_cam->uniform_binding_index,
+		main_cam->ubo, 0, sizeof(TvMat4x4) * 2);
 }
 
 void tv_draw_resize_screen(int w, int h)

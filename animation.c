@@ -100,3 +100,16 @@ void tv_animation_translate_recursive_(tv_animation *animation, tvuint curr_bone
 			animation->bones[curr_bone].rotation);
 	}
 }
+
+void tv_animation_load_armature(tv_animation *animation, const tvchar *file)
+{
+	FILE *fp = NULL;
+	fopen(file, "r");
+	
+	if(fp == NULL) {
+		fprintf(stderr, "Error: failed to open file %s\n", file);
+	}
+	if(animation == NULL) {
+		animation = tv_animation_new();
+	}
+}

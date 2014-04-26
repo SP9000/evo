@@ -59,6 +59,11 @@ tv_component* tv_component_get(tv_component* self, tvuint id)
     return tv_entity_get_component(self->entity, id);
 }
 
+void tv_component_receive_message(tv_entity *sender, tv_message_type message_type, tv_message message)
+{
+	
+}
+
 tvbool tv_component_inherits(tv_component* component, tvuint id)
 {
 	tvuint i = 0;

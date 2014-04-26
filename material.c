@@ -7,10 +7,68 @@ static TvMaterialShader* loaded_fragment_shaders;
 static TvMaterialShader* loaded_vertex_shaders;
 static TvMaterialShader* loaded_geometry_shaders;
 
+static void tv_material_init_uniform_buffer_(tv_material *material);
+
+#if 0
+/**
+ * This structure is used to store information about a material as it is being
+ * built (before it is optimized and stored into the material component).
+ */
+typedef struct tv_material_effect_info {
+	tvchar* vertex_shader_prefix;
+	tvchar* vertex_shader_main_prefix;
+	tvchar* vertex_shader_main_suffix;
+	tvchar* vertex_shader_suffix;
+	tvchar* fragment_shader_prefix;
+	tvchar* fragment_shader_main_prefix;
+	tvchar* fragment_shader_main_suffix;
+	tvchar* fragment_shader_suffix;
+	tvchar* geometry_shader_prefix;
+	tvchar* geometry_shader_main_prefix;
+	tvchar* geometry_shader_main_suffix;
+	tvchar* geometry_shader_suffix;
+	tvchar name[32];
+	TvHashHandle hh;
+}tv_material_effect_info;
+
+/* table of the materials that are in the process of being built */
+static tv_material_effect_info* effects_info_table;
+const tvchar* base_vertex_shader_prefix = 
+	"#version 400\n"
+	"#define MAX_NUM_LIGHTS 100\n";
+const tvchar* base_vertex_shader_main = 
+	"void main() {\n";
+const tvchar* base_vertex_shader_main_end = 
+	"}\n";
+const tvchar* base_vertex_shader_suffix = 
+	"";
+
+const tvchar* base_fragment_shader_prefix = 
+	"#version 400\n"
+	"#define MAX_NUM_LIGHTS 100\n";
+const tvchar* base_fragment_shader_main = 
+	"void main() {\n";
+const tvchar* base_fragment_shader_main_end = 
+	"}\n";
+const tvchar* base_fragment_shader_suffix = 
+	"";
+
+const tvchar* base_geometry_shader_prefix = 
+	"#version 400\n"
+	"#define MAX_NUM_LIGHTS 100\n";
+const tvchar* base_geometry_shader_main = 
+	"void main() {\n";
+const tvchar* base_geometry_shader_main_end = 
+	"}\n";
+const tvchar* base_geometry_shader_suffix = 
+	"";
+#endif
+
 COMPONENT_NEW(tv_material, tv_component)
 END_COMPONENT_NEW(tv_material)
 
 COMPONENT_START(tv_material)
+	tv_material_init_uniform_buffer_(self);
 END_COMPONENT_START
 
 COMPONENT_UPDATE(tv_material)
@@ -19,6 +77,22 @@ END_COMPONENT_UPDATE
 int tv_material_init()
 {
 	return 0;
+}
+
+void tv_material_init_uniform_buffer_(tv_material *material)
+{
+	// the binding point must be smaller than GL_MAX_UNIFORM_BUFFER_BINDINGS
+	GLuint binding_point = TV_MATERIAL_BUFFER_BINDING_POINT;
+	GLuint bindingPoint = 1, blockIndex;
+	float myFloats[8] = {1.0, 0.0, 0.0, 1.0, 0.4, 0.0, 0.0, 1.0};
+	blockIndex = glGetUniformBlockIndex(material->program, "AttributeBlock");
+	glUniformBlockBinding(material->program, blockIndex, bindingPoint);
+	
+	glGenBuffers(1, &material->buffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, material->buffer);
+
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(myFloats), myFloats, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, material->buffer);
 }
 
 GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
@@ -52,7 +126,7 @@ GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 		else {
 			fprintf(stderr, "Error: shader was not compiled successfully.\n");
 		}
-		exit(EXIT_FAILURE);
+		return 0;
 	}
 	return s;
 }
@@ -90,10 +164,9 @@ GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 	glGetProgramiv(program, GL_LINK_STATUS, &success);
 	if(success == GL_FALSE) {
 		fprintf(stderr, "Error: shader could not be linked successfully.\n");
-		exit(EXIT_FAILURE);
+		return 0;
 	}
 	return program;
-
 }
 
 void tv_material_load(tv_material *mat, const char* file)
@@ -244,6 +317,84 @@ void tv_material_load(tv_material *mat, const char* file)
 
 	HASH_ADD_PTR(loaded_materials, name, mat);
 }
+
+#if 0
+void tv_material_optimize(tv_material *material)
+{
+	tv_material_effect **effect;
+	tv_material_effect_info *effect_info;
+	GLuint vert_shader;
+	GLuint frag_shader;
+	GLuint geom_shader;
+
+	TvString *vert_src;
+	TvString *vert_prefix;
+	TvString *vert_main_prefix;
+	TvString *vert_main_suffix;
+	TvString *vert_suffix;
+
+	TvString *frag_src;
+	TvString *frag_prefix;
+	TvString *frag_main_prefix;
+	TvString *frag_main_suffix;
+	TvString *frag_suffix;
+
+	TvString *geom_src;
+	TvString *geom_prefix;
+	TvString *geom_main_prefix;
+	TvString *geom_main_suffix;
+	TvString *geom_suffix;
+
+	utstring_new(vert_src);
+	utstring_new(vert_prefix);
+	utstring_new(vert_main_prefix);
+	utstring_new(vert_main_suffix);
+	utstring_new(vert_suffix);
+	utstring_new(frag_src);
+	utstring_new(frag_prefix);
+	utstring_new(frag_main_prefix);
+	utstring_new(frag_main_suffix);
+	utstring_new(frag_suffix);
+	utstring_new(geom_src);
+	utstring_new(geom_prefix);
+	utstring_new(geom_main_prefix);
+	utstring_new(geom_main_suffix);
+	utstring_new(geom_suffix);
+	for(effect = (tv_material_effect**)utarray_front(material->effects);
+		effect != NULL;
+		effect = (tv_material_effect**)utarray_next(material->effects, effect)) {
+			HASH_FIND_STR(effects_info_table, (*effect)->name, effect_info);
+			utstring_printf(vert_prefix, effect_info->vertex_shader_prefix);
+			utstring_printf(vert_main_prefix, effect_info->vertex_shader_main_prefix);
+			utstring_printf(vert_main_suffix, effect_info->vertex_shader_main_suffix);
+			utstring_printf(vert_suffix, effect_info->vertex_shader_suffix);
+			utstring_printf(frag_prefix, effect_info->fragment_shader_prefix);
+			utstring_printf(frag_main_prefix, effect_info->fragment_shader_main_prefix);
+			utstring_printf(frag_main_suffix, effect_info->fragment_shader_main_suffix);
+			utstring_printf(frag_suffix, effect_info->fragment_shader_suffix);
+			utstring_printf(geom_prefix, effect_info->geometry_shader_prefix);
+			utstring_printf(geom_main_prefix, effect_info->geometry_shader_main_prefix);
+			utstring_printf(geom_main_suffix, effect_info->geometry_shader_main_suffix);
+			utstring_printf(geom_suffix, effect_info->geometry_shader_suffix);
+	}
+	utstring_concat(vert_src, vert_prefix);
+	utstring_concat(vert_src, vert_main_prefix);
+	utstring_concat(vert_src, vert_main_suffix);
+	utstring_concat(vert_src, vert_suffix);
+	utstring_concat(frag_src, frag_prefix);
+	utstring_concat(frag_src, frag_main_prefix);
+	utstring_concat(frag_src, frag_main_suffix);
+	utstring_concat(frag_src, frag_suffix);
+	utstring_concat(geom_src, geom_prefix);
+	utstring_concat(geom_src, geom_main_prefix);
+	utstring_concat(geom_src, geom_main_suffix);
+	utstring_concat(geom_src, geom_suffix);
+	material->program = tv_material_compile_program(vert_shader, frag_shader,
+								   geom_shader, tvchar **attributes, 
+								   num_attributes);
+
+}
+#endif
 
 void tv_material_get_uniforms(GLuint program, GLuint* model, GLuint* view, GLuint* projection)
 {

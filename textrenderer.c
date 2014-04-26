@@ -1,5 +1,20 @@
 #include "textrenderer.h"
 
+typedef struct tv_my_vertex {
+	tvfloat x;
+	tvfloat y;
+	tvfloat z;
+}tv_my_vertex;
+typedef struct tv_my_texco {
+	tvfloat u;
+	tvfloat v;
+	tvfloat dummy;
+}tv_my_texco;
+
+typedef struct tv_textrenderer_vertex {
+	tv_my_vertex pos;
+	tv_my_texco tex;
+}tv_textrenderer_vertex;
 
 HANDLER_NEW(tv_text_renderer, tv_renderer, render, 1)
 	utstring_new(self->text);
@@ -54,8 +69,8 @@ static void render(tv_component *self)
 
     /* bind attribute array and draw */
     glBindVertexArray(renderer->model->vao);
-    glDrawArrays(renderer->model->primitive, 0, 
-		renderer->model->num_vertices);
+	glDrawElements(renderer->model->primitive, (GLsizei)utarray_len(renderer->model->indices),
+		GL_UNSIGNED_SHORT, 0);
     glBindVertexArray(0);
 
     tv_mat4x4_pop(main_cam->view_mat);
@@ -67,8 +82,9 @@ static void render(tv_component *self)
 void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
 {
 	tvuint i;
-    tvfloat texco[2];
-    tvfloat vertex[3];
+	tv_textrenderer_vertex vertex;
+	tvuint attrib_sizes[] = {sizeof(tv_my_vertex), sizeof(tv_my_texco)};
+
     tvfloat uv_w = 1.0f / 16.0f;
     tvfloat uv_h = 1.0f / 16.0f;
     tvfloat ch_w = self->font_size;
@@ -79,50 +95,41 @@ void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
 
     self->model = tv_model_new();
 
-    vertex[0] = 0.0f;
-    vertex[1] = 0.0f;
-    vertex[2] = -1.0f;
-    self->model->num_vertices = 4 * utstring_len(self->text);
-	tv_model_add_attribute(self->model, MODEL_ATTRIBUTE_VERTEX);
-    tv_model_add_attribute(self->model, MODEL_ATTRIBUTE_TEXCO);
+    vertex.pos.x = 0.0f;
+    vertex.pos.y = 0.0f;
+    vertex.pos.z = -1.0f;
 
+	tv_model_vertex_format(self->model, 2, attrib_sizes);
     for(i = 0; i < utstring_len(self->text); ++i) {
         /* upper left */
-        texco[0] = ((tvfloat)(utstring_body(self->text)[i] % 16)) * uv_w;
-        texco[1] = ((tvfloat)(utstring_body(self->text)[i] / 16)) * uv_h;
-		printf("%f %f  : ", texco[0], texco[1]);
-		tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
-		tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
+        vertex.tex.u = ((tvfloat)(utstring_body(self->text)[i] % 16)) * uv_w;
+        vertex.tex.v = ((tvfloat)(utstring_body(self->text)[i] / 16)) * uv_h;
+		tv_model_append_vertex(self->model, &vertex);
 
         /* upper right corner */
-        texco[0] += uv_w;
-        vertex[0] += ch_w;
-		printf("%f %f  : ", texco[0], texco[1]);
-        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
-        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
+        vertex.tex.u += uv_w;
+        vertex.pos.x += ch_w;
+		tv_model_append_vertex(self->model, &vertex);
 
         /* lower right corner */
-        texco[1] += uv_h;
-        vertex[1] += ch_h;
-		printf("%f %f  : ", texco[0], texco[1]);
-        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
-        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
+        vertex.tex.v += uv_h;
+        vertex.pos.y += ch_h;
+		tv_model_append_vertex(self->model, &vertex);
 
         /* lower left corner */
-        texco[0] -= uv_w;
-        vertex[0] -= ch_w;
-		printf("%f %f \n", texco[0], texco[1]);
-        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_VERTEX, vertex);
-        tv_model_append_attribute(self->model, MODEL_ATTRIBUTE_TEXCO, texco);
+        vertex.tex.u -= uv_w;
+        vertex.pos.x -= ch_w;
+		tv_model_append_vertex(self->model, &vertex);
 
         /* move to the next line? */
-        if(vertex[0] < self->rect.w) {
-            vertex[1] -= ch_h;
-            vertex[0] += ch_w;
+        if(vertex.pos.x < self->rect.w) {
+            vertex.pos.y -= ch_h;
+            vertex.pos.x += ch_w;
         }
         else {
-            vertex[0] = 0.0f;
+            vertex.pos.x = 0.0f;
         }
+		tv_model_append_quad(self->model, i*4, i*4+1, i*4+2, i*4+3);
     }
     self->model->primitive = GL_QUADS;
 	tv_model_optimize(self->model);
