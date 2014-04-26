@@ -26,6 +26,8 @@ HANDLER(tv_renderer, tv_component)
 	void (*render_func)(struct tv_component *self);
 ENDHANDLER(tv_renderer);
 
+void tv_renderer_set_material(tv_renderer* renderer, tv_material* material);
+
 #ifdef __cplusplus
 }
 #endif

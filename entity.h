@@ -27,6 +27,29 @@ extern "C" {
 #include "transform.h"
 #include "tv_message.h"
 
+#define ENTITY(name, px, py, pz, sx, sy, sz, rx, ry, rz) \
+	tv_entity* name () { \
+		tv_entity* e = tv_entity_new(NULL); \
+		{ \
+		 e->transform.pos.x = px ; e->transform.pos.y = py ; e->transform.pos.z = pz ; \
+		 e->transform.scale.x = sx ; e->transform.scale.y = sy ; e->transform.scale.z = sz ; \
+		 e->transform.rot.x = rx ; e->transform.rot.y = ry ; e->transform.rot.z = rz ; \
+		} \
+	{
+
+#define COMPONENTS {
+
+#define ADDCOMPONENT(type, name) \
+	}{ \
+	type * name = type ## _new(); \
+	tv_entity_add_component(e, (tv_component*)name); 
+
+#define ENTITY_END \
+	}} \
+		tv_entity_start(e); \
+		return e; \
+	} 
+
 /**
  * The entity structure. Entities represent all objects in the engine.
  */

@@ -53,7 +53,7 @@ int tv_draw_init()
 	main_cam->pos.x = 0;
 	main_cam->pos.y = 0;
 	main_cam->pos.z = -10;
-	tv_camera_perspective(main_cam, 90.0f, (float)screen->w / (float)screen->h, .01f, 100.0f);
+	tv_camera_perspective(main_cam, 30.0f, (float)screen->w / (float)screen->h, .01f, 100.0f);
     /* position the camera */
 	tv_mat4x4_load_identity(main_cam->view_mat);
 	tv_mat4x4_translate(main_cam->view_mat, -main_cam->pos.x, 
@@ -106,11 +106,11 @@ void tv_draw_start_frame()
 {
     /* clear GL buffers */
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST); //TODO: enable
+    glEnable(GL_DEPTH_TEST);
 
 	/* update camera ubo (camera matrices) */
-	glBindBufferRange(GL_UNIFORM_BUFFER, main_cam->uniform_binding_index,
-		main_cam->ubo, 0, sizeof(TvMat4x4) * 2);
+	//glBindBufferRange(GL_UNIFORM_BUFFER, main_cam->uniform_binding_index,
+	//	main_cam->ubo, 0, sizeof(TvMat4x4) * 2);
 }
 
 void tv_draw_resize_screen(int w, int h)

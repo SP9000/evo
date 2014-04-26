@@ -271,14 +271,25 @@ void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data)
 	utarray_insert(model->vertices, data, index);
 }
 
-void tv_model_append_tri(tv_model* model, tvuint i0, tvuint i1, tvuint i2)
+void tv_model_append_indices1(tv_model* model, tvuint i)
+{
+	utarray_push_back(model->indices, &i);
+}
+
+void tv_model_append_indices2(tv_model* model, tvuint i0, tvuint i1)
+{
+	utarray_push_back(model->indices, &i0);
+	utarray_push_back(model->indices, &i1);
+}
+
+void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2)
 {
 	utarray_push_back(model->indices, &i0);
 	utarray_push_back(model->indices, &i1);
 	utarray_push_back(model->indices, &i2);
 }
 
-void tv_model_append_quad(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3)
+void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3)
 {
 	utarray_push_back(model->indices, &i0);
 	utarray_push_back(model->indices, &i1);
@@ -286,6 +297,13 @@ void tv_model_append_quad(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvui
 	utarray_push_back(model->indices, &i3);
 }
 
+void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices)
+{
+	tvuint i;
+	for(i = 0; i < count; ++i) {
+		utarray_push_back(model->indices, &indices[i]);
+	}
+}
 
 TvAABB tv_model_get_aabb(tv_model* model)
 {

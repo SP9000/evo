@@ -88,6 +88,7 @@
     <ClCompile Include="draw.c" />
     <ClCompile Include="entity.c" />
     <ClCompile Include="input.c" />
+    <ClCompile Include="linerenderer.c" />
     <ClCompile Include="material.c" />
     <ClCompile Include="matrix.c" />
     <ClCompile Include="model.c" />
@@ -144,6 +145,8 @@
     <None Include="diffuse_lit.mat" />
     <None Include="gui.frag" />
     <None Include="gui.vert" />
+    <None Include="line.mat" />
+    <None Include="line.vert" />
     <None Include="skeletal_anim.vert" />
     <None Include="test.frag" />
     <None Include="test.mat" />

@@ -115,6 +115,7 @@ void tv_client_init()
 	tv_renderer_register();
 	tv_model_renderer_register();
 	tv_text_renderer_register();
+	tv_line_renderer_register();
 
     /* start the application */
     puts("Core initialized...\n"

@@ -11,11 +11,17 @@ void tv_model_renderer_set_model(tv_model_renderer *self, tv_model *model)
 HANDLER_NEW(tv_model_renderer, tv_renderer, render, 1)
 	tv_component *c = (tv_component*)self;
 	self->base.render_func = render;
+	self->base.material = NULL;
 	self->model = NULL;
 END_HANDLER_NEW(tv_model_renderer)
 
 HANDLER_START(tv_model_renderer)
-	self->base.material = (tv_material*)tv_component_get((tv_component*)self, tv_material_id());
+	if(self->base.material == NULL) {
+		self->base.material = (tv_material*)tv_component_get((tv_component*)self, tv_material_id());
+	}
+	if(self->model == NULL) {
+		self->model = (tv_model*)tv_component_get((tv_component*)self, tv_model_id());
+	}
 END_HANDLER_START
 
 HANDLER_UPDATE(tv_model_renderer)

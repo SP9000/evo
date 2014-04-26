@@ -1,0 +1,13 @@
+{
+    "material": {
+        "shaders": {
+            "vert": "line.vert",
+            "frag": "test.frag"
+        },
+        "attributes": [
+            "in_Position",
+            "in_Color"
+        ]
+    }
+}
+

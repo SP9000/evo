@@ -120,6 +120,9 @@
     <ClCompile Include="tv_vector.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="linerenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -252,6 +255,12 @@
     </None>
     <None Include="diffuse.fxi">
       <Filter>Resource Files\Material Effects</Filter>
+    </None>
+    <None Include="line.vert">
+      <Filter>Resource Files\Vertex Shaders</Filter>
+    </None>
+    <None Include="line.mat">
+      <Filter>Resource Files\Materials</Filter>
     </None>
   </ItemGroup>
 </Project>

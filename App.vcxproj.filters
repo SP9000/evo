@@ -30,6 +30,9 @@
     <ClInclude Include="App\playermotor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="grid.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
@@ -37,6 +40,12 @@
     </ClCompile>
     <ClCompile Include="App\playermotor.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="appregister.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="grid.c">
+      <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -12,3 +12,8 @@ END_HANDLER_UPDATE
 void render()
 {
 }
+
+void tv_renderer_set_material(tv_renderer* renderer, tv_material* material)
+{
+	renderer->material = material;
+}

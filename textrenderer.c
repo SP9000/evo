@@ -21,13 +21,16 @@ HANDLER_NEW(tv_text_renderer, tv_renderer, render, 1)
 	self->font_size = 0.025f;
 	self->font_texture = tv_texture_new();
 	self->base.render_func = render;
+	self->base.material = NULL;
 END_HANDLER_NEW(tv_text_renderer)
 
 HANDLER_START(tv_text_renderer)
     if(self->font != NULL) {
         self->font_texture = tv_texture_load_bmp((char*)self->font);
     }
-	self->base.material = (tv_material*)tv_component_get((tv_component*)self, tv_material_id());
+	if(self->base.material == NULL) {
+		self->base.material = (tv_material*)tv_component_get((tv_component*)self, tv_material_id());
+	}
 END_HANDLER_START
 
 HANDLER_UPDATE(tv_text_renderer)
@@ -129,7 +132,7 @@ void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
         else {
             vertex.pos.x = 0.0f;
         }
-		tv_model_append_quad(self->model, i*4, i*4+1, i*4+2, i*4+3);
+		tv_model_append_indices4(self->model, i*4, i*4+1, i*4+2, i*4+3);
     }
     self->model->primitive = GL_QUADS;
 	tv_model_optimize(self->model);

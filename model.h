@@ -85,8 +85,11 @@ void tv_model_append_vertex(tv_model *model, GLvoid* data);
 void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data);
 void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data);
 
-void tv_model_append_tri(tv_model* model, tvuint i0, tvuint i1, tvuint i2);
-void tv_model_append_quad(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3);
+void tv_model_append_indices1(tv_model* model, tvuint i0);
+void tv_model_append_indices2(tv_model* model, tvuint i0, tvuint i1);
+void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2);
+void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3);
+void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices);
 
 /**
  * Inserts the given attribute data into the attribute given by the ID.

@@ -10,6 +10,10 @@ extern "C" {
 #include "../client.h"
 #include "playermotor.h"
 
+#include "../grid.h"
+
+void app_register();
+
 #ifdef __cplusplus
 }
 #endif

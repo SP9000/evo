@@ -13,10 +13,13 @@
   <ItemGroup>
     <ClInclude Include="App\app.h" />
     <ClInclude Include="App\playermotor.h" />
+    <ClInclude Include="grid.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="appregister.c" />
     <ClCompile Include="App\app.c" />
     <ClCompile Include="App\playermotor.c" />
+    <ClCompile Include="grid.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{73E6E4EE-CA24-4C40-873A-8BBA49BD1652}</ProjectGuid>
