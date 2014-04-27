@@ -44,7 +44,7 @@ typedef enum {
  */
 COMPONENT(tv_animation, tv_component)
 	/* the models for the animation - each model corresponds to 1 bone. */
-	TvArray /*tv_model*/ *models;
+	tv_array /*tv_model*/ *models;
 
 	/* the "time" the animation is currently at (in terms of keyframe time). */
 	tvuint t;
@@ -55,7 +55,7 @@ COMPONENT(tv_animation, tv_component)
 	/* what the animation is currently doing (playing, looping, etc.) */
 	tv_animation_play_type play_type;
 	/* an array of keyframes - this defines how the models are animated. */
-	TvArray /*tv_animation_keyframe*/ *keyframes;
+	tv_array /*tv_animation_keyframe*/ *keyframes;
 
 	/* the number of bones in this animation. */
 	tvuint num_bones;

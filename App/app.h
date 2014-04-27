@@ -10,6 +10,7 @@ extern "C" {
 #include "../client.h"
 #include "playermotor.h"
 
+#include "../terrain.h"
 #include "../grid.h"
 
 void app_register();

@@ -4,7 +4,7 @@ ENTITY(grid, 5,0,10, 1,1,1, 130,0,0)
 	tv_vector3 color = {1.0f, 0.0f, 0.0f};
 COMPONENTS
 ADDCOMPONENT(app_grid, my_grid) 
-	app_grid_set_width(my_grid, 100);
+	app_grid_set_width(my_grid, 5);
 	app_grid_set_color(my_grid, color);
 ADDCOMPONENT(tv_line_renderer, renderer)
 ENTITY_END
@@ -54,6 +54,14 @@ text_r->rect = rect;
 text_r->font = "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\font.bmp";
 tv_text_renderer_set_text(text_r, "HELLO WORLD!");
 ENTITY_END
+///////////////////////////////////////////////////////////////////////////////
+ENTITY(terrain, 0.0f,0.0f,-50.0f, 1,1,1, 0,0,0)
+COMPONENTS
+ADDCOMPONENT(app_terrain, terr)
+ADDCOMPONENT(tv_model_renderer, renderer)
+ADDCOMPONENT(tv_material, material)
+tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\test.mat");
+ENTITY_END
 
 void app_update() 
 {
@@ -67,6 +75,7 @@ void test()
 	tv_entity *f = fairy();
 	tv_entity *f2 = fairy2();
 	tv_entity *test_text = text();
+	tv_entity *my_terrain = terrain();
 
 	//tv_camera_orthographic(main_cam, 0.0f, 1.0f, 0.0f, 1.0f, 0.01f, 100.0f);
 }

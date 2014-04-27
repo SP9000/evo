@@ -6,38 +6,6 @@ extern "C" {
 
 #include "evo.h"
 
-/* the maximum number of bones the root of a model may have */
-#define TV_ANIMATION_MAX_BONES 128
-/* the maximum # of bones that can be connected to another */
-#define TV_ANIMATION_MAX_CHILDREN 10
-
-typedef struct tv_animation_bone {
-	tv_vector3 position;
-	tv_vector4 rotation;
-	tvuint num_children;
-	tvuint children[TV_ANIMATION_MAX_CHILDREN];
-}tv_animation_bone;
-
-typedef struct tv_animation_keyframe {
-	tvuint start_time;
-	tvuint stop_time;
-
-	tvuint bone;
-	tv_vector3 offset_start;
-	tv_vector3 offset_end;
-	tv_vector4 rotation_start;
-	tv_vector4 rotation_stop;
-}tv_animation_keyframe;
-
-typedef enum {
-	TV_ANIMATION_NOT_PLAYING,
-	TV_ANIMATION_PLAYING,
-	TV_ANIMATION_LOOPING
-}tv_animation_play_type;
-
-/**
- * The animation component.
- */
 COMPONENT(app_grid, tv_component)
 	tv_line_renderer *line_renderer;
 	tv_material *line_material;

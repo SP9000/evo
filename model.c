@@ -1,6 +1,34 @@
 #include "model.h"
 
-tv_model* loaded_models;
+typedef struct ply_property {
+	tvint value;
+	tvuint type;
+	tvuint size;
+	/* if type is TV_MODEL_PROPERTY_LIST, this is the list of types */
+	tvuint type_list[32];
+	tvchar name[32];
+	UT_hash_handle hh;
+}ply_property;
+
+typedef struct ply_element {
+	tvint value;
+	ply_property *properties;
+	tvchar name[32];
+	UT_hash_handle hh;
+}ply_element;
+
+typedef struct ply_info {
+	ply_element *elements_table;
+}ply_info;
+
+
+/* a helper function to read an element from a PLY file. TRUE=success */
+static tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name);
+/* a helper function to read a property from a PLY file. TRUE=success */
+static tvbool read_property(tvchar *line, ply_info *info);
+
+/* a table of models that have already been loaded. */
+static tv_model* loaded_models;
 
 UT_icd ut_index_icd = {sizeof(GLshort), 0, 0, 0};
 
@@ -26,10 +54,108 @@ int tv_model_init()
 	return 0;
 }
 
+tvbool read_comment(tvchar *line)
+{
+	tvchar a[256];
+	tvuint num_read = sscanf(line, "%s", a);
+
+	/* check if there's nothing on this line, sure, we'll call that a comment */
+	if(num_read = 0) {
+		return 1;
+	}
+	if(strncmp(a, "comment", 8) == 0) {
+		return 1;
+	}
+	return 0;
+}
+
+tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name)
+{
+	tvchar a[256];
+	tvchar b[256];
+	tvchar c[256];
+	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
+	ply_element *el = (ply_element*)tv_alloc(sizeof(ply_element));
+
+	if(strncmp(a, "element", 8) == 0) {
+		if(num_read != 3) {
+			fprintf(stderr, "Warning: element %s has unrecognized formatting in declaration.\n", a);
+		}
+		if((strncmp(b, "vertex", 6) != 0) && (strncmp(b, "face", 4) != 0)) {
+			fprintf(stderr, "Warning: unrecognized element %s\n", a);
+		}
+		el->value = atoi(c);
+		strncpy(el->name, b, 32);
+		strncpy(element_name, b, 32);
+		el->properties = NULL;
+		HASH_ADD_STR(info->elements_table, name, el);
+		return 1;
+	}
+	return 0;
+}
+
+tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element)
+{
+	tvchar a[256];
+	tvchar b[256];
+	tvchar c[256];
+	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
+	ply_element *el;
+	ply_property *p = (ply_property*)tv_alloc(sizeof(ply_property));
+
+	if(strncmp("property", a, 8) != 0) {
+		return 0;
+	}
+
+	if(strncmp(b, "char", 4) == 0) {
+		p->size = 1;
+		p->type = TV_MODEL_PROPERTY_CHAR;
+	}
+	else if(strncmp(b, "uchar", 5) == 0) {
+		p->size = 1;
+		p->type = TV_MODEL_PROPERTY_UCHAR;
+	}
+	else if(strncmp(b, "short", 5) == 0) {
+		p->size = 2;
+		p->type = TV_MODEL_PROPERTY_SHORT;
+	}
+	else if(strncmp(b, "ushort", 6) == 0) {
+		p->size = 2;
+		p->type = TV_MODEL_PROPERTY_USHORT;
+	}
+	else if(strncmp(b, "int", 3) == 0) {
+		p->size = 4;
+		p->type = TV_MODEL_PROPERTY_INT;
+	}
+	else if(strncmp(b, "uint", 4) == 0) {
+		p->size = 4;
+		p->type = TV_MODEL_PROPERTY_UINT;
+	}
+	else if(strncmp(b, "float", 5) == 0) {
+		p->size = 4;
+		p->type = TV_MODEL_PROPERTY_FLOAT;
+	}
+	else if(strncmp(b, "double", 6) == 0) {
+		p->size = 8;
+		p->type = TV_MODEL_PROPERTY_DOUBLE;
+	}
+	strncpy(p->name, c, 32);
+	HASH_FIND_STR(info->elements_table, cur_element, el);
+	if(el) {
+		HASH_ADD_STR(el->properties, name, p);
+		return 1;
+	}
+	else {
+		fprintf(stderr, "Error: read property %s before any element was defined.\n", c);
+		return 0;
+	}
+}
+
 void tv_model_load_ply(tv_model *model, tvchar* file)
 {
-	tv_model* lup;
-	FILE* fp;
+	tv_model *lup;
+
+	FILE *fp;
 	tvuint i, j;
 	tvchar line_buffer[1024];
 
@@ -40,6 +166,10 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 
 	GLfloat *vertices;
 	GLfloat *colors;
+
+	ply_info file_info;
+	ply_property *prop, *prop_tmp;
+	ply_element *element, *element_tmp;
 
 	HASH_FIND_PTR(loaded_models, file, lup);
 	if(lup) {
@@ -54,94 +184,42 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 		return;
 	}
 
+	file_info.elements_table = NULL;
 	model->vertex_size = 0;
 	/* read the file header - alloc the buffers to store the model data */
     while(!feof(fp)) {
-		tvchar a[256];
-		tvchar b[256];
-		tvchar c[256];
-		tvint num_read;
+		tvchar element[256];
 
 		fgets(line_buffer, 1024, fp);
-		num_read = sscanf(line_buffer, "%s %s %s", a, b, c);
-
 	    if(strncmp(line_buffer, "end_header", 10) == 0) {
 			puts("END HEADER");
 			break;
 		}
-		/* if nothing was read or this line is a comment, continue */
-		if(num_read == 0 || strncmp(a, "comment", 8) == 0) {
+		if(read_comment(line_buffer)) {
 			continue;
 		}
-		/* make sure 3 items were read */
-		if(num_read != 3) {
+		if(read_element(line_buffer, &file_info, element)) {
 			continue;
 		}
+		if(read_property(line_buffer, &file_info, element)) {
+			continue;
+		}
+	}
 
-		/* read all the attributes that are used */
-		if(strncmp(a, "element", 8) == 0) {
-			if(strncmp(b, "vertex", 6) == 0) {
-				num_vertices = atoi(c);
-			}
-			else if(strncmp(b, "face", 4) == 0) {
-				num_faces = atoi(c);
+	for(element = file_info.elements_table; element != NULL; element = (ply_element*)element->hh.next) {
+		if(strncmp("vertex", element->name, 6) == 0) {
+			num_vertices = element->value;
+			for(prop = element->properties; prop != NULL; prop = (ply_property*)prop->hh.next) {
+#ifdef TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS
+				prop->size = sizeof(tvfloat);
+#endif
+				utarray_push_back(model->vertex_property_types, &prop->type);
+				utarray_push_back(model->vertex_property_offsets, &model->vertex_size);
+				model->vertex_size += prop->size;
 			}
 		}
-		else if(strncmp(a, "property", 8) == 0) {
-			tvuint p_size = 0;
-			tvuint p_type = 0;
-			/*
-			char       character                 1
-			uchar      unsigned character        1
-			short      short integer             2
-			ushort     unsigned short integer    2
-			int        integer                   4
-			uint       unsigned integer          4
-			float      single-precision float    4
-			double     double-precision float    8
-			*/
-			if(strncmp(b, "char", 4) == 0) {
-				p_size = 1;
-				p_type = TV_MODEL_PROPERTY_CHAR;
-			}
-			else if(strncmp(b, "uchar", 5) == 0) {
-				p_size = 1;
-				p_type = TV_MODEL_PROPERTY_UCHAR;
-			}
-			else if(strncmp(b, "short", 5) == 0) {
-				p_size = 2;
-				p_type = TV_MODEL_PROPERTY_SHORT;
-			}
-			else if(strncmp(b, "ushort", 6) == 0) {
-				p_size = 2;
-				p_type = TV_MODEL_PROPERTY_USHORT;
-			}
-			else if(strncmp(b, "int", 3) == 0) {
-				p_size = 4;
-				p_type = TV_MODEL_PROPERTY_INT;
-			}
-			else if(strncmp(b, "uint", 4) == 0) {
-				p_size = 4;
-				p_type = TV_MODEL_PROPERTY_UINT;
-			}
-			else if(strncmp(b, "float", 5) == 0) {
-				p_size = 4;
-				p_type = TV_MODEL_PROPERTY_FLOAT;
-			}
-			else if(strncmp(b, "double", 6) == 0) {
-				p_size = 8;
-				p_type = TV_MODEL_PROPERTY_DOUBLE;
-			}
-			else {
-				/* TODO: hack to allow face properties to be ignored */
-				continue;
-			}
-#ifdef TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS
-			p_size = sizeof(tvfloat);
-#endif
-			utarray_push_back(model->vertex_property_types, &p_type);
-			utarray_push_back(model->vertex_property_offsets, &model->vertex_size);
-			model->vertex_size += p_size;
+		else if(strncmp("face", element->name, 4) == 0) {
+			num_faces = element->value;
 		}
 	}
 
@@ -247,7 +325,7 @@ void tv_model_vertex_format(tv_model* model, tvuint num_properties, tvuint *prop
 	utarray_new(model->vertices, &my_vertex_icd);
 }
 
-void tv_model_buffer_attribute(tv_model* model, tvuint attribute, TvArray* buffer)
+void tv_model_buffer_attribute(tv_model* model, tvuint attribute, tv_array* buffer)
 {
 #if 0 
 	utarray_push_back(model->attributes, &buffer);
@@ -259,6 +337,11 @@ void tv_model_buffer_attribute(tv_model* model, tvuint attribute, TvArray* buffe
 void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data)
 {
 	/* TODO */
+}
+
+void tv_model_set_index(tv_model *model, tvuint index, tvuint new_index)
+{
+	*utarray_eltptr(model->indices, index) = new_index;
 }
 
 void tv_model_append_vertex(tv_model *model, GLvoid* data)
@@ -317,30 +400,45 @@ TvAABB tv_model_get_aabb(tv_model* model)
 
 void tv_model_optimize(tv_model* model)
 {
-	tvuint i;
-
     /* create a VAO for the model */
     glGenVertexArrays(1, &model->vao);
-    glBindVertexArray(model->vao);
-
-	printf("v: %d, i: %d\n", utarray_len(model->vertices), utarray_len(model->indices));
 
 	/* generate/bind/buffer the per-vertex data buffer */
 	glGenBuffers(1, &model->vertex_vbo);
+
+	/* check if there are any indices in the model, if so make index buffer */
+	if(utarray_len(model->indices) > 0) {
+		/* generate/bind/buffer the index buffer */
+		glGenBuffers(1, &model->index_vbo);
+	}
+	else {
+		model->index_vbo = 0;
+	}
+	tv_model_reoptimize(model);
+}
+
+void tv_model_reoptimize(tv_model* model)
+{
+	tvuint i;
+	
+	glBindVertexArray(model->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, model->vertex_vbo);
 	glBufferData(GL_ARRAY_BUFFER, 
 		model->vertex_size * utarray_len(model->vertices),
 		(GLfloat*)utarray_front(model->vertices),
 		GL_STATIC_DRAW);
 
-	/* generate/bind/buffer the index buffer */
-	glGenBuffers(1, &model->index_vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->index_vbo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER,	
-		utarray_len(model->indices) * sizeof(GLshort),
-		(GLshort*)utarray_front(model->indices),
-		GL_STATIC_DRAW);
-
+	if(utarray_len(model->indices) > 0) {
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->index_vbo);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,	
+			utarray_len(model->indices) * sizeof(GLshort),
+			(GLshort*)utarray_front(model->indices),
+			GL_STATIC_DRAW);
+	}
+	/* no index buffer */
+	else {
+		model->index_vbo = 0;
+	}
 	/* set the attribute pointers for each per-vertex property */
 	for(i = 0; i < utarray_len(model->vertex_property_offsets); ++i) {
 	    glEnableVertexAttribArray(i);
@@ -355,12 +453,12 @@ void tv_model_optimize(tv_model* model)
 void tv_model_free(tv_model* model)
 {
 #if 0
-	TvArray **attr_it;
+	tv_array **attr_it;
 	
 	/* free each attribute buffer */
-	for(attr_it = (TvArray**)utarray_front(model->attributes); 
+	for(attr_it = (tv_array**)utarray_front(model->attributes); 
 		attr_it != NULL; 
-		attr_it = (TvArray**)utarray_next(model->attributes, attr_it)) {
+		attr_it = (tv_array**)utarray_next(model->attributes, attr_it)) {
 			utarray_free(*attr_it);
 	}
 	utarray_free(model->attributes);
@@ -369,42 +467,37 @@ void tv_model_free(tv_model* model)
 #endif
 }
 
-tvuint tv_model_get_attribute_num_elements(tvuint attribute_id)
+/*****************************************************************************/
+/* Getters and Setters														 */
+tv_array *tv_model_get_vertices(tv_model* model)
 {
-	switch(attribute_id) {
-	case MODEL_ATTRIBUTE_NONE: return 0;
-	case MODEL_ATTRIBUTE_VERTEX: return MODEL_ATTRIBUTE_VERTEX_NUM_ELEMENTS;
-	case MODEL_ATTRIBUTE_COLOR: return MODEL_ATTRIBUTE_COLOR_NUM_ELEMENTS;
-	case MODEL_ATTRIBUTE_NORMAL: return MODEL_ATTRIBUTE_NORMAL_NUM_ELEMENTS;
-	case MODEL_ATTRIBUTE_TEXCO: return MODEL_ATTRIBUTE_TEXCO_NUM_ELEMENTS;
-	case MODEL_ATTRIBUTE_INDEX: return MODEL_ATTRIBUTE_INDEX_NUM_ELEMENTS;
-	}
-	return 0;
+	return model->vertices;
 }
-
-TvArray* tv_model_get_attribute(tv_model* model, tvuint attribute)
+void tv_model_set_vertices(tv_model *model, tv_array *vertices)
 {
-#if 0
-	tvuint i;
-	tvuint *type;
-
-	for(type = (tvuint*)utarray_front(model->attribute_types), i = 0; 
-		type != 0;
-		type = (tvuint*)utarray_next(model->attribute_types, type), ++i) {
-		if(*type == attribute) {
-			return *(TvArray**)utarray_eltptr(model->attributes, i);
-		}
-	}
-	return NULL;
-#endif
+	model->vertices = vertices;
 }
-
-GLvoid *tv_model_get_attribute_idx(tv_model *model, tvuint index)
+tv_array *tv_model_get_indices(tv_model* model)
 {
-	//return (GLvoid*)utarray_eltptr(model->attributes, index); 
+	return model->indices;
 }
-
-tvuint tv_model_get_attribute_size_idx(tv_model *model, tvuint index)
+void tv_model_set_indices(tv_model *model, tv_array *indices)
 {
-	//return utarray_len(*(TvArray**)utarray_eltptr(model->attributes, index));
+	model->indices = indices;
+}
+tv_model_vbo_handle tv_model_get_vertex_handle(tv_model *model)
+{
+	return model->vertex_vbo;
+}
+void tv_model_set_vertex_handle(tv_model *model, tvuint new_handle)
+{
+	model->vertex_vbo = new_handle;
+}
+tv_model_vbo_handle tv_model_get_index_handle(tv_model *model)
+{
+	return model->index_vbo;
+}
+void tv_model_set_index_handle(tv_model *model, tvuint new_handle)
+{
+	model->index_vbo = new_handle;
 }

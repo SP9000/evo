@@ -24,12 +24,12 @@ static tvuint next_free_pre_handler_id = 1;
 static tvuint next_free_post_handler_id = TV_COMPONENT_MAX_PRE_HANDLERS;
 
 /* arrays containing all the handlers registered within the engine */
-static TvArray *registered_pre_handlers;
-static TvArray *registered_post_handlers;
+static tv_array *registered_pre_handlers;
+static tv_array *registered_post_handlers;
 
 /* an array of arrays corresponding to the components registered to each handler */
-static TvArray *registered_pre_components;
-static TvArray *registered_post_components;
+static tv_array *registered_pre_components;
+static tv_array *registered_post_components;
 
 static void register_inheritance_(tvuint id, tvuint parent_id);
 
@@ -89,7 +89,7 @@ void tv_component_register_id(tvuint *id, tvuint parent_id)
 void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvbool pre_update)
 {
 	tv_component_handler handler;
-	TvArray *components;
+	tv_array *components;
 
 	handler = func;
 
@@ -117,25 +117,25 @@ void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv
 void tv_component_register_to_handler(tvuint handler_id, tv_component *component, tvbool pre_update)
 {
 	if(pre_update) {
-		utarray_push_back((*(TvArray**)utarray_eltptr(registered_pre_components, handler_id)), &component);
+		utarray_push_back((*(tv_array**)utarray_eltptr(registered_pre_components, handler_id)), &component);
 		puts("registered");
 	}
 	else {
-		utarray_push_back((TvArray*)utarray_eltptr(registered_post_components, handler_id), &component);
+		utarray_push_back((tv_array*)utarray_eltptr(registered_post_components, handler_id), &component);
 	}
 }
 
 void tv_component_update_pre_handlers()
 {
 	tv_component_handler *handler;
-	TvArray **components;
+	tv_array **components;
 	tv_component **c;
 	int index;
 
 	for(handler = (tv_component_handler*)utarray_eltptr(registered_pre_handlers, 1), index = 1;
 		handler != NULL;
 		handler = (tv_component_handler*)utarray_next(registered_pre_handlers, handler), ++index) {
-			components = (TvArray**)utarray_eltptr(registered_pre_components, index);
+			components = (tv_array**)utarray_eltptr(registered_pre_components, index);
 			for(c = (tv_component**)utarray_front(*components);
 				c != NULL;
 				c = (tv_component**)utarray_next(*components, c)) {

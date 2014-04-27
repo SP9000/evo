@@ -33,6 +33,12 @@
     <ClInclude Include="grid.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
+    <ClInclude Include="terrain_tile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain.h">
+      <Filter>Header Files\Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
@@ -45,6 +51,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="grid.c">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_tile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain.c">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
   </ItemGroup>

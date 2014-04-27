@@ -33,6 +33,8 @@ enum {
 	MODEL_ATTRIBUTE_INDEX
 };
 
+typedef GLuint tv_model_vbo_handle;
+
 typedef enum tv_model_property_type {
 	TV_MODEL_PROPERTY_CHAR,
 	TV_MODEL_PROPERTY_UCHAR,
@@ -41,7 +43,8 @@ typedef enum tv_model_property_type {
 	TV_MODEL_PROPERTY_INT,
 	TV_MODEL_PROPERTY_UINT,
 	TV_MODEL_PROPERTY_FLOAT,
-	TV_MODEL_PROPERTY_DOUBLE
+	TV_MODEL_PROPERTY_DOUBLE,
+	TV_MODEL_PROPERTY_LIST
 }tv_model_property_type;
 
 COMPONENT(tv_model, tv_component) 
@@ -52,19 +55,23 @@ COMPONENT(tv_model, tv_component)
 	tvuint num_attributes;
 
 	/* the per vertex attributes this model uses */
-	TvArray *vertices;
+	tv_array *vertices;
+	/* the offset in bytes to each vertex property. */
+	tv_array /*tvuint*/ *vertex_property_offsets;
+	/* the types of each property - char, int, float, etc. */
+	tv_array /*tvuint*/ *vertex_property_types;
+	/* the size of groups of related properties. e.g. 3:(x,y,z) 4:(r,g,b,a) */
+	tv_array /*tvuint*/ *vertex_property_groups;
 	/* the indices for each face in the model. */
-	TvArray /*GLshort*/ *indices;
+	tv_array /*GLshort*/ *indices;
+	
 	/* the size of each vertex (with all its attributes) for this model. */
 	tvuint vertex_size;
-	/* the offset in bytes to each vertex property. */
-	TvArray /*tvuint*/ *vertex_property_offsets;
-	TvArray /*tvuint*/ *vertex_property_types;
 	
 	/* the ID of the per-vertex attribute VBO. */
-	GLuint vertex_vbo;
+	tv_model_vbo_handle vertex_vbo;
 	/* the ID of the index VBO. */
-	GLuint index_vbo;
+	tv_model_vbo_handle index_vbo;
 
 	const tvchar *name;
 	TvHashHandle hh;
@@ -85,6 +92,7 @@ void tv_model_append_vertex(tv_model *model, GLvoid* data);
 void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data);
 void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data);
 
+void tv_model_set_index(tv_model *model, tvuint index, tvuint new_index);
 void tv_model_append_indices1(tv_model* model, tvuint i0);
 void tv_model_append_indices2(tv_model* model, tvuint i0, tvuint i1);
 void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2);
@@ -114,7 +122,7 @@ void tv_model_set_attribute(tv_model *model, tvuint attribute_id, tvuint vertex,
  * @param attribute the ID of the attribute that is the target of the buffering
  * @param buffer the buffer to copy to the given attribute.
  */
-void tv_model_buffer_attribute(tv_model* model, tvuint attribute, TvArray* buffer);
+void tv_model_buffer_attribute(tv_model* model, tvuint attribute, tv_array* buffer);
 
 /**
  * Get the number of elements that the specified attribute has per property.
@@ -123,14 +131,72 @@ void tv_model_buffer_attribute(tv_model* model, tvuint attribute, TvArray* buffe
  */
 tvuint tv_model_get_attribute_num_elements(tvuint attribute_id);
 
-tvuint tv_model_get_attribute_size(tvuint attribute_id);
+/** 
+ * Get a reference to the array of the given model's vertices. 
+ * @param model the model to get the vertices of.
+ * @return a reference to the array of the model's vertices.
+ */
+tv_array *tv_model_get_vertices(tv_model *model);
+/** 
+ * Set the model's vertices to the newly given array.
+ * @param model the model to set the vertices of.
+ * @param vertices an array of the vertices to set this model's to.
+ */
+void tv_model_set_vertices(tv_model *model, tv_array *vertices);
+/** 
+ * Get a reference to the array of the given model's indices. 
+ * @param model the model to get the indices of.
+ * @return a reference to the array of the model's indices.
+ */
+tv_array *tv_model_get_indices(tv_model *model);
+/** 
+ * Set the model's indices to the newly given array.
+ * @param model the model to set the indices of.
+ * @param vertices an array of the indices to set this model's to.
+ */
+void tv_model_set_indices(tv_model *model, tv_array *indices);
 
-TvArray* tv_model_get_attribute(tv_model* model, tvuint attribute);
-GLvoid *tv_model_get_attribute_idx(tv_model *model, tvuint index);
-tvuint tv_model_get_attribute_size_idx(tv_model *model, tvuint index);
+/**
+ * Get the handle to the given model's vertex VBO.
+ * @param model the model to retrieve the VBO handle from.
+ * @return the handle for this model's vertex VBO.
+ */
+tv_model_vbo_handle tv_model_get_vertex_handle(tv_model *model);
+/**
+ * Sets the vertex VBO handle for this model.
+ * @param model the model to get set the VBO handle to.
+ * @param new_handle the handle to set this model's vertex VBO handle to.
+ */
+void tv_model_set_vertex_handle(tv_model *model, tvuint new_handle);
+
+/**
+ * Get the handle to the given model's index VBO.
+ * @param model the model to retrieve the VBO handle from.
+ * @return the handle for this model's index VBO.
+ */
+tv_model_vbo_handle tv_model_get_index_handle(tv_model *model);
+/**
+ * Sets the index VBO handle for this model.
+ * @param model the model to get set the VBO handle to.
+ * @param new_handle the handle to set this model's vertex VBO handle to.
+ */
+void tv_model_set_index_handle(tv_model *model, tvuint new_handle);
+
+/**
+ * Once all the vertices and indices are set for the given model's data, this
+ * function allows the model to be rendered.
+ * @param model the model to optimize for renderering.
+ */
+void tv_model_optimize(tv_model* model);
+/**
+ * This function should be called after updates are made to a models data and
+ * after the model has already been optimized via tv_model_optimize.
+ * @param model the model to (re)optimize.
+ */
+void tv_model_reoptimize(tv_model* model);
+
 
 TvAABB tv_model_get_aabb(tv_model* model);
-void tv_model_optimize(tv_model* model);
 void tv_model_free(tv_model* model);
 
 #ifdef __cplusplus

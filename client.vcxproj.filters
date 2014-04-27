@@ -123,6 +123,9 @@
     <ClCompile Include="linerenderer.c">
       <Filter>Source Files\Components\Renderers</Filter>
     </ClCompile>
+    <ClCompile Include="instancerenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -222,6 +225,9 @@
       <Filter>Header Files\Components\GUI</Filter>
     </ClInclude>
     <ClInclude Include="linerenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="instancerenderer.h">
       <Filter>Header Files\Components\Renderers</Filter>
     </ClInclude>
   </ItemGroup>

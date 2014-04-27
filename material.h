@@ -41,10 +41,10 @@ typedef struct tv_material_effect_interface_element {
  * each other. 
  */
 typedef struct tag_tv_material_effect_interface {
-	TvArray /*tv_material_effect_interface_element*/ *in_params;
-	TvArray /*tv_material_effect_interface_element*/ *out_params;
-	TvArray /*tv_material_effect_interface_element*/ *uniform_params;
-	TvArray /*tv_material_effect_interface_element*/ *ubo_params;
+	tv_array /*tv_material_effect_interface_element*/ *in_params;
+	tv_array /*tv_material_effect_interface_element*/ *out_params;
+	tv_array /*tv_material_effect_interface_element*/ *uniform_params;
+	tv_array /*tv_material_effect_interface_element*/ *ubo_params;
 	tvchar name[32];
 } tv_material_effect_interface;
 
@@ -65,7 +65,7 @@ COMPONENT(tv_material, tv_component)
 	/* the location of the uniform buffer this material uses. */
 	GLuint buffer;
 	/* an array of effects in the order they are used. */
-	/* TvArray *effects; */
+	/* tv_array *effects; */
 
 	TvHashHandle hh;
 ENDCOMPONENT(tv_material)

@@ -88,6 +88,7 @@
     <ClCompile Include="draw.c" />
     <ClCompile Include="entity.c" />
     <ClCompile Include="input.c" />
+    <ClCompile Include="instancerenderer.c" />
     <ClCompile Include="linerenderer.c" />
     <ClCompile Include="material.c" />
     <ClCompile Include="matrix.c" />
@@ -117,6 +118,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="evo.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="instancerenderer.h" />
     <ClInclude Include="linerenderer.h" />
     <ClInclude Include="material.h" />
     <ClInclude Include="matrix.h" />

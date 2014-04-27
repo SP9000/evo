@@ -14,12 +14,16 @@
     <ClInclude Include="App\app.h" />
     <ClInclude Include="App\playermotor.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="terrain.h" />
+    <ClInclude Include="terrain_tile.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="appregister.c" />
     <ClCompile Include="App\app.c" />
     <ClCompile Include="App\playermotor.c" />
     <ClCompile Include="grid.c" />
+    <ClCompile Include="terrain.c" />
+    <ClCompile Include="terrain_tile.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{73E6E4EE-CA24-4C40-873A-8BBA49BD1652}</ProjectGuid>
@@ -53,7 +57,7 @@
     <LibraryPath>C:\SDL\lib\x86;C:\glew\lib;C:\glib\lib;C:\enet;C:\Users\Bryce\Documents\GitHub\evo\Debug;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LibraryPath>C:\SDL\lib\x86;C:\glew\lib\Release\Win32;C:\glib\lib;C:\enet\lib;C:\Users\bryce.wilson\Documents\GitHub\evo\Debug;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\SDL\lib\x86;C:\glew\lib;C:\glib\lib;C:\enet;C:\Users\Bryce\Documents\GitHub\evo\Release;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -81,6 +85,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>client.lib;SDLmain.lib;SDL.lib;glew32.lib;enet.lib;ws2_32.lib;winmm.lib;glib-2.0.lib;opengl32.lib;glu32.lib</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

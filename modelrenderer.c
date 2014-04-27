@@ -34,6 +34,7 @@ static void render(tv_component* self)
 	if(renderer->model == NULL) {
 		return;
 	}
+
 	tv_mat4x4_push(main_cam->view_mat);
 	tv_mat4x4_translate(main_cam->view_mat, -self->entity->transform.pos.x,
 		-self->entity->transform.pos.y, self->entity->transform.pos.z);
@@ -66,8 +67,14 @@ static void render(tv_component* self)
 	//glEnableVertexAttribArray(renderer->model->vao);
 
     glBindVertexArray(renderer->model->vao);
-	glDrawElements(renderer->model->primitive, (GLsizei)utarray_len(renderer->model->indices),
-		GL_UNSIGNED_SHORT, 0);
+	if(utarray_len(renderer->model->indices)) {
+		glDrawElements(renderer->model->primitive, utarray_len(renderer->model->indices),
+			GL_UNSIGNED_SHORT, 0);
+	}
+	else {
+		glDrawArrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
+	}
+
     glBindVertexArray(0);
 
 	tv_mat4x4_pop(main_cam->view_mat);

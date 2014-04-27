@@ -1,6 +1,6 @@
 #include "entity.h"
 
-static TvArray /*Entity* */ *entities;
+static tv_array /*Entity* */ *entities;
 
 int tv_entity_init()
 {

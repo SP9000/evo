@@ -63,8 +63,8 @@ typedef struct tv_entity {
     tvuint numChildren;
     tvuint numComponents;
     struct tv_entity  *parent;
-    TvArray /*tv_entity**/ *children;
-	TvArray /*tv_component*/ *components;
+    tv_array /*tv_entity**/ *children;
+	tv_array /*tv_component*/ *components;
 }tv_entity;
 
 /**

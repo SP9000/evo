@@ -51,7 +51,7 @@ typedef unsigned tvuint;
 typedef uint32_t tvu32;
 
 /* data structures */
-typedef UT_array TvArray;
+typedef UT_array tv_array;
 typedef UT_hash_table TvHashTable;
 typedef UT_hash_handle TvHashHandle;
 

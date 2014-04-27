@@ -43,14 +43,18 @@ COMPONENT_START(app_grid)
 	tv_material_load(self->line_material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\line.mat");
 	tv_renderer_set_material((tv_renderer*)self->line_renderer, self->line_material);
 	tv_line_renderer_set_line_width(self->line_renderer, 4);	
-	for(i = 0; i < self->height; ++i) {
+	
+	/* generate the horizontal grid lines */
+	for(i = 0; i < self->height+1; ++i) {
 		tv_line_renderer_add_line(self->line_renderer, start, end, self->color);
 		start.y += self->y_step;
 		end.y += self->y_step;
 	}
+	/* generate the vertical grid lines */
 	start.y = 0.0f;
 	end.x = 0.0f;
-	for(i = 0; i < self->width; ++i) {
+	end.y -= self->y_step;
+	for(i = 0; i < self->width+1; ++i) {
 		tv_line_renderer_add_line(self->line_renderer, start, end, self->color);
 		start.x += self->x_step;
 		end.x += self->x_step;
