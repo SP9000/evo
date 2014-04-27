@@ -74,9 +74,13 @@ void app_terrain_set_tile(app_terrain *terrain, tvuint type, tvuint x, tvuint y,
 }
 
 COMPONENT_NEW(app_terrain, tv_component)
-	tvuint vertex_property_sizes[] = {3*sizeof(GLfloat), 3*sizeof(GLfloat), 3*sizeof(GLfloat)};
+	tv_model_property vertex_properties[] = {
+		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 3, 0}
+	};	
 	self->model = tv_model_new();
-	tv_model_vertex_format(self->model, 3, vertex_property_sizes);
+	tv_model_vertex_format(self->model, 3, vertex_properties);
 END_COMPONENT_NEW(app_terrain)
 
 COMPONENT_START(app_terrain)

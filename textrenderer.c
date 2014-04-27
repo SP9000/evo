@@ -86,7 +86,10 @@ void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
 {
 	tvuint i;
 	tv_textrenderer_vertex vertex;
-	tvuint attrib_sizes[] = {sizeof(tv_my_vertex), sizeof(tv_my_texco)};
+	tv_model_property vertex_properties[] = {
+		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 2, 0}
+	};
 
     tvfloat uv_w = 1.0f / 16.0f;
     tvfloat uv_h = 1.0f / 16.0f;
@@ -102,7 +105,7 @@ void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
     vertex.pos.y = 0.0f;
     vertex.pos.z = -1.0f;
 
-	tv_model_vertex_format(self->model, 2, attrib_sizes);
+	tv_model_vertex_format(self->model, 2, vertex_properties);
     for(i = 0; i < utstring_len(self->text); ++i) {
         /* upper left */
         vertex.tex.u = ((tvfloat)(utstring_body(self->text)[i] % 16)) * uv_w;

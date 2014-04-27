@@ -4,8 +4,10 @@ typedef struct my_vertex {
 	tv_vector3 pos;
 	tv_vector3 col;
 }my_vertex;
-static tvuint v_attrib_sizes[] = {sizeof(tv_vector3), sizeof(tv_vector3)};
-
+tv_model_property vertex_properties[] = {
+	{TV_MODEL_PROPERTY_FLOAT, 3, 0},
+	{TV_MODEL_PROPERTY_FLOAT, 3, 0}
+};
 void tv_line_renderer_add_line(tv_line_renderer *self, tv_vector3 start, tv_vector3 end, tv_vector3 color)
 {
 	my_vertex v1 = {start.x, start.y, start.z, color.x, color.y, color.z};
@@ -15,7 +17,7 @@ void tv_line_renderer_add_line(tv_line_renderer *self, tv_vector3 start, tv_vect
 	/* if this renderer doesn't have a mode for whatever reason, make a new one */
 	if(self->model == NULL) {
 		self->model = tv_model_new();
-		tv_model_vertex_format(self->model, 2, v_attrib_sizes);
+		tv_model_vertex_format(self->model, 2, vertex_properties);
 	}
 	
 	/* append the vertices and indices to the line renderer's model. */
@@ -51,7 +53,7 @@ HANDLER_START(tv_line_renderer)
 	}
 	if(self->model == NULL) {
 		self->model = tv_model_new();
-		tv_model_vertex_format(self->model, 2, v_attrib_sizes);
+		tv_model_vertex_format(self->model, 2, vertex_properties);
 	}
 END_HANDLER_START
 
