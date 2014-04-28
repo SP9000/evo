@@ -2,6 +2,7 @@
 
 typedef struct terrain_vertex {
 	tv_vector3 pos;
+	tv_vector3 color;
 	tv_vector3 tex;
 	tv_vector3 dummy;
 }terrain_vertex;
@@ -21,16 +22,51 @@ tvfloat cube_tri_strip_vertices[] = {
     -1,1,1, 1,1,1, -1,1,-1, 1,1,-1
 };
 tvfloat cube_vertices[] = {
-	-1.0f, -1.0f, 1.0f, 
-	1.0f, -1.0f, 1.0f, 
-	1.0f, 1.0f, 1.0f, 
+	-1.0f,-1.0f,-1.0f, 
+	-1.0f,-1.0f, 1.0f,
 	-1.0f, 1.0f, 1.0f, 
-	-1.0f, -1.0f, -1.0f, 
-	1.0f, -1.0f, -1.0f, 
-	1.0f, 1.0f, -1.0f, 
-	-1.0f, 1.0f, -1.0f
+	1.0f, 1.0f,-1.0f, 
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f,-1.0f, 
+	1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f, 1.0f,
+	-1.0f,-1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	-1.0f,-1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f,-1.0f,
+	1.0f,-1.0f,-1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f,-1.0f,
+	-1.0f, 1.0f,-1.0f,
+	1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f,-1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f,
+	-1.0f, 1.0f, 1.0f,
+	1.0f,-1.0f, 1.0f
 };
-GLushort cube_indices[] = {
+tvfloat cube_texcos[] = {
+	0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f,
+	0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f,
+	0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f,
+	0.0f,0.0f, 1.0f,0.0f, 1.0f,1.0f, 0.0f,1.0f
+};
+
+GLushort cube_tri_strip_indices[] = {
 	2, 6, 3, 7,
 	4, 5, 0, 1,
 	7, 4, 3, 0,
@@ -69,18 +105,16 @@ void app_terrain_set_tile(app_terrain *terrain, tvuint type, tvuint x, tvuint y,
 
 	terrain->tiles[z][x][y] = type;
 	for(i = 0; i < 6*6; ++i) {
-		tv_model_set_index(terrain->model, model_index+i, cube_indices[i]+base_index);
+		tv_model_set_index(terrain->model, model_index+i, cube_tri_strip_indices[i]+base_index);
 	}
 }
 
 COMPONENT_NEW(app_terrain, tv_component)
 	tv_model_property vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
-		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
-		{TV_MODEL_PROPERTY_FLOAT, 3, 0}
-	};	
+		{TV_MODEL_PROPERTY_FLOAT, 3, 0}};	
 	self->model = tv_model_new();
-	tv_model_vertex_format(self->model, 3, vertex_properties);
+	tv_model_vertex_format(self->model, 2, vertex_properties);
 END_COMPONENT_NEW(app_terrain)
 
 COMPONENT_START(app_terrain)
@@ -96,6 +130,7 @@ COMPONENT_START(app_terrain)
 		my_vertex.pos.z = cube_vertices[i*3+2];
 	}
 	self->model->primitive = GL_TRIANGLE_STRIP;
+	srand(42);
 	/* initialize all tiles to 0. */
 	for(i = 0, z = 0; i < APP_TERRAIN_SIZE_Z; ++i, z += APP_TERRAIN_TILE_D) {
 		for(j = 0, x = 0; j < APP_TERRAIN_SIZE_X; ++j, x += APP_TERRAIN_TILE_W) {
@@ -105,6 +140,9 @@ COMPONENT_START(app_terrain)
 					my_vertex.pos.x = cube_tri_strip_vertices[l*3] + x;
 					my_vertex.pos.y = cube_tri_strip_vertices[l*3+1] + y;
 					my_vertex.pos.z = cube_tri_strip_vertices[l*3+2] + z;
+					my_vertex.color.x = (rand() % 100) / 100.0f; //j / (float)APP_TERRAIN_SIZE_X;
+					my_vertex.color.y = (rand() % 100) / 100.0f; //k / (float)APP_TERRAIN_SIZE_Y;
+					my_vertex.color.z = (rand() % 100) / 100.0f; //i / (float)APP_TERRAIN_SIZE_Z;
 					tv_model_append_vertex(self->model, &my_vertex);
 				}
 			}

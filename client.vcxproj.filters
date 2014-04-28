@@ -43,6 +43,9 @@
     <Filter Include="Header Files\Components\GUI">
       <UniqueIdentifier>{caaf7991-4b93-45ab-9af9-64d16297b8b0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Components\GUI">
+      <UniqueIdentifier>{502dff3b-bde5-43d1-8b66-68df1e35fe64}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cJSON.c">
@@ -125,6 +128,15 @@
     </ClCompile>
     <ClCompile Include="instancerenderer.c">
       <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="guirenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="widget.c">
+      <Filter>Source Files\Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="widget_textbox.c">
+      <Filter>Source Files\Components\GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -229,6 +241,12 @@
     </ClInclude>
     <ClInclude Include="instancerenderer.h">
       <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="guirenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="widget_textbox.h">
+      <Filter>Header Files\Components\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

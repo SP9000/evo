@@ -8,7 +8,7 @@ void tv_model_renderer_set_model(tv_model_renderer *self, tv_model *model)
 	self->model = model;
 }
 
-HANDLER_NEW(tv_model_renderer, tv_renderer, render, 1)
+HANDLER_NEW(tv_model_renderer, tv_renderer, render, TV_UPDATE_STAGE_MAIN_RENDER)
 	tv_component *c = (tv_component*)self;
 	self->base.render_func = render;
 	self->base.material = NULL;

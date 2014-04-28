@@ -13,6 +13,7 @@
   <ItemGroup>
     <ClInclude Include="App\app.h" />
     <ClInclude Include="App\playermotor.h" />
+    <ClInclude Include="camera_controller.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="terrain_tile.h" />
@@ -21,6 +22,7 @@
     <ClCompile Include="appregister.c" />
     <ClCompile Include="App\app.c" />
     <ClCompile Include="App\playermotor.c" />
+    <ClCompile Include="camera_controller.c" />
     <ClCompile Include="grid.c" />
     <ClCompile Include="terrain.c" />
     <ClCompile Include="terrain_tile.c" />

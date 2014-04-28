@@ -27,7 +27,7 @@ typedef struct tv_component tv_component;
  * The maximum number of handlers that may be registered in the engine. This
  * ought to be PLENTY.
  */
-#define TV_COMPONENT_MAX_HANDLERS 512
+#define TV_COMPONENT_MAX_HANDLERS 128
 
 /**
  * The maximum number of pre-handlers (obviously this must be smaller than
@@ -40,6 +40,15 @@ typedef struct tv_component tv_component;
  */
 #define TV_COMPONENT_MAX_POST_HANDLERS (TV_COMPONENT_MAX_HANDLERS - TV_COMPONENT_MAX_PRE_HANDLERS)
 
+/* the number of stages there are before update */
+#define TV_COMPONENT_MAX_PRE_STAGES 8
+/* the number of stages there are after update */
+#define TV_COMPONENT_MAX_POST_STAGES 8
+/* the total number of update stages there are (excluding update) */
+#define TV_COMPONENT_MAX_STAGES (TV_COMPONENT_MAX_PRE_STAGES + TV_COMPONENT_MAX_POST_STAGES)
+
+#define TV_UPDATE_STAGE_MAIN_RENDER 1
+#define TV_UPDATE_STAGE_GUI_RENDER 2
 /*****************************************************************************/
 /*Component macros                                                           */
 #define COMPONENT(component_prefix, parent_prefix) \

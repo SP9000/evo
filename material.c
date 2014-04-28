@@ -327,23 +327,23 @@ void tv_material_optimize(tv_material *material)
 	GLuint frag_shader;
 	GLuint geom_shader;
 
-	TvString *vert_src;
-	TvString *vert_prefix;
-	TvString *vert_main_prefix;
-	TvString *vert_main_suffix;
-	TvString *vert_suffix;
+	tv_string *vert_src;
+	tv_string *vert_prefix;
+	tv_string *vert_main_prefix;
+	tv_string *vert_main_suffix;
+	tv_string *vert_suffix;
 
-	TvString *frag_src;
-	TvString *frag_prefix;
-	TvString *frag_main_prefix;
-	TvString *frag_main_suffix;
-	TvString *frag_suffix;
+	tv_string *frag_src;
+	tv_string *frag_prefix;
+	tv_string *frag_main_prefix;
+	tv_string *frag_main_suffix;
+	tv_string *frag_suffix;
 
-	TvString *geom_src;
-	TvString *geom_prefix;
-	TvString *geom_main_prefix;
-	TvString *geom_main_suffix;
-	TvString *geom_suffix;
+	tv_string *geom_src;
+	tv_string *geom_prefix;
+	tv_string *geom_main_prefix;
+	tv_string *geom_main_suffix;
+	tv_string *geom_suffix;
 
 	utstring_new(vert_src);
 	utstring_new(vert_prefix);

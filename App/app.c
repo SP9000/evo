@@ -45,23 +45,34 @@ ADDCOMPONENT(app_player_motor, pm)
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
 ENTITY(text, 0,0,0, 1,1,1, 0,0,0)
-	TvRect rect = {0.0f,0.0f,0.1f,0.1f};
+	tv_rect rect = {0.0f,0.0f,0.1f,0.1f};
 COMPONENTS
 ADDCOMPONENT(tv_material, material)
 tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\tex.mat");
-ADDCOMPONENT(tv_text_renderer, text_r)
+ADDCOMPONENT(tv_gui_renderer, text_r)
 text_r->rect = rect;
 text_r->font = "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\font.bmp";
-tv_text_renderer_set_text(text_r, "HELLO WORLD!");
+tv_text_renderer_set_text((tv_text_renderer*)text_r, "HELLO WORLD!");
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
-ENTITY(terrain, 0.0f,0.0f,-50.0f, 1,1,1, 0,0,0)
+ENTITY(terrain, 0.0f,0.0f,-10.0f, .5,.5,.5, 0,0,0)
 COMPONENTS
 ADDCOMPONENT(app_terrain, terr)
 ADDCOMPONENT(tv_model_renderer, renderer)
 ADDCOMPONENT(tv_material, material)
-tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\test.mat");
+tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\line.mat");
 ENTITY_END
+///////////////////////////////////////////////////////////////////////////////
+ENTITY(cc, 0,0,0, 1,1,1, 0,0,0)
+COMPONENTS
+ADDCOMPONENT(app_camera_controller, c)
+app_camera_controller_set_pan_speed(c, 0.25f);
+main_cam->pos.y = -5.0f;
+main_cam->pos.x = -10.0f;
+main_cam->pos.z = -0.1f;
+main_cam->rot.x = -20.0f;
+ENTITY_END
+
 
 void app_update() 
 {
@@ -71,13 +82,13 @@ void app_update()
 void test()
 {
 
-	tv_entity *gride = grid();
-	tv_entity *f = fairy();
-	tv_entity *f2 = fairy2();
+	//tv_entity *gride = grid();
+	//tv_entity *f = fairy();
+	//tv_entity *f2 = fairy2();
 	tv_entity *test_text = text();
 	tv_entity *my_terrain = terrain();
+	tv_entity *my_camera_controller = cc();
 
-	//tv_camera_orthographic(main_cam, 0.0f, 1.0f, 0.0f, 1.0f, 0.01f, 100.0f);
 }
 
 int main(int argc, char** argv)

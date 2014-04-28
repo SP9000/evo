@@ -40,7 +40,7 @@ void tv_line_renderer_set_line_width(tv_line_renderer* self, tvuint line_width)
 	self->line_width = line_width;
 }
 
-HANDLER_NEW(tv_line_renderer, tv_renderer, render, 1)
+HANDLER_NEW(tv_line_renderer, tv_renderer, render, TV_UPDATE_STAGE_MAIN_RENDER)
 	tv_component *c = (tv_component*)self;
 	self->model = NULL;
 	self->base.material = NULL;

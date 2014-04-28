@@ -4,6 +4,10 @@
 /* Screen surface. */
 SDL_Surface *screen;
 
+/* the global GUI camera */
+tv_camera *tv_camera_gui;
+
+
 /* The draw target for the pre-post-pass rendering */
 static TvDrawTarget* activeTarget;
 
@@ -13,7 +17,6 @@ static tv_model* postPassRect;
 /* components for drawing textured quads */
 static tv_model* tex_quad;
 static tv_material* tex_mat;
-
 
 int tv_draw_init()
 {
@@ -48,16 +51,27 @@ int tv_draw_init()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
     }
-
+	/* create and initialize the default cameras */
     main_cam = tv_camera_new();
 	main_cam->pos.x = 0;
 	main_cam->pos.y = 0;
-	main_cam->pos.z = -10;
+	main_cam->pos.z = -10.0f;
+
+	main_cam->scale.x = 1;
+	main_cam->scale.y = 1;
+	main_cam->scale.z = 1;
+
+	main_cam->rot.x = 0;
+	main_cam->rot.y = 0;
+	main_cam->rot.z = 0;
 	tv_camera_perspective(main_cam, 30.0f, (float)screen->w / (float)screen->h, .01f, 100.0f);
     /* position the camera */
 	tv_mat4x4_load_identity(main_cam->view_mat);
 	tv_mat4x4_translate(main_cam->view_mat, -main_cam->pos.x, 
             -main_cam->pos.y, main_cam->pos.z);
+
+	tv_camera_gui = tv_camera_new();
+	tv_camera_orthographic(tv_camera_gui, 0.0f, 1.0f, 0.0f, 1.0f, 0.01f, 100.0f);
 
 	//tex_quad = tv_model_new();
 	//tex_quad->num_vertices = 4;
@@ -108,6 +122,13 @@ void tv_draw_start_frame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
+	tv_mat4x4_push(main_cam->view_mat);
+	tv_mat4x4_scale(main_cam->view_mat, main_cam->scale.x, main_cam->scale.y, main_cam->scale.z);
+	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.x, 1.0f, 0.0f, 0.0f);
+	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.y, 0.0f, 1.0f, 0.0f);
+	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.z, 0.0f, 0.0f, 1.0f);
+	tv_mat4x4_translate(main_cam->view_mat, main_cam->pos.x, main_cam->pos.y, main_cam->pos.z);
+
 	/* update camera ubo (camera matrices) */
 	//glBindBufferRange(GL_UNIFORM_BUFFER, main_cam->uniform_binding_index,
 	//	main_cam->ubo, 0, sizeof(TvMat4x4) * 2);
@@ -136,6 +157,7 @@ void tv_draw_resize_screen(int w, int h)
 
 void tv_draw_finish_frame()
 {
+	tv_mat4x4_pop(main_cam->view_mat);
 #if 0
     glDisable(GL_DEPTH_TEST);
 
@@ -183,7 +205,7 @@ void tv_draw_gui()
     glDisable(GL_SCISSOR_TEST);
 }
 
-void tv_draw_texture(TvTexture tex, TvRect* rect)
+void tv_draw_texture(TvTexture tex, tv_rect* rect)
 {
 	GLint loc;
 

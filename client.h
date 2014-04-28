@@ -27,6 +27,7 @@ extern "C" {
 #include "linerenderer.h"
 #include "modelrenderer.h"
 #include "textrenderer.h"
+#include "guirenderer.h"
 #include "timer.h"
 
 /**

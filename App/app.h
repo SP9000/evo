@@ -12,6 +12,7 @@ extern "C" {
 
 #include "../terrain.h"
 #include "../grid.h"
+#include "../camera_controller.h"
 
 void app_register();
 

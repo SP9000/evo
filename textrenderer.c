@@ -16,7 +16,7 @@ typedef struct tv_textrenderer_vertex {
 	tv_my_texco tex;
 }tv_textrenderer_vertex;
 
-HANDLER_NEW(tv_text_renderer, tv_renderer, render, 1)
+HANDLER_NEW(tv_text_renderer, tv_renderer, render, TV_UPDATE_STAGE_MAIN_RENDER)
 	utstring_new(self->text);
 	self->font_size = 0.025f;
 	self->font_texture = tv_texture_new();

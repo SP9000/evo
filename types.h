@@ -57,7 +57,7 @@ typedef UT_hash_handle TvHashHandle;
 
 typedef void* tvpointer;
 
-typedef UT_string TvString;
+typedef UT_string tv_string;
 
 /* the number of render layers */
 #define RENDER_LAYER_COUNT  2
@@ -88,7 +88,7 @@ typedef struct tagAABB {
 typedef struct tagRect {
     float x, y;
     float w, h;
-}TvRect;
+}tv_rect;
 
 /**
  * Checks if the given rectangle contains the given point.
@@ -96,14 +96,14 @@ typedef struct tagRect {
  * @param point the point to determine if is in the bounds of the rect or not.
  * @return nonzero if the rectangle does contain the point, else zero.
  */
-int tv_rect_contains(TvRect* r, tv_vector2* point);
+int tv_rect_contains(tv_rect* r, tv_vector2* point);
 /**
  * Checks if the given rectangle overlaps the other given rectangle.
  * @param r1 the first rectangle.
  * @param r2 the...second...rectangle.
  * @return nonzero if the rectangles overlap, else zero.
  */
-int tv_rect_overlaps(TvRect* r1, TvRect* r2);
+int tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
 
 extern UT_icd ut_float_icd;
 extern UT_icd ut_short_icd;

@@ -10,8 +10,8 @@ extern "C" {
 HANDLER(tv_text_renderer, tv_renderer)
 	const char *font;
 	float font_size;
-	TvRect rect;
-	TvString *text;
+	tv_rect rect;
+	tv_string *text;
 	tv_model *model;
 	TvTexture *font_texture;
 ENDHANDLER(tv_text_renderer)

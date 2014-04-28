@@ -87,6 +87,7 @@
     <ClCompile Include="component.c" />
     <ClCompile Include="draw.c" />
     <ClCompile Include="entity.c" />
+    <ClCompile Include="guirenderer.c" />
     <ClCompile Include="input.c" />
     <ClCompile Include="instancerenderer.c" />
     <ClCompile Include="linerenderer.c" />
@@ -105,6 +106,8 @@
     <ClCompile Include="tv_vector.c" />
     <ClCompile Include="types.c" />
     <ClCompile Include="util.c" />
+    <ClCompile Include="widget.c" />
+    <ClCompile Include="widget_textbox.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animation.h" />
@@ -117,6 +120,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="entity.h" />
     <ClInclude Include="evo.h" />
+    <ClInclude Include="guirenderer.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="instancerenderer.h" />
     <ClInclude Include="linerenderer.h" />
@@ -141,6 +145,7 @@
     <ClInclude Include="types.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="widget.h" />
+    <ClInclude Include="widget_textbox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="diffuse.fxi" />

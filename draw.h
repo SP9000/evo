@@ -46,6 +46,9 @@ typedef struct tagMap {
 /* expose the screen surface. h8r's gon' h8 */
 extern SDL_Surface* screen;
 
+/* the global GUI camera */
+extern tv_camera *tv_camera_gui;
+
 /**
  * Initialize the libraries needed for rendering. 
  * @return the success of the initialization - 0 on success, !0 on error.
@@ -116,7 +119,7 @@ void tv_draw_resize_screen(int w, int h);
  * @param tex the texture to draw.
  * @param rect the rectangle to draw the texture within.
  */
-void tv_draw_texture(TvTexture tex, TvRect* rect);
+void tv_draw_texture(TvTexture tex, tv_rect* rect);
 
 #ifdef __cplusplus
 }

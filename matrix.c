@@ -72,22 +72,23 @@ void tv_mat4x4_scale(TvMat4x4 mat, float x, float y, float z)
 
 void tv_mat4x4_rotate(TvMat4x4 mat, float angle, float x, float y, float z)
 {
-    /* TODO: dafuq???? */
     TvMat4x4 tMat;
-    if(x != 0.0f) {
-		tv_mat4x4_load_identity(tMat);
-        tMat[5] = (float)cos(angle);
-        tMat[6] = -(float)sin(angle);
-        tMat[9] = (float)sin(angle);
-        tMat[10] = (float)cos(angle);
-		tv_mat4x4_multiply(mat, tMat);
-    }
-    if(y != 0.0f) {
-		tv_mat4x4_load_identity(tMat);
-    }
-    if(z != 0.0f) {
-		tv_mat4x4_load_identity(tMat);
-    }
+	TvMat4x4 r_mat;
+
+	/* get the cosine and sine of the angle (convert angle to radians first) */
+	float c = cos(angle*0.0174532925f);
+	float s = sin(angle*0.0174532925f);
+	tv_mat4x4_load_identity(r_mat);
+	r_mat[0] = x*y*(1-c) + c;
+	r_mat[1] = x*y*(1-c);
+	r_mat[2] = y*s;
+	r_mat[4] = y*x*(1-c);
+	r_mat[5] = y*y*(1-c) + c;
+	r_mat[6] = -x * s;
+	r_mat[8] = -y * s;
+	r_mat[9] = x * s;
+	r_mat[10] = c;
+	tv_mat4x4_multiply(mat, r_mat);
 }
 
 void tv_mat4x4_orthographic(TvMat4x4 mat, float left, float right, float top, float bottom, float nearZ, float farZ)

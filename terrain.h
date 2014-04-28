@@ -7,7 +7,7 @@ extern "C" {
 
 #include "evo.h"
 
-#define APP_TERRAIN_TILE_H 0.25f
+#define APP_TERRAIN_TILE_H 0.10f
 #define APP_TERRAIN_TILE_W 1.0f
 #define APP_TERRAIN_TILE_D 1.0f
 

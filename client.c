@@ -116,6 +116,7 @@ void tv_client_init()
 	tv_model_renderer_register();
 	tv_text_renderer_register();
 	tv_line_renderer_register();
+	tv_gui_renderer_register();
 
     /* start the application */
     puts("Core initialized...\n"
@@ -259,12 +260,13 @@ void tv_client_start()
 		tv_component_update_pre_handlers();
 
 		tv_draw_scene();
+
+		tv_draw_finish_frame();
+
         SDL_GL_SwapBuffers();
 
         /* Render GUI TODO */
         //Draw_GUI();
-
-        SDL_Delay(100);
     }
     /* Shut down the client. */
 

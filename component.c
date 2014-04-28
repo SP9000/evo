@@ -14,48 +14,45 @@ typedef struct {
 	UT_hash_handle hh;
 }id_inheritance_hash_;
 
+typedef struct {
+	/* the stage this ID was registered to. */
+	tvuint stage;
+	/* the offset from that stage's array where the handler function is */
+	tvuint stage_offset;
+}handler_id_info;
+
 /* the table of arrays representing the ID's that inherit from other ID's.  */
 static id_inheritance_hash_ *inheritance_table = NULL;
 
 /* these integers hold the next ID that will be assigned to component types. 
  * 512 is reserved for the transform component. */
 static tvuint next_free_id = TV_COMPONENT_MAX_HANDLERS;
-static tvuint next_free_pre_handler_id = 1;
-static tvuint next_free_post_handler_id = TV_COMPONENT_MAX_PRE_HANDLERS;
+static tvuint next_free_handler_id = 1;
 
 /* arrays containing all the handlers registered within the engine */
-static tv_array *registered_pre_handlers;
-static tv_array *registered_post_handlers;
+static tv_component_handler registered_handlers[TV_COMPONENT_MAX_STAGES][TV_COMPONENT_MAX_HANDLERS];
+static tvuint num_handlers[TV_COMPONENT_MAX_STAGES];
 
 /* an array of arrays corresponding to the components registered to each handler */
-static tv_array *registered_pre_components;
-static tv_array *registered_post_components;
+static tv_array *registered_components[TV_COMPONENT_MAX_STAGES][TV_COMPONENT_MAX_HANDLERS];
+
+/* information to assist in lookup of handler's ID's. */
+static handler_id_info handler_locations[TV_COMPONENT_MAX_HANDLERS];
 
 static void register_inheritance_(tvuint id, tvuint parent_id);
 
-static void *dummy_ = 0;
-
 int tv_component_init()
 {
-	utarray_new(registered_pre_handlers, &ut_ptr_icd);
-	utarray_new(registered_post_handlers, &ut_ptr_icd);
-	utarray_new(registered_pre_components, &ut_ptr_icd);
-	utarray_new(registered_post_components, &ut_ptr_icd);
-
-	/* set the first element of the handlers to NULL (no NULL ID's) */
-	utarray_clear(registered_pre_handlers);
-	utarray_clear(registered_pre_components);
-	utarray_push_back(registered_pre_handlers, &dummy_);
-	utarray_push_back(registered_pre_components, &dummy_);
-
 	return 0;
 }
 
 tv_component* tv_component_get(tv_component* self, tvuint id) 
 {
+	/* if transform is being requested, return the entity's transform. */
 	if(id == TV_COMPONENT_MAX_HANDLERS) {
 		return (tv_component*)(&(self->entity->transform));
 	}
+	/* otherwise, get the requested component */
     return tv_entity_get_component(self->entity, id);
 }
 
@@ -86,7 +83,7 @@ void tv_component_register_id(tvuint *id, tvuint parent_id)
 	register_inheritance_(*id, parent_id);
 }
 
-void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvbool pre_update)
+void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage)
 {
 	tv_component_handler handler;
 	tv_array *components;
@@ -96,57 +93,61 @@ void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv
 	utarray_new(components, &ut_ptr_icd);
 	utarray_clear(components);
 	register_inheritance_(*id, parent_id);
-	if(pre_update) {
-		*id = next_free_pre_handler_id++;
-		if(next_free_pre_handler_id > TV_COMPONENT_MAX_PRE_HANDLERS) {
-			fprintf(stderr, "WARNING: more pre-update handlers than allowed have been registered.\n");
-		}
-		utarray_push_back(registered_pre_handlers, &handler);
-		utarray_push_back(registered_pre_components, &components);
+	
+	*id = next_free_handler_id++;
+	if(next_free_handler_id > TV_COMPONENT_MAX_PRE_HANDLERS) {
+		fprintf(stderr, "WARNING: more pre-update handlers than allowed have been registered.\n");
 	}
-	else {
-		*id = next_free_post_handler_id++;
-		if(next_free_post_handler_id > TV_COMPONENT_MAX_POST_HANDLERS) {
-			fprintf(stderr, "WARNING: more post-update handlers than allowed have been registered.\n");
-		}
-		utarray_push_back(registered_post_handlers, &handler);
-		utarray_push_back(registered_post_components, &components);
-	}
+	/* store the handler function */
+	registered_handlers[stage][num_handlers[stage]] = handler;
+	
+	/* initialize an array of components for this handler */
+	utarray_new(registered_components[stage][num_handlers[stage]], &ut_ptr_icd);
+
+	/* make it reasonably efficient to lookup this bsns. */
+	handler_locations[*id].stage = stage;
+	handler_locations[*id].stage_offset = num_handlers[stage];
+
+	++num_handlers[stage];
 }
 
-void tv_component_register_to_handler(tvuint handler_id, tv_component *component, tvbool pre_update)
+void tv_component_register_to_handler(tvuint handler_id, tv_component *component)
 {
-	if(pre_update) {
-		utarray_push_back((*(tv_array**)utarray_eltptr(registered_pre_components, handler_id)), &component);
-		puts("registered");
-	}
-	else {
-		utarray_push_back((tv_array*)utarray_eltptr(registered_post_components, handler_id), &component);
-	}
+	tvuint i;
+	handler_id_info id_info = handler_locations[handler_id];
+
+	utarray_push_back(registered_components[id_info.stage][id_info.stage_offset], &component);
 }
 
 void tv_component_update_pre_handlers()
 {
-	tv_component_handler *handler;
-	tv_array **components;
 	tv_component **c;
-	int index;
+	tvuint i, j;
 
-	for(handler = (tv_component_handler*)utarray_eltptr(registered_pre_handlers, 1), index = 1;
-		handler != NULL;
-		handler = (tv_component_handler*)utarray_next(registered_pre_handlers, handler), ++index) {
-			components = (tv_array**)utarray_eltptr(registered_pre_components, index);
-			for(c = (tv_component**)utarray_front(*components);
+	for(i = 0; i < TV_COMPONENT_MAX_PRE_STAGES; ++i) {
+		for(j = 0; j < num_handlers[i]; ++j) {
+			for(c = (tv_component**)utarray_front(registered_components[i][j], j);
 				c != NULL;
-				c = (tv_component**)utarray_next(*components, c)) {
-					(*handler)(*c);
+				c = (tv_component**)utarray_next(registered_components[i][j], c)) {
+					registered_handlers[i][j](*c);
 			}
+		}
 	}
 }
 
 void tv_component_update_post_handlers()
 {
-
+	tv_component **c;
+	tvuint i, j;
+	for(i = TV_COMPONENT_MAX_PRE_STAGES; i < TV_COMPONENT_MAX_POST_STAGES; ++i) {
+		for(j = 0; j < num_handlers[i]; ++j) {
+			for(c = (tv_component**)utarray_front(registered_components[i][j], j);
+				c != NULL;
+				c = (tv_component**)utarray_next(registered_components[i][j], c)) {
+					registered_handlers[i][j](*c);
+			}
+		}
+	}
 }
 
 void register_inheritance_(tvuint id, tvuint parent_id)

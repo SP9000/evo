@@ -329,6 +329,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 				}
 				prev_type = prop->type;
 				prev_group = cur_group;
+
 				/* clean up */
 				HASH_DEL(element->properties, prop);
 				free(prop);
@@ -586,19 +587,12 @@ TvAABB tv_model_get_aabb(tv_model* model)
 
 void tv_model_free(tv_model* model)
 {
-#if 0
-	tv_array **attr_it;
-	
-	/* free each attribute buffer */
-	for(attr_it = (tv_array**)utarray_front(model->attributes); 
-		attr_it != NULL; 
-		attr_it = (tv_array**)utarray_next(model->attributes, attr_it)) {
-			utarray_free(*attr_it);
-	}
-	utarray_free(model->attributes);
-	utarray_free(model->attribute_types);
-	utarray_free(model->attribute_sizes);
-#endif
+	glDeleteBuffers(1, &model->vertex_vbo);
+	glDeleteBuffers(1, &model->index_vbo);
+	utarray_free(model->vertices);
+	utarray_free(model->indices);
+
+	free(model);
 }
 
 tvuint tv_model_get_property_size(tvuint data_type)
