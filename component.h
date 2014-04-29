@@ -58,14 +58,14 @@ typedef struct tv_component tv_component;
 		parent_prefix base;
 #define ENDCOMPONENT(component_prefix) \
 	} component_prefix; \
-	component_prefix * component_prefix ## _new(); 
+	component_prefix * component_prefix ## _new(); \
+	void component_prefix ## _init(component_prefix *component);
 
 #define COMPONENT_START(component_prefix) \
 	static void start(tv_component *self_component) { \
 		component_prefix *self = (component_prefix*)self_component;
 #define END_COMPONENT_START \
 	}
-
 #define COMPONENT_UPDATE(component_prefix) \
 	static void update(tv_component *self_component) { \
 		component_prefix *self = (component_prefix*)self_component;
@@ -88,14 +88,19 @@ typedef struct tv_component tv_component;
 		} \
 	} \
 	component_prefix * component_prefix ## _new() { \
-		component_prefix *self = (component_prefix *)tv_alloc(sizeof(component_prefix)); 
+		component_prefix *self = (component_prefix *)tv_alloc(sizeof(component_prefix)); \
+		component_prefix ## _init(self); \
+		return self; \
+	} \
+	void component_prefix ## _init(component_prefix * self) {
+		
 #define END_COMPONENT_NEW(component_prefix) \
 		((tv_component*)self)->entity = NULL; \
 		((tv_component*)self)->id = tv_cid_ ## component_prefix; \
 		((tv_component*)self)->Start = start; \
 		((tv_component*)self)->Update = update; \
-		return self; \
 	}
+
 /*****************************************************************************/
 /*Handler macros 														     */
 #define HANDLER(handler_name, parent_name) \

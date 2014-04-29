@@ -67,9 +67,18 @@ tvbool tv_component_inherits(tv_component* component, tvuint id)
 	id_inheritance_hash_ *curr;
 
 	i = component->id;
+
+	/* if the ID we're checking for inheritance is the same as the component's, 
+	 * we're done. */
+	if(i == id) {
+		return 1;
+	}
+	/* keep looking through the inheritance table until the desired ID is either
+	 * found, or we've found the root component's (NULL pointer) */
 	do {
 		HASH_FIND_INT(inheritance_table, &i, curr);
-		if(curr->id == id) {
+		if(!curr) return 0;
+		if(curr->parent_id == id) {
 			return 1;
 		}
 		i = curr->parent_id;
@@ -154,6 +163,6 @@ void register_inheritance_(tvuint id, tvuint parent_id)
 {
 	id_inheritance_hash_ *s = (id_inheritance_hash_*)tv_alloc(sizeof(id_inheritance_hash_));
 	s->id = id;
-	s->parent_id = id;
+	s->parent_id = parent_id;
 	HASH_ADD_INT(inheritance_table, id, s);
 }

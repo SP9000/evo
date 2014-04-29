@@ -213,10 +213,6 @@ COMPONENT_UPDATE(tv_model)
 END_COMPONENT_UPDATE
 
 /*****************************************************************************/
-int tv_model_init()
-{
-	return 0;
-}
 void tv_model_load_ply(tv_model *model, tvchar* file)
 {
 	loaded_model *lup;

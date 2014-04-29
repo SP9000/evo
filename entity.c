@@ -77,7 +77,7 @@ tv_component* tv_entity_get_component(tv_entity* e, tvuint cid)
 	for(c = (tv_component**)utarray_front(e->components); 
 		c != NULL; 
 		c = (tv_component**)utarray_next(e->components, c)) {
-        if((*c)->id == cid) {
+		if(tv_component_inherits(*c, cid)) {
             return *c;
         }   
     }

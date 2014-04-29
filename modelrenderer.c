@@ -2,7 +2,6 @@
 
 static void set_model(tv_model_renderer *self, tv_model *model);
 
-
 void tv_model_renderer_set_model(tv_model_renderer *self, tv_model *model)
 {
 	self->model = model;

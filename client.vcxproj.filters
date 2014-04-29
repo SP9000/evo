@@ -138,6 +138,12 @@
     <ClCompile Include="widget_textbox.c">
       <Filter>Source Files\Components\GUI</Filter>
     </ClCompile>
+    <ClCompile Include="widgetmodels.c">
+      <Filter>Source Files\Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="widget_frame.c">
+      <Filter>Source Files\Components\GUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -247,6 +253,15 @@
     </ClInclude>
     <ClInclude Include="widget_textbox.h">
       <Filter>Header Files\Components\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="widgetmodels.h">
+      <Filter>Header Files\Components\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="widget_frame.h">
+      <Filter>Header Files\Components\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
+      <Filter>Source Files\Components\GUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

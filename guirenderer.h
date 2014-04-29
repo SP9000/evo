@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "renderer.h"
+#include "gui.h"
 
 HANDLER(tv_gui_renderer, tv_renderer)
 	const char *font;
@@ -14,7 +15,10 @@ HANDLER(tv_gui_renderer, tv_renderer)
 	tv_string *text;
 	tv_model *model;
 	TvTexture *font_texture;
+	tv_widget *widget;
 ENDHANDLER(tv_gui_renderer)
+
+void tv_gui_renderer_set_base_widget(tv_gui_renderer *renderer, tv_widget *w);
 
 #ifdef __cplusplus
 }

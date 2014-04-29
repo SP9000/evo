@@ -82,8 +82,6 @@ COMPONENT(tv_model, tv_component)
 	tv_model_property vertex_properties[TV_MODEL_MAX_PROPERTIES];
 ENDCOMPONENT(tv_model)
 
-int tv_model_init();
-
 /**
  * Loads a PLY model defined in the file of the given name.
  * @param model the model to load the file into.

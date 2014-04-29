@@ -29,6 +29,8 @@ extern "C" {
 #include "textrenderer.h"
 #include "guirenderer.h"
 #include "timer.h"
+#include "gui.h"
+
 
 /**
  * Set a function to be called every frame.

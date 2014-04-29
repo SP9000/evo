@@ -74,11 +74,6 @@ END_COMPONENT_START
 COMPONENT_UPDATE(tv_material)
 END_COMPONENT_UPDATE
 
-int tv_material_init()
-{
-	return 0;
-}
-
 void tv_material_init_uniform_buffer_(tv_material *material)
 {
 	// the binding point must be smaller than GL_MAX_UNIFORM_BUFFER_BINDINGS

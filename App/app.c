@@ -72,7 +72,15 @@ main_cam->pos.x = -10.0f;
 main_cam->pos.z = -0.1f;
 main_cam->rot.x = -20.0f;
 ENTITY_END
-
+///////////////////////////////////////////////////////////////////////////////
+ENTITY(gui, 0,0,0, 1,1,1, 0,0,0)
+	tv_rect rect = {0.0f,0.0f,0.1f,0.1f};
+COMPONENTS
+ADDCOMPONENT(tv_material, material)
+tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\line.mat");
+ADDCOMPONENT(tv_gui_renderer, renderer)
+ADDCOMPONENT(tv_widget_frame, frame)
+ENTITY_END
 
 void app_update() 
 {
@@ -81,14 +89,13 @@ void app_update()
 
 void test()
 {
-
 	//tv_entity *gride = grid();
 	//tv_entity *f = fairy();
 	//tv_entity *f2 = fairy2();
-	tv_entity *test_text = text();
+	//tv_entity *test_text = text();
+	tv_entity *test_gui = gui();
 	tv_entity *my_terrain = terrain();
 	tv_entity *my_camera_controller = cc();
-
 }
 
 int main(int argc, char** argv)
