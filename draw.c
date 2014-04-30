@@ -238,7 +238,7 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect)
 
     /* bind attribute array and draw */
     glBindVertexArray(tex_quad->vao);
-    glDrawArrays(GL_QUADS, 0, 4);
+    tv_draw_arrays(GL_QUADS, 0, 4);
     glBindVertexArray(0);
 
     /* restore */
@@ -306,4 +306,16 @@ TvTexture tv_draw_target_to_texture(TvDrawTarget* target)
     TvTexture t;
     t.id = target->texID;
     return t;
+}
+
+void tv_draw_elements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices)
+{
+	tv_stats_notify_primitives_rendered(count);
+	glDrawElements(mode, count, type, indices);
+}
+
+void tv_draw_arrays(GLenum mode, GLint first, GLsizei count) 
+{
+	tv_stats_notify_primitives_rendered(count);
+	glDrawArrays(mode, first, count);
 }

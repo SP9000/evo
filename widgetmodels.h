@@ -15,12 +15,13 @@
 #include "model.h"
 
 /** 
- * Get a model of the given text in the given bounds.
+ * Get a model of the given text.
  * @param text the text to produce the model of.
+ * @param w the width (in characters) of the text to generate.
  * @param bounds the rectangle to fit the text within.
  * @return a reference to the created model.
  */
-tv_model *tv_gui_model_text(tvchar *text, tv_rect bounds);
+tv_model *tv_gui_model_text(tvchar *text, tvuint w,tv_vector4 color);
 
 /**
  * Get a model of a simple border.

@@ -119,6 +119,8 @@ void tv_client_init()
 	tv_gui_renderer_register();
 	tv_widget_register();
 	tv_widget_frame_register();
+	tv_widget_textbox_register();
+	tv_widget_stats_register();
 
     /* start the application */
     puts("Core initialized...\n"
@@ -236,6 +238,9 @@ void tv_client_start()
             ENetPacket *epacket = enet_packet_create(packet, packetLen, ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(peer, 0, epacket);
         }
+
+		/* update statistics */
+		tv_stats_update();
 
         /* update input information */
 		tv_input_update();

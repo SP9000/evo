@@ -70,16 +70,18 @@ app_camera_controller_set_pan_speed(c, 0.25f);
 main_cam->pos.y = -5.0f;
 main_cam->pos.x = -10.0f;
 main_cam->pos.z = -0.1f;
-main_cam->rot.x = -20.0f;
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
 ENTITY(gui, 0,0,0, 1,1,1, 0,0,0)
 	tv_rect rect = {0.0f,0.0f,0.1f,0.1f};
+	tv_vector4 text_color = {1.0f, 1.0f, 1.0f, 0.8f};
 COMPONENTS
 ADDCOMPONENT(tv_material, material)
 tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\line.mat");
 ADDCOMPONENT(tv_gui_renderer, renderer)
-ADDCOMPONENT(tv_widget_frame, frame)
+//ADDCOMPONENT(tv_widget_frame, frame)
+ADDCOMPONENT(tv_widget_stats, stats);
+tv_widget_textbox_set_text_color((tv_widget_textbox*)stats, text_color);
 ENTITY_END
 
 void app_update() 

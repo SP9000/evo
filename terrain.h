@@ -13,7 +13,7 @@ extern "C" {
 
 #define APP_TERRAIN_SIZE_X 128
 #define APP_TERRAIN_SIZE_Y 32
-#define APP_TERRAIN_SIZE_Z 16
+#define APP_TERRAIN_SIZE_Z 8
 
 #define APP_TERRAIN_MAX_TILE_TYPES 512
 

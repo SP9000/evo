@@ -80,7 +80,7 @@ static void render(tv_component *self)
 
 	/* bind attribute array and draw */
 	glBindVertexArray(widget->model->vao);
-	glDrawArrays(widget->model->primitive, 0, utarray_len(widget->model->vertices));
+	tv_draw_arrays(widget->model->primitive, 0, utarray_len(widget->model->vertices));
 	glBindVertexArray(0);
 	tv_mat4x4_pop(tv_camera_gui->view_mat);
 

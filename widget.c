@@ -3,6 +3,8 @@
 
 COMPONENT_NEW(tv_widget, tv_component)
 	utarray_new(self->children, &ut_ptr_icd);
+	self->model = NULL;
+	self->material = NULL;
 END_COMPONENT_NEW(tv_widget)
 
 COMPONENT_START(tv_widget)

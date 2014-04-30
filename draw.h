@@ -27,6 +27,7 @@ extern "C" {
 #include "scene.h"
 #include "texture.h"
 #include "types.h"
+#include "tv_stats.h"
 
 extern tv_camera* main_cam;
 
@@ -121,6 +122,15 @@ void tv_draw_resize_screen(int w, int h);
  */
 void tv_draw_texture(TvTexture tex, tv_rect* rect);
 
+/**
+ * A wrapper for glDrawElements.
+ */
+void tv_draw_elements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
+
+/**
+ * A wrapper for glDrawArrays 
+ */
+void tv_draw_arrays(GLenum mode, GLint first, GLsizei count);
 #ifdef __cplusplus
 }
 #endif

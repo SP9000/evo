@@ -30,7 +30,7 @@ extern "C" {
 #include "guirenderer.h"
 #include "timer.h"
 #include "gui.h"
-
+#include "tv_stats.h"
 
 /**
  * Set a function to be called every frame.

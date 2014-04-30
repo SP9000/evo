@@ -137,9 +137,9 @@ COMPONENT_START(app_terrain)
 			for(k = 0, y = 0; k < APP_TERRAIN_SIZE_Y; ++k, y += APP_TERRAIN_TILE_H) {
 				self->tiles[i][j][k] = 0;
 				for(l = 0; l < 4*6; ++l) {
-					my_vertex.pos.x = cube_tri_strip_vertices[l*3] + x;
-					my_vertex.pos.y = cube_tri_strip_vertices[l*3+1] + y;
-					my_vertex.pos.z = cube_tri_strip_vertices[l*3+2] + z;
+					my_vertex.pos.x = cube_tri_strip_vertices[l*3] + x + (1.0f*x);
+					my_vertex.pos.y = cube_tri_strip_vertices[l*3+1] + y + (1.01f*y);
+					my_vertex.pos.z = cube_tri_strip_vertices[l*3+2] + z + (1.01f*z);
 					my_vertex.color.x = (rand() % 100) / 100.0f; //j / (float)APP_TERRAIN_SIZE_X;
 					my_vertex.color.y = (rand() % 100) / 100.0f; //k / (float)APP_TERRAIN_SIZE_Y;
 					my_vertex.color.z = (rand() % 100) / 100.0f; //i / (float)APP_TERRAIN_SIZE_Z;

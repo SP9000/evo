@@ -1,5 +1,5 @@
-#ifndef WIDGET_TEXTBOX_H
-#define WIDGET_TEXTBOX_H
+#ifndef WIDGET_FRAME_H
+#define WIDGET_FRAME_H
 #ifdef __cplusplus
 extern "C" {
 #endif

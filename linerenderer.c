@@ -99,7 +99,7 @@ static void render(tv_component* self)
 
 	glLineWidth((GLfloat)renderer->line_width);
     glBindVertexArray(renderer->model->vao);
-	glDrawElements(GL_LINES, (GLsizei)utarray_len(renderer->model->indices),
+	tv_draw_arrays(GL_LINES, (GLsizei)utarray_len(renderer->model->indices),
 		GL_UNSIGNED_SHORT, 0);
     glBindVertexArray(0);
 

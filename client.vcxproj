@@ -103,12 +103,14 @@
     <ClCompile Include="timer.c" />
     <ClCompile Include="transform.c" />
     <ClCompile Include="tv_alloc.c" />
+    <ClCompile Include="tv_stats.c" />
     <ClCompile Include="tv_vector.c" />
     <ClCompile Include="types.c" />
     <ClCompile Include="util.c" />
     <ClCompile Include="widget.c" />
     <ClCompile Include="widgetmodels.c" />
     <ClCompile Include="widget_frame.c" />
+    <ClCompile Include="widget_stats.c" />
     <ClCompile Include="widget_textbox.c" />
   </ItemGroup>
   <ItemGroup>
@@ -123,6 +125,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="evo.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="tv_stats.h" />
     <ClInclude Include="widgetmodels.h" />
     <ClInclude Include="guirenderer.h" />
     <ClInclude Include="input.h" />
@@ -150,6 +153,7 @@
     <ClInclude Include="util.h" />
     <ClInclude Include="widget.h" />
     <ClInclude Include="widget_frame.h" />
+    <ClInclude Include="widget_stats.h" />
     <ClInclude Include="widget_textbox.h" />
   </ItemGroup>
   <ItemGroup>

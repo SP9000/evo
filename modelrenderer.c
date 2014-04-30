@@ -67,11 +67,11 @@ static void render(tv_component* self)
 
     glBindVertexArray(renderer->model->vao);
 	if(utarray_len(renderer->model->indices)) {
-		glDrawElements(renderer->model->primitive, utarray_len(renderer->model->indices),
+		tv_draw_arrays(renderer->model->primitive, utarray_len(renderer->model->indices),
 			GL_UNSIGNED_SHORT, 0);
 	}
 	else {
-		glDrawArrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
+		tv_draw_arrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
 	}
 
     glBindVertexArray(0);

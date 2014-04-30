@@ -72,7 +72,7 @@ static void render(tv_component *self)
 
     /* bind attribute array and draw */
     glBindVertexArray(renderer->model->vao);
-	glDrawElements(renderer->model->primitive, (GLsizei)utarray_len(renderer->model->indices),
+	tv_draw_arrays(renderer->model->primitive, (GLsizei)utarray_len(renderer->model->indices),
 		GL_UNSIGNED_SHORT, 0);
     glBindVertexArray(0);
 
