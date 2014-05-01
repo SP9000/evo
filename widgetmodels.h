@@ -13,6 +13,7 @@
 #define WIDGETMODELS_H
 
 #include "model.h"
+#include "tv_vector.h"
 
 /** 
  * Get a model of the given text.

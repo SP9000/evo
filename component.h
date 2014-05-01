@@ -19,6 +19,7 @@ extern "C" {
 #include "util.h"
 #include "tv_alloc.h"
 #include "tv_message.h"
+#include "tv_vector.h"
 
 typedef struct tv_entity tv_entity;
 typedef struct tv_component tv_component;

@@ -4,6 +4,9 @@
 extern "C" {
 #endif
 
+#include <math.h>
+#include "types.h"
+
 /**
  * A basic type for representing a point in 2-dimensional space.
  */
@@ -19,6 +22,39 @@ typedef struct tv_vector3 {
 }tv_vector3;
 
 /**
+ * A type for representing the position, scale, and rotation of an object.
+ */
+typedef struct tagTvTransform {
+	tv_vector3 position;
+	tv_vector3 scale;
+	tv_vector3 rotation;
+}TvTransform;
+
+/**
+ * A type for representing a rectangle.
+ */
+typedef struct tagRect {
+    float x, y;
+    float w, h;
+}tv_rect;
+
+/**
+ * Checks if the given rectangle contains the given point.
+ * @param r the rectangle to check for the point within.
+ * @param point the point to determine if is in the bounds of the rect or not.
+ * @return nonzero if the rectangle does contain the point, else zero.
+ */
+int tv_rect_contains(tv_rect* r, tv_vector2* point);
+/**
+ * Checks if the given rectangle overlaps the other given rectangle.
+ * @param r1 the first rectangle.
+ * @param r2 the...second...rectangle.
+ * @return nonzero if the rectangles overlap, else zero.
+ */
+int tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
+
+
+/**
  * A basic type for representing a point in 4-dimensional space
  */
 typedef struct tv_vector4 {
@@ -30,10 +66,13 @@ extern const tv_vector2 tv_vector2_zero;
 extern const tv_vector3 tv_vector3_zero;
 extern const tv_vector4 tv_vector4_zero;
 
-
 tv_vector2 tv_vector2_add(tv_vector2 v1, tv_vector2 v2);
 tv_vector3 tv_vector3_add(tv_vector3 v1, tv_vector3 v2);
 tv_vector4 tv_vector4_add(tv_vector4 v1, tv_vector4 v2);
+
+tvfloat tv_vector2_distance(tv_vector2 v1, tv_vector2 v2);
+tvfloat tv_vector3_distance(tv_vector3 v1, tv_vector3 v2);
+tvfloat tv_vector4_distance(tv_vector4 v1, tv_vector4 v2);
 
 /**
  * Linearly interpolates between the given vectors.

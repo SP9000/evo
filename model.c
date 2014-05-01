@@ -196,9 +196,6 @@ tvbool property_is_texco(tvchar *name)
 
 /*****************************************************************************/
 COMPONENT_NEW(tv_model, tv_component)
-	tv_component *c = (tv_component*)self;
-	c->Update = update;
-	c->Start = start;
 	self->vertices = NULL;
 	self->num_vertices = 0;
 	self->num_properties = 0;

@@ -64,10 +64,28 @@ static void render(tv_component* self)
 
     /* bind attribute array and draw */
 	//glEnableVertexAttribArray(renderer->model->vao);
+	
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
 
+	/* if material is lit, set light uniforms (TODO: UBO?) */
+	/* TODO:
+	if(renderer->base.material->lit) {
+		tv_array *lights = tv_scene_lights_at(self->entity->transform.pos);
+		tv_light *l;
+		for(l = (tv_light*)utarray_front(lights); l != NULL; l = (tv_light*)utarray_next(lights, l)) {
+			glUniform3fv(renderer->base.material->lights[i], 1,
+				(GLfloat*)(&l->base.entity->transform.pos));
+			glUniform3fv(renderer->base.material->lights[i+1], 1,
+				(GLfloat*)(&l->color));
+			glUniform3fv(renderer->base.material->lights[i+2], 1,
+				(GLfloat*)(&l->dir));
+		}
+	}
+	*/
     glBindVertexArray(renderer->model->vao);
 	if(utarray_len(renderer->model->indices)) {
-		tv_draw_arrays(renderer->model->primitive, utarray_len(renderer->model->indices),
+		tv_draw_elements(renderer->model->primitive, utarray_len(renderer->model->indices),
 			GL_UNSIGNED_SHORT, 0);
 	}
 	else {

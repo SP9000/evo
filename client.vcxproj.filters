@@ -150,6 +150,9 @@
     <ClCompile Include="tv_stats.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tv_light.c">
+      <Filter>Source Files\Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -274,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="tv_stats.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_light.h">
+      <Filter>Header Files\Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

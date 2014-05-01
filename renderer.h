@@ -18,6 +18,7 @@ extern "C" {
 #include "material.h"
 #include "texture.h"
 #include "draw.h"
+#include "tv_vector.h"
 
 HANDLER(tv_renderer, tv_component)
 	/* the material (shaders) used to render this */

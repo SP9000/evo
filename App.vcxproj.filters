@@ -22,6 +22,15 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{e1793271-ebcf-4d89-98ed-42b3c389f2fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Materials">
+      <UniqueIdentifier>{281ff5a7-c646-4f1d-b246-9834859caf61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Materials\Fragment Shaders">
+      <UniqueIdentifier>{7cea2c2d-f8ec-4584-9f24-fa00af8ec9f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Materials\Vertex Shaders">
+      <UniqueIdentifier>{f9047d8d-4621-4039-926e-2abe509907b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h">
@@ -65,5 +74,16 @@
     <ClCompile Include="camera_controller.c">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="terrain.mat">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="terrain.vert">
+      <Filter>Resource Files\Materials\Vertex Shaders</Filter>
+    </None>
+    <None Include="terrain.frag">
+      <Filter>Resource Files\Materials\Fragment Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

@@ -67,6 +67,9 @@ COMPONENT(tv_material, tv_component)
 	/* an array of effects in the order they are used. */
 	/* tv_array *effects; */
 
+	/* if TRUE, this model needs access to the scene's lighting information */
+	tvbool lit;
+
 	TvHashHandle hh;
 ENDCOMPONENT(tv_material)
 
@@ -80,7 +83,10 @@ GLuint tv_material_compile_shader(GLchar* shader, GLuint type);
 GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 								   GLuint geom_shader, tvchar **attributes, 
 								   tvuint num_attributes);
+tvint tv_material_get_uniform(tv_material *material, tvchar *name);
+
 void tv_material_get_uniforms(GLuint program, GLuint* model, GLuint* view, GLuint* projection);
+
 
 /**
  * Loads a material from the given file.

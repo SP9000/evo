@@ -60,13 +60,13 @@ COMPONENTS
 ADDCOMPONENT(app_terrain, terr)
 ADDCOMPONENT(tv_model_renderer, renderer)
 ADDCOMPONENT(tv_material, material)
-tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\line.mat");
+tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\terrain.mat");
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
 ENTITY(cc, 0,0,0, 1,1,1, 0,0,0)
 COMPONENTS
 ADDCOMPONENT(app_camera_controller, c)
-app_camera_controller_set_pan_speed(c, 0.25f);
+app_camera_controller_set_pan_speed(c, 5.25f);
 main_cam->pos.y = -5.0f;
 main_cam->pos.x = -10.0f;
 main_cam->pos.z = -0.1f;

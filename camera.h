@@ -7,6 +7,8 @@ extern "C" {
 #include "types.h"
 #include "tv_alloc.h"
 #include "component.h"
+#include "tv_vector.h"
+#include "matrix.h"
 
 typedef struct tagTvCameraPerspective {
 	float fov;

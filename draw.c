@@ -37,7 +37,7 @@ int tv_draw_init()
     if(glewInit() == GLEW_OK) {
         printf("OpenGL extensions availiable\n");
         printf("Shader version %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
+        glClearColor(0.9f, 0.7f, 0.9f, 0.0f);
     }
     /* Initialize legacy OpenGL for older hardware. */
     else {
@@ -136,23 +136,9 @@ void tv_draw_start_frame()
 
 void tv_draw_resize_screen(int w, int h)
 {
-    TvCameraNode* it;
     screen = SDL_SetVideoMode(w, h, 32, SDL_OPENGL | SDL_RESIZABLE);
     glViewport(0, 0, (GLsizei)w, (GLsizei)h);
-	for(it = tv_scene_get_cameras(); it != NULL; it = it->next) {
-        tv_camera* c = it->cam;
-        if(c->ortho) {
-            /*
-            c->Orthographic(c, 0.0f, c->w, ->h, 
-                    0.0f, 0.01f, 100.0f);
-            */
-        }
-        else {
-			tv_camera_perspective(c, c->properties.perspective.fov, 
-                    (float)w / (float)h,
-					c->properties.perspective.nearZ, c->properties.perspective.farZ);
-        }
-    }
+	/* TODO: update camera matrices */
 }
 
 void tv_draw_finish_frame()

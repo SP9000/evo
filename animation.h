@@ -5,10 +5,7 @@ extern "C" {
 #endif
 
 #include <assert.h>
-#include "types.h"
-#include "tv_alloc.h"
-#include "model.h"
-#include "component.h"
+#include "evo.h"
 
 /* the maximum number of bones the root of a model may have */
 #define TV_ANIMATION_MAX_BONES 128

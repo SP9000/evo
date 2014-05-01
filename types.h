@@ -25,8 +25,6 @@ extern "C" {
 #include "tv_hash.h"
 #include "tv_list.h"
 #include "tv_string.h"
-#include "matrix.h"
-#include "tv_vector.h"
 
 /* macros */
 #define TV_DATA_PTR(i) ((void*)(i))
@@ -65,14 +63,6 @@ typedef UT_string tv_string;
 #define RENDER_LAYER_MAIN   0
 #define RENDER_LAYER_GUI    1
 
-/**
- * A type for representing the position, scale, and rotation of an object.
- */
-typedef struct tagTvTransform {
-	tv_vector3 position;
-	tv_vector3 scale;
-	tv_vector3 rotation;
-}TvTransform;
 
 /**
  * Axis-aligned bounding box.  This is what is used for checking collision
@@ -82,28 +72,7 @@ typedef struct tagAABB {
     float w, h, d;
 }TvAABB;
 
-/**
- * A type for representing a rectangle.
- */
-typedef struct tagRect {
-    float x, y;
-    float w, h;
-}tv_rect;
 
-/**
- * Checks if the given rectangle contains the given point.
- * @param r the rectangle to check for the point within.
- * @param point the point to determine if is in the bounds of the rect or not.
- * @return nonzero if the rectangle does contain the point, else zero.
- */
-int tv_rect_contains(tv_rect* r, tv_vector2* point);
-/**
- * Checks if the given rectangle overlaps the other given rectangle.
- * @param r1 the first rectangle.
- * @param r2 the...second...rectangle.
- * @return nonzero if the rectangles overlap, else zero.
- */
-int tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
 
 extern UT_icd ut_float_icd;
 extern UT_icd ut_short_icd;

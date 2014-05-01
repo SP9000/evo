@@ -69,6 +69,7 @@ END_COMPONENT_NEW(tv_material)
 
 COMPONENT_START(tv_material)
 	tv_material_init_uniform_buffer_(self);
+	self->lit = 1;
 END_COMPONENT_START
 
 COMPONENT_UPDATE(tv_material)
@@ -162,6 +163,11 @@ GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 		return 0;
 	}
 	return program;
+}
+
+tvint tv_material_get_uniform(tv_material *material, tvchar *name)
+{
+	return glGetUniformLocation(material->program, name);
 }
 
 void tv_material_load(tv_material *mat, const char* file)

@@ -15,59 +15,75 @@ extern "C" {
 
 #include "camera.h"
 #include "types.h"
-#include "component.h"
+#include "entity.h"
+#include "tv_light.h"
+#include "model.h"
+#include "tv_vector.h"
 
-typedef struct tv_componentNode {
-	tv_component* c;
-	struct tv_componentNode* next;
-} tv_componentNode;
+#define TV_SCENE_MAX_LIGHTS 1024
 
-typedef struct TvCameraNode {
-	tv_camera* cam;
-	struct TvCameraNode* next;
-}TvCameraNode;
-
-typedef void (*TvSceneRenderFunc)(tv_component*);
-
-tv_componentNode* scene_layers[32];
+typedef tvint (*tv_scene_sort_func)(const void* a, const void* b);
 
 /**
  * Initialize the scene system.
  * @return zero on success, nonzero on failure.
  */
-int tv_scene_init();
+tvint tv_scene_init();
 
 /**
  * Destroy all items in the scene and clean up.
  * @return zero on success, nonzero on failure.
  */
-int tv_scene_quit();
+tvint tv_scene_quit();
+
+/** 
+ * Add the given light to the scene.
+ * @param light the light to add to the scene.
+ */
+void tv_scene_add_light(tv_light *light);
 
 /**
- * Associate the given ID with a given render function and render layer.
- * @param render_func the function to use to render components of the given id.
- * @param layer the layer on which components of this id should be rendered.
- * @param id the id to associate with all that monkey business.
+ * Get the array of lights currently in the scene.
+ * @return an array of the lights in the scene.
  */
-void tv_scene_register_renderer(TvSceneRenderFunc render_func, tvuint layer, tvuint id);
+tv_array *tv_scene_lights();
 
 /**
- * Add a component of an ID previously registered with scene_register_renderer
- * to the scene.
- * @param c the renderer component to add.
+ * Get the lights that effect the given position.
+ * @param pos the location to get the lights closest to.
+ * @return the lights that effect the given position.
  */
-void tv_scene_add(tv_component* c);
+tv_array *tv_scene_lights_at(tv_vector3 pos);
 
 /**
- * @return a list of all cameras currently in the scene.
+ * Add the given entity to the scene.
+ * @param entity a pointer to the entity to add to the scene.
  */
-TvCameraNode* tv_scene_get_cameras();
+void tv_scene_add_entity(tv_entity *entity);
+/** 
+ * Get the array of all the entities in the scene.
+ * @return a pointer to an array of pointers to the entities in the scene.
+ */
+tv_array *tv_scene_entities();
 
 /**
- * Add the given camera to the list of cameras.
- * @param cam the camera to be added and used henceforth for rendering. 
+ * Set the sort function for entities that are added to the scene.
+ * @param a comparison function that determines how the entities in the scene
+ *  are stored.
  */
-void tv_scene_add_camera(tv_camera* cam);
+void tv_scene_set_entity_sort_func(tv_scene_sort_func func);
+
+/**
+ * Set the light sorting function for the scene.
+ * @param a comparison function that determines how lights in the scene are
+ *  stored.
+ */
+void tv_scene_set_light_sort_func(tv_scene_sort_func func);
+
+/**
+ * Update the scene.
+ */
+void tv_scene_update();
 
 #ifdef __cplusplus
 }

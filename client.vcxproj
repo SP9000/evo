@@ -103,6 +103,7 @@
     <ClCompile Include="timer.c" />
     <ClCompile Include="transform.c" />
     <ClCompile Include="tv_alloc.c" />
+    <ClCompile Include="tv_light.c" />
     <ClCompile Include="tv_stats.c" />
     <ClCompile Include="tv_vector.c" />
     <ClCompile Include="types.c" />
@@ -125,6 +126,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="evo.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="tv_light.h" />
     <ClInclude Include="tv_stats.h" />
     <ClInclude Include="widgetmodels.h" />
     <ClInclude Include="guirenderer.h" />
