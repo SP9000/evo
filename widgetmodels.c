@@ -147,7 +147,7 @@ tv_model *tv_gui_model_text(tvchar *text, tvuint w, tv_vector4 color)
 		}
 	}
 	model->primitive = GL_LINES;
-	tv_model_optimize(model);
+	tv_model_optimize(model, TRUE, TRUE);
 	return model;
 }
 
@@ -177,7 +177,7 @@ tv_model *tv_gui_model_border(tvfloat w, tvfloat h, tv_vector4 color)
 	tv_model_append_vertex(model, &vertex);
 
 	model->primitive = GL_LINE_LOOP;
-	tv_model_optimize(model);
+	tv_model_optimize(model, TRUE, TRUE);
 
 	return model;
 }

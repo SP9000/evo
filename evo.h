@@ -8,6 +8,7 @@
 #include "modelrenderer.h"
 #include "textrenderer.h"
 #include "linerenderer.h"
+#include "overlayrenderer.h"
 #include "guirenderer.h"
 #include "modelgen.h"
 #include "material.h"

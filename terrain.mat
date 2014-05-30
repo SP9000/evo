@@ -6,7 +6,8 @@
         },
         "attributes": [
             "in_Position",
-            "in_Color"
+            "in_Color",
+			"iin_Flags"
         ]
     }
 }

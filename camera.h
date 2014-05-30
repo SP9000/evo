@@ -34,8 +34,7 @@ COMPONENT(tv_camera, tv_component)
 	tvbool ortho;
 	tvu32 render_layers;
 
-	TvMat4x4 model_mat;
-	TvMat4x4 view_mat;
+	TvMat4x4 modelview_mat;
 	TvMat4x4 projection_mat;
 	TvCameraProperties properties;
 

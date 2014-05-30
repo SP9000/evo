@@ -16,6 +16,12 @@
 
 extern tvfloat tv_time_delta;
 
+typedef struct tv_timer {
+	tvfloat current;
+	tvfloat set;
+	tvuint max_rollover;
+}tv_timer;
+
 /**
  * Initialize the main timers for the engine.
  */
@@ -25,5 +31,10 @@ int tv_time_init();
  * Update the engines' timers.
  */
 void tv_time_update();
+
+/** 
+ * Update the given timer, and return the number of times it went off.
+ */
+tvuint tv_timer_update(tv_timer *timer);
 
 #endif

@@ -27,6 +27,7 @@ extern "C" {
 #include "scene.h"
 #include "texture.h"
 #include "types.h"
+#include "tv_stats.h"
 
 extern tv_camera* main_cam;
 

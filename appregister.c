@@ -6,4 +6,7 @@ void app_register()
 	app_grid_register();
 	app_terrain_register();
 	app_camera_controller_register();
+	app_terrain_cursor_register();
+	app_cursor_register();
+	app_hud_register();
 }

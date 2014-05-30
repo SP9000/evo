@@ -28,6 +28,7 @@ extern "C" {
 #include "modelrenderer.h"
 #include "textrenderer.h"
 #include "guirenderer.h"
+#include "overlayrenderer.h"
 #include "timer.h"
 #include "gui.h"
 #include "tv_stats.h"

@@ -29,8 +29,12 @@ extern "C" {
 
 #define ENTITY(name, px, py, pz, sx, sy, sz, rx, ry, rz) \
 	tv_entity* name () { \
-		tv_entity* e = tv_entity_new(NULL); \
+		static tv_entity* e = NULL; \
 		{ \
+		 if(e != NULL) { \
+			return e; \
+		 } \
+		 e = tv_entity_new(NULL); \
 		 e->transform.pos.x = px ; e->transform.pos.y = py ; e->transform.pos.z = pz ; \
 		 e->transform.scale.x = sx ; e->transform.scale.y = sy ; e->transform.scale.z = sz ; \
 		 e->transform.rot.x = rx ; e->transform.rot.y = ry ; e->transform.rot.z = rz ; \
@@ -40,12 +44,10 @@ extern "C" {
 #define COMPONENTS {
 
 #define ADDCOMPONENT(type, name) \
-	}{ \
-	type * name = type ## _new(); \
-	tv_entity_add_component(e, (tv_component*)name); 
+	type * name = (type*)tv_entity_add_component(e, (tv_component*)type ## _new()); 
 
 #define ENTITY_END \
-	}} \
+	} \
 		tv_entity_start(e); \
 		return e; \
 	} 
@@ -83,8 +85,10 @@ tv_entity* tv_entity_new(tv_transform *transform);
  * Add the given component to the given entity.
  * @param e the entity to add the component to.
  * @param c the component to add to the entity.
+ * @param returns NULL if failed or there was already a component of the 
+ *  given type, otherwise returns the address of the component.
  */
-void tv_entity_add_component(tv_entity* e, tv_component* c);
+tv_component* tv_entity_add_component(tv_entity* e, tv_component* c);
 
 /**
  * Add the given entity as a child to the given parent.

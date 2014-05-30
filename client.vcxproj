@@ -96,6 +96,7 @@
     <ClCompile Include="model.c" />
     <ClCompile Include="modelgen.c" />
     <ClCompile Include="modelrenderer.c" />
+    <ClCompile Include="overlayrenderer.c" />
     <ClCompile Include="renderer.c" />
     <ClCompile Include="scene.c" />
     <ClCompile Include="textrenderer.c" />
@@ -126,6 +127,7 @@
     <ClInclude Include="entity.h" />
     <ClInclude Include="evo.h" />
     <ClInclude Include="gui.h" />
+    <ClInclude Include="overlayrenderer.h" />
     <ClInclude Include="tv_light.h" />
     <ClInclude Include="tv_stats.h" />
     <ClInclude Include="widgetmodels.h" />

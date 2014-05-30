@@ -46,22 +46,20 @@ static void render(tv_component *self)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	tv_mat4x4_push(main_cam->view_mat);
-	tv_mat4x4_load_identity(main_cam->view_mat);
-	tv_mat4x4_translate(main_cam->view_mat, -pos.x, -pos.y, -1.0f); //pos.z);
-	main_cam->view_mat[0] *= scale.x;
-    main_cam->view_mat[5] *= scale.y;
+	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_load_identity(&main_cam->modelview_mat);
+	tv_mat4x4_translate(&main_cam->modelview_mat, -pos.x, -pos.y, -1.0f); //pos.z);
+	main_cam->modelview_mat.a0 *= scale.x;
+    main_cam->modelview_mat.b1 *= scale.y;
 
     /* use the model's material's shader */
     glUseProgram(renderer->base.material->program);
 
     /* set matrices */
-	glUniformMatrix4fv(renderer->base.material->model_mat, 1, GL_FALSE, 
-		main_cam->model_mat);
-    glUniformMatrix4fv(renderer->base.material->view_mat, 1, GL_FALSE, 
-		main_cam->view_mat);
+	glUniformMatrix4fv(renderer->base.material->modelview_mat, 1, GL_FALSE, 
+		tv_mat4x4_to_array(&main_cam->modelview_mat));
 	glUniformMatrix4fv(renderer->base.material->projection_mat, 1, GL_FALSE, 
-        main_cam->projection_mat);
+        tv_mat4x4_to_array(&main_cam->projection_mat));
 
     /* bind the font texture */
     loc = glGetUniformLocation(renderer->base.material->program, "tex");
@@ -76,7 +74,7 @@ static void render(tv_component *self)
 		GL_UNSIGNED_SHORT, 0);
     glBindVertexArray(0);
 
-    tv_mat4x4_pop(main_cam->view_mat);
+    main_cam->modelview_mat = tv_mat4x4_pop();
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
@@ -138,5 +136,5 @@ void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
 		tv_model_append_indices4(self->model, i*4, i*4+1, i*4+2, i*4+3);
     }
     self->model->primitive = GL_QUADS;
-	tv_model_optimize(self->model);
+	tv_model_optimize(self->model, TRUE, TRUE);
 }

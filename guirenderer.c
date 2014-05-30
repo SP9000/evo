@@ -60,30 +60,27 @@ static void render(tv_component *self)
 	pos = ((tv_component*)widget)->entity->transform.pos;
 	scale  = ((tv_component*)widget)->entity->transform.scale;
 
-	glDisable(GL_DEPTH_TEST);
-	tv_mat4x4_push(tv_camera_gui->view_mat);
-	tv_mat4x4_load_identity(tv_camera_gui->view_mat);
-	tv_mat4x4_translate(tv_camera_gui->view_mat, -pos.x, -pos.y, -1.0f); //pos.z);
-	tv_camera_gui->view_mat[0] *= scale.x;
-	tv_camera_gui->view_mat[5] *= scale.y;
+	if(widget->model != NULL) {
+		glDisable(GL_DEPTH_TEST);
+		tv_mat4x4_push(tv_camera_gui->modelview_mat);
+		tv_mat4x4_load_identity(&tv_camera_gui->modelview_mat);
+		tv_mat4x4_translate(&tv_camera_gui->modelview_mat, pos.x, pos.y, pos.z);
+		tv_mat4x4_scale(&tv_camera_gui->modelview_mat, scale.x, scale.y, 1.0f);
+		/* use the model's material's shader */
+		glUseProgram(widget->material->program);
 
-	/* use the model's material's shader */
-	glUseProgram(widget->material->program);
+		/* set matrices */
+		glUniformMatrix4fv(widget->material->modelview_mat, 1, GL_FALSE, 
+			tv_mat4x4_to_array(&tv_camera_gui->modelview_mat));
+		glUniformMatrix4fv(widget->material->projection_mat, 1, GL_FALSE, 
+			tv_mat4x4_to_array(&tv_camera_gui->projection_mat));
 
-	/* set matrices */
-	glUniformMatrix4fv(widget->material->model_mat, 1, GL_FALSE, 
-		tv_camera_gui->model_mat);
-	glUniformMatrix4fv(widget->material->view_mat, 1, GL_FALSE, 
-		tv_camera_gui->view_mat);
-	glUniformMatrix4fv(widget->material->projection_mat, 1, GL_FALSE, 
-		tv_camera_gui->projection_mat);
-
-	/* bind attribute array and draw */
-	glBindVertexArray(widget->model->vao);
-	tv_draw_arrays(widget->model->primitive, 0, utarray_len(widget->model->vertices));
-	glBindVertexArray(0);
-	tv_mat4x4_pop(tv_camera_gui->view_mat);
-
+		/* bind attribute array and draw */
+		glBindVertexArray(widget->model->vao);
+		tv_draw_arrays(widget->model->primitive, 0, utarray_len(widget->model->vertices));
+		glBindVertexArray(0);
+		tv_camera_gui->modelview_mat = tv_mat4x4_pop();
+	}
 	/* recursively render all the widgets */
 	if(children == NULL) {
 		return;

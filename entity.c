@@ -40,10 +40,13 @@ tv_entity* tv_entity_new(tv_transform *transform)
     return e;
 }
 
-void tv_entity_add_component(tv_entity* e, tv_component* c)
+tv_component*  tv_entity_add_component(tv_entity* e, tv_component* c)
 {
 	c->entity = e;
+	c->transform = &(e->transform);
 	utarray_push_back(e->components, &c);
+	/* TODO: check that no component of c's type exists. */
+	return c;
 }
 
 void tv_entity_add_child(tv_entity* parent, tv_entity* child)

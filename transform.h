@@ -4,15 +4,14 @@
 extern "C" {
 #endif
 
-#include "component.h"
 #include "types.h"
+#include "tv_vector.h"
 
-
-COMPONENT(tv_transform, tv_component) 
-tv_vector3 pos;
-tv_vector3 rot;
-tv_vector3 scale;
-ENDCOMPONENT(tv_transform)
+typedef struct tv_transform {
+	tv_vector3 pos;
+	tv_vector3 rot;
+	tv_vector3 scale;
+}tv_transform;
 
 #ifdef __cplusplus
 }

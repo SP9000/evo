@@ -16,12 +16,6 @@
     <Filter Include="Components">
       <UniqueIdentifier>{05eeaa64-da89-4f2a-8b2f-d87f24d9ef5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Components">
-      <UniqueIdentifier>{f3107bc4-bf2c-45cf-b123-1508e1a35f58}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\Components">
-      <UniqueIdentifier>{e1793271-ebcf-4d89-98ed-42b3c389f2fb}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Materials">
       <UniqueIdentifier>{281ff5a7-c646-4f1d-b246-9834859caf61}</UniqueIdentifier>
     </Filter>
@@ -31,48 +25,93 @@
     <Filter Include="Resource Files\Materials\Vertex Shaders">
       <UniqueIdentifier>{f9047d8d-4621-4039-926e-2abe509907b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Headers">
+      <UniqueIdentifier>{e1793271-ebcf-4d89-98ed-42b3c389f2fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Sources">
+      <UniqueIdentifier>{43998528-c118-46a2-9707-f1e9965cdf20}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\GUI">
+      <UniqueIdentifier>{19931f86-39bf-4d11-9ed7-9b8cd64dbc63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\GUI\Headers">
+      <UniqueIdentifier>{bd05bde7-bfb9-448b-a11b-4e6eb9ab1e7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\GUI\Sources">
+      <UniqueIdentifier>{f4038e50-18ca-4ae5-936d-f7de6cf3efee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="App\playermotor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="grid.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
-    <ClInclude Include="terrain_tile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="terrain.h">
-      <Filter>Header Files\Components</Filter>
+      <Filter>Components\Headers</Filter>
     </ClInclude>
     <ClInclude Include="camera_controller.h">
-      <Filter>Header Files\Components</Filter>
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="App\playermotor.h">
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain_tile.h">
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="terraincursor.h">
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="cursor.h">
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="unit.h">
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ability.h">
+      <Filter>Components\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="hud.h">
+      <Filter>Components\GUI\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="App\playermotor.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="appregister.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="grid.c">
-      <Filter>Source Files\Components</Filter>
+    <ClCompile Include="camera_controller.c">
+      <Filter>Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="terrain_tile.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="grid.c">
+      <Filter>Components\Sources</Filter>
     </ClCompile>
     <ClCompile Include="terrain.c">
-      <Filter>Source Files\Components</Filter>
+      <Filter>Components\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="camera_controller.c">
-      <Filter>Source Files\Components</Filter>
+    <ClCompile Include="App\playermotor.c">
+      <Filter>Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain_tile.c">
+      <Filter>Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="terraincursor.c">
+      <Filter>Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="cursor.c">
+      <Filter>Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="unit.c">
+      <Filter>Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="ability.c">
+      <Filter>Components\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="hud.c">
+      <Filter>Components\GUI\Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -84,6 +123,15 @@
     </None>
     <None Include="terrain.frag">
       <Filter>Resource Files\Materials\Fragment Shaders</Filter>
+    </None>
+    <None Include="cursor.vert">
+      <Filter>Resource Files\Materials\Vertex Shaders</Filter>
+    </None>
+    <None Include="cursor.frag">
+      <Filter>Resource Files\Materials\Fragment Shaders</Filter>
+    </None>
+    <None Include="cursor.mat">
+      <Filter>Resource Files\Materials</Filter>
     </None>
   </ItemGroup>
 </Project>

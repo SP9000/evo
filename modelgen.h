@@ -15,6 +15,8 @@ extern "C" {
 
 #include <stdio.h>
 #include <string.h>
+#include "model.h"
+
 
 /**
  * Generate models for the character set.
@@ -27,6 +29,22 @@ void ModelGen_Charset();
  * Models are output to ./StdAssets/GUI/
  */
 void ModelGen_GUI();
+
+/**
+ * Returns a tetrahedron of the given dimensions.
+ * @param dimensions the (w,h,d) dimensions of the tetrahedron.
+ * @param format the format of the vertices for this tetrahedron.
+ * @return the tetrahedron.
+ */
+tv_model *tv_modelgen_tetrahedron(tv_vector3 dimensions, tv_model_vertex format);
+
+/**
+ * Returns a quad of the given dimensions.
+ * @param dimensions the (w,h) dimensions of the quad.
+ * @param format the format for the vertices of the quad.
+ * @return the quad.
+ */
+tv_model *tv_modelgen_quad(tv_vector2 dimensions, tv_model_vertex format);
 
 #ifdef __cplusplus
 }

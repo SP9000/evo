@@ -26,6 +26,13 @@ extern "C" {
 #include "tv_list.h"
 #include "tv_string.h"
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 /* macros */
 #define TV_DATA_PTR(i) ((void*)(i))
 

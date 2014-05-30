@@ -15,6 +15,12 @@ extern "C" {
 #endif
 
 #include <SDL/SDL.h>
+#include "types.h"
+#include "tv_vector.h"
+
+#define TV_INPUT_KEYBOARD_MAX_BUTTONS 512
+#define TV_INPUT_MOUSE_MAX_BUTTONS 16
+#define TV_INPUT_JOYPAD_MAX_BUTTONS 32
 
 #define INPUT_KEY_BACKSPACE     SDLK_BACKSPACE
 #define INPUT_KEY_TAB           SDLK_TAB
@@ -148,6 +154,16 @@ extern "C" {
 #define INPUT_KEY_EURO          SDLK_EURO
 #define INPUT_KEY_UNDO          SDLK_UNDO
 
+#define INPUT_MOUSEBUTTON_0	1
+#define INPUT_MOUSEBUTTON_1	2
+#define INPUT_MOUSEBUTTON_2 3
+#define INPUT_MOUSEBUTTON_3 4
+#define INPUT_MOUSEBUTTON_4 5
+#define INPUT_MOUSEBUTTON_5 6
+
+#define TV_INPUT_MOUSE_WHEELUP SDL_BUTTON_WHEELUP 
+#define TV_INPUT_MOUSE_WHEELDOWN SDL_BUTTON_WHEELDOWN
+
 /**
  * A simple union to abstract the buttons on the keyboard/joystick.
  */
@@ -156,14 +172,31 @@ typedef union tagInputButton {
     uint8_t joy;
 }TvInputButton;
 
+typedef enum tv_input_device_type {
+	TV_INPUT_MOUSE,
+	TV_INPUT_KEYBOARD,
+	TV_INPUT_JOYPAD
+}tv_input_device_type;
+
+typedef enum tv_input_button_state {
+	TV_INPUT_BUTTON_NULL,	/* the initial state of buttons and the state of unused buttons */
+	TV_INPUT_BUTTON_PRESSED, /* the state of the button the first time it's pressed */
+	TV_INPUT_BUTTON_DOWN,	/* the state of the button while held down. */
+	TV_INPUT_BUTTON_RELEASED, /* the state of the button the first time it's released. */
+	TV_INPUT_BUTTON_UP	/* the state of the button while it is not pressed. */
+}tv_input_button_state;
+
+typedef struct tv_input_button {
+	tv_input_device_type type;
+	tvuint button;
+}tv_input_button;
+
 /**
  * This structure represents the physical device used to communicate with the 
  * input system.
  */
 typedef struct tagInputDevice {
-    /* type of input device: 0=keyboard, 1=joystick */
-    int type;
-    /* if device is a joystick, this holds the reference to it */
+    /* if a joystick is present, this holds the reference to it */
     SDL_Joystick* joy;
 }TvInputDevice;
 
@@ -184,10 +217,25 @@ void tv_input_quit();
 void tv_input_update();
 
 /**
+ * Checks if the given button (key or joypad) is pressed.
+ * @return 1 if the button is pressed, 0 if it is not.
+ */
+tvbool tv_input_buttondown(tv_input_button button);
+tvbool tv_input_buttonpressed(tv_input_button button);
+tvbool tv_input_buttonreleased(tv_input_button button);
+tvbool tv_input_buttonup(tv_input_button button);
+
+/**
  * Check if the given key is currently down.
  * @return zero if key is not down, nonzero if it is.
  */
 int tv_input_keydown(SDLKey key);
+
+/* 
+ * Get the X and Y screen coordinates of the mouse.
+ * @return a vector containing the screen coordinates of the mouse.
+ */
+tv_vector2 tv_input_mouse_pos();
 
 /**
  * Get the position of the mouse in the X direction.
@@ -200,6 +248,14 @@ int tv_input_mouse_x();
  * @return the current mouse Y position.
  */
 int tv_input_mouse_y();
+
+/**
+ * Registers a button of the given ID and the given type as pressed.
+ * @param type the type of the device of the input being registered.
+ * @param id the button ID being registered.
+ * @param pressed if TRUE, flag this button as pressed, if FALSE, released.
+ */
+void tv_input_register_button_event(tv_input_device_type type, tvuint id, tvbool pressed);
 
 #ifdef __cplusplus
 }

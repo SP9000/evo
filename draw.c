@@ -66,12 +66,12 @@ int tv_draw_init()
 	main_cam->rot.z = 0;
 	tv_camera_perspective(main_cam, 30.0f, (float)screen->w / (float)screen->h, .01f, 100.0f);
     /* position the camera */
-	tv_mat4x4_load_identity(main_cam->view_mat);
-	tv_mat4x4_translate(main_cam->view_mat, -main_cam->pos.x, 
+	tv_mat4x4_load_identity(&main_cam->modelview_mat);
+	tv_mat4x4_translate(&main_cam->modelview_mat, -main_cam->pos.x, 
             -main_cam->pos.y, main_cam->pos.z);
 
 	tv_camera_gui = tv_camera_new();
-	tv_camera_orthographic(tv_camera_gui, 0.0f, 1.0f, 0.0f, 1.0f, 0.01f, 100.0f);
+	tv_camera_orthographic(tv_camera_gui, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 100.0f);
 
 	//tex_quad = tv_model_new();
 	//tex_quad->num_vertices = 4;
@@ -122,13 +122,14 @@ void tv_draw_start_frame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-	tv_mat4x4_push(main_cam->view_mat);
+	tv_mat4x4_push(main_cam->modelview_mat);
+	/*
 	tv_mat4x4_scale(main_cam->view_mat, main_cam->scale.x, main_cam->scale.y, main_cam->scale.z);
 	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.x, 1.0f, 0.0f, 0.0f);
 	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.y, 0.0f, 1.0f, 0.0f);
 	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.z, 0.0f, 0.0f, 1.0f);
 	tv_mat4x4_translate(main_cam->view_mat, main_cam->pos.x, main_cam->pos.y, main_cam->pos.z);
-
+	*/
 	/* update camera ubo (camera matrices) */
 	//glBindBufferRange(GL_UNIFORM_BUFFER, main_cam->uniform_binding_index,
 	//	main_cam->ubo, 0, sizeof(TvMat4x4) * 2);
@@ -143,7 +144,7 @@ void tv_draw_resize_screen(int w, int h)
 
 void tv_draw_finish_frame()
 {
-	tv_mat4x4_pop(main_cam->view_mat);
+	main_cam->modelview_mat = tv_mat4x4_pop();
 #if 0
     glDisable(GL_DEPTH_TEST);
 
@@ -199,21 +200,19 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     /* save state */
-    tv_mat4x4_push(main_cam->view_mat);
-	tv_mat4x4_load_identity(main_cam->view_mat);
-	tv_mat4x4_translate(main_cam->view_mat, -rect->x, -rect->y, -1.0f);
-    main_cam->view_mat[0] *= rect->w;
-    main_cam->view_mat[5] *= rect->h;
+    tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_load_identity(&main_cam->modelview_mat);
+	tv_mat4x4_translate(&main_cam->modelview_mat, -rect->x, -rect->y, -1.0f);
+    main_cam->modelview_mat.a0 *= rect->w;
+    main_cam->modelview_mat.b1 *= rect->h;
 
     /* use the model's material's shader */
     glUseProgram(tex_mat->program);
 
-	glUniformMatrix4fv(tex_mat->model_mat, 1, GL_FALSE, 
-		main_cam->model_mat);
-	glUniformMatrix4fv(tex_mat->view_mat, 1, GL_FALSE, 
-		main_cam->view_mat);
+	glUniformMatrix4fv(tex_mat->modelview_mat, 1, GL_FALSE, 
+		tv_mat4x4_to_array(&main_cam->modelview_mat));
 	glUniformMatrix4fv(tex_mat->projection_mat, 1, GL_FALSE, 
-		main_cam->projection_mat);
+		tv_mat4x4_to_array(&main_cam->projection_mat));
 
     /* bind the texture */
     loc = glGetUniformLocation(tex_mat->program, "tex");
@@ -228,7 +227,7 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect)
     glBindVertexArray(0);
 
     /* restore */
-	tv_mat4x4_pop(main_cam->view_mat);
+	main_cam->modelview_mat = tv_mat4x4_pop();
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);

@@ -85,6 +85,16 @@ void tv_scene_set_light_sort_func(tv_scene_sort_func func);
  */
 void tv_scene_update();
 
+/**
+ * Returns the screen coordinates of the given position.
+ * @param scene_coordinates the scene coordinates to find the screen 
+ *  coordinates of.
+ * @return the screen coordinates of the given scene coordinates.
+ */
+tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates);
+
+tv_vector2 tv_scene_from_screen_coordinates(tv_vector2 screen_coordinates);
+
 #ifdef __cplusplus
 }
 #endif

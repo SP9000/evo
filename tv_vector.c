@@ -21,6 +21,19 @@ tv_vector4 tv_vector4_add(tv_vector4 v1, tv_vector4 v2)
 	return ret;
 }
 
+tvfloat tv_vector2_dot(tv_vector2 v1, tv_vector2 v2)
+{
+	return v1.x * v2.x + v1.y * v2.y;
+}
+tvfloat tv_vector3_dot(tv_vector3 v1, tv_vector3 v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+tvfloat tv_vector4_dot(tv_vector4 v1, tv_vector4 v2)
+{
+	return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+}
+
 tvfloat tv_vector2_distance(tv_vector2 v1, tv_vector2 v2)
 {
 

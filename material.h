@@ -58,8 +58,7 @@ COMPONENT(tv_material, tv_component)
 	tvchar* name;
 	GLuint program;
 
-	GLuint model_mat;
-	GLuint view_mat;
+	GLuint modelview_mat;
 	GLuint projection_mat;
 
 	/* the location of the uniform buffer this material uses. */
@@ -85,7 +84,7 @@ GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 								   tvuint num_attributes);
 tvint tv_material_get_uniform(tv_material *material, tvchar *name);
 
-void tv_material_get_uniforms(GLuint program, GLuint* model, GLuint* view, GLuint* projection);
+void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* projection);
 
 
 /**

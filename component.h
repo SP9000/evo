@@ -20,6 +20,7 @@ extern "C" {
 #include "tv_alloc.h"
 #include "tv_message.h"
 #include "tv_vector.h"
+#include "transform.h"
 
 typedef struct tv_entity tv_entity;
 typedef struct tv_component tv_component;
@@ -29,6 +30,8 @@ typedef struct tv_component tv_component;
  * ought to be PLENTY.
  */
 #define TV_COMPONENT_MAX_HANDLERS 128
+
+#define TV_COMPONENT_TRANSFORM_ID TV_COMPONENT_MAX_HANDLERS
 
 /**
  * The maximum number of pre-handlers (obviously this must be smaller than
@@ -180,7 +183,7 @@ typedef struct tv_component {
 	/* the ID of the component this component inherits from. */
 	tvuint parent_ids;
 
-	TvTransform *transform;
+	tv_transform *transform;
 }tv_component;
 
 /**
@@ -276,6 +279,19 @@ tv_component* tv_component_get(tv_component* self, tvuint id);
  */
 void tv_component_receive_message(tv_entity *sender, tv_message_type message_type, tv_message message);
 
+/*****************************************************************************/
+/**
+ * A dummy function to register the transform "component".
+ */
+static void tv_transform_register() {}
+/**
+ * The transform component (being a fake component in the first place, gets
+ * special treatment).
+ * This returns the ID of the transform component.
+ * @return the ID that the transform "component" is registered to.
+ */
+static tvuint tv_transform_id() {return TV_COMPONENT_TRANSFORM_ID;}
+
 /**
  * A convienience macro to retrieve the component of the specified type and 
  * cast it to that same type.
@@ -292,8 +308,6 @@ static void tv_component_register() {
 		tv_component_register_id(&tv_cid_component, 0); 
 	} 
 } 
-
-
 
 #ifdef __cplusplus
 }

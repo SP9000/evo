@@ -91,6 +91,7 @@ void tv_material_init_uniform_buffer_(tv_material *material)
 	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, material->buffer);
 }
 
+
 GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 {
 	GLuint s;
@@ -195,8 +196,7 @@ void tv_material_load(tv_material *mat, const char* file)
 		mat->program = lup_mat->program;
 		mat->name = lup_mat->name;
 		mat->projection_mat = lup_mat->projection_mat;
-		mat->view_mat = lup_mat->view_mat;
-		mat->model_mat = lup_mat->model_mat;
+		mat->modelview_mat = lup_mat->modelview_mat;
 	}
 
 	UtilReadFile(file, &text);
@@ -314,7 +314,7 @@ void tv_material_load(tv_material *mat, const char* file)
 	mat->name = (tvchar*)file;
 	mat->program = tv_material_compile_program(v, f, g, attributes, nAttributes);
 
-	tv_material_get_uniforms(mat->program, &mat->model_mat, &mat->view_mat, &mat->projection_mat);
+	tv_material_get_uniforms(mat->program, &mat->modelview_mat, &mat->projection_mat);
 
 	HASH_ADD_PTR(loaded_materials, name, mat);
 }
@@ -397,9 +397,11 @@ void tv_material_optimize(tv_material *material)
 }
 #endif
 
-void tv_material_get_uniforms(GLuint program, GLuint* model, GLuint* view, GLuint* projection)
+void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* projection)
 {
-	*model        = glGetUniformLocation(program, "Model");
-	*view         = glGetUniformLocation(program, "View");
+	printf("%d\n", glGetError());
 	*projection   = glGetUniformLocation(program, "Projection");
+	*modelview    = glGetUniformLocation(program, "ModelView");
+	printf("%d\n", glGetError());
+	printf("%d %d", *modelview, *projection);
 }

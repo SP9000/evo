@@ -11,23 +11,36 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ability.h" />
     <ClInclude Include="App\app.h" />
     <ClInclude Include="App\playermotor.h" />
     <ClInclude Include="camera_controller.h" />
+    <ClInclude Include="cursor.h" />
     <ClInclude Include="grid.h" />
+    <ClInclude Include="hud.h" />
     <ClInclude Include="terrain.h" />
+    <ClInclude Include="terraincursor.h" />
     <ClInclude Include="terrain_tile.h" />
+    <ClInclude Include="unit.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ability.c" />
     <ClCompile Include="appregister.c" />
     <ClCompile Include="App\app.c" />
     <ClCompile Include="App\playermotor.c" />
     <ClCompile Include="camera_controller.c" />
+    <ClCompile Include="cursor.c" />
     <ClCompile Include="grid.c" />
+    <ClCompile Include="hud.c" />
     <ClCompile Include="terrain.c" />
+    <ClCompile Include="terraincursor.c" />
     <ClCompile Include="terrain_tile.c" />
+    <ClCompile Include="unit.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cursor.frag" />
+    <None Include="cursor.mat" />
+    <None Include="cursor.vert" />
     <None Include="terrain.frag" />
     <None Include="terrain.mat" />
     <None Include="terrain.vert" />

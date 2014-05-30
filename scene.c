@@ -19,6 +19,37 @@ tvint tv_scene_init()
 	return 0;
 }
 
+tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates)
+{
+	tv_vector4 res;
+	tv_vector2 ret;
+	res.x = scene_coordinates.x;
+	res.y = scene_coordinates.y;
+	res.z = scene_coordinates.z;
+	res.w = 1.0f;
+	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(main_cam->projection_mat);
+
+	tv_mat4x4_translate(&main_cam->modelview_mat, main_cam->pos.x, main_cam->pos.y, main_cam->pos.z);
+	tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.x, 1.0f, 0.0f, 0.0f);
+	tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.y, 0.0f, 1.0f, 0.0f);
+	tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.z, 0.0f, 0.0f, 1.0f);
+	
+	//tv_mat4x4_multiply(main_cam->modelview_mat, main_cam->projection_mat);
+	res = tv_mat4x4_multiply_vec4x1(main_cam->modelview_mat, res);
+	res = tv_mat4x4_multiply_vec4x1(main_cam->projection_mat, res);
+	ret.x = (1.0f / res.w) * res.x * 0.5f + 0.5f;
+	ret.y = (1.0f / res.w) * res.y * 0.5f + 0.5f;
+	printf("%f %f\n", ret.x, ret.y);
+	main_cam->projection_mat = tv_mat4x4_pop();
+	main_cam->modelview_mat = tv_mat4x4_pop();
+	return ret;
+}
+
+tv_vector2 tv_scene_from_screen_coordinates(tv_vector2 screen_coordinates) 
+{
+}
+
 tvint tv_scene_quit()
 {
     return 0;

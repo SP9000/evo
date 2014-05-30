@@ -58,7 +58,7 @@ int tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
  * A basic type for representing a point in 4-dimensional space
  */
 typedef struct tv_vector4 {
-	float w, x, y, z;
+	float x, y, z, w;
 }tv_vector4;
 typedef tv_vector4 tv_quaternion;
 
@@ -69,6 +69,10 @@ extern const tv_vector4 tv_vector4_zero;
 tv_vector2 tv_vector2_add(tv_vector2 v1, tv_vector2 v2);
 tv_vector3 tv_vector3_add(tv_vector3 v1, tv_vector3 v2);
 tv_vector4 tv_vector4_add(tv_vector4 v1, tv_vector4 v2);
+
+tvfloat tv_vector2_dot(tv_vector2 v1, tv_vector2 v2);
+tvfloat tv_vector3_dot(tv_vector3 v1, tv_vector3 v2);
+tvfloat tv_vector4_dot(tv_vector4 v1, tv_vector4 v2);
 
 tvfloat tv_vector2_distance(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_distance(tv_vector3 v1, tv_vector3 v2);

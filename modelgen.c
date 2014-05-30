@@ -1,5 +1,11 @@
 #include "modelgen.h"
 
+
+typedef struct modelgen_vertex {
+	tv_vector4 pos;
+	tv_vector4 color;
+}modelgen_vertex;
+
 /*****************************************************************************/
 void write_header(FILE* fp)
 {
@@ -151,4 +157,106 @@ void ModelGen_GUI()
     fclose(fp);
 }
 
+tv_model *tv_modelgen_quad(tv_vector2 dimensions, tv_model_vertex format)
+{
+	tvfloat quad_vertices[] = {
+		0,0,0,
+		1,0,0,
+		1,1,0,
+		1,1,0,
+		0,1,0,
+		0,0,0
+	};
+	tv_model_property vertex_properties[] = {
+		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};	
+	modelgen_vertex my_vertex;
+	tv_model *model = tv_model_new();
+	tvuint i;
 
+	tv_model_vertex_format(model, 2, vertex_properties);
+
+	for(i = 0; i < 6; ++i) {
+		my_vertex.pos.x = quad_vertices[i*3] * dimensions.x;
+		my_vertex.pos.y = quad_vertices[i*3+1] * dimensions.y;
+		my_vertex.pos.z = 0.0f;
+		my_vertex.pos.w = 1.0f;
+		my_vertex.color.x = 1.0f;
+		my_vertex.color.y = 1.0f;
+		my_vertex.color.z = 1.0f;
+		my_vertex.color.w = 0.5F;
+		tv_model_append_vertex(model, &my_vertex);
+	}
+	model->primitive = GL_TRIANGLES;
+	tv_model_optimize(model, TRUE, FALSE);
+	return model;
+}
+
+tv_model *tv_modelgen_tetrahedron(tv_vector3 dimensions, tv_model_vertex format)
+{
+	tvfloat cube_vertices[] = {
+		// Front face
+		-1.0f, -1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		// Back face
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		// Top face
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f,  1.0f, -1.0f,
+		// Bottom face
+		-1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f, -1.0f,
+		 1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+		// Right face
+		 1.0f, -1.0f, -1.0f,
+		 1.0f,  1.0f, -1.0f,
+		 1.0f,  1.0f,  1.0f,
+		 1.0f, -1.0f,  1.0f,
+		// Left face
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f
+	};
+	tvuint cube_indices[] = {
+		0,  1,  2,      0,  2,  3,    // front
+		4,  5,  6,      4,  6,  7,    // back
+		8,  9,  10,     8,  10, 11,   // top
+		12, 13, 14,     12, 14, 15,   // bottom
+		16, 17, 18,     16, 18, 19,   // right
+		20, 21, 22,     20, 22, 23    // left
+	};
+	tv_model_property vertex_properties[] = {
+		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};	
+	modelgen_vertex my_vertex;
+	tv_model *model = tv_model_new();
+	tvuint i;
+
+	tv_model_vertex_format(model, 2, vertex_properties);
+	for(i = 0; i < 24*3; i += 3) {
+		my_vertex.pos.x = cube_vertices[i] * dimensions.x;
+		my_vertex.pos.y = cube_vertices[i+1] * dimensions.y;
+		my_vertex.pos.z = cube_vertices[i+2] * dimensions.z;
+		my_vertex.pos.w = 1.0f;
+		my_vertex.color.x = 1.0f;
+		my_vertex.color.y = 1.0f;
+		my_vertex.color.z = 1.0f;
+		my_vertex.color.w = 0.5f;
+		tv_model_append_vertex(model, &my_vertex);
+	}
+	for(i = 0; i < 36; ++i) {
+		tv_model_append_indices1(model, cube_indices[i]);
+	}
+	model->primitive = GL_TRIANGLES;
+	tv_model_optimize(model, TRUE, TRUE);
+	return model;
+}

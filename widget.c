@@ -8,6 +8,7 @@ COMPONENT_NEW(tv_widget, tv_component)
 END_COMPONENT_NEW(tv_widget)
 
 COMPONENT_START(tv_widget)
+	tv_widget_set_material((tv_widget*)self, (tv_material*)tv_component_get(self_component, tv_material_id()));
 END_COMPONENT_START
 
 COMPONENT_UPDATE(tv_widget)

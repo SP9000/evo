@@ -59,6 +59,15 @@ typedef struct tv_model_property {
 	tvuint offset;
 }tv_model_property;
 
+typedef struct tv_model_vertex {
+	/* the number of properties per vertex */
+	tvuint count;
+	/* the type of each per vertex property (TV_MODEL_PROPERTY_FLOAT, etc.) */
+	tv_model_property_type types[TV_MODEL_MAX_PROPERTIES];
+	/* the number of each corresponding type each property has. */
+	tvuint sizes[TV_MODEL_MAX_PROPERTIES];
+}tv_model_vertex;
+
 COMPONENT(tv_model, tv_component) 
 	GLuint vao;
 	GLuint primitive;
@@ -92,14 +101,18 @@ void tv_model_load_ply(tv_model *model, tvchar* file);
  * Once all the vertices and indices are set for the given model's data, this
  * function allows the model to be rendered.
  * @param model the model to optimize for renderering.
+ * @param optimize_vertices if true, vertices are optimized.
+ * @param optimize_indices if true, indices are optimized.
  */
-void tv_model_optimize(tv_model* model);
+void tv_model_optimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices);
 /**
  * This function should be called after updates are made to a models data and
  * after the model has already been optimized via tv_model_optimize.
  * @param model the model to (re)optimize.
+ * @param optimize_vertices if true, vertices are optimized.
+ * @param optimize_indices if true, indices are optimized.
  */
-void tv_model_reoptimize(tv_model* model);
+void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices);
 /**
  * Get the size of the data (in bytes) that the given property data type uses.
  * @param data_type the type e.g. TV_MODEL_PROPERTY_FLOAT

@@ -25,8 +25,8 @@ typedef struct {
 static id_inheritance_hash_ *inheritance_table = NULL;
 
 /* these integers hold the next ID that will be assigned to component types. 
- * 512 is reserved for the transform component. */
-static tvuint next_free_id = TV_COMPONENT_MAX_HANDLERS;
+ * TV_COMPONENT_MAX_HANDLERS is reserved for the transform component. */
+static tvuint next_free_id = TV_COMPONENT_TRANSFORM_ID + 1;
 static tvuint next_free_handler_id = 1;
 
 /* arrays containing all the handlers registered within the engine */

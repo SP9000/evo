@@ -11,8 +11,11 @@ extern "C" {
 #include "playermotor.h"
 
 #include "../terrain.h"
+#include "../terraincursor.h"
 #include "../grid.h"
 #include "../camera_controller.h"
+#include "../cursor.h"
+#include "../hud.h"
 
 void app_register();
 

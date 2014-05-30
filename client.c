@@ -117,6 +117,7 @@ void tv_client_init()
 	tv_text_renderer_register();
 	tv_line_renderer_register();
 	tv_gui_renderer_register();
+	tv_overlay_renderer_register();
 	tv_widget_register();
 	tv_widget_frame_register();
 	tv_widget_textbox_register();
@@ -136,7 +137,8 @@ void tv_client_start()
 	puts("Client starting.\n");
 
 	/* Capture mouse */
-    /* SDL_WM_GrabInput(SDL_GRAB_ON); */
+    SDL_WM_GrabInput(SDL_GRAB_ON);
+
     /* Main game loop. */
     while(run) {
         unsigned char keysPressed[16];
@@ -202,12 +204,20 @@ void tv_client_start()
                 if(inputEvent.key.keysym.sym == SDLK_ESCAPE) {
                     run = 0;
                 }
+				tv_input_register_button_event(TV_INPUT_KEYBOARD, inputEvent.key.keysym.sym, TRUE);
                 keysPressed[numPressed++] = inputEvent.key.keysym.sym;
                 break;
             case SDL_KEYUP:
+				tv_input_register_button_event(TV_INPUT_KEYBOARD, inputEvent.key.keysym.sym, FALSE);
                 keysReleased[numReleased++] = inputEvent.key.keysym.sym;
                 break;
-            case SDL_MOUSEMOTION:
+			case SDL_MOUSEBUTTONDOWN:
+				tv_input_register_button_event(TV_INPUT_MOUSE, inputEvent.button.button, TRUE);
+				break;
+			case SDL_MOUSEBUTTONUP:
+				tv_input_register_button_event(TV_INPUT_MOUSE, inputEvent.button.button, FALSE);
+				break;
+			case SDL_MOUSEMOTION:
                 mouseX = inputEvent.motion.x;
                 mouseY = inputEvent.motion.y;
                 mouseMoved = 1;
@@ -230,6 +240,7 @@ void tv_client_start()
         }
 
         /* If there is new input, create/send a packet containing the info to the server. */
+		/*
         if(mouseMoved || numReleased > 0 || numPressed > 0) {
             size_t packetLen = GamePacket_Create(packet, 
                     keysPressed, keysReleased, 
@@ -238,12 +249,10 @@ void tv_client_start()
             ENetPacket *epacket = enet_packet_create(packet, packetLen, ENET_PACKET_FLAG_RELIABLE);
             enet_peer_send(peer, 0, epacket);
         }
+		*/
 
 		/* update statistics */
 		tv_stats_update();
-
-        /* update input information */
-		tv_input_update();
 
         /* perform collision detection */
 		tv_collision_detect();
@@ -263,6 +272,9 @@ void tv_client_start()
         /* Render */
 		tv_draw_start_frame();
 		
+		/* update input information */
+		tv_input_update();
+
 		/* update pre-entity update handlers TODO: should be before tv_entity_update */
 		tv_component_update_pre_handlers();
 

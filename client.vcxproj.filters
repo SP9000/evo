@@ -153,6 +153,9 @@
     <ClCompile Include="tv_light.c">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
+    <ClCompile Include="overlayrenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="tv_light.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="overlayrenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

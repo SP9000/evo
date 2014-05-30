@@ -223,9 +223,6 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	tvpointer my_vertex;
 	UT_icd my_vertex_icd = {0, NULL, NULL, NULL};
 
-	GLfloat *vertices;
-	GLfloat *colors;
-
 	ply_info file_info;
 	ply_property *prop, *prop_tmp;
 	ply_element *element, *element_tmp;
@@ -428,7 +425,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	free(my_vertex);
 }
 
-void tv_model_optimize(tv_model* model)
+void tv_model_optimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices)
 {
     /* create a VAO for the model */
     glGenVertexArrays(1, &model->vao);
@@ -437,45 +434,46 @@ void tv_model_optimize(tv_model* model)
 	glGenBuffers(1, &model->vertex_vbo);
 
 	/* check if there are any indices in the model, if so make index buffer */
-	if(utarray_len(model->indices) > 0) {
+	if(optimize_indices && utarray_len(model->indices) > 0) {
 		/* generate the index buffer */
 		glGenBuffers(1, &model->index_vbo);
 	}
 	else {
 		model->index_vbo = 0;
 	}
-	tv_model_reoptimize(model);
+	tv_model_reoptimize(model, optimize_vertices, optimize_indices);
 }
 
-void tv_model_reoptimize(tv_model* model)
+void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices)
 {
 	tvuint i;
 	tvuint j;
-	
 	glBindVertexArray(model->vao);
+
+	/* optimize vertices */
 	glBindBuffer(GL_ARRAY_BUFFER, model->vertex_vbo);
 	glBufferData(GL_ARRAY_BUFFER, 
 		model->vertex_size * utarray_len(model->vertices),
 		(GLfloat*)utarray_front(model->vertices),
 		GL_STATIC_DRAW);
 
-	if(utarray_len(model->indices) > 0) {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->index_vbo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,	
-			utarray_len(model->indices) * sizeof(GLshort),
-			(GLshort*)utarray_front(model->indices),
-			GL_STATIC_DRAW);
+	/* optimize indices */
+	if(optimize_indices) {
+		if(utarray_len(model->indices) > 0) {
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->index_vbo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER,	
+				utarray_len(model->indices) * sizeof(GLshort),
+				(GLshort*)utarray_front(model->indices),
+				GL_STATIC_DRAW);
+		}
 	}
-	/* no index buffer */
-	else {
-		model->index_vbo = 0;
-	}
+
 	/* set the attribute pointers for each per-vertex property */
 	for(i = 0, j = 0; i < model->num_properties; ++i) {
 	    glEnableVertexAttribArray(i);
-		glVertexAttribPointer((GLuint)i, 3, GL_FLOAT, GL_FALSE, 
+		glVertexAttribPointer((GLuint)i, model->vertex_properties[i].count, GL_FLOAT, GL_FALSE, 
 			model->vertex_size,
-			(GLvoid*)j);
+			(GLvoid*)j); /* TODO: use model->vertex_properties[i].offset? Not sure if I want to keep offset at all  */
 		j += model->vertex_properties[i].count * tv_model_get_property_size(model->vertex_properties[i].data_type);
     }
     /* Unbind. */
@@ -580,8 +578,12 @@ TvAABB tv_model_get_aabb(tv_model* model)
 
 void tv_model_free(tv_model* model)
 {
-	glDeleteBuffers(1, &model->vertex_vbo);
-	glDeleteBuffers(1, &model->index_vbo);
+	if(model->vertex_vbo) {
+		glDeleteBuffers(1, &model->vertex_vbo);
+	}
+	if(model->index_vbo) {
+		glDeleteBuffers(1, &model->index_vbo);
+	}
 	utarray_free(model->vertices);
 	utarray_free(model->indices);
 
