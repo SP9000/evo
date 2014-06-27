@@ -20,6 +20,35 @@ void tv_client_init()
     /* Initialize the client */
     puts("\nInitializing client\n"
     "****************************************");
+	
+	if(tv_entity_init() != 0) {
+		fprintf(stderr, "Error: could not initialize the entity system\n");
+		exit(TV_ERROR_ENTITY_INIT_FAILED);
+	}
+
+	if(tv_component_init() != 0) {
+		fprintf(stderr, "Error: could not initialize the component system\n");
+		exit(EXIT_FAILURE);
+	}
+
+	puts("Registering components.");
+	/*transform must be the first component registered */
+	tv_transform_register();
+	tv_model_register();
+	tv_animation_register();
+	tv_material_register();
+	tv_camera_register();
+	tv_renderer_register();
+	tv_model_renderer_register();
+	tv_animation_renderer_register();
+	tv_text_renderer_register();
+	tv_line_renderer_register();
+	tv_gui_renderer_register();
+	tv_overlay_renderer_register();
+	tv_widget_register();
+	tv_widget_frame_register();
+	tv_widget_textbox_register();
+	tv_widget_stats_register();
 
     /* Initialize SDL. */
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -53,16 +82,6 @@ void tv_client_init()
 		fprintf(stderr, "Error: could not initialize the input system\n");
         exit(TV_ERROR_INPUT_INIT_FAILED);
     }
-
-	if(tv_entity_init() != 0) {
-		fprintf(stderr, "Error: could not initialize the entity system\n");
-		exit(TV_ERROR_ENTITY_INIT_FAILED);
-	}
-
-	if(tv_component_init() != 0) {
-		fprintf(stderr, "Error: could not initialize the component system\n");
-		exit(EXIT_FAILURE);
-	}
 
     puts("Starting client");
     /* Initialize ENet */
@@ -104,26 +123,8 @@ void tv_client_init()
         fprintf(stderr, "Connection to server failed.\n");
         exit(EXIT_FAILURE);
     }
-    
-	puts("Registering components.");
-	/*transform must be the first component registered */
-	tv_transform_register();
 
-	tv_model_register();
-	tv_material_register();
-	tv_camera_register();
-	tv_renderer_register();
-	tv_model_renderer_register();
-	tv_text_renderer_register();
-	tv_line_renderer_register();
-	tv_gui_renderer_register();
-	tv_overlay_renderer_register();
-	tv_widget_register();
-	tv_widget_frame_register();
-	tv_widget_textbox_register();
-	tv_widget_stats_register();
-
-    /* start the application */
+	/* start the application */
     puts("Core initialized...\n"
         "***************************************");
 }

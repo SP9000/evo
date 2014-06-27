@@ -17,6 +17,11 @@ extern "C" {
 #include "../cursor.h"
 #include "../hud.h"
 
+#include "../ability.h"
+#include "../move.h"
+
+#include "../abilities.h"
+
 void app_register();
 
 #ifdef __cplusplus

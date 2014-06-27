@@ -40,6 +40,15 @@
     <Filter Include="Components\GUI\Sources">
       <UniqueIdentifier>{f4038e50-18ca-4ae5-936d-f7de6cf3efee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Abilities">
+      <UniqueIdentifier>{712fd7a6-3590-41cd-9e8c-86b3b4472cfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Abilities\Sources">
+      <UniqueIdentifier>{33472809-9303-4d30-bc4a-0901e334b588}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Abilities\Headers">
+      <UniqueIdentifier>{87a7090e-a25a-4459-8f98-a41da5b0741d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h">
@@ -74,6 +83,15 @@
     </ClInclude>
     <ClInclude Include="hud.h">
       <Filter>Components\GUI\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="move.h">
+      <Filter>Components\Abilities\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="abilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="melee.h">
+      <Filter>Components\Abilities\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +130,15 @@
     </ClCompile>
     <ClCompile Include="hud.c">
       <Filter>Components\GUI\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="move.c">
+      <Filter>Components\Abilities\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="abilities.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="melee.c">
+      <Filter>Components\Abilities\Sources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -4,7 +4,7 @@ typedef struct my_vertex {
 	tv_vector4 pos;
 	tv_vector4 col;
 }my_vertex;
-static tv_model_property vertex_properties[] = {
+static tv_model_attribute vertex_properties[] = {
 	{TV_MODEL_PROPERTY_FLOAT, 4, 0},
 	{TV_MODEL_PROPERTY_FLOAT, 4, 0}
 };
@@ -65,7 +65,6 @@ END_HANDLER_UPDATE
 
 static void render(tv_component* self)
 {
-	tvuint i;
 	tv_line_renderer *renderer = (tv_line_renderer*)self;
 	if(renderer->model == NULL) {
 		return;

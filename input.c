@@ -76,7 +76,7 @@ int tv_input_keydown(SDLKey key)
 
 tv_vector2 tv_input_mouse_pos()
 {
-	tv_vector2 ret = {mouseX, mouseY};
+	tv_vector2 ret = {(tvfloat)mouseX, (tvfloat)mouseY};
 	return ret;
 }
 int tv_input_mouse_x()

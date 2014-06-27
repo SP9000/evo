@@ -70,8 +70,7 @@ static void render(tv_component *self)
 
     /* bind attribute array and draw */
     glBindVertexArray(renderer->model->vao);
-	tv_draw_arrays(renderer->model->primitive, (GLsizei)utarray_len(renderer->model->indices),
-		GL_UNSIGNED_SHORT, 0);
+	tv_draw_arrays(renderer->model->primitive, 0, (GLsizei)utarray_len(renderer->model->vertices));
     glBindVertexArray(0);
 
     main_cam->modelview_mat = tv_mat4x4_pop();
@@ -84,7 +83,7 @@ void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)
 {
 	tvuint i;
 	tv_textrenderer_vertex vertex;
-	tv_model_property vertex_properties[] = {
+	tv_model_attribute vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 2, 0}
 	};

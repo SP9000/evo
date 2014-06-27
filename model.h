@@ -4,6 +4,34 @@
 extern "C" {
 #endif
 
+/* TODO: */
+/** 
+ * There's a lot of butchering of the convention to call attributes a collection
+ * of properties.  Often throughout the code attributes are called properties.
+ * Change this when you see it happen.
+ */
+
+/*****************************************************************************/
+/* Model terminology:														 */
+/*																			 */
+/* Property: a primitive type representing the type of individual elements of*/
+/*  a vertex attribute. Integer and Float are properties.				     */
+/* Attribute: An attribute is an aggregate of one or more properties.        */
+/*  Examples of attributes include Color and Normal.						 */
+/* Vertex: A vertex is an aggregate of attributes.  Each attribute represents*/
+/*  one element that composes each individual vertex.  A vertex might, for   */
+/*  example have a POSITION, a COLOR, and a NORMAL attribute.				 */
+/* Model: A model is a high-level structure, but in esscence, it is the		 */
+/*  container for a group of vertices.										 */
+/*																			 */
+/* Notes:																	 */
+/*  By convention the first attribute in a vertex should be the position.	 */
+/*  This fact is depended on by some useful model functions. Not following   */
+/*  this convention may lead to undesirable behavior when working with a	 */
+/*  model. Furthermore, the position attribute is assumed to be of the format*/
+/*  FLOAT,FLOAT,FLOAT.													     */
+/*****************************************************************************/
+
 #include "types.h"
 #include "component.h"
 
@@ -27,18 +55,19 @@ extern "C" {
 
 #define TV_BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-enum {
+typedef enum tv_model_attribute_type {
     MODEL_ATTRIBUTE_NONE,
     MODEL_ATTRIBUTE_VERTEX,
     MODEL_ATTRIBUTE_COLOR,
     MODEL_ATTRIBUTE_NORMAL,
     MODEL_ATTRIBUTE_TEXCO,
 	MODEL_ATTRIBUTE_INDEX
-};
+}tv_model_attribute_type;
 
 typedef GLuint tv_model_vbo_handle;
 
 typedef enum tv_model_property_type {
+	TV_MODEL_PROPERTY_NONE,
 	TV_MODEL_PROPERTY_CHAR,
 	TV_MODEL_PROPERTY_UCHAR,
 	TV_MODEL_PROPERTY_SHORT,
@@ -50,15 +79,23 @@ typedef enum tv_model_property_type {
 	TV_MODEL_PROPERTY_LIST
 }tv_model_property_type;
 
-typedef struct tv_model_property {
+/**
+ * This structure gives information about the format of each individual per
+ * vertex attribute.
+ */
+typedef struct tv_model_attribute {
 	/* the type of the data in this property. */
-	tvuint data_type;
+	tv_model_property_type data_type;
 	/* the # of values of the data type e.g. 3 for x, y, and z. */
 	tvuint count;
 	/* this properties' offset from the start of a vertex */
 	tvuint offset;
-}tv_model_property;
+}tv_model_attribute;
 
+/**
+ * This structure is used to tell tv_model_vertex_format what format the data
+ * for the model will be represented in.
+ */
 typedef struct tv_model_vertex {
 	/* the number of properties per vertex */
 	tvuint count;
@@ -88,7 +125,7 @@ COMPONENT(tv_model, tv_component)
 	tv_model_vbo_handle index_vbo;
 
 	tvuint num_properties;
-	tv_model_property vertex_properties[TV_MODEL_MAX_PROPERTIES];
+	tv_model_attribute vertex_attributes[TV_MODEL_MAX_PROPERTIES];
 ENDCOMPONENT(tv_model)
 
 /**
@@ -125,7 +162,7 @@ tvuint tv_model_get_property_size(tvuint data_type);
  * @param num_properties the number of properties in the format.
  * @param properties the properties information.
  */
-void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_property *properties);
+void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_attribute *properties);
 /**
  * Append the given property type to the given model's vertex format.
  * Note that this does not alter any current vertex data, so you'll need to 
@@ -134,7 +171,7 @@ void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_pro
  * @param model the model to append the property type to.
  * @param prop the information about the property to append.
  */
-void tv_model_append_property(tv_model* model, tv_model_property *prop);
+void tv_model_append_property(tv_model* model, tv_model_attribute *prop);
 
 
 void tv_model_append_vertex(tv_model *model, GLvoid* data);
@@ -147,6 +184,8 @@ void tv_model_append_indices2(tv_model* model, tvuint i0, tvuint i1);
 void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2);
 void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3);
 void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices);
+
+tvpointer tv_model_get_attribute(tv_model* model, tvuint i, tv_model_attribute attribute);
 
 /*****************************************************************************/
 /** 
@@ -200,7 +239,24 @@ tv_model_vbo_handle tv_model_get_index_handle(tv_model *model);
  */
 void tv_model_set_index_handle(tv_model *model, tvuint new_handle);
 
+/**
+ * Apply the given scale to the given model's vertices.
+ * @param model the model to apply the scale to.
+ * @param scale the scale to apply to all the vertices.
+ */
+void tv_model_apply_scale(tv_model *model, tv_vector3 scale);
+
+/**
+ * Get the axis-aligned bounding box for the given model.
+ * @param model the model to get the AABB of.
+ * @return the AABB of the given model.
+ */
 TvAABB tv_model_get_aabb(tv_model* model);
+
+/**
+ * Free the resources of the given model.
+ * @param model the model to release all resources of.
+ */
 void tv_model_free(tv_model* model);
 
 #ifdef __cplusplus

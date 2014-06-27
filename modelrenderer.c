@@ -28,7 +28,6 @@ END_HANDLER_UPDATE
 
 static void render(tv_component* self)
 {
-	tvuint i;
 	tv_vector3 test = {self->entity->transform.pos.x, self->entity->transform.pos.y, self->entity->transform.pos.z};
 	//tv_vector3 test = {-2.0f,0.0f,-7.0f};
 	tv_model_renderer *renderer = (tv_model_renderer*)self;

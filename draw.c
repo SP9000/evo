@@ -7,7 +7,6 @@ SDL_Surface *screen;
 /* the global GUI camera */
 tv_camera *tv_camera_gui;
 
-
 /* The draw target for the pre-post-pass rendering */
 static TvDrawTarget* activeTarget;
 

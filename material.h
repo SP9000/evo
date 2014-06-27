@@ -78,7 +78,6 @@ typedef struct tagMaterialShader {
 	TvHashHandle hh;
 }TvMaterialShader;
 
-GLuint tv_material_compile_shader(GLchar* shader, GLuint type);
 GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 								   GLuint geom_shader, tvchar **attributes, 
 								   tvuint num_attributes);

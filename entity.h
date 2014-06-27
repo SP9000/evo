@@ -37,15 +37,11 @@ extern "C" {
 		 e = tv_entity_new(NULL); \
 		 e->transform.pos.x = px ; e->transform.pos.y = py ; e->transform.pos.z = pz ; \
 		 e->transform.scale.x = sx ; e->transform.scale.y = sy ; e->transform.scale.z = sz ; \
-		 e->transform.rot.x = rx ; e->transform.rot.y = ry ; e->transform.rot.z = rz ; \
+		 e->transform.rot.x = rx ; e->transform.rot.y = ry ; e->transform.rot.z = rz ; e->transform.rot.w = 0.0f; \
 		} \
 	{
-
-#define COMPONENTS {
-
 #define ADDCOMPONENT(type, name) \
 	type * name = (type*)tv_entity_add_component(e, (tv_component*)type ## _new()); 
-
 #define ENTITY_END \
 	} \
 		tv_entity_start(e); \

@@ -17,11 +17,11 @@ void app_grid_set_height(app_grid* grid, tvuint h)
 {
 	grid->height = h;
 }
-void app_grid_set_x_step(app_grid* grid, tvuint x_step)
+void app_grid_set_x_step(app_grid* grid, tvfloat x_step)
 {
 	grid->x_step = x_step;
 }
-void app_grid_set_y_step(app_grid* grid, tvuint y_step)
+void app_grid_set_y_step(app_grid* grid, tvfloat y_step)
 {
 	grid->y_step = y_step;
 }
@@ -34,7 +34,7 @@ COMPONENT_NEW(app_grid, tv_component)
 END_COMPONENT_NEW(app_grid)
 
 COMPONENT_START(app_grid)
-	tvuint i, j;
+	tvuint i;
 	tv_vector3 start = {0.0f, 0.0f, 0.0f};
 	tv_vector3 end = {self->width * self->x_step, 0.0f, 0.0f};
 	

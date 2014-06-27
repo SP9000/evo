@@ -21,11 +21,16 @@ COMPONENT_START(app_camera_controller)
 	self->move_down_button.button = INPUT_KEY_DOWN;
 	self->zoom_in_button.button = TV_INPUT_MOUSE_WHEELUP;
 	self->zoom_out_button.button = TV_INPUT_MOUSE_WHEELDOWN;
+	self->rotate_down_button.button = INPUT_KEY_PAGEDOWN;
+	self->rotate_up_button.button = INPUT_KEY_PAGEUP;
 
 	self->move_right_button.type = TV_INPUT_KEYBOARD;
 	self->move_left_button.type = TV_INPUT_KEYBOARD;
 	self->move_up_button.type = TV_INPUT_KEYBOARD;
 	self->move_down_button.type = TV_INPUT_KEYBOARD;
+	self->rotate_down_button.type = TV_INPUT_KEYBOARD;
+	self->rotate_up_button.type = TV_INPUT_KEYBOARD;
+
 	self->zoom_in_button.type = TV_INPUT_MOUSE;
 	self->zoom_out_button.type = TV_INPUT_MOUSE;
 
@@ -62,10 +67,10 @@ COMPONENT_UPDATE(app_camera_controller)
 			main_cam->pos.z -= self->zoom_speed * tv_time_delta;
 		}
 	}
-	if(tv_input_keydown(INPUT_KEY_PAGEUP)) {
+	if(tv_input_buttondown(self->rotate_down_button)) {
 		main_cam->rot.x += self->pan_speed * tv_time_delta;
 	}
-	if(tv_input_keydown(INPUT_KEY_PAGEDOWN)) {
+	if(tv_input_buttondown(self->rotate_up_button)) {
 		main_cam->rot.x -= self->pan_speed * tv_time_delta;
 	}
 	if(self->pan_on_edges) {

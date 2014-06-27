@@ -53,6 +53,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -68,6 +69,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>C:\enet\include;C:\glew\include;C:\SDL\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -79,6 +81,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="animation.c" />
+    <ClCompile Include="animationrenderer.c" />
     <ClCompile Include="camera.c" />
     <ClCompile Include="cJSON.c" />
     <ClCompile Include="client.c" />
@@ -117,6 +120,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animation.h" />
+    <ClInclude Include="animationrenderer.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cJSON.h" />
     <ClInclude Include="client.h" />
@@ -128,6 +132,7 @@
     <ClInclude Include="evo.h" />
     <ClInclude Include="gui.h" />
     <ClInclude Include="overlayrenderer.h" />
+    <ClInclude Include="platform.h" />
     <ClInclude Include="tv_light.h" />
     <ClInclude Include="tv_stats.h" />
     <ClInclude Include="widgetmodels.h" />

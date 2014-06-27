@@ -9,7 +9,7 @@ extern "C" {
 
 typedef struct tv_transform {
 	tv_vector3 pos;
-	tv_vector3 rot;
+	tv_vector4 rot;
 	tv_vector3 scale;
 }tv_transform;
 

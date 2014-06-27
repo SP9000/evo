@@ -39,11 +39,25 @@ static tv_array *registered_components[TV_COMPONENT_MAX_STAGES][TV_COMPONENT_MAX
 /* information to assist in lookup of handler's ID's. */
 static handler_id_info handler_locations[TV_COMPONENT_MAX_HANDLERS];
 
+/* an array of addresses to all the components */
+static tv_array *components[TV_COMPONENT_MAX_COMPONENTS];
+
 static void register_inheritance_(tvuint id, tvuint parent_id);
 
 int tv_component_init()
 {
 	return 0;
+}
+
+void tv_component_notify_add(tv_component* c) 
+{
+	utarray_push_back(components[c->id], &c);
+}
+
+void tv_component_free(tv_component *c)
+{
+	utarray_erase(components[c->id], utarray_eltidx(components[c->id], c), 1);
+	free(c);
 }
 
 tv_component* tv_component_get(tv_component* self, tvuint id) 
@@ -88,8 +102,10 @@ tvbool tv_component_inherits(tv_component* component, tvuint id)
 
 void tv_component_register_id(tvuint *id, tvuint parent_id)
 {
-	*id = next_free_id++;
+	*id = next_free_id;
 	register_inheritance_(*id, parent_id);
+	utarray_new(components[*id], &ut_ptr_icd);
+	next_free_id++;
 }
 
 void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage)
@@ -122,9 +138,7 @@ void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv
 
 void tv_component_register_to_handler(tvuint handler_id, tv_component *component)
 {
-	tvuint i;
 	handler_id_info id_info = handler_locations[handler_id];
-
 	utarray_push_back(registered_components[id_info.stage][id_info.stage_offset], &component);
 }
 
@@ -135,7 +149,7 @@ void tv_component_update_pre_handlers()
 
 	for(i = 0; i < TV_COMPONENT_MAX_PRE_STAGES; ++i) {
 		for(j = 0; j < num_handlers[i]; ++j) {
-			for(c = (tv_component**)utarray_front(registered_components[i][j], j);
+			for(c = (tv_component**)utarray_front(registered_components[i][j]);
 				c != NULL;
 				c = (tv_component**)utarray_next(registered_components[i][j], c)) {
 					registered_handlers[i][j](*c);
@@ -147,10 +161,10 @@ void tv_component_update_pre_handlers()
 void tv_component_update_post_handlers()
 {
 	tv_component **c;
-	tvuint i, j;
+	tvint i, j;
 	for(i = TV_COMPONENT_MAX_PRE_STAGES; i < TV_COMPONENT_MAX_POST_STAGES; ++i) {
 		for(j = 0; j < num_handlers[i]; ++j) {
-			for(c = (tv_component**)utarray_front(registered_components[i][j], j);
+			for(c = (tv_component**)utarray_eltidx(registered_components[i][j], j);
 				c != NULL;
 				c = (tv_component**)utarray_next(registered_components[i][j], c)) {
 					registered_handlers[i][j](*c);
@@ -165,4 +179,9 @@ void register_inheritance_(tvuint id, tvuint parent_id)
 	s->id = id;
 	s->parent_id = parent_id;
 	HASH_ADD_INT(inheritance_table, id, s);
+}
+
+tv_array *tv_component_get_all_of_type(tvuint id)
+{
+	return components[id];
 }

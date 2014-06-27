@@ -4,6 +4,10 @@ COMPONENT_NEW(tv_camera, tv_component)
 	self->pos.x = 0.0f;
 	self->pos.y = 0.0f;
 	self->pos.z = 0.0f;
+	self->rot.x = 0.0f;
+	self->rot.y = 0.0f;
+	self->rot.z = 0.0f;
+	self->rot.w = 0.0f;
 	tv_mat4x4_load_identity(&self->modelview_mat);
 	tv_mat4x4_load_identity(&self->projection_mat);
 END_COMPONENT_NEW(tv_camera)

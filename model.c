@@ -1,4 +1,7 @@
 #include "model.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*****************************************************************************/
 /* a structure for holding the names and references of loaded models */
@@ -48,7 +51,7 @@ typedef struct property_group {
 /* a helper function to read an element from a PLY file. TRUE=success */
 static tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name);
 /* a helper function to read a property from a PLY file. TRUE=success */
-static tvbool read_property(tvchar *line, ply_info *info);
+tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element);
 /* helper functions to check if the property is one of several known types. */
 static tvbool property_is_position(tvchar *name);
 static tvbool property_is_normal(tvchar *name);
@@ -270,7 +273,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	model->num_properties = 0;
 	HASH_ITER(hh, file_info.elements_table, element, element_tmp) {
 		if(strncmp("vertex", element->name, 6) == 0) {
-			tvuint prev_type = 0;
+			tv_model_property_type prev_type = TV_MODEL_PROPERTY_NONE;
 			tvint cur_group = -1;
 			tvint prev_group = -1;
 			tvuint cur_found = 0;
@@ -278,7 +281,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 
 			/* foreach property, add its info to the model. */
 			HASH_ITER(hh, element->properties, prop, prop_tmp) {
-				tv_model_property p = {prev_type, cur_found+1, 0};
+				tv_model_attribute p = {prev_type, cur_found+1, 0};
 
 				if(property_is_position(prop->name)) {
 					fprintf(stdout, "found position\n");
@@ -341,16 +344,16 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 
 	for(i = 0; i < num_vertices; ++i) {
 		for(j = 0; j < model->num_properties; ++j) {
-			for(k = 0; k < model->vertex_properties[j].count; ++k) {
+			for(k = 0; k < model->vertex_attributes[j].count; ++k) {
 				/* the address to write the data we read to.
 				 * (base + property offset + property component offst).
 				 * e.g. vertex_base + offset(position) + offset(position.x) */
 				tvbyte* property_loc = (tvbyte*)my_vertex + 
-					model->vertex_properties[j].offset + 
-					tv_model_get_property_size(model->vertex_properties[j].data_type)*k;
+					model->vertex_attributes[j].offset + 
+					tv_model_get_property_size(model->vertex_attributes[j].data_type)*k;
 
 				fscanf(fp, "%s", line_buffer);
-				switch(model->vertex_properties[j].data_type) {
+				switch(model->vertex_attributes[j].data_type) {
 	#ifdef TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS
 				case TV_MODEL_PROPERTY_CHAR:
 				case TV_MODEL_PROPERTY_UCHAR:
@@ -471,16 +474,16 @@ void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optim
 	/* set the attribute pointers for each per-vertex property */
 	for(i = 0, j = 0; i < model->num_properties; ++i) {
 	    glEnableVertexAttribArray(i);
-		glVertexAttribPointer((GLuint)i, model->vertex_properties[i].count, GL_FLOAT, GL_FALSE, 
+		glVertexAttribPointer((GLuint)i, model->vertex_attributes[i].count, GL_FLOAT, GL_FALSE, 
 			model->vertex_size,
 			(GLvoid*)j); /* TODO: use model->vertex_properties[i].offset? Not sure if I want to keep offset at all  */
-		j += model->vertex_properties[i].count * tv_model_get_property_size(model->vertex_properties[i].data_type);
+		j += model->vertex_attributes[i].count * tv_model_get_property_size(model->vertex_attributes[i].data_type);
     }
     /* Unbind. */
     glBindVertexArray(0);
 }
 
-void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_property *properties)
+void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_attribute *properties)
 {
 	tvuint i;
 	tvuint offset;
@@ -501,11 +504,11 @@ void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_pro
 	utarray_new(model->vertices, &my_vertex_icd);
 }
 
-void tv_model_append_property(tv_model* model, tv_model_property *prop)
+void tv_model_append_property(tv_model* model, tv_model_attribute *prop)
 {
-	model->vertex_properties[model->num_properties].data_type = prop->data_type;
-	model->vertex_properties[model->num_properties].count = prop->count;
-	model->vertex_properties[model->num_properties].offset = model->vertex_size;
+	model->vertex_attributes[model->num_properties].data_type = prop->data_type;
+	model->vertex_attributes[model->num_properties].count = prop->count;
+	model->vertex_attributes[model->num_properties].offset = model->vertex_size;
 	
 	model->vertex_size += tv_model_get_property_size(prop->data_type) * prop->count;
 	model->num_properties++;
@@ -578,6 +581,10 @@ TvAABB tv_model_get_aabb(tv_model* model)
 
 void tv_model_free(tv_model* model)
 {
+	if(model == NULL) {
+		/* I don't think so, m8 */
+		return;
+	}
 	if(model->vertex_vbo) {
 		glDeleteBuffers(1, &model->vertex_vbo);
 	}
@@ -587,7 +594,7 @@ void tv_model_free(tv_model* model)
 	utarray_free(model->vertices);
 	utarray_free(model->indices);
 
-	free(model);
+	tv_component_free((tv_component*)model);
 }
 
 tvuint tv_model_get_property_size(tvuint data_type)
@@ -608,6 +615,20 @@ tvuint tv_model_get_property_size(tvuint data_type)
 	default: return 0;
 	}
 #endif
+}
+tvpointer tv_model_get_attribute(tv_model* model, tvuint i, tvuint attribute)
+{
+	return (tvpointer)(utarray_eltptr(model->vertices, i) + model->vertex_attributes[attribute].offset);
+}
+
+void tv_model_apply_scale(tv_model *model, tv_vector3 scale)
+{
+	tvuint i;
+	for(i = 0; i < model->num_vertices; ++i) {
+		tv_vector3* v = (tv_vector3*)tv_model_get_attribute(model, i, MODEL_ATTRIBUTE_VERTEX);
+		assert(v != NULL);
+		*v = tv_vector3_scale(*v, scale);
+	}
 }
 
 /*****************************************************************************/
@@ -644,3 +665,7 @@ void tv_model_set_index_handle(tv_model *model, tvuint new_handle)
 {
 	model->index_vbo = new_handle;
 }
+
+#ifdef __cplusplus
+}
+#endif

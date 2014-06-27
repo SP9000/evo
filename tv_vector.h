@@ -42,16 +42,16 @@ typedef struct tagRect {
  * Checks if the given rectangle contains the given point.
  * @param r the rectangle to check for the point within.
  * @param point the point to determine if is in the bounds of the rect or not.
- * @return nonzero if the rectangle does contain the point, else zero.
+ * @return TRUE if the rectangle does contain the point, else FALSE.
  */
-int tv_rect_contains(tv_rect* r, tv_vector2* point);
+tvbool tv_rect_contains(tv_rect r, tv_vector2 point);
 /**
  * Checks if the given rectangle overlaps the other given rectangle.
  * @param r1 the first rectangle.
  * @param r2 the...second...rectangle.
- * @return nonzero if the rectangles overlap, else zero.
+ * @return TRUE if the rectangles overlap, else FALSE.
  */
-int tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
+tvbool tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
 
 
 /**
@@ -77,6 +77,24 @@ tvfloat tv_vector4_dot(tv_vector4 v1, tv_vector4 v2);
 tvfloat tv_vector2_distance(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_distance(tv_vector3 v1, tv_vector3 v2);
 tvfloat tv_vector4_distance(tv_vector4 v1, tv_vector4 v2);
+
+tv_vector2 tv_vector2_normalize(tv_vector2 v);
+tv_vector3 tv_vector3_normalize(tv_vector3 v);
+
+tvfloat tv_vector2_mag(tv_vector2 v);
+tvfloat tv_vector3_mag(tv_vector3 v);
+
+tv_vector2 tv_vector2_scale(tv_vector2 v, tv_vector2 scale);
+tv_vector3 tv_vector3_scale(tv_vector3 v, tv_vector3 scale);
+tv_vector4 tv_vector4_scale(tv_vector4 v, tv_vector4 scale);
+
+/**
+ * Get the unit direction vector from v1 to v2.
+ * @param v1 the "start" vector.
+ * @param v2 the "destination" vector.
+ * @return a unit vector representing the direction of v1 to v2.
+ */
+tv_vector3 tv_vector3_direction(tv_vector3 v1, tv_vector3 v2);
 
 /**
  * Linearly interpolates between the given vectors.

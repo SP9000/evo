@@ -8,6 +8,7 @@ static TvMaterialShader* loaded_vertex_shaders;
 static TvMaterialShader* loaded_geometry_shaders;
 
 static void tv_material_init_uniform_buffer_(tv_material *material);
+static GLuint tv_material_compile_shader(const GLchar* shader, GLuint type);
 
 #if 0
 /**
@@ -80,7 +81,7 @@ void tv_material_init_uniform_buffer_(tv_material *material)
 	// the binding point must be smaller than GL_MAX_UNIFORM_BUFFER_BINDINGS
 	GLuint binding_point = TV_MATERIAL_BUFFER_BINDING_POINT;
 	GLuint bindingPoint = 1, blockIndex;
-	float myFloats[8] = {1.0, 0.0, 0.0, 1.0, 0.4, 0.0, 0.0, 1.0};
+	tvfloat myFloats[8] = {1.0f, 0.0f, 0.0f, 1.0f, 0.4f, 0.0f, 0.0f, 1.0f};
 	blockIndex = glGetUniformBlockIndex(material->program, "AttributeBlock");
 	glUniformBlockBinding(material->program, blockIndex, bindingPoint);
 	
@@ -198,7 +199,6 @@ void tv_material_load(tv_material *mat, const char* file)
 		mat->projection_mat = lup_mat->projection_mat;
 		mat->modelview_mat = lup_mat->modelview_mat;
 	}
-
 	UtilReadFile(file, &text);
 	root = cJSON_Parse(text);
 

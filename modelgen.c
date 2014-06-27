@@ -167,7 +167,7 @@ tv_model *tv_modelgen_quad(tv_vector2 dimensions, tv_model_vertex format)
 		0,1,0,
 		0,0,0
 	};
-	tv_model_property vertex_properties[] = {
+	tv_model_attribute vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};	
 	modelgen_vertex my_vertex;
@@ -234,7 +234,7 @@ tv_model *tv_modelgen_tetrahedron(tv_vector3 dimensions, tv_model_vertex format)
 		16, 17, 18,     16, 18, 19,   // right
 		20, 21, 22,     20, 22, 23    // left
 	};
-	tv_model_property vertex_properties[] = {
+	tv_model_attribute vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};	
 	modelgen_vertex my_vertex;

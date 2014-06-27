@@ -47,25 +47,24 @@ static void render(tv_component *self)
 	glDisable(GL_DEPTH_TEST);
 	tv_mat4x4_push(tv_camera_gui->modelview_mat);
 	tv_mat4x4_load_identity(&tv_camera_gui->modelview_mat);
+	tv_mat4x4_scale(&tv_camera_gui->modelview_mat, scale.x, scale.y, scale.z);
 	tv_mat4x4_translate(&tv_camera_gui->modelview_mat, pos.x, pos.y, pos.z);
-	tv_camera_gui->modelview_mat.a0 *= scale.x;
-	tv_camera_gui->modelview_mat.b1 *= scale.y;
 
+	/* bind attribute array and draw */
+	glBindVertexArray(renderer->model->vao);
 	/* use the model's material's shader */
 	glUseProgram(((tv_renderer*)renderer)->material->program);
 
 	/* set matrices */
 	/* TODO: should be GL_FALSE */
-	glUniformMatrix4fv(((tv_renderer*)renderer)->material->modelview_mat, 1, GL_TRUE, 
+	glUniformMatrix4fv(((tv_renderer*)renderer)->material->modelview_mat, 1, GL_FALSE, 
 		tv_mat4x4_to_array(&tv_camera_gui->modelview_mat));
 	glUniformMatrix4fv(((tv_renderer*)renderer)->material->projection_mat, 1, GL_FALSE, 
 		tv_mat4x4_to_array(&tv_camera_gui->projection_mat));
 
-	/* bind attribute array and draw */
-	glBindVertexArray(renderer->model->vao);
 	tv_draw_arrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
 	glBindVertexArray(0);
-	tv_camera_gui->modelview_mat = tv_mat4x4_pop();
 
+	tv_camera_gui->modelview_mat = tv_mat4x4_pop();
 	glEnable(GL_DEPTH_TEST);
 }

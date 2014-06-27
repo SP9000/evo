@@ -31,14 +31,26 @@ ADDCOMPONENT(tv_line_renderer, liner)
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
 ENTITY(fairy2, 0.0f,0.0f,-5.0f, 1,1,1, 0,0,0)
-ADDCOMPONENT(tv_model_renderer, renderer)
-ADDCOMPONENT(tv_model, model)
+//ADDCOMPONENT(tv_model_renderer, renderer)
+//ADDCOMPONENT(tv_model, model)
+ADDCOMPONENT(tv_animation_renderer, renderer)
+ADDCOMPONENT(tv_animation, animation)
 ADDCOMPONENT(tv_material, material)
 ADDCOMPONENT(app_player_motor, pm)
+ADDCOMPONENT(app_unit, unit)
+	tv_entity *move = ability_move(e);
+	tv_model *model = tv_model_new();
+	tv_animation_bone bone = {{1,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
+
 	tv_model_load_ply(model, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\fairy.ply");
 	tv_model_optimize(model, TRUE, TRUE);
 	tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\test.mat");
+	tv_animation_set_root(animation, model, material);
+	tv_animation_add_bone(animation, 0, bone);
+
 	pm->speed = 0.5f;
+	unit->current_stats.speed = 3;
+	tv_entity_add_child(e, move);
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
 ENTITY(text, 0,0,0, 1,1,1, 0,0,0)
@@ -84,6 +96,17 @@ ADDCOMPONENT(tv_material, material)
 ADDCOMPONENT(app_cursor, curr)
 tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\cursor.mat");
 ENTITY_END
+///////////////////////////////////////////////////////////////////////////////
+ENTITY(test_ground, 0,-2.5f,0,1,1,1, 90,0,0)
+ADDCOMPONENT(tv_model_renderer, renderer)
+ADDCOMPONENT(tv_model, model)
+ADDCOMPONENT(tv_material, material)
+	tv_vector2 size = {10, 10};
+	tv_model_vertex vertex_format = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {4,4}};
+	model = tv_modelgen_quad(size, vertex_format);
+	tv_model_renderer_set_model(renderer, model);
+	tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\cursor.mat");
+ENTITY_END
 
 void app_update() 
 {
@@ -101,6 +124,8 @@ void test()
 	tv_entity *my_terrain = terrain();
 	tv_entity *my_camera_controller = cc();
 	tv_entity *my_cursor = cursor();
+	tv_entity *ground = test_ground();
+
 	main_cam->pos.x = 0.0f;
 	main_cam->pos.z = -5.0f;
 	main_cam->pos.y = 0.0f;

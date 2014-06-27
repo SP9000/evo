@@ -156,6 +156,9 @@
     <ClCompile Include="overlayrenderer.c">
       <Filter>Source Files\Components\Renderers</Filter>
     </ClCompile>
+    <ClCompile Include="animationrenderer.c">
+      <Filter>Source Files\Components\Renderers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cJSON.h">
@@ -286,6 +289,12 @@
     </ClInclude>
     <ClInclude Include="overlayrenderer.h">
       <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="animationrenderer.h">
+      <Filter>Header Files\Components\Renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

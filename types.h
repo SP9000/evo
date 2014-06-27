@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 /* picky stuff */
-#define ssize_t size_t
+#define ssize_t long
 
 #include <GL/glew.h>
 #include <stdio.h>
@@ -78,8 +78,6 @@ typedef UT_string tv_string;
 typedef struct tagAABB {
     float w, h, d;
 }TvAABB;
-
-
 
 extern UT_icd ut_float_icd;
 extern UT_icd ut_short_icd;

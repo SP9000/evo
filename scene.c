@@ -48,6 +48,8 @@ tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates)
 
 tv_vector2 tv_scene_from_screen_coordinates(tv_vector2 screen_coordinates) 
 {
+	tv_vector2 ret = {0.0f, 0.0f};
+	return ret;
 }
 
 tvint tv_scene_quit()
@@ -82,7 +84,6 @@ tv_array *tv_scene_entities()
 tv_array *tv_scene_lights_at(tv_vector3 pos)
 {
 	tv_light *light;
-	tv_light *closest;
 	tv_array *ret;
 
 	utarray_new(ret, &light_icd);

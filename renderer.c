@@ -9,7 +9,7 @@ END_HANDLER_START
 HANDLER_UPDATE(tv_renderer)
 END_HANDLER_UPDATE
 
-void render()
+void render(tv_component *renderer)
 {
 }
 

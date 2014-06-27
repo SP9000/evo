@@ -10,10 +10,10 @@ typedef struct {
 tv_model *tv_gui_model_text(tvchar *text, tvuint w, tv_vector4 color)
 {
 	gui_vertex vertex;
-	tvuint i, j;
+	tvint i, j;
 
 	/* # of lines in each character */
-    tvuint char_sizes[] = {
+    tvint char_sizes[] = {
 		4, /* . */
 		1, /* / */
 		4, /* 0 */
@@ -108,7 +108,7 @@ tv_model *tv_gui_model_text(tvchar *text, tvuint w, tv_vector4 color)
     {-1,1,0,0, 1,1,0,0, 0,0,0,-1},                                      /* Y */
     {-1,1,1,1, 1,1,-1,-1, -1,-1, 1,-1}                                  /* Z */
     };
-	tv_model_property vertex_properties[] = {
+	tv_model_attribute vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 4, 3*sizeof(TV_MODEL_PROPERTY_FLOAT)}
 	};
@@ -119,7 +119,7 @@ tv_model *tv_gui_model_text(tvchar *text, tvuint w, tv_vector4 color)
 	vertex.pos.z = 0.0f;
 
 	tv_model_vertex_format(model, 2, vertex_properties);
-	for(i = 0; i < strlen(text); ++i, ++col) {
+	for(i = 0; i < (tvint)strlen(text); ++i, ++col) {
 		tvuint character;
 		/* check control codes */
 		if(text[i] == ' ') {
@@ -131,7 +131,7 @@ tv_model *tv_gui_model_text(tvchar *text, tvuint w, tv_vector4 color)
 			col = -1;
 			continue;
 		}
-		else if(i && col > w) {
+		else if(i && col > (tvint)w) {
 			++row;
 			col = 0;
 		}
@@ -153,9 +153,8 @@ tv_model *tv_gui_model_text(tvchar *text, tvuint w, tv_vector4 color)
 
 tv_model *tv_gui_model_border(tvfloat w, tvfloat h, tv_vector4 color)
 {
-	tvuint i;
 	gui_vertex vertex;
-	tv_model_property vertex_properties[] = {
+	tv_model_attribute vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 3, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 3, 3*sizeof(TV_MODEL_PROPERTY_FLOAT)}
 	};

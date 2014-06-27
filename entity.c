@@ -95,7 +95,6 @@ void tv_entity_send_message(tv_entity *sender, tv_entity *receiver, tv_message_t
 
 void tv_entity_receive_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message)
 {
-	tv_entity **e;
 	tv_entity **child;
 	tv_component **c;
 	/* foreach child... */
@@ -112,8 +111,6 @@ void tv_entity_receive_message(tv_entity *sender, tv_entity *receiver, tv_messag
 			}
 	}
 }
-
-
 
 void tv_entity_update()
 {

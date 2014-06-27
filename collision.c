@@ -63,9 +63,6 @@ void tv_collision_detect()
 	tv_entity* c1;
     tv_entity* c2;
 	UT_array* possibleCollisions;
-	
-	TvCollision* col;
-
  
 	utarray_new(possibleCollisions, &ut_ptr_icd);
 

@@ -38,11 +38,14 @@ typedef struct tv_component tv_component;
  * the maximum number of total handlers).
  */
 #define TV_COMPONENT_MAX_PRE_HANDLERS (TV_COMPONENT_MAX_HANDLERS / 2)
-
 /**
  * The maximum number of post handlers.
  */
 #define TV_COMPONENT_MAX_POST_HANDLERS (TV_COMPONENT_MAX_HANDLERS - TV_COMPONENT_MAX_PRE_HANDLERS)
+/*
+ * The maximum number of component types that may be registered.
+ */
+#define TV_COMPONENT_MAX_COMPONENTS 100000
 
 /* the number of stages there are before update */
 #define TV_COMPONENT_MAX_PRE_STAGES 8
@@ -58,7 +61,7 @@ typedef struct tv_component tv_component;
 #define COMPONENT(component_prefix, parent_prefix) \
 	tvuint component_prefix ## _id(); \
 	void component_prefix ## _register(); \
-	typedef struct { \
+	typedef struct component_prefix { \
 		parent_prefix base;
 #define ENDCOMPONENT(component_prefix) \
 	} component_prefix; \
@@ -103,6 +106,7 @@ typedef struct tv_component tv_component;
 		((tv_component*)self)->id = tv_cid_ ## component_prefix; \
 		((tv_component*)self)->Start = start; \
 		((tv_component*)self)->Update = update; \
+		tv_component_notify_add((tv_component*)self); \
 	}
 
 /*****************************************************************************/
@@ -149,7 +153,7 @@ typedef struct tv_component tv_component;
 #define END_HANDLER_NEW(handler_name) \
 		((tv_component*)self)->entity = NULL; \
 		((tv_component*)self)->id = tv_cid_ ## handler_name; \
-		tv_component_register_to_handler(((tv_component*)self)->id, (tv_component*)self, 1); \
+		tv_component_register_to_handler(((tv_component*)self)->id, (tv_component*)self); \
 		((tv_component*)self)->Start = start; \
 		((tv_component*)self)->Update = update; \
 		return self; \
@@ -204,6 +208,19 @@ extern UT_icd tv_component_handler_icd;
 int tv_component_init();
 
 /**
+ * Notify the engine that a component was added.
+ * @param c the component that was added.
+ */
+void tv_component_notify_add(tv_component* c);
+
+/**
+ * You should call this after freeing all a component's resources.
+ * This tells the engine that the component was removed.
+ * @param c the component to free.
+ */
+void tv_component_free(tv_component *c);
+
+/**
  * Get a unique ID to use to refer to a type of component.
  * @param id upon return contains a unique ID.
  * @param parent_id the ID of the component that the ID to register inherits 
@@ -222,19 +239,16 @@ void tv_component_register_id(tvuint *id, tvuint parent_id);
  * @param parent_id the ID of the component that the ID to register inherits 
  *   from, or 0 if this is a top-level component (inherits only tv_component)
  * @param func the function to call on the registered component type.
- * @param pre_update if TRUE the function is called prior to the component's 
- *	update function, if FALSE, it is called afterward.
+ * @param stage The stage that this handler performs its update.
  */
-void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvbool pre_update);
+void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage);
 
 /**
  * Registers the given component to the handler given by the given associated ID.
  * @param handler_id the ID of the handler to execute upon this component
  * @param component the component to add to the given handler.
- * @param pre_update if TRUE, this registers to the corresponding pre-update
- *   if FALSE, post.
  */
-void tv_component_register_to_handler(tvuint handler_id, tv_component *component, tvbool pre_update);
+void tv_component_register_to_handler(tvuint handler_id, tv_component *component);
 
 /**
  * Run all component handlers that execute prior to the Update method.
@@ -279,11 +293,20 @@ tv_component* tv_component_get(tv_component* self, tvuint id);
  */
 void tv_component_receive_message(tv_entity *sender, tv_message_type message_type, tv_message message);
 
+
+/**
+ * Get all the components of a given type that have been registered.
+ * @param id the ID of the type to get the components of.
+ * @return an array of the components of the given type.
+ */
+tv_array *tv_component_get_all_of_type(tvuint id);
+
 /*****************************************************************************/
 /**
  * A dummy function to register the transform "component".
  */
 static void tv_transform_register() {}
+
 /**
  * The transform component (being a fake component in the first place, gets
  * special treatment).

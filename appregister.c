@@ -9,4 +9,8 @@ void app_register()
 	app_terrain_cursor_register();
 	app_cursor_register();
 	app_hud_register();
+	app_unit_register();
+
+	app_ability_register();
+	app_move_register();
 }

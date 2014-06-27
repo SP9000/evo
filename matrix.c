@@ -100,9 +100,9 @@ void tv_mat4x4_orthographic(TvMat4x4 *mat, float left, float right, float top, f
 {
     /* TODO: ??? */
     mat->a0 = 2.0f; //2.0f / (right - left);
-    mat->a1 = 0;
-    mat->a2 = 0;
-    mat->a3 = 0;
+    mat->b0 = 0;
+    mat->c0 = 0;
+    mat->d0 = 0;
 
     mat->a1 = 0;
     mat->b1 = -2.0f; //2.0f / (top - bottom);
@@ -121,25 +121,25 @@ void tv_mat4x4_orthographic(TvMat4x4 *mat, float left, float right, float top, f
 }
 TvMat4x4 tv_mat4x4_multiply(TvMat4x4 mat1, TvMat4x4 mat2)
 {
-	TvMat4x4 dest;
+	TvMat4x4 res;
 	/* TODO: still think this is wrong...or something isn't matching up: see overlayrenderer for example */
-	dest.a0 = mat1.a0 * mat2.a0 + mat1.a1 * mat2.b0 + mat1.a2 * mat2.c0 + mat1.a3 * mat2.d0; 
-	dest.b0 = mat1.a0 * mat2.a1 + mat1.a1 * mat2.b1 + mat1.a2 * mat2.c1 + mat1.a3 * mat2.d1; 
-	dest.c0 = mat1.a0 * mat2.a2 + mat1.a1 * mat2.b2 + mat1.a2 * mat2.c2 + mat1.a3 * mat2.d2; 
-	dest.d0 = mat1.a0 * mat2.a3 + mat1.a1 * mat2.b3 + mat1.a2 * mat2.c3 + mat1.a3 * mat2.d3; 
-	dest.a1 = mat1.b0 * mat2.a0 + mat1.b1 * mat2.b0 + mat1.b2 * mat2.c0 + mat1.b3 * mat2.d0; 
-	dest.b1 = mat1.b0 * mat2.a1 + mat1.b1 * mat2.b1 + mat1.b2 * mat2.c1 + mat1.b3 * mat2.d1; 
-	dest.c1 = mat1.b0 * mat2.a2 + mat1.b1 * mat2.b2 + mat1.b2 * mat2.c2 + mat1.b3 * mat2.d2; 
-	dest.d1 = mat1.b0 * mat2.a3 + mat1.b1 * mat2.b3 + mat1.b2 * mat2.c3 + mat1.b3 * mat2.d3; 
-	dest.a2 = mat1.b0 * mat2.a0 + mat1.c1 * mat2.b0 + mat1.c2 * mat2.c0 + mat1.c3 * mat2.d0; 
-	dest.b2 = mat1.c0 * mat2.a1 + mat1.c1 * mat2.b1 + mat1.c2 * mat2.c1 + mat1.c3 * mat2.d1; 
-	dest.c2 = mat1.c0 * mat2.a2 + mat1.c1 * mat2.b2 + mat1.c2 * mat2.c2 + mat1.c3 * mat2.d2; 
-	dest.d2 = mat1.c0 * mat2.a3 + mat1.c1 * mat2.b3 + mat1.c2 * mat2.c3 + mat1.c3 * mat2.d3; 
-	dest.a3 = mat1.d0 * mat2.a0 + mat1.d1 * mat2.b0 + mat1.d2 * mat2.c0 + mat1.d3 * mat2.d0; 
-	dest.b3 = mat1.d0 * mat2.a1 + mat1.d1 * mat2.b1 + mat1.d2 * mat2.c1 + mat1.d3 * mat2.d1; 
-	dest.c3 = mat1.d0 * mat2.a2 + mat1.d1 * mat2.b2 + mat1.d2 * mat2.c2 + mat1.d3 * mat2.d2; 
-	dest.d3 = mat1.d0 * mat2.a3 + mat1.d1 * mat2.b3 + mat1.d2 * mat2.c3 + mat1.d3 * mat2.d3;
-	return dest;
+	res.a0 = mat1.a0 * mat2.a0 + mat1.a1 * mat2.b0 + mat1.a2 * mat2.c0 + mat1.a3 * mat2.d0; 
+	res.a1 = mat1.a0 * mat2.a1 + mat1.a1 * mat2.b1 + mat1.a2 * mat2.c1 + mat1.a3 * mat2.d1; 
+	res.a2 = mat1.a0 * mat2.a2 + mat1.a1 * mat2.b2 + mat1.a2 * mat2.c2 + mat1.a3 * mat2.d2; 
+	res.a3 = mat1.a0 * mat2.a3 + mat1.a1 * mat2.b3 + mat1.a2 * mat2.c3 + mat1.a3 * mat2.d3; 
+	res.b0 = mat1.b0 * mat2.a0 + mat1.b1 * mat2.b0 + mat1.b2 * mat2.c0 + mat1.b3 * mat2.d0; 
+	res.b1 = mat1.b0 * mat2.a1 + mat1.b1 * mat2.b1 + mat1.b2 * mat2.c1 + mat1.b3 * mat2.d1; 
+	res.b2 = mat1.b0 * mat2.a2 + mat1.b1 * mat2.b2 + mat1.b2 * mat2.c2 + mat1.b3 * mat2.d2; 
+	res.b3 = mat1.b0 * mat2.a3 + mat1.b1 * mat2.b3 + mat1.b2 * mat2.c3 + mat1.b3 * mat2.d3; 
+	res.c0 = mat1.b0 * mat2.a0 + mat1.c1 * mat2.b0 + mat1.c2 * mat2.c0 + mat1.c3 * mat2.d0; 
+	res.c1 = mat1.c0 * mat2.a1 + mat1.c1 * mat2.b1 + mat1.c2 * mat2.c1 + mat1.c3 * mat2.d1; 
+	res.c2 = mat1.c0 * mat2.a2 + mat1.c1 * mat2.b2 + mat1.c2 * mat2.c2 + mat1.c3 * mat2.d2; 
+	res.c3 = mat1.c0 * mat2.a3 + mat1.c1 * mat2.b3 + mat1.c2 * mat2.c3 + mat1.c3 * mat2.d3; 
+	res.d0 = mat1.d0 * mat2.a0 + mat1.d1 * mat2.b0 + mat1.d2 * mat2.c0 + mat1.d3 * mat2.d0; 
+	res.d1 = mat1.d0 * mat2.a1 + mat1.d1 * mat2.b1 + mat1.d2 * mat2.c1 + mat1.d3 * mat2.d1; 
+	res.d2 = mat1.d0 * mat2.a2 + mat1.d1 * mat2.b2 + mat1.d2 * mat2.c2 + mat1.d3 * mat2.d2; 
+	res.d3 = mat1.d0 * mat2.a3 + mat1.d1 * mat2.b3 + mat1.d2 * mat2.c3 + mat1.d3 * mat2.d3;
+	return res;
 }
 
 tv_vector4 tv_mat4x4_multiply_vec4x1(TvMat4x4 mat, tv_vector4 vec)

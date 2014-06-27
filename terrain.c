@@ -9,7 +9,7 @@ typedef struct terrain_vertex {
 COMPONENT_NEW(app_terrain, tv_component)
 	tv_model_vertex vertex = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {4,4}};
 	tv_vector2 dim = {100,100};
-	tv_model_property vertex_properties[] = {
+	tv_model_attribute vertex_properties[] = {
 		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)},
 		{TV_MODEL_PROPERTY_FLOAT, 4, 8*sizeof(tvfloat)}};	
