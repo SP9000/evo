@@ -49,6 +49,9 @@
     <Filter Include="Components\Abilities\Headers">
       <UniqueIdentifier>{87a7090e-a25a-4459-8f98-a41da5b0741d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Beings">
+      <UniqueIdentifier>{059b62eb-a419-4316-a886-5fb82e06536c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h">
@@ -160,5 +163,10 @@
     <None Include="cursor.mat">
       <Filter>Resource Files\Materials</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="camel.xml">
+      <Filter>Resource Files\Beings</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

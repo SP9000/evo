@@ -66,10 +66,17 @@ tv_rect ability_rects[16] = {
 	
 COMPONENT_NEW(app_hud, tv_widget)
 	tv_widget *w = (tv_widget*)self;
+	tv_widget_init((tv_widget*)self);
+END_COMPONENT_NEW(app_hud)
+
+COMPONENT_START(app_hud)
 	hud_vertex v;
 	tvuint i;
 	tv_model *model = tv_model_new();
-	tv_widget_init((tv_widget*)self);
+	tv_widget *w = (tv_widget*)self;
+
+	tv_widget_set_material((tv_widget*)self, (tv_material*)tv_component_get(self_component, tv_material_id()));
+	self->animation = tv_animation_new();
 
 	/* the main HUD background */
 	tv_model_vertex_format(model, 2, vertex_attributes);
@@ -80,16 +87,13 @@ COMPONENT_NEW(app_hud, tv_widget)
 	tv_animation_set_root(self->animation, model, w->material);
 	/* the thumbnails */
 	for(i = 0; i < 16; ++i) {
-		app_hud_set_ability_thumbnail(self, NULL, i);
+		tvchar name[31] = "thumb";
+		itoa(i, name+sizeof("thumb")-1, 10);
+		self->thumbnails[i] = tv_animation_add_empty(self->animation, 0, name);
 	}
-
 	model->primitive = GL_TRIANGLES;
 	tv_model_optimize(model, TRUE, FALSE);
 	tv_widget_set_model(w, model);
-END_COMPONENT_NEW(app_hud)
-
-COMPONENT_START(app_hud)
-	tv_widget_set_material((tv_widget*)self, (tv_material*)tv_component_get(self_component, tv_material_id()));
 END_COMPONENT_START
 
 COMPONENT_UPDATE(app_hud)
@@ -98,10 +102,15 @@ END_COMPONENT_UPDATE
 void app_hud_set_ability_thumbnail(app_hud *hud, tv_model *thumbnail, tvuint index)
 {
 	tv_animation_bone bone;
+	tvuint i;
+	tvuint bone_id;
+
 	bone.model = thumbnail;
 	bone.material = hud->base.material;
 	bone.position.x = app_hud_thumbnail_region().x + ((tvfloat)(index % 4) * app_hud_thumbnail_dim().x);
 	bone.position.y = app_hud_thumbnail_region().y + ((tvfloat)(index / 4) * app_hud_thumbnail_dim().y);
 	bone.position.z = 1.0f;
+
+	assert(index < 16);
 	tv_animation_replace_bone(hud->animation, hud->thumbnails[index], bone);
 }

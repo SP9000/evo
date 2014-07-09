@@ -7,9 +7,9 @@ extern "C" {
 #include "evo.h"
 
 COMPONENT(app_hud, tv_widget)
+	tv_animation *animation;
 	/* the indices of the thumbnail bones */
 	tvuint thumbnails[16];
-	tv_animation *animation;
 ENDCOMPONENT(app_hud)
 
 /**

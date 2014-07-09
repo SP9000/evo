@@ -212,7 +212,7 @@ void tv_material_load(tv_material *mat, const char* file)
 	root = root->child;
 	/* make sure "material" object exists */
 	if(strncmp(root->string, "material", 8) != 0) {
-		fprintf(stderr, "Error: unrecognized JSON object name %s"
+		tv_warning("unrecognized JSON object name %s"
 			" for material\n", root->string); 
 		return;
 	}

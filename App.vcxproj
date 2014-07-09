@@ -51,6 +51,9 @@
     <None Include="terrain.mat" />
     <None Include="terrain.vert" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="camel.xml" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{73E6E4EE-CA24-4C40-873A-8BBA49BD1652}</ProjectGuid>
     <RootNamespace>App</RootNamespace>

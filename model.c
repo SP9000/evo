@@ -14,7 +14,7 @@ typedef struct loaded_model {
 /* information pertaining to the content of a .PLY property */
 typedef struct ply_property {
 	tvint value;
-	tvuint type;
+	tv_model_property_type type;
 	tvuint size;
 	/* if type is TV_MODEL_PROPERTY_LIST, this is the list of types */
 	tvuint type_list[32];
@@ -30,10 +30,12 @@ typedef struct ply_element {
 	UT_hash_handle hh;
 }ply_element;
 
+/* A structure for holding info about the PLY file */
 typedef struct ply_info {
 	ply_element *elements_table;
 }ply_info;
 
+/* An enumeration of the different groups of properties */
 typedef enum {
 	GROUP_POSITION,
 	GROUP_NORMAL,
@@ -41,6 +43,7 @@ typedef enum {
 	GROUP_TEXCO
 }property_group_type;
 
+/* A structure that contains information about a property group */
 typedef struct property_group {
 	property_group_type type;
 	tvuint data_type;
@@ -58,9 +61,9 @@ static tvbool property_is_normal(tvchar *name);
 static tvbool property_is_color(tvchar *name);
 static tvbool property_is_texco(tvchar *name);
 
-
 /* a table of models that have already been loaded. */
 static loaded_model* loaded_models = NULL;
+/* The ICD for a model's indices */
 UT_icd ut_index_icd = {sizeof(GLshort), 0, 0, 0};
 
 /*****************************************************************************/
@@ -73,6 +76,7 @@ tvbool read_comment(tvchar *line)
 	if(num_read = 0) {
 		return 1;
 	}
+	/* is this line a comment? */
 	if(strncmp(a, "comment", 8) == 0) {
 		return 1;
 	}
@@ -81,42 +85,58 @@ tvbool read_comment(tvchar *line)
 
 tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name)
 {
+	/* 3 buffers: "element", the element name, and the # of properties */
 	tvchar a[256];
 	tvchar b[256];
 	tvchar c[256];
+
 	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
 	ply_element *el = (ply_element*)tv_alloc(sizeof(ply_element));
 
+	/* make sure the line we're on is an element */
 	if(strncmp(a, "element", 8) == 0) {
+		/* see that the element matches the expected formatting */
 		if(num_read != 3) {
-			fprintf(stderr, "Warning: element %s has unrecognized formatting in declaration.\n", a);
+			tv_warning("element %s has unrecognized formatting in declaration.\n", a);
 		}
 		if((strncmp(b, "vertex", 6) != 0) && (strncmp(b, "face", 4) != 0)) {
-			fprintf(stderr, "Warning: unrecognized element %s\n", a);
+			tv_warning("unrecognized element %s\n", a);
 		}
 		el->value = atoi(c);
+		/* copy the element's name to the name buffer */
 		strncpy(el->name, b, 32);
+		/* copy the name of the read element for the caller */
 		strncpy(element_name, b, 32);
+		/* clear the element's property table */
 		el->properties = NULL;
+		/* add the element to the PLY info's elements table */
 		HASH_ADD_STR(info->elements_table, name, el);
-		return 1;
+
+		/* successfully read an element */
+		return TRUE;
 	}
-	return 0;
+	/* no element could be read */
+	return FALSE;
 }
 
 tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element)
 {
+	/* 3 buffers: "property", property type, property name */
 	tvchar a[256];
 	tvchar b[256];
 	tvchar c[256];
-	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
+	
 	ply_element *el;
 	ply_property *p = (ply_property*)tv_alloc(sizeof(ply_property));
 
-	if(strncmp("property", a, 8) != 0) {
-		return 0;
-	}
+	/* read the property */
+	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
 
+	/* check that the line is a property */
+	if(strncmp("property", a, 8) != 0) {
+		return FALSE;
+	}
+	/* get the property type and use it to get the size of the property */
 	if(strncmp(b, "char", 4) == 0) {
 		p->size = 1;
 		p->type = TV_MODEL_PROPERTY_CHAR;
@@ -149,52 +169,61 @@ tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element)
 		p->size = 8;
 		p->type = TV_MODEL_PROPERTY_DOUBLE;
 	}
+	/* copy the name of the property to the property structure */
 	strncpy(p->name, c, 32);
+	
+	/* make sure an element is already defined, if so add this property to it*/
 	HASH_FIND_STR(info->elements_table, cur_element, el);
 	if(el) {
 		HASH_ADD_STR(el->properties, name, p);
-		return 1;
+		return TRUE;
 	}
+	/* if there's no element defined already, quit */
 	else {
-		fprintf(stderr, "Error: read property %s before any element was defined.\n", c);
-		return 0;
+		tv_warning("read property %s before any element was defined.\n", c);
+		return FALSE;
 	}
 }
+
 tvbool property_is_color(tvchar *name) 
 {
+	/* does the given name match any recognized color name pattern? */
 	if(strncmp(name, "red", 3) == 0 ||
 		strncmp(name, "blue", 4) == 0 ||
 		strncmp(name, "green", 5) == 0 ||
 		strncmp(name, "alpha", 5) == 0) {
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 tvbool property_is_position(tvchar *name) 
 {
+	/* does the given name match any recognized position name pattern? */
 	if(strncmp(name, "x", 1) == 0 ||
 		strncmp(name, "y", 1) == 0 ||
 		strncmp(name, "z", 1) == 0) {
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 tvbool property_is_normal(tvchar *name) 
 {
+	/* does the given name match any recognized normal name pattern? */
 	if(strncmp(name, "nx", 2) == 0 ||
 		strncmp(name, "ny", 2) == 0 ||
 		strncmp(name, "nz", 2) == 0) {
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 tvbool property_is_texco(tvchar *name) 
 {
+	/* does the given name match any recognized texco name pattern? */
 	if(strncmp(name, "u", 1) == 0 ||
 		strncmp(name, "v", 1) == 0) {
-			return 1;
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 /*****************************************************************************/
@@ -230,6 +259,8 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	ply_property *prop, *prop_tmp;
 	ply_element *element, *element_tmp;
 
+	/* if the model table isn't empty check if the model has already been 
+	loaded */
 	if(loaded_models != NULL) {
 		HASH_FIND_STR(loaded_models, file, lup);
 		if(lup) {
@@ -248,21 +279,26 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 
 	file_info.elements_table = NULL;
 	model->vertex_size = 0;
+	
 	/* read the file header - alloc the buffers to store the model data */
     while(!feof(fp)) {
 		tvchar element[256];
 
+		/* read a line from the file for parsing */
 		fgets(line_buffer, 1024, fp);
+		/* if we've reached the end of the header, we're done */
 	    if(strncmp(line_buffer, "end_header", 10) == 0) {
-			puts("END HEADER");
 			break;
 		}
+		/* comment? */
 		if(read_comment(line_buffer)) {
 			continue;
 		}
+		/* element? */
 		if(read_element(line_buffer, &file_info, element)) {
 			continue;
 		}
+		/* property? */
 		if(read_property(line_buffer, &file_info, element)) {
 			continue;
 		}
@@ -271,6 +307,8 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 	/* extract all the data we collected about the elements and properties of this
 	 * model. */
 	model->num_properties = 0;
+	/* iterate over all the elements to construct the attribute format for the 
+	model */
 	HASH_ITER(hh, file_info.elements_table, element, element_tmp) {
 		if(strncmp("vertex", element->name, 6) == 0) {
 			tv_model_property_type prev_type = TV_MODEL_PROPERTY_NONE;
@@ -282,21 +320,21 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 			/* foreach property, add its info to the model. */
 			HASH_ITER(hh, element->properties, prop, prop_tmp) {
 				tv_model_attribute p = {prev_type, cur_found+1, 0};
-
+				/* position? */
 				if(property_is_position(prop->name)) {
-					fprintf(stdout, "found position\n");
 					cur_group = GROUP_POSITION;
 					if(cur_found == 2) {
 						tv_model_append_property(model, &p);
 					}
 				}
+				/* normal? */
 				else if(property_is_normal(prop->name)) {
-					fprintf(stdout, "found normal\n");
 					cur_group = GROUP_NORMAL;
 					if(cur_found == 2) {
 						tv_model_append_property(model, &p);
 					}
 				}
+				/* color? */
 				else if(property_is_color(prop->name)) {
 					fprintf(stdout, "found color\n");
 					cur_group = GROUP_COLOR;
@@ -304,6 +342,7 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 						tv_model_append_property(model, &p);
 					}
 				}
+				/* texco? */
 				else if(property_is_texco(prop->name)) {
 					fprintf(stdout, "found texco\n");
 					cur_group = GROUP_TEXCO;
@@ -311,9 +350,11 @@ void tv_model_load_ply(tv_model *model, tvchar* file)
 						tv_model_append_property(model, &p);
 					}
 				}
+				/* unrecognized property type */
 				else {
-					fprintf(stderr, "Warning: unrecognized property type %s.\n", prop->name);
+					tv_warning("Warning: unrecognized property type %s.\n", prop->name);
 				}
+
 				if(cur_found == 0 || cur_group == prev_group) {
 					++cur_found;
 				}

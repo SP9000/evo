@@ -7,6 +7,9 @@ extern "C" {
 #include <assert.h>
 #include "model.h"
 #include "material.h"
+#include "cJSON.h"
+#include "tv_tree.h"
+#include "tv_stack.h"
 
 /* the maximum number of bones the root of a model may have */
 #define TV_ANIMATION_MAX_BONES 128
@@ -17,6 +20,7 @@ extern "C" {
 /* this specifies that a bone has no child (or sibling) */
 #define TV_ANIMATION_BONE_END UINT_MAX
 
+
 typedef struct tv_animation_bone {
 	tv_vector3 position;
 	tv_vector4 rotation;
@@ -24,8 +28,12 @@ typedef struct tv_animation_bone {
 	tv_material *material;
 
 	/* used for iterating through the bones in an animation */
-	tvuint next_sibling;
-	tvuint next_child;
+	tvuint prev_sibling, next_sibling;
+	tvuint parent, next_child;
+
+	/* the name of the bone */
+	tvchar name[31];
+	TvHashHandle hh;
 }tv_animation_bone;
 
 typedef struct tv_animation_keyframe {
@@ -50,6 +58,12 @@ typedef enum {
 	TV_ANIMATION_PLAYING,
 	TV_ANIMATION_LOOPING
 }tv_animation_play_type;
+
+typedef struct tv_animation_bone_key {
+	tvuint id;
+	tvchar name[31];
+	TvHashHandle hh;
+}tv_animation_bone_key;
 
 /**
  * The animation component.
@@ -78,6 +92,13 @@ COMPONENT(tv_animation, tv_component)
 	tvuint num_sequences;
 	/* the animation sequences. */
 	tv_animation_sequence sequences[TV_ANIMATION_MAX_SEQUENCES];
+
+	/* a table for looking up bone's IDs based upon their names */
+	tv_animation_bone_key *bone_name_table;
+	/* a queue containing free bone ID's */
+	TV_stack *free_bone_ids;
+	/* the next unused bone ID (assuming free bone stack is empty) */
+	tvuint next_free_bone_id;
 
 	/* an array of arrays. this represents the root of the animation. each 
 	 * array within this array represents one "path" from the root. A value
@@ -110,7 +131,6 @@ ENDCOMPONENT(tv_animation)
  * @param material the material for the given model.
  */
 void tv_animation_set_root(tv_animation *animation, tv_model *model, tv_material *material);
-
 /**
  * Adds a bone to the given parent bone.
  * @param animation the animation to add the bone to.
@@ -118,7 +138,13 @@ void tv_animation_set_root(tv_animation *animation, tv_model *model, tv_material
  * @param the index that can be used to reference the added bone.
  */
 tvuint tv_animation_add_bone(tv_animation *animation, tvuint parent, tv_animation_bone bone);
-
+/**
+ * Adds a location for a bone and returns its ID.
+ * @param animation the animation to reserve a bone within.
+ * @param parent the parent bone of the bone to reserve.
+ * @return the ID of a new reserved bone.
+ */
+tvuint tv_animation_add_empty(tv_animation *animation, tvuint parent, tvchar *name);
 /**
  * Replace the specified bone with the given bone.
  * @param animation the animation to replace the bone of.
@@ -126,6 +152,20 @@ tvuint tv_animation_add_bone(tv_animation *animation, tvuint parent, tv_animatio
  * @param bone the bone to replace the old bone with.
  */
 void tv_animation_replace_bone(tv_animation *animation, tvuint loc, tv_animation_bone bone);
+/**
+ * Remove the given bone from the given animation.
+ * @param animation the animation to remove the bone from.
+ * @param bone_id the ID of the bone to remove.
+ */
+void tv_animation_remove_bone(tv_animation *animation, tvuint bone_id);
+
+/**
+ * Get the ID of the bone by its name
+ * @param animation the animation to get the bone of.
+ * @param the name of the bone to retrieve.
+ * @return returns TV_ANIMATION_BONE_END if no bone is found, else the bone.
+ */
+tvuint tv_animation_get_bone(tv_animation *animation, tvchar *name);
 
 /** 
  * Plays the given sequence within the animation.

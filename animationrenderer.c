@@ -73,18 +73,11 @@ static void render_r_(tv_animation_renderer* renderer, tvuint i)
 		tv_mat4x4_push(main_cam->modelview_mat);
 		/* translate and render */
 		translate_by_bone_(renderer, i);
-		render_bone_(renderer, i);		
+		render_bone_(renderer, i);
 		/* foreach child */
 		for(j = animation->bones[i].next_child; j != TV_ANIMATION_BONE_END; j = animation->bones[j].next_child) {
-			/* save current matrix */
-			tv_mat4x4_push(main_cam->modelview_mat);
-			/* translate and render */
-			translate_by_bone_(renderer, j);
-			render_bone_(renderer, j);
 			/* recursively render all siblings */
-			render_r_(renderer, animation->bones[i].next_sibling);
-			/* restore matrix */
-			main_cam->modelview_mat = tv_mat4x4_pop();
+			render_r_(renderer, j);
 		}
 		main_cam->modelview_mat = tv_mat4x4_pop();
 	}
