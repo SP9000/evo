@@ -5,10 +5,11 @@ extern "C" {
 #endif
 
 #include <stdlib.h>
-#include "types.h"
+#include "tv_types.h"
 
 tvpointer tv_alloc(tvuint size);
 tvpointer tv_calloc(tvuint num, tvuint size);
+void tv_free(tvpointer ptr);
 
 #ifdef __cplusplus
 }

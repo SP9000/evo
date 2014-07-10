@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include "renderer.h"
-#include "gui.h"
+#include "tv_gui.h"
 
 HANDLER(tv_overlay_renderer, tv_renderer)
 	tv_model *model;

@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #include "renderer.h"
-#include "gui.h"
+#include "tv_gui.h"
 
 HANDLER(tv_gui_renderer, tv_renderer)
 	const char *font;

@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "component.h"
+#include "tv_component.h"
 #include "material.h"
 #include "model.h"
 #include "widgetmodels.h"

@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "types.h"
+#include "tv_types.h"
 
 typedef tv_array TV_queue;
 

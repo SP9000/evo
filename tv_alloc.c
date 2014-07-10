@@ -8,3 +8,8 @@ tvpointer tv_calloc(tvuint num, tvuint size)
 {
 	return calloc(num, size);
 }
+
+void tv_free(tvpointer ptr)
+{
+	free(ptr);
+}

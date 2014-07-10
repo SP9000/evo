@@ -42,8 +42,9 @@ ADDCOMPONENT(app_unit, unit)
 	tv_model *model = tv_model_new();
 	tv_animation_bone bone = {{3,0,0},{0.0f,0.0f,45.0f,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
 	tv_animation_bone bone2 = {{3,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
-	tv_animation_bone bone3 = {{6,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
-	tvuint b1id;
+	tv_animation_bone bone3 = {{6,0,0},{0,0,-90.0f,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
+	tv_animation_bone bone4 = {{3,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
+	tvuint b1id, b2id;
 
 	tv_model_load_ply(model, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\fairy.ply");
 	tv_model_optimize(model, TRUE, TRUE);
@@ -52,11 +53,12 @@ ADDCOMPONENT(app_unit, unit)
 
 	b1id = tv_animation_add_bone(animation, 0, bone);
 	tv_animation_add_bone(animation, b1id, bone2);
-	tv_animation_add_bone(animation, b1id, bone3);
+	b2id = tv_animation_add_bone(animation, b1id, bone3);
+	tv_animation_add_bone(animation, b2id, bone4);
 
 	pm->speed = 0.5f;
 	unit->current_stats.speed = 3;
-	tv_entity_add_child(e, move);
+	//tv_entity_add_child(e, move);
 ENTITY_END
 ///////////////////////////////////////////////////////////////////////////////
 ENTITY(text, 0,0,0, 1,1,1, 0,0,0)

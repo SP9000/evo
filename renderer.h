@@ -12,12 +12,12 @@
 extern "C" {
 #endif
 
-#include "component.h"
-#include "entity.h"
+#include "tv_component.h"
+#include "tv_entity.h"
 #include "model.h"
 #include "material.h"
-#include "texture.h"
-#include "draw.h"
+#include "tv_texture.h"
+#include "tv_draw.h"
 #include "tv_vector.h"
 
 HANDLER(tv_renderer, tv_component)

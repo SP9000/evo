@@ -11,7 +11,7 @@
 extern "C" {
 #endif
 
-#include "component.h"
+#include "tv_component.h"
 
 COMPONENT(tv_light, tv_component)
 	tv_vector4 color;

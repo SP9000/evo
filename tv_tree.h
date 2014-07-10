@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #define TV_TREE_END UINT_MAX
-#include "types.h"
+#include "tv_types.h"
 #include "tv_alloc.h"
 
 typedef struct TV_tree_node {

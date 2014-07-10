@@ -32,8 +32,8 @@ extern "C" {
 /*  FLOAT,FLOAT,FLOAT.													     */
 /*****************************************************************************/
 
-#include "types.h"
-#include "component.h"
+#include "tv_types.h"
+#include "tv_component.h"
 
 /* If this is uncommented, integer types are normalized and stored as floats */
 #define TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS 1

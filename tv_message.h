@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "types.h"
+#include "tv_types.h"
 
 typedef enum {
 	TV_MESSAGE_NONE,

@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-#include "types.h"
+#include "tv_types.h"
 #include "tv_vector.h"
 
 typedef struct tv_transform {

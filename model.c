@@ -240,7 +240,13 @@ END_COMPONENT_START
 
 COMPONENT_UPDATE(tv_model)
 END_COMPONENT_UPDATE
-
+COMPONENT_DESTROY(tv_model)
+utarray_free(self->vertices);
+utarray_free(self->indices);
+glDeleteBuffers(1, &self->index_vbo);
+glDeleteBuffers(1, &self->vertex_vbo);
+glDeleteVertexArrays(1, &self->vao);
+END_COMPONENT_DESTROY
 /*****************************************************************************/
 void tv_model_load_ply(tv_model *model, tvchar* file)
 {

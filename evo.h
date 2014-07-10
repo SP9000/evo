@@ -1,9 +1,9 @@
 #ifndef _EVO_H
 #define _EVO_H
 
-#include "entity.h"
-#include "collision.h"
-#include "draw.h"
+#include "tv_entity.h"
+#include "tv_collision.h"
+#include "tv_draw.h"
 #include "model.h"
 #include "animation.h"
 #include "modelrenderer.h"
@@ -11,7 +11,7 @@
 #include "linerenderer.h"
 #include "overlayrenderer.h"
 #include "guirenderer.h"
-#include "modelgen.h"
+#include "tv_modelgen.h"
 #include "material.h"
 #include "animation.h"
 #include "transform.h"

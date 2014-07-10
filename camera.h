@@ -4,11 +4,11 @@
 extern "C" {
 #endif
 
-#include "types.h"
+#include "tv_types.h"
 #include "tv_alloc.h"
-#include "component.h"
+#include "tv_component.h"
 #include "tv_vector.h"
-#include "matrix.h"
+#include "tv_matrix.h"
 
 typedef struct tagTvCameraPerspective {
 	float fov;

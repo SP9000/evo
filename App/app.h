@@ -7,7 +7,7 @@ extern "C" {
 
 #include "../evo.h"
 #include "entities.h"
-#include "../client.h"
+#include "../tv_client.h"
 #include "playermotor.h"
 
 #include "../terrain.h"

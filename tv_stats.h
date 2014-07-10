@@ -13,8 +13,8 @@ extern "C" {
 
 #define TV_STATS_FRAME_APPROXIMATION_SAMPLES 60
 
-#include "types.h"
-#include "timer.h"
+#include "tv_types.h"
+#include "tv_time.h"
 
 /**
  * Returns the current approximate frames per second of the engine.

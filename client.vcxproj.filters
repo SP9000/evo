@@ -248,52 +248,10 @@
     <ClInclude Include="cJSON.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="client.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="client_packet.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="collision.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="component.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="draw.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="entity.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="evo.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gui.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="input.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="macros.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="matrix.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="modelgen.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="platform.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="scene.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="timer.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_alloc.h">
@@ -306,12 +264,6 @@
       <Filter>Base\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_vector.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="types.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="util.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_queue.h">
@@ -334,6 +286,54 @@
     </ClInclude>
     <ClInclude Include="widget_textbox.h">
       <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_client.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_component.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_draw.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_collision.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_entity.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_gui.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_input.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_macros.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_matrix.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_modelgen.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_platform.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_scene.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_texture.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_time.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_types.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_util.h">
+      <Filter>Base\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

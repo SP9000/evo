@@ -5,7 +5,7 @@ extern "C" {
 #endif
 
 #include <math.h>
-#include "types.h"
+#include "tv_types.h"
 
 /**
  * A basic type for representing a point in 2-dimensional space.

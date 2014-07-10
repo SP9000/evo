@@ -4,11 +4,11 @@
 extern "C" {
 #endif
 
-#include "component.h"
-#include "types.h"
+#include "tv_component.h"
+#include "tv_types.h"
 #include "tv_alloc.h"
 #include "cJSON.h"
-#include "util.h"
+#include "tv_util.h"
 
 #define TV_MATERIAL_BUFFER_BINDING_POINT 1
 
