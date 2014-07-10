@@ -66,20 +66,20 @@ static void render_r_(tv_animation_renderer* renderer, tvuint i)
 {
 	tv_animation *animation = renderer->animation;
 	tv_component *self = (tv_component*)renderer;
-	tvuint j;
+	
+	tv_mat4x4_push(main_cam->modelview_mat);
+	translate_by_bone_(renderer, i);
+	render_bone_(renderer, i);
+	/* foreach child */
+	if(animation->bones[i].next_child != TV_ANIMATION_BONE_END) {
+		render_r_(renderer, animation->bones[i].next_child);
+	}
+	main_cam->modelview_mat = tv_mat4x4_pop();
 
 	/* foreach sibling */
-	for(; i != TV_ANIMATION_BONE_END; i = animation->bones[i].next_sibling) {
-		tv_mat4x4_push(main_cam->modelview_mat);
-		/* translate and render */
-		translate_by_bone_(renderer, i);
-		render_bone_(renderer, i);
-		/* foreach child */
-		for(j = animation->bones[i].next_child; j != TV_ANIMATION_BONE_END; j = animation->bones[j].next_child) {
-			/* recursively render all siblings */
-			render_r_(renderer, j);
-		}
-		main_cam->modelview_mat = tv_mat4x4_pop();
+	if(animation->bones[i].next_sibling != TV_ANIMATION_BONE_END) {
+		render_r_(renderer, animation->bones[i].next_sibling);
+		
 	}
 	glBindVertexArray(0);
 }

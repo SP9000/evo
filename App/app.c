@@ -40,8 +40,9 @@ ADDCOMPONENT(app_player_motor, pm)
 ADDCOMPONENT(app_unit, unit)
 	tv_entity *move = ability_move(e);
 	tv_model *model = tv_model_new();
-	tv_animation_bone bone = {{3,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
+	tv_animation_bone bone = {{3,0,0},{0.0f,0.0f,45.0f,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
 	tv_animation_bone bone2 = {{3,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
+	tv_animation_bone bone3 = {{6,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
 	tvuint b1id;
 
 	tv_model_load_ply(model, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\TestAssets\\fairy.ply");
@@ -51,6 +52,7 @@ ADDCOMPONENT(app_unit, unit)
 
 	b1id = tv_animation_add_bone(animation, 0, bone);
 	tv_animation_add_bone(animation, b1id, bone2);
+	tv_animation_add_bone(animation, b1id, bone3);
 
 	pm->speed = 0.5f;
 	unit->current_stats.speed = 3;
