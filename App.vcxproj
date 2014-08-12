@@ -21,6 +21,7 @@
     <ClInclude Include="hud.h" />
     <ClInclude Include="melee.h" />
     <ClInclude Include="move.h" />
+    <ClInclude Include="projectile.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="terraincursor.h" />
     <ClInclude Include="terrain_tile.h" />
@@ -38,6 +39,7 @@
     <ClCompile Include="hud.c" />
     <ClCompile Include="melee.c" />
     <ClCompile Include="move.c" />
+    <ClCompile Include="projectile.c" />
     <ClCompile Include="terrain.c" />
     <ClCompile Include="terraincursor.c" />
     <ClCompile Include="terrain_tile.c" />

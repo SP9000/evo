@@ -1,5 +1,9 @@
 #include "tv_vector.h"
 
+UT_icd ut_vector2_icd = {sizeof(tv_vector2), NULL, NULL, NULL};
+UT_icd ut_vector3_icd = {sizeof(tv_vector3), NULL, NULL, NULL};
+UT_icd ut_vector4_icd = {sizeof(tv_vector4), NULL, NULL, NULL};
+
 const tv_vector2 tv_vector2_zero = {0, 0};
 const tv_vector3 tv_vector3_zero = {0, 0, 0};
 const tv_vector4 tv_vector4_zero = {0, 0, 0, 0};

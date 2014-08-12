@@ -1,4 +1,4 @@
-#include "client_packet.h"
+#include "tv_client_packet.h"
 
 size_t GamePacket_Create(GamePacket *packet,
         unsigned char *keysPressed, unsigned char *keysReleased,

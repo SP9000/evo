@@ -184,22 +184,21 @@ tvbool tv_component_inherits(tv_component* component, tvuint id);
 tv_component* tv_component_get(tv_component* self, tvuint id);
 
 /**
- * Receives a message sent by an outside entity.
- * When another entity sends a message, the receiving entity is notified and 
- * this function is called on all components of that entity.
- * @param sender the entity that sent the message.
- * @param message_type the nature of the message that is being received.
- * @param message the message data.
- */
-void tv_component_receive_message(tv_entity *sender, tv_message_type message_type, tv_message message);
-
-
-/**
  * Get all the components of a given type that have been registered.
  * @param id the ID of the type to get the components of.
  * @return an array of the components of the given type.
  */
 tv_array *tv_component_get_all_of_type(tvuint id);
+
+/**
+ * A debug function that ensures a component of the specified ID is attached
+ * to the same entity as the given component.
+ * @param component the component who's entity must contain a component of the
+ *  given type.
+ * @param id the ID of the component that must belong to the given component's
+ *  entity.
+ */
+static tvbool tv_component_require(tv_component *component, tvuint id) {assert(!tv_component_get(component, id));}
 
 /*****************************************************************************/
 /**

@@ -130,3 +130,95 @@ void tv_collision_update()
 {
 
 }
+
+tv_vector3 tv_physics_check_ray_sphere(tv_vector3 p1, tv_vector3 p2, TV_collider *sphere)
+{
+	/* heavily inspired by:
+	* atelier iebele abel - 2001
+	* http://paulbourke.net/geometry/circlesphere/source.cpp 
+	*/
+	tv_vector3 pt;
+	tv_vector3 sp = sphere->pos;
+	tvfloat r = sphere->info.sphere.radius;
+	tv_vector3 a;
+	tvfloat i;
+
+	a.x = tv_sqr(p2.x - p1.x) + tv_sqr(p2.y - p1.y) + tv_sqr(p2.z - p1.z);
+	a.y = 2 * ((p2.x - p1.x)*(p1.x - sp.x) +
+		(p2.y - p1.y) * (p1.y - sp.y) +
+		(p2.z - p1.y) * (p1.z - sp.z));
+	a.z = tv_sqr(sp.x) + tv_sqr(sp.y) + 
+		tv_sqr(sp.z) + tv_sqr(p1.x) + 
+		tv_sqr(p1.y) + tv_sqr(p1.z) -
+		2 * (sp.x*p1.x + sp.y*p1.y + sp.z * p1.z) -
+		tv_sqr(r);
+	i = a.y * a.y - 4 * a.x * a.z;
+
+	if(i < 0.0f) {
+		/* no intersection */
+		pt.x = TV_INF;
+		pt.y = TV_INF;
+		pt.z = TV_INF;
+	}
+	else if(i == 0.0f) {
+		tvfloat mu = -a.y / (2*a.x);
+		pt.x = p1.x + mu * (p2.x - p1.x);
+		pt.y = p1.y + mu * (p2.y - p1.y);
+		pt.z = p1.z + mu * (p2.z - p1.z);
+	}
+	else {
+		tvfloat mu;
+		tvfloat sqrt_b = sqrt(a.y);
+		/* first intersection */
+		mu = (-a.y + sqrt_b - 4*a.x*a.z) / (2*a.x);
+		pt.x = p1.x + mu*(p2.x-p1.x);
+		pt.y = p1.y + mu*(p2.y-p1.y);
+		pt.z = p1.z + mu*(p2.z-p1.z);
+		/* second intersection */
+		mu = (-a.y - sqrt_b - 4*a.x*a.z) / (2*a.x);
+		pt.x = p1.x + mu*(p2.x-p1.x);
+		pt.x = p1.y + mu*(p2.y-p1.y);
+		pt.x = p1.z + mu*(p2.z-p1.z);
+	}
+	return pt;
+}
+
+TV_physics_hit_info tv_physics_raycast(tv_vector3 src, tv_vector3 dir, tvfloat len)
+{
+	/* TODO: doesn't look at object's bounds, will take closest object by center
+	 * point */	
+	TV_collider **c;
+	tv_vector3 s;
+	tvfloat closest_distance = TV_INF;
+	tv_vector3 dst;
+	TV_physics_hit_info hit = {{TV_INF, TV_INF, TV_INF}, NULL};
+
+	/* create the line collider to perform the raycast */
+	s.x = s.y = s.z = len;
+	dst = tv_vector3_add(src, tv_vector3_scale(dir, s));
+
+	/* for now, we're just gonna brute force this. 
+	 * It would be easy to use some of the SAP junk in addition if speed is 
+	 * ever an issue */
+	for(c = (TV_collider**)utarray_front(colliders); 
+		c != NULL;
+		c = (TV_collider**)utarray_next(colliders, c)) {
+		/* see if the ray intersects this collider, if it does, see if this is 
+		 * now the closest collider
+		 */
+		tv_vector3 intersect;
+		switch((*c)->type) {
+		case TV_COLLIDER_BOX:
+			/* TODO: */
+			break;
+		case TV_COLLIDER_SPHERE:			
+			intersect = tv_physics_check_ray_sphere(src, dst, *c);
+			break;
+		}
+		if(tv_vector3_distance(intersect, src) < closest_distance) {
+			hit.collider = *c;
+			hit.hit_loc = intersect;
+		}
+	}
+	return hit;
+}

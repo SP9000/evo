@@ -18,7 +18,6 @@ END_COMPONENT_START
 COMPONENT_UPDATE(tv_camera)
 END_COMPONENT_UPDATE
 
-
 void tv_camera_perspective(tv_camera* cam, float fov, float aspect, float nearZ, float farZ)
 {
 	tv_mat4x4_perspective(&cam->projection_mat, fov, aspect, nearZ, farZ);

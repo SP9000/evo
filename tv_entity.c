@@ -159,30 +159,6 @@ tv_component* tv_entity_get_component(tv_entity* e, tvuint cid)
     return NULL;
 }
 
-void tv_entity_send_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message)
-{
-
-}
-
-void tv_entity_receive_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message)
-{
-	tv_entity **child;
-	tv_component **c;
-	/* foreach child... */
-	for(child = (tv_entity**)utarray_front(receiver->children);
-		child != NULL;
-		child = (tv_entity**)utarray_next(receiver->children, child)) 
-	{
-			/* send the message to each component */
-			for(c = (tv_component**)utarray_front((*child)->components); 
-				c != NULL;
-				c = (tv_component**)utarray_next((*child)->components, c))
-			{
-				tv_component_receive_message(sender, message_type, message);
-			}
-	}
-}
-
 void tv_entity_update()
 {
 	tv_entity **e;

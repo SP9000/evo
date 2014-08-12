@@ -5,8 +5,8 @@
 /* July 9, 2014																 */
 /* Bryce Wilson																 */
 /*****************************************************************************/
-#ifndef TV_QUEUE
-#define TV_QUEUE
+#ifndef TV_STACK
+#define TV_STACK
 #ifdef __cplusplus
 extern "C" {
 #endif

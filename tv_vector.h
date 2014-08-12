@@ -123,6 +123,10 @@ tv_vector3 tv_vector3_lerp(tv_vector3 v1, tv_vector3 v2, float t);
  */
 tv_vector4 tv_vector4_lerp(tv_vector4 v1, tv_vector4 v2, float t);
 
+extern UT_icd tv_vector2_icd;
+extern UT_icd tv_vector3_icd;
+extern UT_icd tv_vector4_icd;
+
 #ifdef __cplusplus
 }
 #endif

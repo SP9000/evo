@@ -1,4 +1,4 @@
-#include "texture.h"
+#include "tv_texture.h"
 
 /* a map of texture filenames to their texture handles to prevent reloading */
 static TvTexture* loaded_textures;

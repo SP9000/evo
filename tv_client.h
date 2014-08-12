@@ -18,7 +18,7 @@ extern "C" {
 #include <SDL/SDL.h>
 #include <enet/enet.h>
 
-#include "client_packet.h"
+#include "tv_client_packet.h"
 #include "tv_collision.h"
 #include "tv_draw.h"
 #include "tv_input.h"

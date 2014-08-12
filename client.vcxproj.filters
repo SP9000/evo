@@ -70,6 +70,15 @@
     <Filter Include="Components\Base Components\Header Files">
       <UniqueIdentifier>{fcc81a9c-3d99-42a0-9966-2f92d74e117c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Colliders">
+      <UniqueIdentifier>{4ff86073-60b9-4f7b-ad12-49feef8c0f5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Colliders\Source Files">
+      <UniqueIdentifier>{7154e789-7084-4f53-9916-a86d47ff10d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Colliders\Header Files">
+      <UniqueIdentifier>{0fd6669a-7a01-454f-a5f0-4dd94efc1629}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="modelrenderer.c">
@@ -120,42 +129,6 @@
     <ClCompile Include="cJSON.c">
       <Filter>Base\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="client.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="client_packet.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="collision.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="component.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="draw.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="entity.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="input.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="matrix.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="modelgen.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="scene.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="timer.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tv_alloc.c">
       <Filter>Base\Source Files</Filter>
     </ClCompile>
@@ -163,12 +136,6 @@
       <Filter>Base\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tv_vector.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="types.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="util.c">
       <Filter>Base\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widget.c">
@@ -185,6 +152,57 @@
     </ClCompile>
     <ClCompile Include="widgetmodels.c">
       <Filter>Components\GUI\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_draw.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_entity.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_input.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_matrix.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_modelgen.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_scene.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_texture.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_time.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_types.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_util.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_component.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_collision.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_client_packet.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_client.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_physics.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_collider.c">
+      <Filter>Components\Colliders\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_message.c">
+      <Filter>Base\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -246,9 +264,6 @@
       <Filter>Components\Base Components\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cJSON.h">
-      <Filter>Base\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="client_packet.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="evo.h">
@@ -333,6 +348,18 @@
       <Filter>Base\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_util.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_client_packet.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_physics.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_collider.h">
+      <Filter>Components\Colliders\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_math.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
   </ItemGroup>

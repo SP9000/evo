@@ -1,7 +1,10 @@
 #include "animation.h"
 
+/* an ICD to store boenes */
 static UT_icd tv_animation_bone_icd = {sizeof(tv_animation_bone), NULL, NULL, NULL};
+/* an ICD to store animation keyframes */
 static UT_icd tv_animation_keyframe_icd = {sizeof(tv_animation_keyframe), NULL, NULL, NULL};
+/* an ICD to store models */
 static UT_icd tv_model_icd = {sizeof(tv_model), NULL, NULL,NULL };
 
 COMPONENT_NEW(tv_animation, tv_component)

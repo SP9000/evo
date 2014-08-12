@@ -17,7 +17,8 @@ extern "C" {
 #include <stdio.h>
 #include "tv_types.h"
 #include "tv_entity.h"
-
+#include "tv_physics.h"
+#include "tv_collider.h"
 
 
 /************************** types of colliders *******************************/

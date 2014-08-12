@@ -114,30 +114,6 @@ void tv_entity_add_child(tv_entity* parent, tv_entity* child);
  */
 tv_component* tv_entity_get_component(tv_entity* e, tvuint cid);
 
-
-/**
- * Sends a message from one entity to another.
- * This function sends a message to another entity notifying it of some event.
- * The message is then sent to each component of the receiving entity.
- * @param sender the entity that is sending the message.
- * @param receiver the entity that is to receive the message.
- * @param message_type the nature of the message being sent.
- * @param message the message data.
- */
-void tv_entity_send_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message); 
-
-/**
- * Receives a message that is sent by another entity.
- * This function is what is called when a message is sent from another entity.
- * It notifies the receiver's children and components that a message has 
- * arrived and leaves it to them to handle it.
- * @param sender the entity that is sending the message.
- * @param receiver the entity that is to receive the message.
- * @param message_type the nature of the message being sent.
- * @param message the message data.
- */
-void tv_entity_send_message(tv_entity *sender, tv_entity *receiver, tv_message_type message_type, tv_message message);
-
 /**
  * This is called once all the components have been added to an entity.
  * It calls the start function of every component.

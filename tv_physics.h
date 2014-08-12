@@ -4,11 +4,13 @@
 extern "C" {
 #endif
 
+#include "tv_collider.h"
 #include "tv_types.h"
 #include "tv_vector.h"
 
 typedef struct TV_physics_hit_info {
 	tv_vector3 hit_loc;
+	TV_collider *collider;
 }TV_physics_hit_info;
 
 tvint tv_physics_init();

@@ -52,6 +52,15 @@
     <Filter Include="Resource Files\Beings">
       <UniqueIdentifier>{059b62eb-a419-4316-a886-5fb82e06536c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Projectiles">
+      <UniqueIdentifier>{5a981e8e-0ca7-47b3-a8a7-cadc60e919c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Projectiles\Source Files">
+      <UniqueIdentifier>{79885cff-fa6a-4af9-85b4-a887f3b843b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Projectiles\Header Files">
+      <UniqueIdentifier>{d37e0363-d5b8-4f3d-8bb1-463e20623def}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\app.h">
@@ -95,6 +104,9 @@
     </ClInclude>
     <ClInclude Include="melee.h">
       <Filter>Components\Abilities\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="projectile.h">
+      <Filter>Components\Projectiles\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +154,9 @@
     </ClCompile>
     <ClCompile Include="melee.c">
       <Filter>Components\Abilities\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="projectile.c">
+      <Filter>Components\Projectiles\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
