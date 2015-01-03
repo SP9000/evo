@@ -11,6 +11,12 @@ extern "C" {
 #include "tv_util.h"
 
 #define TV_MATERIAL_BUFFER_BINDING_POINT 1
+/* the maximum # of uniform blocks per material */
+#define TV_MATERIAL_MAX_UBOS 8
+/* the maximum # of passes that a material can have */
+#define TV_MATERIAL_MAX_PASSES 4
+/* the maximum # of attributes in each uniform block */
+#define TV_MATERIAL_MAX_UBO_ATTRIBUTES 16
 
 #if 0
 typedef enum {
@@ -54,17 +60,44 @@ typedef struct tv_material_effect {
 }tv_material_effect;
 #endif
 
+/**
+ * A structure containing information about an OpenGL uniform-buffer block.
+ */
+typedef struct {
+	/* the handle of this uniform buffer */
+	GLuint id;
+	/* the offset of each attribute within this UBO */
+	GLint offsets[TV_MATERIAL_MAX_UBO_ATTRIBUTES];
+	/* the size of each attribute within this UBO */
+	tvuint sizes[TV_MATERIAL_MAX_UBO_ATTRIBUTES];
+	/* the buffer containing the attribute data */
+	GLubyte *buffer;
+	/* the size of the unifrom buffer */
+	GLint size;
+	/* the name of the uniform block. */
+	tvchar name[31];
+}TV_material_uniform_block;
+
 COMPONENT(tv_material, tv_component) 
+	/* this material's name */
 	tvchar* name;
+
+	/* the shader program for this material */
 	GLuint program;
 
+	/* the passes run when rendering with this material. */
+	struct tv_material *passes;
+	const tvchar pass_name[TV_MATERIAL_MAX_PASSES][31];
+	tvuint num_passes;
+
+	/* the (shared) uniform blocks for this material */
+	GLuint *ubos;
+	const tvchar ubo_names[TV_MATERIAL_MAX_UBOS][31];
+	tvuint num_ubos;
+
+	/* the matrices for this material TODO: use shared UBO */
 	GLuint modelview_mat;
 	GLuint projection_mat;
-
-	/* the location of the uniform buffer this material uses. */
-	GLuint buffer;
-	/* an array of effects in the order they are used. */
-	/* tv_array *effects; */
 
 	/* if TRUE, this model needs access to the scene's lighting information */
 	tvbool lit;
@@ -72,19 +105,14 @@ COMPONENT(tv_material, tv_component)
 	TvHashHandle hh;
 ENDCOMPONENT(tv_material)
 
+/**
+ * A hashable structure containing information about a shader program.
+ */
 typedef struct tagMaterialShader {
 	tvchar* name;
 	tvuint id;
 	TvHashHandle hh;
 }TvMaterialShader;
-
-GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
-								   GLuint geom_shader, tvchar **attributes, 
-								   tvuint num_attributes);
-tvint tv_material_get_uniform(tv_material *material, tvchar *name);
-
-void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* projection);
-
 
 /**
  * Loads a material from the given file.
@@ -92,6 +120,44 @@ void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* project
  * @param file the filename of the file containg the material data.
  */
 void tv_material_load(tv_material *material, const char* file);
+
+/**
+ * Compile a shader program.
+ * @param vert_shader the vertex shader for the shader program.
+ * @param frag_shader the fragment shader for the shader program.
+ * @param geom_shader the geometry shader for the shader program.
+ * @param num_attributes the number of attributes for the given shader.
+ * @return the handle of the compiled shader program.
+ */
+GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
+								   GLuint geom_shader, tvchar **attributes, 
+								   tvuint num_attributes);
+/**
+ * Retrieve the handle of a uniform of the given name from the given material.
+ * @param material the material to acquire the unifrom from.
+ * @param name the name of the uniform.
+ * @return the handle of the uniform.
+ */
+tvint tv_material_get_uniform(tv_material *material, tvchar *name);
+
+/**
+ * Retrieve the handle of a uniform block in the given material.
+ * @param material the material to acquire the unifrom from.
+ * @param name the name of the uniform block.
+ * @return the handle of the uniform block.
+ */
+tvint tv_material_get_uniform_block(tv_material *material, const tvchar *name);
+
+void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* projection);
+
+/**
+ * Set a uniform buffer attribute for the given material.
+ * @param material the material to set the attribute of.
+ * @param ubo the name of the UBO data to buffer.
+ * @param data the attribute data for the uniform block.
+ * @param size the size of the data to buffer.
+ */
+void tv_material_set_ubo_attribute(tv_material *material, const tvchar* block, void *data, tvuint size);
 
 #if 0
 /** 

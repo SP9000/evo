@@ -242,12 +242,14 @@ tv_vector2 tv_input_mouse_pos();
  * @return the current mouse X position.
  */
 int tv_input_mouse_x();
+tvfloat tv_input_mouse_x_normalized();
 
 /**
  * Get the position of the mouse in the Y direction.
  * @return the current mouse Y position.
  */
 int tv_input_mouse_y();
+tvfloat tv_input_mouse_y_normalized();
 
 /**
  * Registers a button of the given ID and the given type as pressed.

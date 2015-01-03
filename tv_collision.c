@@ -1,5 +1,8 @@
 #include "tv_collision.h"
 
+/* TODO: */
+UT_icd  tv_collider_icd = {sizeof(TV_collider), 0, 0, 0};
+
 typedef struct OnCollideHash {
 	tvuint cid;
 	TvCollisionCollideFunc f;
@@ -22,19 +25,18 @@ static OnCollideHash* registered_callbacks;
 static UT_array *colliders;
 static UT_array *xSorted;
 
-void tv_collision_init()
+tvint tv_collision_init()
 {
-    colliders = NULL;
+    utarray_new(colliders, &ut_ptr_icd);
 	registered_colliders = NULL;
 	registered_callbacks = NULL;
+	return 0;
 }
 
-void tv_collision_register_collider(TvCollisionDetectFunc detect_func, tvuint id)
+void tv_collision_register_collider(TV_collider* collider)
 {
-	DetectCollisionHash* entry = (DetectCollisionHash*)malloc(sizeof(DetectCollisionHash));
-	entry->cid = id;
-	entry->f = detect_func;
-	HASH_ADD_INT(registered_colliders, cid, entry);
+	utarray_push_back(colliders, &collider);
+	/* TODO: resort */
 }
 
 void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint id)
@@ -221,4 +223,19 @@ TV_physics_hit_info tv_physics_raycast(tv_vector3 src, tv_vector3 dir, tvfloat l
 		}
 	}
 	return hit;
+}
+
+tv_array* tv_collision_check(TV_collider* c)
+{
+	tv_array *matches;
+	TV_collider** it;
+	
+	utarray_new(matches, &ut_ptr_icd);
+	/* check all collisions with the given collider */
+	for(it = (TV_collider**)utarray_front(colliders);  it != NULL; it = (TV_collider**)utarray_next(colliders, it)) {
+		if(tv_collider_check_collision(c, *it)) {
+			utarray_push_back(matches, it);
+		}
+	}
+	return matches;
 }

@@ -2,6 +2,8 @@
 
 static tv_array /*Entity* */ *entities;
 
+void tv_entity_update(tv_entity *e);
+
 int tv_entity_init()
 {
 	utarray_new(entities, &ut_ptr_icd);
@@ -159,38 +161,69 @@ tv_component* tv_entity_get_component(tv_entity* e, tvuint cid)
     return NULL;
 }
 
-void tv_entity_update()
+void tv_entity_update(tv_entity *e)
+{
+	tv_entity **child;
+	tv_component **c;
+	/* update all components for this entity */
+	for(c = (tv_component**)utarray_front(e->components); 
+		c != NULL;
+		c = (tv_component**)utarray_next(e->components, c))
+	{
+		(*c)->Update(*c);
+	}
+	/* foreach child of the entity... */
+	for(child = (tv_entity**)utarray_front(e->children);
+		child != NULL;
+		child = (tv_entity**)utarray_next(e->children, child)) 
+	{
+		tv_entity_update(*child);				
+	}
+}
+
+void tv_entity_update_all()
 {
 	tv_entity **e;
 	tv_entity **child;
 	tv_component **c;
 	
-	/* Run the update component of each component in every entity (including 
-	 * those that are children of other entitites. */
-    /* foreach entity... */
+	/* recursively update all the base entities */
     for(e = (tv_entity**)utarray_front(entities); 
 		e != NULL;
-		e = (tv_entity**)utarray_next(entities, e)) 
-	{
-		/* update all components for this entity */
-		for(c = (tv_component**)utarray_front((*e)->components); 
-			c != NULL;
-			c = (tv_component**)utarray_next((*e)->components, c))
-		{
-			(*c)->Update(*c);
-		}
-		/* foreach child of the entity... */
-		for(child = (tv_entity**)utarray_front((*e)->children);
-			child != NULL;
-			child = (tv_entity**)utarray_next((*e)->children, child)) 
-		{
-				/* update all components for this entity */
-				for(c = (tv_component**)utarray_front((*e)->components); 
-					c != NULL;
-					c = (tv_component**)utarray_next((*e)->components, c))
-				{
-					(*c)->Update(*c);
-				}
-		}
+		e = (tv_entity**)utarray_next(entities, e)) {
+			tv_entity_update(*e);
+
 	}
+}
+
+void tv_entity_instantiate(tv_entity *e)
+{
+	tv_component **c;
+	tv_entity *inst = tv_entity_new(&e->transform);
+
+	/* foreach component... */
+	for(c = (tv_component**)utarray_front(e->components); 
+		c != NULL; 
+		c = (tv_component**)utarray_next(e->components, c)) {
+        /* copy the component */
+			tv_entity_add_component(inst, tv_component_copy(*c));
+    }
+	/* if this entity has no parent, add it to the internal array of entities. */
+	tv_entity_start(inst);
+}
+void tv_entity_instantiate_at(tv_entity *e, tv_vector3 at)
+{
+	tv_component **c;
+	tv_entity *inst = tv_entity_new(&e->transform);
+	inst->transform.pos = at;
+
+	/* foreach component... */
+	for(c = (tv_component**)utarray_front(e->components); 
+		c != NULL; 
+        /* copy the component */
+		c = (tv_component**)utarray_next(e->components, c)) {
+			tv_entity_add_component(inst, tv_component_copy(*c));
+    }
+	/* if this entity has no parent, add it to the internal array of entities. */
+	tv_entity_start(inst);
 }

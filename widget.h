@@ -10,6 +10,12 @@ extern "C" {
 #include "widgetmodels.h"
 
 COMPONENT(tv_widget, tv_component)
+	/* the position of the widget; note that the transform is ONLY used to
+	 * position the top level widget - children of the root widget 
+	 * have no reliance on an entity of any kind. 
+	 */
+	tv_vector3 pos;
+
 	tvuint w, h;
 	tvuint max_w, max_h;
 	tvuint min_w, min_h;
@@ -31,6 +37,8 @@ void tv_widget_set_material(tv_widget *widget, tv_material *material);
 
 tvuint tv_widget_num_children(tv_widget *widget);
 tv_widget **tv_widget_children(tv_widget *widget);
+
+static void tv_widget_set_position(tv_widget *widget, tv_vector3 pos) {widget->pos = pos;}
 
 #ifdef __cplusplus
 }

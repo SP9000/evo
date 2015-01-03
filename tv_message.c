@@ -1,12 +1,12 @@
 #include "tv_message.h"
 
-void tv_message_register(TV_message_listener *listener, TV_message_type msg_type, TV_message_func f)
+void tv_message_connect(TV_message_slot *slot, TV_message_signal *sig, TV_message_func f)
 {
-	TV_message msg = {msg_type};
-	//utarray_push_back(handler->registered_receivers, &msg);
+	slot->trigger = f;
+	utarray_push_back(sig->listeners, &slot);
 }
 
-void tv_message_emit(TV_message_listener *handler, TV_message *message)
+void tv_message_emit(TV_message_signal *signal, TV_message *message)
 {
 	
 }

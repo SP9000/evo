@@ -41,12 +41,26 @@ static handler_id_info handler_locations[TV_COMPONENT_MAX_HANDLERS];
 
 /* an array of addresses to all the components */
 static tv_array *components[TV_COMPONENT_MAX_COMPONENTS];
+/* an array to the sizes of all components (and handlers) */
+static tvuint component_sizes[TV_COMPONENT_MAX_COMPONENTS];
 
 static void register_inheritance_(tvuint id, tvuint parent_id);
 
 int tv_component_init()
 {
 	return 0;
+}
+
+tv_component *tv_component_copy(tv_component* c)
+{
+	tv_component *dst = (tv_component*)malloc(component_sizes[c->id]);
+	memcpy(dst, c, component_sizes[c->id]);
+
+	/* make the component system aware that this component was added */
+	if(c->id > TV_COMPONENT_MAX_HANDLERS) {
+		tv_component_notify_add(dst);
+	}
+	return dst;
 }
 
 void tv_component_notify_add(tv_component* c) 
@@ -95,15 +109,16 @@ tvbool tv_component_inherits(tv_component* component, tvuint id)
 	return 0;
 }
 
-void tv_component_register_id(tvuint *id, tvuint parent_id)
+void tv_component_register_id(tvuint *id, tvuint parent_id, tvuint size)
 {
 	*id = next_free_id;
 	register_inheritance_(*id, parent_id);
 	utarray_new(components[*id], &ut_ptr_icd);
+	component_sizes[*id] = size;
 	next_free_id++;
 }
 
-void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage)
+void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage, tvuint size)
 {
 	tv_component_handler handler;
 	tv_array *components;
@@ -118,6 +133,7 @@ void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv
 	if(next_free_handler_id > TV_COMPONENT_MAX_PRE_HANDLERS) {
 		fprintf(stderr, "WARNING: more pre-update handlers than allowed have been registered.\n");
 	}
+
 	/* store the handler function */
 	registered_handlers[stage][num_handlers[stage]] = handler;
 	
@@ -127,6 +143,7 @@ void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv
 	/* make it reasonably efficient to lookup this bsns. */
 	handler_locations[*id].stage = stage;
 	handler_locations[*id].stage_offset = num_handlers[stage];
+	component_sizes[*id] = size;
 
 	++num_handlers[stage];
 }

@@ -308,3 +308,12 @@ void tv_delete_buffers(GLsizei n, const GLuint * buffers)
 {
 	glDeleteBuffers(n, buffers);
 }
+
+/*****************************************************************************/
+/* Accessors */
+tv_vector2 tv_draw_screen_dim()
+{
+	tv_vector2 ret = {screen->w, screen->h};
+	return ret;
+}
+

@@ -54,7 +54,7 @@ void tv_message_connect(TV_message_slot *slot, TV_message_signal *sig, TV_messag
  * @param handler the handler that is emitting the message.
  * @param message the message to send to all registered receivers.
  */
-void tv_message_emit(TV_message_signal, TV_message *message);
+void tv_message_emit(TV_message_signal *signal, TV_message *message);
 
 #ifdef __cplusplus
 }

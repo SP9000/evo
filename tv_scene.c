@@ -1,4 +1,5 @@
 #include "tv_scene.h"
+#include "tv_collision.h"
 
 static tvint tv_scene_sort_x(const void* a, const void* b);
 static tvint tv_scene_light_sort_x(const void* a, const void* b);
@@ -46,9 +47,44 @@ tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates)
 	return ret;
 }
 
-tv_vector2 tv_scene_from_screen_coordinates(tv_vector2 screen_coordinates) 
+tv_vector3 tv_screen_to_scene_coordinates(tv_vector2 screen_coordinates)
 {
-	tv_vector2 ret = {0.0f, 0.0f};
+	tv_vector3 ret = {0, 0, 0};
+	tv_vector4 res = {0, 0, 0, 0};
+	TvMat4x4 A;
+	TvMat4x4 inv_mvp;
+
+	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(main_cam->projection_mat);
+
+	/* apply matrix transformations */
+	tv_mat4x4_load_identity(&main_cam->modelview_mat);
+	tv_mat4x4_translate(&main_cam->modelview_mat, main_cam->pos.x, main_cam->pos.y, main_cam->pos.z);
+	//tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.x, 1.0f, 0.0f, 0.0f);
+	//tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.y, 0.0f, 1.0f, 0.0f);
+	//tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.z, 0.0f, 0.0f, 1.0f);
+	
+	A = tv_mat4x4_multiply(main_cam->modelview_mat, main_cam->projection_mat);
+	/* calcualate inverse (and verify if exists) */
+	if(!tv_mat4x4_inverse(A, &inv_mvp)) {
+		return ret;
+	}
+
+	res.x = 2.0f * (screen_coordinates.x) / (tvfloat)screen->w - 1.0f;
+	res.y = 2.0f * (screen_coordinates.y - (tvfloat)screen->h) / (tvfloat)screen->h + 1.0f;
+	res.z = 1.0f;
+	res.w = -1.0f;
+	res = tv_mat4x4_multiply_vec4x1(inv_mvp, res);
+	if(res.w == 0.0f) {
+		return ret;
+	}
+	res.w = 1.0f / res.w;
+	ret.x = res.x * res.w;	//TODO: negative?
+	ret.y = res.y * res.w;
+	ret.z = res.z * res.w;
+
+	main_cam->projection_mat = tv_mat4x4_pop();
+	main_cam->modelview_mat = tv_mat4x4_pop();
 	return ret;
 }
 
@@ -120,4 +156,88 @@ static tvint tv_scene_light_sort_x(const void* a, const void* b)
 	tv_component *l2 = (tv_component*)b;
 
 	return (tvint)(l1->entity->transform.pos.x - l2->entity->transform.pos.x);
+}
+
+
+tv_array* tv_scene_raypick(tv_vector2 screen_coordinates)
+{
+	tv_vector3 start, dir;
+	tv_vector4 v;
+	TvMat4x4 pv_mat;
+	TvMat4x4 inv_vp;
+
+	tv_vector2 clip_coords;
+	tv_vector4 world1, world2;
+
+	clip_coords.x = (screen_coordinates.x) / (tvfloat)screen->w * 2.0f - 1.0f;
+	clip_coords.y = ((tvfloat)screen->h - screen_coordinates.y) / (tvfloat)screen->h * 2.0f - 1.0f;
+
+	/* preserve matrices */
+	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(main_cam->projection_mat);
+
+	/* apply view transformations to get view matrix (no model transformations) */
+	tv_mat4x4_load_identity(&main_cam->modelview_mat);
+	tv_mat4x4_translate(&main_cam->modelview_mat, main_cam->pos.x, main_cam->pos.y, main_cam->pos.z);
+	//tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.x, 1.0f, 0.0f, 0.0f);
+	//tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.y, 0.0f, 1.0f, 0.0f);
+	//tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.z, 0.0f, 0.0f, 1.0f);
+	
+	/* perspective-view matrix */
+	pv_mat = tv_mat4x4_multiply(main_cam->projection_mat, main_cam->modelview_mat);
+	/* calcualate inverse (and verify if exists) */
+	if(!tv_mat4x4_inverse(pv_mat, &inv_vp)) {
+		return NULL;
+	}
+	/* near plane */
+	v.x = clip_coords.x;
+	v.y = clip_coords.y;
+	v.z = -1.0f;
+	v.w = 1.0f;
+	world1 = tv_mat4x4_multiply_vec4x1(inv_vp, v);
+	if(world1.w == 0.0f) {
+		return NULL;
+	}
+	world1.w = 1.0f / world1.w;
+	world1.x *= world1.w;
+	world1.y *= world1.w;
+	world1.z *= world1.w;
+
+	/* far plane */
+	v.z = 0.0f;
+	world2 = tv_mat4x4_multiply_vec4x1(inv_vp, v);
+	if(world2.w == 0.0f) {
+		return NULL;
+	}
+	world2.w = 1.0f / world2.w;
+	world2.x *= world2.w;
+	world2.y *= world2.w;
+	world2.z *= world2.w;
+
+	/* get the direction */
+	v = tv_vector4_sub(world2, world1);
+	dir.x = v.x;
+	dir.y = v.y;
+	dir.z = v.z;
+	dir = tv_vector3_normalize(dir);
+
+	/* restore matrices */
+	main_cam->projection_mat = tv_mat4x4_pop();
+	main_cam->modelview_mat = tv_mat4x4_pop();
+
+
+	start.x = world1.x;
+	start.y = world1.y;
+	start.z = world1.z;
+	printf("casting ray: origin @ (%f, %f, %f)\n  direction: (%f, %f, %f)\n", start.x, start.y, start.z, dir.x, dir.y, dir.z);
+	return tv_scene_raycast(start, dir, TV_INF);
+}
+
+tv_array* tv_scene_raycast(tv_vector3 start, tv_vector3 dir, tvfloat len)
+{
+	TV_collider ray;
+
+	/* create the line collider and check collision */
+	tv_collider_line(&ray, start, dir, TV_INF);
+	return tv_collision_check(&ray);
 }

@@ -58,7 +58,7 @@
 			parent_prefix ## _register(); \
 		} \
 		if(!tv_cid_ ## component_prefix) { \
-			tv_component_register_id(&tv_cid_ ## component_prefix, parent_prefix ## _id()); \
+			tv_component_register_id(&tv_cid_ ## component_prefix, parent_prefix ## _id(), sizeof(component_prefix)); \
 		} \
 	} \
 	component_prefix * component_prefix ## _new() { \
@@ -101,7 +101,7 @@
 #define END_HANDLER_UPDATE \
 	}
 
-#define HANDLER_NEW(handler_name, parent_name, handler_func, pre_update) \
+#define HANDLER_NEW(handler_name, parent_name, handler_func, stage) \
 	static void start(tv_component *self); \
 	static void update(tv_component *self); \
 	static tvuint tv_cid_ ## handler_name = 0; \
@@ -114,7 +114,7 @@
 			parent_name ## _register(); \
 		} \
 		if(!tv_cid_ ## handler_name) { \
-			tv_component_register_handler(&tv_cid_ ## handler_name, parent_name ## _id(), handler_func, pre_update); \
+		tv_component_register_handler(&tv_cid_ ## handler_name, parent_name ## _id(), handler_func, stage, sizeof(handler_name)); \
 		} \
 	} \
 	handler_name * handler_name ## _new() { \

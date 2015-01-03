@@ -14,6 +14,7 @@ extern "C" {
 typedef enum {
 	TV_COLLIDER_BOX,
 	TV_COLLIDER_SPHERE,
+	TV_COLLIDER_LINE
 }TV_collider_type;
 
 /**
@@ -31,11 +32,21 @@ typedef struct {
 }TV_collider_sphere_collider_info;
 
 /**
+ * A structure containing information needed to detect line collision.
+ */
+typedef struct {
+	tv_vector3 start;
+	tv_vector3 dir;
+	tvfloat len;
+}TV_collider_line_collider_info;
+
+/**
  * A structure containing information needed to detect collider collision.
  */
 typedef union TV_collider_info {
 	TV_collider_box_collider_info box;
 	TV_collider_sphere_collider_info sphere;
+	TV_collider_line_collider_info line;
 }TV_collider_info;
 
 COMPONENT(TV_collider, tv_component)
@@ -55,6 +66,18 @@ COMPONENT(TV_collider, tv_component)
 ENDCOMPONENT(TV_collider)
 
 /**
+ * The msesage that is sent by collision signals.
+ */
+typedef struct TV_collision_message {
+	/* the collider that triggered the  */
+	TV_collider *into;
+}TV_collision_message;
+
+
+void tv_collider_sphere(TV_collider *col, tvfloat radius);
+void tv_collider_line(TV_collider *col, tv_vector3 start, tv_vector3 dir, tvfloat len);
+
+/**
  * Check for collision between the two colliders.
  * @param c1 the first collider.
  * @param c2 the second collider.
@@ -63,6 +86,7 @@ ENDCOMPONENT(TV_collider)
 tvbool tv_collider_check_collision(TV_collider *c1, TV_collider *c2);
 tvbool tv_collider_check_box_collision(TV_collider *box, TV_collider *c2);
 tvbool tv_collider_check_sphere_collision(TV_collider *sphere, TV_collider *c2);
+tvbool tv_collider_check_line_collision(TV_collider *line, TV_collider *c2);
 
 #ifdef __cplusplus
 }

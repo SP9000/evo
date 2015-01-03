@@ -142,6 +142,7 @@ TvMat4x4 tv_mat4x4_multiply(TvMat4x4 mat1, TvMat4x4 mat2)
 	return res;
 }
 
+
 tv_vector4 tv_mat4x4_multiply_vec4x1(TvMat4x4 mat, tv_vector4 vec)
 {
 	tv_vector4 ret = {
@@ -153,7 +154,102 @@ tv_vector4 tv_mat4x4_multiply_vec4x1(TvMat4x4 mat, tv_vector4 vec)
 	return ret;
 }
 
+tv_vector3 tv_mat4x4_multiply_vec3x1(TvMat4x4 mat, tv_vector3 vec)
+{
+	tv_vector3 ret;
+	tv_vector4 v = {vec.x, vec.y, vec.z, 1.0f};
+	v = tv_mat4x4_multiply_vec4x1(mat, v);
+	ret.x = v.x;
+	ret.y = v.y;
+	ret.z = v.z;
+	return ret;
+}
+
 tvfloat *tv_mat4x4_to_array(TvMat4x4 *mat)
 {
 	return (tvfloat*)mat;
+}
+
+tvfloat tv_mat4x4_det(TvMat4x4 mat)
+{
+	TvMat4x4 inv;
+	tvfloat det;
+    inv.a0 =  mat.b1 * mat.c2 * mat.d3 - mat.b1 * mat.d2 * mat.c3 - mat.b2 * mat.c1 * mat.d3 + mat.b2 * mat.d1 * mat.c3 + mat.b3 * mat.c1 * mat.d2 - mat.b3 * mat.d1 * mat.c2;
+    inv.b0 = -mat.a1 * mat.c2 * mat.d3 + mat.a1 * mat.d2 * mat.c3 + mat.a2 * mat.c1 * mat.d3 - mat.a2 * mat.d1 * mat.c3 - mat.a3 * mat.c1 * mat.d2 + mat.a3 * mat.d1 * mat.c2;
+    inv.c0 =  mat.a1 * mat.b2 * mat.d3 - mat.a1 * mat.d2 * mat.b3 - mat.a2 * mat.b1 * mat.d3 + mat.a2 * mat.d1 * mat.b3 + mat.a3 * mat.b1 * mat.d2 - mat.a3 * mat.d1 * mat.b2;
+    inv.d0 = -mat.a1 * mat.b2 * mat.c3 + mat.a1 * mat.c2 * mat.b3 + mat.a2 * mat.b1 * mat.c3 - mat.a2 * mat.c1 * mat.b3 - mat.a3 * mat.b1 * mat.c2 + mat.a3 * mat.c1 * mat.b2;
+    inv.a1 = -mat.b0 * mat.c2 * mat.d3 + mat.b0 * mat.d2 * mat.c3 + mat.b2 * mat.c0 * mat.d3 - mat.b2 * mat.d0 * mat.c3 - mat.b3 * mat.c0 * mat.d2 + mat.b3 * mat.d0 * mat.c2;
+    inv.b1 =  mat.a0 * mat.c2 * mat.d3 - mat.a0 * mat.d2 * mat.c3 - mat.a2 * mat.c0 * mat.d3 + mat.a2 * mat.d0 * mat.c3 + mat.a3 * mat.c0 * mat.d2 - mat.a3 * mat.d0 * mat.c2;
+    inv.c1 = -mat.a0 * mat.b2 * mat.d3 + mat.a0 * mat.d2 * mat.b3 + mat.a2 * mat.b0 * mat.d3 - mat.a2 * mat.d0 * mat.b3 - mat.a3 * mat.b0 * mat.d2 + mat.a3 * mat.d0 * mat.b2;
+    inv.d1 =  mat.a0 * mat.b2 * mat.c3 - mat.a0 * mat.c2 * mat.b3 - mat.a2 * mat.b0 * mat.c3 + mat.a2 * mat.c0 * mat.b3 + mat.a3 * mat.b0 * mat.c2 - mat.a3 * mat.c0 * mat.b2;
+    inv.a2 =  mat.b0 * mat.c1 * mat.d3 - mat.b0 * mat.d1 * mat.c3 - mat.b1 * mat.c0 * mat.d3 + mat.b1 * mat.d0 * mat.c3 + mat.b3 * mat.c0 * mat.d1 - mat.b3 * mat.d0 * mat.c1;
+    inv.b2 = -mat.a0 * mat.c1 * mat.d3 + mat.a0 * mat.d1 * mat.c3 + mat.a1 * mat.c0 * mat.d3 - mat.a1 * mat.d0 * mat.c3 - mat.a3 * mat.c0 * mat.d1 + mat.a3 * mat.d0 * mat.c1;
+    inv.c2 =  mat.a0 * mat.b1 * mat.d3 - mat.a0 * mat.d1 * mat.b3 - mat.a1 * mat.b0 * mat.d3 + mat.a1 * mat.d0 * mat.b3 + mat.a3 * mat.b0 * mat.d1 - mat.a3 * mat.d0 * mat.b1;
+    inv.d2 = -mat.a0 * mat.b1 * mat.c3 + mat.a0 * mat.c1 * mat.b3 + mat.a1 * mat.b0 * mat.c3 - mat.a1 * mat.c0 * mat.b3 - mat.a3 * mat.b0 * mat.c1 + mat.a3 * mat.c0 * mat.b1;
+    inv.a3 = -mat.b0 * mat.c1 * mat.d2 + mat.b0 * mat.d1 * mat.c2 + mat.b1 * mat.c0 * mat.d2 - mat.b1 * mat.d0 * mat.c2 - mat.b2 * mat.c0 * mat.d1 + mat.b2 * mat.d0 * mat.c1;
+    inv.b3 =  mat.a0 * mat.c1 * mat.d2 - mat.a0 * mat.d1 * mat.c2 - mat.a1 * mat.c0 * mat.d2 + mat.a1 * mat.d0 * mat.c2 + mat.a2 * mat.c0 * mat.d1 - mat.a2 * mat.d0 * mat.c1;
+    inv.c3 = -mat.a0 * mat.b1 * mat.d2 + mat.a0 * mat.d1 * mat.b2 + mat.a1 * mat.b0 * mat.d2 - mat.a1 * mat.d0 * mat.b2 - mat.a2 * mat.b0 * mat.d1 + mat.a2 * mat.d0 * mat.b1;
+    inv.d3 =  mat.a0 * mat.b1 * mat.c2 - mat.a0 * mat.c1 * mat.b2 - mat.a1 * mat.b0 * mat.c2 + mat.a1 * mat.c0 * mat.b2 + mat.a2 * mat.b0 * mat.c1 - mat.a2 * mat.c0 * mat.b1;
+
+	det = (mat.a0 * inv.a0) + (mat.a1 * inv.b0) + (mat.a2 * inv.c0) + (mat.a3 * inv.d0);
+	return det;
+}
+
+tvbool tv_mat4x4_inverse(TvMat4x4 mat, TvMat4x4 *out)
+{
+	TvMat4x4 inv;
+	tvfloat det;
+
+	TvMat4x4 test_mat = {
+		1.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 2.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 1.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+
+    inv.a0 =  mat.b1 * mat.c2 * mat.d3 - mat.b1 * mat.d2 * mat.c3 - mat.b2 * mat.c1 * mat.d3 + mat.b2 * mat.d1 * mat.c3 + mat.b3 * mat.c1 * mat.d2 - mat.b3 * mat.d1 * mat.c2;
+    inv.a1 = -mat.a1 * mat.c2 * mat.d3 + mat.a1 * mat.d2 * mat.c3 + mat.a2 * mat.c1 * mat.d3 - mat.a2 * mat.d1 * mat.c3 - mat.a3 * mat.c1 * mat.d2 + mat.a3 * mat.d1 * mat.c2;
+    inv.a2 =  mat.a1 * mat.b2 * mat.d3 - mat.a1 * mat.d2 * mat.b3 - mat.a2 * mat.b1 * mat.d3 + mat.a2 * mat.d1 * mat.b3 + mat.a3 * mat.b1 * mat.d2 - mat.a3 * mat.d1 * mat.b2;
+    inv.a3 = -mat.a1 * mat.b2 * mat.c3 + mat.a1 * mat.c2 * mat.b3 + mat.a2 * mat.b1 * mat.c3 - mat.a2 * mat.c1 * mat.b3 - mat.a3 * mat.b1 * mat.c2 + mat.a3 * mat.c1 * mat.b2;
+    inv.b0 = -mat.b0 * mat.c2 * mat.d3 + mat.b0 * mat.d2 * mat.c3 + mat.b2 * mat.c0 * mat.d3 - mat.b2 * mat.d0 * mat.c3 - mat.b3 * mat.c0 * mat.d2 + mat.b3 * mat.d0 * mat.c2;
+    inv.b1 =  mat.a0 * mat.c2 * mat.d3 - mat.a0 * mat.d2 * mat.c3 - mat.a2 * mat.c0 * mat.d3 + mat.a2 * mat.d0 * mat.c3 + mat.a3 * mat.c0 * mat.d2 - mat.a3 * mat.d0 * mat.c2;
+    inv.b2 = -mat.a0 * mat.b2 * mat.d3 + mat.a0 * mat.d2 * mat.b3 + mat.a2 * mat.b0 * mat.d3 - mat.a2 * mat.d0 * mat.b3 - mat.a3 * mat.b0 * mat.d2 + mat.a3 * mat.d0 * mat.b2;
+    inv.b3 =  mat.a0 * mat.b2 * mat.c3 - mat.a0 * mat.c2 * mat.b3 - mat.a2 * mat.b0 * mat.c3 + mat.a2 * mat.c0 * mat.b3 + mat.a3 * mat.b0 * mat.c2 - mat.a3 * mat.c0 * mat.b2;
+    inv.c0 =  mat.b0 * mat.c1 * mat.d3 - mat.b0 * mat.d1 * mat.c3 - mat.b1 * mat.c0 * mat.d3 + mat.b1 * mat.d0 * mat.c3 + mat.b3 * mat.c0 * mat.d1 - mat.b3 * mat.d0 * mat.c1;
+    inv.c1 = -mat.a0 * mat.c1 * mat.d3 + mat.a0 * mat.d1 * mat.c3 + mat.a1 * mat.c0 * mat.d3 - mat.a1 * mat.d0 * mat.c3 - mat.a3 * mat.c0 * mat.d1 + mat.a3 * mat.d0 * mat.c1;
+    inv.c2 =  mat.a0 * mat.b1 * mat.d3 - mat.a0 * mat.d1 * mat.b3 - mat.a1 * mat.b0 * mat.d3 + mat.a1 * mat.d0 * mat.b3 + mat.a3 * mat.b0 * mat.d1 - mat.a3 * mat.d0 * mat.b1;
+    inv.c3 = -mat.a0 * mat.b1 * mat.c3 + mat.a0 * mat.c1 * mat.b3 + mat.a1 * mat.b0 * mat.c3 - mat.a1 * mat.c0 * mat.b3 - mat.a3 * mat.b0 * mat.c1 + mat.a3 * mat.c0 * mat.b1;
+    inv.d0 = -mat.b0 * mat.c1 * mat.d2 + mat.b0 * mat.d1 * mat.c2 + mat.b1 * mat.c0 * mat.d2 - mat.b1 * mat.d0 * mat.c2 - mat.b2 * mat.c0 * mat.d1 + mat.b2 * mat.d0 * mat.c1;
+    inv.d1 =  mat.a0 * mat.c1 * mat.d2 - mat.a0 * mat.d1 * mat.c2 - mat.a1 * mat.c0 * mat.d2 + mat.a1 * mat.d0 * mat.c2 + mat.a2 * mat.c0 * mat.d1 - mat.a2 * mat.d0 * mat.c1;
+    inv.d2 = -mat.a0 * mat.b1 * mat.d2 + mat.a0 * mat.d1 * mat.b2 + mat.a1 * mat.b0 * mat.d2 - mat.a1 * mat.d0 * mat.b2 - mat.a2 * mat.b0 * mat.d1 + mat.a2 * mat.d0 * mat.b1;
+    inv.d3 =  mat.a0 * mat.b1 * mat.c2 - mat.a0 * mat.c1 * mat.b2 - mat.a1 * mat.b0 * mat.c2 + mat.a1 * mat.c0 * mat.b2 + mat.a2 * mat.b0 * mat.c1 - mat.a2 * mat.c0 * mat.b1;
+
+	det = (mat.a0 * inv.a0) + (mat.b0 * inv.a1) + (mat.c0 * inv.a2) + (mat.d0 * inv.a3);
+	if(det == 0.0f) {
+		return FALSE;
+	}
+	det = 1.0f / det;
+	out->a0 = inv.a0 * det;
+	out->a1 = inv.a1 * det;
+	out->a2 = inv.a2 * det;
+	out->a3 = inv.a3 * det;
+
+	out->b0 = inv.b0 * det;
+	out->b1 = inv.b1 * det;
+	out->b2 = inv.b2 * det;
+	out->b3 = inv.b3 * det;
+	
+	out->c0 = inv.c0 * det;
+	out->c1 = inv.c1 * det;
+	out->c2 = inv.c2 * det;
+	out->c3 = inv.c3 * det;
+	
+	out->d0 = inv.d0 * det;
+	out->d1 = inv.d1 * det;
+	out->d2 = inv.d2 * det;
+	out->d3 = inv.d3 * det;
+
+
+	return TRUE;
 }

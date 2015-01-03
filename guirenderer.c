@@ -44,26 +44,30 @@ END_HANDLER_START
 HANDLER_UPDATE(tv_gui_renderer)
 END_HANDLER_UPDATE
 
-static void render(tv_component *self)
+static void render_children(tv_component *self)
 {
 	tvuint i;
 	tv_gui_renderer *renderer = (tv_gui_renderer*)self;
 	tv_widget *widget = renderer->widget;
 	tv_widget **children = tv_widget_children(widget); 
 
-	tv_vector3 pos; 
-	tv_vector3 scale; 
+	tv_vector3 pos;
+	tv_vector3 scale;
 
 	if(widget == NULL) {
 		return;
 	}
-	pos = ((tv_component*)widget)->entity->transform.pos;
-	scale  = ((tv_component*)widget)->entity->transform.scale;
+	/* only use transform if this widget is a component of an entity (the root widget) */
+	if(((tv_component*)widget)->entity != NULL) {
+		pos = ((tv_component*)widget)->entity->transform.pos;
+		scale  = ((tv_component*)widget)->entity->transform.scale;
+	}
+	else {
+		pos = widget->pos;
+		scale.x = scale.y = scale.z = 1.0f;
+	}
 
 	if(widget->model != NULL) {
-		glDisable(GL_DEPTH_TEST);
-		tv_mat4x4_push(tv_camera_gui->modelview_mat);
-		tv_mat4x4_load_identity(&tv_camera_gui->modelview_mat);
 		tv_mat4x4_translate(&tv_camera_gui->modelview_mat, pos.x, pos.y, pos.z);
 		tv_mat4x4_scale(&tv_camera_gui->modelview_mat, scale.x, scale.y, 1.0f);
 		/* use the model's material's shader */
@@ -78,8 +82,6 @@ static void render(tv_component *self)
 		/* bind attribute array and draw */
 		glBindVertexArray(widget->model->vao);
 		tv_draw_arrays(widget->model->primitive, 0, utarray_len(widget->model->vertices));
-		glBindVertexArray(0);
-		tv_camera_gui->modelview_mat = tv_mat4x4_pop();
 	}
 	/* recursively render all the widgets */
 	if(children == NULL) {
@@ -91,7 +93,24 @@ static void render(tv_component *self)
 	}
 	/* restore widget */
 	renderer->widget = widget;
-	glEnable(GL_DEPTH_TEST);
+}
+
+static void render(tv_component *self)
+{	
+	/* render each child on top of its parent */
+	glDisable(GL_DEPTH_TEST);
+
+	/* save the state of the modelview matrix and reset it */
+	tv_mat4x4_push(tv_camera_gui->modelview_mat);
+	tv_mat4x4_load_identity(&tv_camera_gui->modelview_mat);
+	
+	/* render this widget and all its children */
+	render_children(self);
+
+	/* restore the modelview matrix */
+	tv_camera_gui->modelview_mat = tv_mat4x4_pop();
+	glBindVertexArray(0);
+	glEnable(GL_DEPTH_TEST);	
 }
 
 void tv_gui_renderer_set_base_widget(tv_gui_renderer *renderer, tv_widget *w)

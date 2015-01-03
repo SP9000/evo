@@ -108,6 +108,13 @@ extern UT_icd tv_component_handler_icd;
 int tv_component_init();
 
 /**
+ * Copy the given component and return the copy.
+ * @param c the component to copy. 
+ * @return a copy of the component given.
+ */
+tv_component *tv_component_copy(tv_component* c);
+
+/**
  * Notify the engine that a component was added.
  * @param c the component that was added.
  */
@@ -125,8 +132,9 @@ void tv_component_free(tv_component *c);
  * @param id upon return contains a unique ID.
  * @param parent_id the ID of the component that the ID to register inherits 
  *   from, or 0 if this is a top-level component (inherits only tv_component)
+ * @param size the size (in bytes) of the component to register.
  */
-void tv_component_register_id(tvuint *id, tvuint parent_id);
+void tv_component_register_id(tvuint *id, tvuint parent_id, tvuint size);
 
 /**
  * Register a component id to call a designated function every frame.
@@ -140,8 +148,9 @@ void tv_component_register_id(tvuint *id, tvuint parent_id);
  *   from, or 0 if this is a top-level component (inherits only tv_component)
  * @param func the function to call on the registered component type.
  * @param stage The stage that this handler performs its update.
+ * @param size the size (in bytes) of the handler.
  */
-void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage);
+void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage, tvuint size);
 
 /**
  * Registers the given component to the handler given by the given associated ID.
@@ -198,7 +207,7 @@ tv_array *tv_component_get_all_of_type(tvuint id);
  * @param id the ID of the component that must belong to the given component's
  *  entity.
  */
-static tvbool tv_component_require(tv_component *component, tvuint id) {assert(!tv_component_get(component, id));}
+static void tv_component_require(tv_component *component, tvuint id) {assert(tv_component_get(component, id) != NULL);}
 
 /*****************************************************************************/
 /**
@@ -227,7 +236,7 @@ static tvuint tv_component_id() {
 } 
 static void tv_component_register() { 
 	if(!tv_cid_component) {
-		tv_component_register_id(&tv_cid_component, 0); 
+		tv_component_register_id(&tv_cid_component, 0, sizeof(tv_component)); 
 	} 
 } 
 

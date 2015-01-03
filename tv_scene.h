@@ -13,8 +13,9 @@
 extern "C" {
 #endif
 
-#include "camera.h"
 #include "tv_types.h"
+#include "camera.h"
+#include "tv_collider.h"
 #include "tv_entity.h"
 #include "tv_light.h"
 #include "model.h"
@@ -93,7 +94,30 @@ void tv_scene_update();
  */
 tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates);
 
-tv_vector2 tv_scene_from_screen_coordinates(tv_vector2 screen_coordinates);
+/**
+ * Returns the scene coordinates of the given screen position.
+ * @param screen_coordinates the screen coordinates to find the scene
+ *  coordinates of.
+ * @return the scene coordinates of the given screen coordinates.
+ */
+tv_vector3 tv_screen_to_scene_coordinates(tv_vector2 screen_coordinates);
+
+/** 
+ * Cast a ray from the given position in the given direction for the given 
+ * length distance.
+ * @param start the origin of the line segment to cast.
+ * @param dir the direction (unit-vector) of the line.
+ * @param len the length of the line to cast (up to TV_INF).
+ * @return an array of tv_colliders that were intersected by the ray.
+ */
+tv_array* tv_scene_raycast(tv_vector3 start, tv_vector3 dir, tvfloat len);
+
+/**
+ * Create a ray and perform a tv_scene_raycast to find collisions.
+ * @param screen_coordinates the 2D window coordinates to pick at.
+ * @return an array of tv_colliders that the ray intersected. 
+ */
+tv_array* tv_scene_raypick(tv_vector2 screen_coordinates);
 
 #ifdef __cplusplus
 }

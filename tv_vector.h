@@ -66,9 +66,16 @@ extern const tv_vector2 tv_vector2_zero;
 extern const tv_vector3 tv_vector3_zero;
 extern const tv_vector4 tv_vector4_zero;
 
+extern const tv_vector3 tv_vector3_forward;
+extern const tv_vector4 tv_vector4_forward;
+
 tv_vector2 tv_vector2_add(tv_vector2 v1, tv_vector2 v2);
 tv_vector3 tv_vector3_add(tv_vector3 v1, tv_vector3 v2);
 tv_vector4 tv_vector4_add(tv_vector4 v1, tv_vector4 v2);
+
+tv_vector2 tv_vector2_sub(tv_vector2 v1, tv_vector2 v2);
+tv_vector3 tv_vector3_sub(tv_vector3 v1, tv_vector3 v2);
+tv_vector4 tv_vector4_sub(tv_vector4 v1, tv_vector4 v2);
 
 tvfloat tv_vector2_dot(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_dot(tv_vector3 v1, tv_vector3 v2);

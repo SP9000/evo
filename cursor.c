@@ -8,8 +8,12 @@ COMPONENT_START(app_cursor)
 	self->start.x = -1;
 	self->model = NULL;
 	self->renderer = (tv_overlay_renderer*)tv_component_get(self_component, tv_overlay_renderer_id());
+	
+	/* button assignments */
 	self->select_button.button = INPUT_MOUSEBUTTON_0;
-	self->select_button.type = TV_INPUT_MOUSE;
+	self->select_button.type   = TV_INPUT_MOUSE;
+	self->move_button.button   = INPUT_MOUSEBUTTON_2;
+	self->move_button.type     = TV_INPUT_MOUSE;
 
 	tv_overlay_renderer_set_model(self->renderer, NULL);
 	tv_renderer_set_material((tv_renderer*)self->renderer, (tv_material*)tv_component_get(self_component, tv_material_id()));
@@ -17,10 +21,21 @@ END_COMPONENT_START
 
 COMPONENT_UPDATE(app_cursor)
 	tv_model_vertex vertex_format = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {4,4}};
+	
+	if(tv_input_buttonpressed(self->move_button)) {
+		tv_array* hits;
+		TV_collider **c;
+		hits = tv_scene_raypick(tv_input_mouse_pos());
+		for(c = (TV_collider**)utarray_front(hits); c != NULL; c = (TV_collider**)utarray_next(hits, c)) {
+			tv_vector3 pos = ((tv_component*)*c)->transform->pos;
+			printf("* collision match  @ (%f, %f, %f)\n", pos.x, pos.y, pos.z);
+		}
+	}
+
 	/* mouse down */
 	if(tv_input_buttonpressed(self->select_button)) {
-		self->start.x = tv_input_mouse_x() / (tvfloat)screen->w;
-		self->start.y = tv_input_mouse_y() / (tvfloat)screen->h;
+		self->start.x = tv_input_mouse_x_normalized();
+		self->start.y = tv_input_mouse_y_normalized();
 	}
 	/* mouse up */
 	else if(tv_input_buttonreleased(self->select_button)) {
@@ -29,9 +44,16 @@ COMPONENT_UPDATE(app_cursor)
 
 		self->rect.x = self->start.x;
 		self->rect.y = self->start.y, 
-		self->rect.w = (tv_input_mouse_x()) - self->start.x;
-		self->rect.h = (tv_input_mouse_y()) - self->start.y;
-
+		self->rect.w = tv_input_mouse_x_normalized() - self->start.x;
+		self->rect.h = tv_input_mouse_y_normalized() - self->start.y;
+		if(self->rect.w < 0.0f) {
+			self->rect.w = -self->rect.w;
+			self->rect.x = tv_input_mouse_x_normalized();
+		}
+		if(self->rect.h < 0.0f) {
+			self->rect.h = -self->rect.h;
+			self->rect.y = tv_input_mouse_y_normalized();
+		}		
 		self->start.x = -1;
 		tv_model_free(self->model);
 		self->model = NULL;

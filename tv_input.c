@@ -1,4 +1,5 @@
 #include "tv_input.h"
+#include "tv_draw.h"	//for screen width and height
 
 static tv_input_button_state keyboard_state[TV_INPUT_KEYBOARD_MAX_BUTTONS];
 static tv_input_button_state mouse_button_states[TV_INPUT_MOUSE_MAX_BUTTONS];
@@ -87,6 +88,16 @@ int tv_input_mouse_x()
 int tv_input_mouse_y()
 {
     return mouseY;
+}
+
+tvfloat tv_input_mouse_y_normalized()
+{
+	return (tvfloat)mouseY / (tvfloat)tv_draw_screen_dim().y;
+}
+
+tvfloat tv_input_mouse_x_normalized()
+{
+	return (tvfloat)mouseX / (tvfloat)tv_draw_screen_dim().x;
 }
 
 tvbool tv_input_buttondown(tv_input_button button)

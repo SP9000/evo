@@ -41,38 +41,51 @@ COMPONENT_UPDATE(app_camera_controller)
 	if(tv_time_delta > 0.5f) {
 		return;
 	}
+	/* move right */
 	if(tv_input_buttondown(self->move_right_button)) {
 		if(main_cam->pos.x > self->pan_x_limits.x) {
 			main_cam->pos.x -= self->pan_speed * tv_time_delta;
 		}
 	}
+	/* move left */
 	if(tv_input_buttondown(self->move_left_button)) {
 		if(main_cam->pos.x > self->pan_x_limits.y) {
 			main_cam->pos.x += self->pan_speed * tv_time_delta;
 		}
 	}
+	/* move up */
 	if(tv_input_buttondown(self->move_up_button)) {
-		main_cam->pos.y -= self->pan_speed * tv_time_delta;
+		if(main_cam->pos.x > self->pan_y_limits.y) {
+			main_cam->pos.y -= self->pan_speed * tv_time_delta;
+		}
 	}
+	/* move down */
 	if(tv_input_buttondown(self->move_down_button)) {
-		main_cam->pos.y += self->pan_speed * tv_time_delta;
+		if(main_cam->pos.x > self->pan_y_limits.x) {
+			main_cam->pos.y += self->pan_speed * tv_time_delta;
+		}
 	}
+	/* zoom in */
 	if(tv_input_buttonpressed(self->zoom_in_button)) {
 		if(main_cam->pos.z < self->zoom_limits.x) {
 			main_cam->pos.z += self->zoom_speed * tv_time_delta;
 		}
 	}
+	/* zoom out */
 	if(tv_input_buttonpressed(self->zoom_out_button)) {
 		if(main_cam->pos.z > self->zoom_limits.y) {
 			main_cam->pos.z -= self->zoom_speed * tv_time_delta;
 		}
 	}
+	/* rotate down */
 	if(tv_input_buttondown(self->rotate_down_button)) {
 		main_cam->rot.x += self->pan_speed * tv_time_delta;
 	}
+	/* rotate up */
 	if(tv_input_buttondown(self->rotate_up_button)) {
 		main_cam->rot.x -= self->pan_speed * tv_time_delta;
 	}
+	/* pan */
 	if(self->pan_on_edges) {
 		tv_vector2 mouse_pos = tv_input_mouse_pos();
 		if(mouse_pos.x < self->pan_edge_thresholds.x) {
@@ -88,11 +101,16 @@ COMPONENT_UPDATE(app_camera_controller)
 			main_cam->pos.y += self->pan_speed * tv_time_delta;
 		}
 	}
-	END_COMPONENT_UPDATE
+END_COMPONENT_UPDATE
 
 void app_camera_controller_set_pan_speed(app_camera_controller *controller, tvfloat speed)
 {
 	controller->pan_speed = speed;
+}
+
+void app_camera_controller_set_pan_accel(app_camera_controller *controller, tvfloat accel)
+{
+	controller->pan_accel = accel;
 }
 
 void app_camera_controller_set_zoom(app_camera_controller *controller, tvfloat zoom)
@@ -104,4 +122,5 @@ void app_camera_controller_set_pan_limits(app_camera_controller *controller, tv_
 {
 	controller->pan_x_limits = x_lim;
 	controller->pan_y_limits = y_lim;
+	controller->zoom_limits = zoom_lim;
 }

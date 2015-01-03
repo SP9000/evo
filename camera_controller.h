@@ -12,6 +12,8 @@ COMPONENT(app_camera_controller, tv_component)
 	tv_vector2 pan_y_limits;
 	tv_vector2 zoom_limits;
 	tvfloat pan_speed;
+	tvfloat pan_vel;
+	tvfloat pan_accel;
 	tvfloat zoom_speed;
 	tvbool pan_on_edges;
 	tv_vector4 pan_edge_thresholds;
@@ -28,6 +30,7 @@ ENDCOMPONENT(app_camera_controller)
 void app_camera_controller_set_pan_limits(app_camera_controller *controller, tv_vector2 x_lim, tv_vector2 y_lim, tv_vector2 zoom_lim);
 void app_camera_controller_set_pan_speed(app_camera_controller *controller, tvfloat speed);
 void app_camera_controller_set_zoom(app_camera_controller *controller, tvfloat zoom);
+void app_camera_controller_set_pan_accel(app_camera_controller *controller, tvfloat accel);
 
 #ifdef __cplusplus
 }

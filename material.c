@@ -66,32 +66,48 @@ const tvchar* base_geometry_shader_suffix =
 #endif
 
 COMPONENT_NEW(tv_material, tv_component)
+	self->num_passes = 0;
+	self->num_ubos = 0;
+	self->lit = 1;
 END_COMPONENT_NEW(tv_material)
 
 COMPONENT_START(tv_material)
-	tv_material_init_uniform_buffer_(self);
-	self->lit = 1;
 END_COMPONENT_START
 
 COMPONENT_UPDATE(tv_material)
 END_COMPONENT_UPDATE
 
-void tv_material_init_uniform_buffer_(tv_material *material)
+void tv_material_add_ubo(tv_material *material, const tvchar* name)
 {
-	// the binding point must be smaller than GL_MAX_UNIFORM_BUFFER_BINDINGS
-	GLuint binding_point = TV_MATERIAL_BUFFER_BINDING_POINT;
-	GLuint bindingPoint = 1, blockIndex;
-	tvfloat myFloats[8] = {1.0f, 0.0f, 0.0f, 1.0f, 0.4f, 0.0f, 0.0f, 1.0f};
-	blockIndex = glGetUniformBlockIndex(material->program, "AttributeBlock");
-	glUniformBlockBinding(material->program, blockIndex, bindingPoint);
-	
-	glGenBuffers(1, &material->buffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, material->buffer);
-
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(myFloats), myFloats, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_UNIFORM_BUFFER, bindingPoint, material->buffer);
+	/* retrieve the binding point for the new UBO */
+	GLuint binding_point = material->num_ubos + 1;
+	/* get the block index of the UBO by its name */
+	GLuint block_index = glGetUniformBlockIndex(material->program, name);
+	glUniformBlockBinding(material->program, block_index, binding_point);
+	glGenBuffers(1, &material->ubos[material->num_ubos]);
+	++material->num_ubos;
 }
 
+tvint tv_material_get_uniform_block(tv_material *material, const tvchar *name)
+{
+	tvuint i;
+	tvuint len = strlen(name);
+	/* linearly search for the UBO by name */
+	for(i = 0; i < material->num_ubos; ++i) {
+		if(strncmp(material->ubo_names[i], name, len) == 0) {
+			return material->ubos[i];
+		}
+	}
+	/* no UBO of the specified name */
+	return -1;
+}
+
+void tv_material_set_ubo_attribute(tv_material *material, const tvchar* block, void *data, tvuint size)
+{
+	tvuint id = tv_material_get_uniform_block(material, block);
+	glBindBuffer(GL_UNIFORM_BUFFER, id);
+	glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
+}
 
 GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 {

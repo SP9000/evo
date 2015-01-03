@@ -22,6 +22,18 @@ extern "C" {
 
 #include "../abilities.h"
 
+#include "../projectile.h"
+#include "../laser.h"
+#include "../gun.h"
+#include "../mass.h"
+#include "../velocity.h"
+
+#include "../spawner.h"
+#include "../sinespawner.h"
+#include "../story_point.h"
+
+#include "../app_sine_move.h"
+
 void app_register();
 
 #ifdef __cplusplus

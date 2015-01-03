@@ -5,6 +5,7 @@ COMPONENT_NEW(tv_widget, tv_component)
 	utarray_new(self->children, &ut_ptr_icd);
 	self->model = NULL;
 	self->material = NULL;
+	self->pos.x = self->pos.y = self->pos.z = 0.0f;
 END_COMPONENT_NEW(tv_widget)
 
 COMPONENT_START(tv_widget)
@@ -18,6 +19,9 @@ void tv_widget_add_child(tv_widget *widget, tv_widget *child)
 {
 	assert(widget != NULL);
 	utarray_push_back(widget->children, &child);
+	if(widget->material != NULL) {
+		child->material = widget->material;
+	}
 }
 
 void tv_widget_set_model(tv_widget *widget, tv_model *model)

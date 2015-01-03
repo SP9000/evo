@@ -228,7 +228,7 @@ tvbool property_is_texco(tvchar *name)
 
 /*****************************************************************************/
 COMPONENT_NEW(tv_model, tv_component)
-	self->vertices = NULL;
+  	self->vertices = NULL;
 	self->num_vertices = 0;
 	self->num_properties = 0;
 	self->vertex_size = 0;

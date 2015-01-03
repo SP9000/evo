@@ -27,6 +27,21 @@ extern "C" {
 #include "transform.h"
 #include "tv_message.h"
 
+/** 
+ * Create an entity with the given name and set its transform.
+ * To create the entity call the function <name>().  Subsequent calls to 
+ * <name>() will return a reference to this entity.
+ * @param name the name of the entity.
+ * @param px the x-position of the entity.
+ * @param py the y-position of the entity.
+ * @param pz the z-position of the entity.
+ * @param sx the x-scale of the entity.
+ * @param sy the y-scale of the entity.
+ * @param sz the z-scale of the entity.
+ * @param rx the x-rotation of the entity.
+ * @param ry the y-rotation of the entity.
+ * @param rz the z-rotation of the entity.
+ */
 #define ENTITY(name, px, py, pz, sx, sy, sz, rx, ry, rz) \
 	tv_entity* name () { \
 		static tv_entity* e = NULL; \
@@ -40,8 +55,38 @@ extern "C" {
 		 e->transform.rot.x = rx ; e->transform.rot.y = ry ; e->transform.rot.z = rz ; e->transform.rot.w = 0.0f; \
 		} \
 	{
+/** 
+ * Create a prefab with the given name.
+ * To create the prefab call the function <name>().  A new entity is created
+ * with each call to <name>().
+ * @param name the name of the prefab (the name of the function to call to
+ *   produce an entity)
+ */
+#define PREFAB(name) \
+	tv_entity* name () { \
+		tv_entity* e = NULL; \
+		{ \
+		 e = tv_entity_new(NULL); \
+		 e->transform.pos.x = 0 ; e->transform.pos.y = 0 ; e->transform.pos.z = 0 ; \
+		 e->transform.scale.x = 1 ; e->transform.scale.y = 1 ; e->transform.scale.z = 1 ; \
+		 e->transform.rot.x = 0 ; e->transform.rot.y = 0 ; e->transform.rot.z = 0 ; e->transform.rot.w = 0.0f; \
+		} \
+	{
+/**
+ * Add a component of the given name to the current entity.
+ * e.g:
+ *   ENTITY(name, ...)
+ *   ADDCOMPONENT(modelrenderer, r)
+ * @param type the type of the component to add (e.g. TV_model)
+ * @param name the name to refer to the component as for the rest of the entity
+ *   definition.
+ */
 #define ADDCOMPONENT(type, name) \
 	type * name = (type*)tv_entity_add_component(e, (tv_component*)type ## _new()); 
+
+/**
+ * End the current entity declartion.
+ */
 #define ENTITY_END \
 	} \
 		tv_entity_start(e); \
@@ -124,7 +169,21 @@ void tv_entity_start(tv_entity* e);
 /**
  * Update all entities that have been created.
  */
-void tv_entity_update();
+void tv_entity_update_all();
+
+/**
+ * Instantiate a new entity identical to the given one.
+ * @param e the entity to copy/create.
+ */
+void tv_entity_instantiate(tv_entity *e);
+
+/**
+ * Instantiate a new entity identical to the given one at the given position.
+ * @param e the entity to copy/create.
+ * @param at the location to instantiate the entity at.
+ */
+void tv_entity_instantiate_at(tv_entity *e, tv_vector3 at);
+
 
 /**
  * A macro to retrieve and cast the desired component from an entity.

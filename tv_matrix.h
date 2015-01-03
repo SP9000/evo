@@ -39,9 +39,12 @@ void tv_mat4x4_scale(TvMat4x4 *mat, float x, float y, float z);
 void tv_mat4x4_translate(TvMat4x4 *mat, float x, float y, float z);
 void tv_mat4x4_rotate(TvMat4x4 *mat, float angle, float x, float y, float z);
 
+tvfloat tv_mat4x4_det(TvMat4x4 mat);
+tvbool tv_mat4x4_inverse(TvMat4x4 mat, TvMat4x4 *out);
 
 TvMat4x4 tv_mat4x4_multiply(TvMat4x4 mat1, TvMat4x4 mat2);
 tv_vector4 tv_mat4x4_multiply_vec4x1(TvMat4x4 mat, tv_vector4 vec);
+tv_vector3 tv_mat4x4_multiply_vec3x1(TvMat4x4 mat, tv_vector3 vec);
 void tv_mat4x4_perspective(TvMat4x4 *mat, float fov, float aspect, float zNear, float zFar);
 void tv_mat4x4_orthographic(TvMat4x4 *mat, float left, float right, float top, float bottom, float nearZ, float farZ);
 

@@ -40,16 +40,14 @@ typedef void (*TvCollisionCollideFunc)(tv_entity*);
 /**
  * Initialize collision for use in the engine 
  */
-void tv_collision_init();
+tvint tv_collision_init();
+
 
 /**
- * Associates a given ID as a collider thereby adding components with that
- * id to the collision detection routines.
- * @param detect_func the function to call once two colliders AABB's overlap to
- *	determine if a collision happened or not.
- * @param id the ID to register as a collider.
+ * Register the given collider with the collision detection handlers.
+ * @param collider the collider to register for collision detection.
  */
-void tv_collision_register_collider(TvCollisionDetectFunc detect_func, tvuint cid);
+void tv_collision_register_collider(TV_collider* collider);
 
 /**
  * Associates a given ID with a function that should be called when a 
@@ -87,6 +85,14 @@ void tv_collision_update();
  * @param other the entity to pass as a parameter to the collide function.
  */
 void tv_entity_collide(tv_entity* e, tv_entity* other);
+
+/**
+ * Check collision with all colliders that've been added and the given collider.
+ * @param c the collider to test collision with.
+ * @return an array of all the colliders that are colliding with the given 
+ *    collider.
+ */
+tv_array* tv_collision_check(TV_collider* c);
 
 #ifdef __cpluplus
 }

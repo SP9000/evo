@@ -13,7 +13,7 @@ const tvint TV_ERROR_SCENE_INIT_FAILED = -4;
 const tvint TV_ERROR_INPUT_INIT_FAILED = -5;
 const tvint TV_ERROR_ENTITY_INIT_FAILED = -6;
 const tvint TV_ERROR_HOST_CONNECT_FAILED = -7;
-
+const tvint TV_ERROR_COLLISION_INIT_FAILED = -8;
 
 void tv_client_init()
 {
@@ -39,6 +39,7 @@ void tv_client_init()
 	tv_material_register();
 	tv_camera_register();
 	tv_renderer_register();
+	TV_collider_register();
 	tv_model_renderer_register();
 	tv_animation_renderer_register();
 	tv_text_renderer_register();
@@ -81,6 +82,12 @@ void tv_client_init()
 	if(tv_input_init() != 0) {
 		fprintf(stderr, "Error: could not initialize the input system\n");
         exit(TV_ERROR_INPUT_INIT_FAILED);
+    }
+
+	/* Initialize the collision system */
+	if(tv_collision_init() != 0) {
+		tv_error("Error: could not initialize the collision system\n");
+        exit(TV_ERROR_COLLISION_INIT_FAILED);
     }
 
     puts("Starting client");
@@ -261,8 +268,8 @@ void tv_client_start()
         /* update time */
 		tv_time_update();
     
-        /* update entities */
-		tv_entity_update();
+        /* update all the entities */
+		tv_entity_update_all();
 
 		/* update post-entity update handlers */
 		tv_component_update_post_handlers();
@@ -290,6 +297,9 @@ void tv_client_start()
     }
     /* Shut down the client. */
 	puts("Shutting down");
+
+	/* Release mouse */
+    SDL_WM_GrabInput(SDL_GRAB_OFF);
 
     /* Destroy ENet client. */
 	puts("Deinitializing client");

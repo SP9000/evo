@@ -130,6 +130,12 @@ void tv_draw_arrays(GLenum mode, GLint first, GLsizei count);
 void tv_delete_buffers(GLsizei n, const GLuint * buffers);
 
 
+/** Get the dimension of the current screen surface.
+ * @return the {x,y} dimensions of the screen.
+ */
+tv_vector2 tv_draw_screen_dim();
+
+
 #ifdef __cplusplus
 }
 #endif

@@ -43,24 +43,6 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Components\Renderers">
-      <UniqueIdentifier>{112a2195-1bc1-4551-9d3e-677eebeb64eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Renderers\Header Files">
-      <UniqueIdentifier>{bc9fa69c-a399-4ba4-99f6-ba74ce02654e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Renderers\Source Files">
-      <UniqueIdentifier>{841a4636-66fc-48ce-b6ba-2e6c92491823}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\GUI">
-      <UniqueIdentifier>{caaf7991-4b93-45ab-9af9-64d16297b8b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\GUI\Header Files">
-      <UniqueIdentifier>{dbaf964e-205d-410e-b7da-869128ca2fa3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\GUI\Source Files">
-      <UniqueIdentifier>{6d03d67a-0e3a-4d30-be36-be80e52b988e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Components\Base Components">
       <UniqueIdentifier>{e6c1dc88-bab1-487f-9473-9cb1028f0aa1}</UniqueIdentifier>
     </Filter>
@@ -79,31 +61,58 @@
     <Filter Include="Components\Colliders\Header Files">
       <UniqueIdentifier>{0fd6669a-7a01-454f-a5f0-4dd94efc1629}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\AI">
+      <UniqueIdentifier>{16e07321-fdd6-493e-999c-013bedd792b2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\AI\Source Files">
+      <UniqueIdentifier>{5a0ccf3a-4c9c-41d8-afca-c50850ea39a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\AI\Header Files">
+      <UniqueIdentifier>{e1dfad41-2d42-4ed4-b195-95ecc8e9db2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{caaf7991-4b93-45ab-9af9-64d16297b8b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Header Files">
+      <UniqueIdentifier>{dbaf964e-205d-410e-b7da-869128ca2fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Source Files">
+      <UniqueIdentifier>{6d03d67a-0e3a-4d30-be36-be80e52b988e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderers">
+      <UniqueIdentifier>{112a2195-1bc1-4551-9d3e-677eebeb64eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderers\Header Files">
+      <UniqueIdentifier>{bc9fa69c-a399-4ba4-99f6-ba74ce02654e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Renderers\Source Files">
+      <UniqueIdentifier>{841a4636-66fc-48ce-b6ba-2e6c92491823}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="modelrenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="textrenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="renderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="linerenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="instancerenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="guirenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="overlayrenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="animationrenderer.c">
-      <Filter>Components\Renderers\Source Files</Filter>
+      <Filter>Renderers\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tv_tree.c">
       <Filter>Data Structures\Source Files</Filter>
@@ -139,19 +148,19 @@
       <Filter>Base\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widget.c">
-      <Filter>Components\GUI\Source Files</Filter>
+      <Filter>GUI\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widget_frame.c">
-      <Filter>Components\GUI\Source Files</Filter>
+      <Filter>GUI\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widget_stats.c">
-      <Filter>Components\GUI\Source Files</Filter>
+      <Filter>GUI\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widget_textbox.c">
-      <Filter>Components\GUI\Source Files</Filter>
+      <Filter>GUI\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="widgetmodels.c">
-      <Filter>Components\GUI\Source Files</Filter>
+      <Filter>GUI\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="tv_draw.c">
       <Filter>Base\Source Files</Filter>
@@ -204,31 +213,40 @@
     <ClCompile Include="tv_message.c">
       <Filter>Base\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tv_ai_pattern_direct.c">
+      <Filter>Components\AI\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_ai_pattern.c">
+      <Filter>Components\AI\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tv_gui.c">
+      <Filter>Base\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="textrenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="modelrenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="renderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="linerenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="instancerenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="guirenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="overlayrenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="animationrenderer.h">
-      <Filter>Components\Renderers\Header Files</Filter>
+      <Filter>Renderers\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_list.h">
       <Filter>Data Structures\Header Files</Filter>
@@ -288,19 +306,19 @@
       <Filter>Data Structures\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="widgetmodels.h">
-      <Filter>Components\GUI\Header Files</Filter>
+      <Filter>GUI\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="widget.h">
-      <Filter>Components\GUI\Header Files</Filter>
+      <Filter>GUI\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="widget_frame.h">
-      <Filter>Components\GUI\Header Files</Filter>
+      <Filter>GUI\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="widget_stats.h">
-      <Filter>Components\GUI\Header Files</Filter>
+      <Filter>GUI\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="widget_textbox.h">
-      <Filter>Components\GUI\Header Files</Filter>
+      <Filter>GUI\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tv_client.h">
       <Filter>Base\Header Files</Filter>
@@ -361,6 +379,12 @@
     </ClInclude>
     <ClInclude Include="tv_math.h">
       <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_ai_pattern.h">
+      <Filter>Components\AI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tv_ai_pattern_direct.h">
+      <Filter>Components\AI\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

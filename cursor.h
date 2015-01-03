@@ -24,6 +24,8 @@ COMPONENT(app_cursor, tv_component)
 
 	/* the button that is used to create a selection box */
 	tv_input_button select_button;
+	/* the button used to move to the mouse position */
+	tv_input_button move_button;
 
 	/* the currently selected units */
 	tv_array* selected_units;
