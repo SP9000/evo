@@ -46,7 +46,7 @@ static void render(tv_component *self)
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
 	tv_mat4x4_load_identity(&main_cam->modelview_mat);
 	tv_mat4x4_translate(&main_cam->modelview_mat, -pos.x, -pos.y, -1.0f); //pos.z);
 	main_cam->modelview_mat.a0 *= scale.x;
@@ -73,7 +73,7 @@ static void render(tv_component *self)
 	tv_draw_arrays(renderer->model->primitive, 0, (GLsizei)utarray_len(renderer->model->vertices));
     glBindVertexArray(0);
 
-    main_cam->modelview_mat = tv_mat4x4_pop();
+    tv_mat4x4_pop(&main_cam->modelview_mat);
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);

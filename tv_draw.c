@@ -121,7 +121,7 @@ void tv_draw_start_frame()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
 
-	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
 	/*
 	tv_mat4x4_scale(main_cam->view_mat, main_cam->scale.x, main_cam->scale.y, main_cam->scale.z);
 	tv_mat4x4_rotate(main_cam->view_mat, main_cam->rot.x, 1.0f, 0.0f, 0.0f);
@@ -143,7 +143,7 @@ void tv_draw_resize_screen(int w, int h)
 
 void tv_draw_finish_frame()
 {
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 #if 0
     glDisable(GL_DEPTH_TEST);
 
@@ -199,7 +199,7 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
     /* save state */
-    tv_mat4x4_push(main_cam->modelview_mat);
+    tv_mat4x4_push(&main_cam->modelview_mat);
 	tv_mat4x4_load_identity(&main_cam->modelview_mat);
 	tv_mat4x4_translate(&main_cam->modelview_mat, -rect->x, -rect->y, -1.0f);
     main_cam->modelview_mat.a0 *= rect->w;
@@ -226,7 +226,7 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect)
     glBindVertexArray(0);
 
     /* restore */
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->modelview_mat);
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);

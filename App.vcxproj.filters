@@ -55,24 +55,6 @@
     <Filter Include="Components\Old\Sources">
       <UniqueIdentifier>{43998528-c118-46a2-9707-f1e9965cdf20}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Old\Abilities">
-      <UniqueIdentifier>{712fd7a6-3590-41cd-9e8c-86b3b4472cfa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Old\Abilities\Sources">
-      <UniqueIdentifier>{33472809-9303-4d30-bc4a-0901e334b588}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Old\Abilities\Headers">
-      <UniqueIdentifier>{87a7090e-a25a-4459-8f98-a41da5b0741d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Engines">
-      <UniqueIdentifier>{cc8a02d1-b49c-426f-a5d4-d84f0221f922}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Engines\Header Files">
-      <UniqueIdentifier>{35b67f6e-2085-4b22-b542-e060ecf88778}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Engines\Source Files">
-      <UniqueIdentifier>{e127c658-ad73-4279-a188-d330f80e5115}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Components\Misc">
       <UniqueIdentifier>{cb274d39-2788-49c4-a170-5db74c6e7b80}</UniqueIdentifier>
     </Filter>
@@ -129,16 +111,7 @@
     <ClInclude Include="App\playermotor.h">
       <Filter>Components\Old\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="terrain_tile.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="terraincursor.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="cursor.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="unit.h">
       <Filter>Components\Old\Headers</Filter>
     </ClInclude>
     <ClInclude Include="ability.h">
@@ -147,23 +120,14 @@
     <ClInclude Include="hud.h">
       <Filter>Components\GUI\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="move.h">
-      <Filter>Components\Old\Abilities\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="abilities.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="melee.h">
-      <Filter>Components\Old\Abilities\Headers</Filter>
     </ClInclude>
     <ClInclude Include="projectile.h">
       <Filter>Components\Projectiles\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="laser.h">
       <Filter>Components\Projectiles\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="jet_engine.h">
-      <Filter>Components\Engines\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mass.h">
       <Filter>Components\Misc\Header Files</Filter>
@@ -213,16 +177,7 @@
     <ClCompile Include="App\playermotor.c">
       <Filter>Components\Old\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="terrain_tile.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="terraincursor.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="cursor.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="unit.c">
       <Filter>Components\Old\Sources</Filter>
     </ClCompile>
     <ClCompile Include="ability.c">
@@ -231,20 +186,11 @@
     <ClCompile Include="hud.c">
       <Filter>Components\GUI\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="move.c">
-      <Filter>Components\Old\Abilities\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="abilities.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="melee.c">
-      <Filter>Components\Old\Abilities\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="projectile.c">
       <Filter>Components\Projectiles\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="jet_engine.c">
-      <Filter>Components\Engines\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="mass.c">
       <Filter>Components\Misc\Source Files</Filter>

@@ -62,14 +62,16 @@ tvbool tv_collider_check_line_collision(TV_collider *line, TV_collider *c2)
 	tv_vector3 dir = line->info.line.dir;
 
 	tvfloat a, b;
-	tv_vector3 o_minus_c = tv_vector3_sub(o, c);
+	tv_vector3 o_minus_c;
+	
+	tv_vector3_sub(o, c, &o_minus_c);
 
 	switch(c2->type) {
 	case TV_COLLIDER_BOX: 
 		/* TODO: */	
 		return FALSE;
 	case TV_COLLIDER_SPHERE:
-		a = tv_vector3_mag(o_minus_c);
+		a = tv_vector3_mag(&o_minus_c);
 		a *= a;
 		b = tv_vector3_dot(dir, o_minus_c);
 		b *= b;

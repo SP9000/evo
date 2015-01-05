@@ -45,7 +45,7 @@ static void render(tv_component *self)
 	scale  = self->entity->transform.scale;
 
 	glDisable(GL_DEPTH_TEST);
-	tv_mat4x4_push(tv_camera_gui->modelview_mat);
+	tv_mat4x4_push(&tv_camera_gui->modelview_mat);
 	tv_mat4x4_load_identity(&tv_camera_gui->modelview_mat);
 	tv_mat4x4_scale(&tv_camera_gui->modelview_mat, scale.x, scale.y, scale.z);
 	tv_mat4x4_translate(&tv_camera_gui->modelview_mat, pos.x, pos.y, pos.z);
@@ -65,6 +65,6 @@ static void render(tv_component *self)
 	tv_draw_arrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
 	glBindVertexArray(0);
 
-	tv_camera_gui->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&tv_camera_gui->modelview_mat);
 	glEnable(GL_DEPTH_TEST);
 }

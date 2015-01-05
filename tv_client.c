@@ -306,6 +306,8 @@ void tv_client_start()
 	enet_host_destroy(client);
     enet_deinitialize();
 
+	puts("Deinitializing the scene");
+	tv_scene_quit();
 	puts("Deinitializing input");
 	tv_input_quit();
 	puts("Deinitializing rendering");

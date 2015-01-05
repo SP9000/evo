@@ -28,8 +28,8 @@ tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates)
 	res.y = scene_coordinates.y;
 	res.z = scene_coordinates.z;
 	res.w = 1.0f;
-	tv_mat4x4_push(main_cam->modelview_mat);
-	tv_mat4x4_push(main_cam->projection_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->projection_mat);
 
 	tv_mat4x4_translate(&main_cam->modelview_mat, main_cam->pos.x, main_cam->pos.y, main_cam->pos.z);
 	tv_mat4x4_rotate(&main_cam->modelview_mat,  main_cam->rot.x, 1.0f, 0.0f, 0.0f);
@@ -42,8 +42,8 @@ tv_vector2 tv_scene_to_screen_coordinates(tv_vector3 scene_coordinates)
 	ret.x = (1.0f / res.w) * res.x * 0.5f + 0.5f;
 	ret.y = (1.0f / res.w) * res.y * 0.5f + 0.5f;
 	printf("%f %f\n", ret.x, ret.y);
-	main_cam->projection_mat = tv_mat4x4_pop();
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->projection_mat);
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 	return ret;
 }
 
@@ -54,8 +54,8 @@ tv_vector3 tv_screen_to_scene_coordinates(tv_vector2 screen_coordinates)
 	TvMat4x4 A;
 	TvMat4x4 inv_mvp;
 
-	tv_mat4x4_push(main_cam->modelview_mat);
-	tv_mat4x4_push(main_cam->projection_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->projection_mat);
 
 	/* apply matrix transformations */
 	tv_mat4x4_load_identity(&main_cam->modelview_mat);
@@ -83,13 +83,15 @@ tv_vector3 tv_screen_to_scene_coordinates(tv_vector2 screen_coordinates)
 	ret.y = res.y * res.w;
 	ret.z = res.z * res.w;
 
-	main_cam->projection_mat = tv_mat4x4_pop();
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->projection_mat);
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 	return ret;
 }
 
 tvint tv_scene_quit()
 {
+	utarray_free(lights);
+	utarray_free(entities);
     return 0;
 }
 
@@ -173,8 +175,8 @@ tv_array* tv_scene_raypick(tv_vector2 screen_coordinates)
 	clip_coords.y = ((tvfloat)screen->h - screen_coordinates.y) / (tvfloat)screen->h * 2.0f - 1.0f;
 
 	/* preserve matrices */
-	tv_mat4x4_push(main_cam->modelview_mat);
-	tv_mat4x4_push(main_cam->projection_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->projection_mat);
 
 	/* apply view transformations to get view matrix (no model transformations) */
 	tv_mat4x4_load_identity(&main_cam->modelview_mat);
@@ -215,15 +217,15 @@ tv_array* tv_scene_raypick(tv_vector2 screen_coordinates)
 	world2.z *= world2.w;
 
 	/* get the direction */
-	v = tv_vector4_sub(world2, world1);
+	tv_vector4_sub(world2, world1, &v);
 	dir.x = v.x;
 	dir.y = v.y;
 	dir.z = v.z;
-	dir = tv_vector3_normalize(dir);
+	tv_vector3_normalize(dir, &dir);
 
 	/* restore matrices */
-	main_cam->projection_mat = tv_mat4x4_pop();
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->projection_mat);
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 
 
 	start.x = world1.x;

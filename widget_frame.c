@@ -13,5 +13,8 @@ COMPONENT_START(tv_widget_frame)
 	tv_widget_set_material((tv_widget*)self, (tv_material*)tv_component_get(self_component, tv_material_id()));
 END_COMPONENT_START
 
+COMPONENT_DESTROY(tv_widget_frame)
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(tv_widget_frame)
 END_COMPONENT_UPDATE

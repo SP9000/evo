@@ -24,18 +24,12 @@
     <ClInclude Include="grid.h" />
     <ClInclude Include="gun.h" />
     <ClInclude Include="hud.h" />
-    <ClInclude Include="jet_engine.h" />
     <ClInclude Include="laser.h" />
-    <ClInclude Include="melee.h" />
-    <ClInclude Include="move.h" />
     <ClInclude Include="projectile.h" />
     <ClInclude Include="sinespawner.h" />
     <ClInclude Include="spawner.h" />
     <ClInclude Include="story_point.h" />
     <ClInclude Include="terrain.h" />
-    <ClInclude Include="terraincursor.h" />
-    <ClInclude Include="terrain_tile.h" />
-    <ClInclude Include="unit.h" />
     <ClInclude Include="mass.h" />
     <ClInclude Include="velocity.h" />
   </ItemGroup>
@@ -64,10 +58,7 @@
     <ClCompile Include="grid.c" />
     <ClCompile Include="gun.c" />
     <ClCompile Include="hud.c" />
-    <ClCompile Include="jet_engine.c" />
     <ClCompile Include="laser.c" />
-    <ClCompile Include="melee.c" />
-    <ClCompile Include="move.c" />
     <ClCompile Include="prefab_fairy.c" />
     <ClCompile Include="prefab_moving_sphere.c" />
     <ClCompile Include="projectile.c" />
@@ -75,9 +66,6 @@
     <ClCompile Include="spawner.c" />
     <ClCompile Include="story_point.c" />
     <ClCompile Include="terrain.c" />
-    <ClCompile Include="terraincursor.c" />
-    <ClCompile Include="terrain_tile.c" />
-    <ClCompile Include="unit.c" />
     <ClCompile Include="mass.c" />
     <ClCompile Include="velocity.c" />
   </ItemGroup>

@@ -12,7 +12,10 @@ COMPONENT_START(APP_laser)
 	tv_message_connect(p->on_collision, p->collider->on_collision, col);
 END_COMPONENT_START
 
-COMPONENT_UPDATE(APP_projectile)
+COMPONENT_DESTROY(APP_laser)
+END_COMPONENT_DESTROY
+
+COMPONENT_UPDATE(APP_laser)
 END_COMPONENT_UPDATE
 
 void col(TV_message *msg)

@@ -241,11 +241,15 @@ END_COMPONENT_START
 COMPONENT_UPDATE(tv_model)
 END_COMPONENT_UPDATE
 COMPONENT_DESTROY(tv_model)
-utarray_free(self->vertices);
-utarray_free(self->indices);
-glDeleteBuffers(1, &self->index_vbo);
-glDeleteBuffers(1, &self->vertex_vbo);
-glDeleteVertexArrays(1, &self->vao);
+	if(self->vertices) {
+		utarray_free(self->vertices);
+	}
+	if(self->indices) {
+		utarray_free(self->indices);
+	}
+	glDeleteBuffers(1, &self->index_vbo);
+	glDeleteBuffers(1, &self->vertex_vbo);
+	glDeleteVertexArrays(1, &self->vao);
 END_COMPONENT_DESTROY
 /*****************************************************************************/
 void tv_model_load_ply(tv_model *model, tvchar* file)
@@ -626,23 +630,6 @@ TvAABB tv_model_get_aabb(tv_model* model)
 	return aabb;
 }
 
-void tv_model_free(tv_model* model)
-{
-	if(model == NULL) {
-		/* I don't think so, m8 */
-		return;
-	}
-	if(model->vertex_vbo) {
-		glDeleteBuffers(1, &model->vertex_vbo);
-	}
-	if(model->index_vbo) {
-		glDeleteBuffers(1, &model->index_vbo);
-	}
-	utarray_free(model->vertices);
-	utarray_free(model->indices);
-
-	tv_component_free((tv_component*)model);
-}
 
 tvuint tv_model_get_property_size(tvuint data_type)
 {
@@ -671,10 +658,13 @@ tvpointer tv_model_get_attribute(tv_model* model, tvuint i, tvuint attribute)
 void tv_model_apply_scale(tv_model *model, tv_vector3 scale)
 {
 	tvuint i;
+	/* TODO: probably the wrong usage of the term "scale".... */
 	for(i = 0; i < model->num_vertices; ++i) {
 		tv_vector3* v = (tv_vector3*)tv_model_get_attribute(model, i, MODEL_ATTRIBUTE_VERTEX);
 		assert(v != NULL);
-		*v = tv_vector3_scale(*v, scale);
+		v->x *= scale.x;
+		v->y *= scale.y; 
+		v->z *= scale.z;
 	}
 }
 

@@ -53,7 +53,6 @@ tvbool tv_rect_contains(tv_rect r, tv_vector2 point);
  */
 tvbool tv_rect_overlaps(tv_rect* r1, tv_rect* r2);
 
-
 /**
  * A basic type for representing a point in 4-dimensional space
  */
@@ -69,13 +68,20 @@ extern const tv_vector4 tv_vector4_zero;
 extern const tv_vector3 tv_vector3_forward;
 extern const tv_vector4 tv_vector4_forward;
 
-tv_vector2 tv_vector2_add(tv_vector2 v1, tv_vector2 v2);
-tv_vector3 tv_vector3_add(tv_vector3 v1, tv_vector3 v2);
-tv_vector4 tv_vector4_add(tv_vector4 v1, tv_vector4 v2);
+void tv_vector2_add(tv_vector2 v1, tv_vector2 v2, tv_vector2* result);
+void tv_vector3_add(tv_vector3 v1, tv_vector3 v2, tv_vector3* result);
+void tv_vector4_add(tv_vector4 v1, tv_vector4 v2, tv_vector4* result);
 
-tv_vector2 tv_vector2_sub(tv_vector2 v1, tv_vector2 v2);
-tv_vector3 tv_vector3_sub(tv_vector3 v1, tv_vector3 v2);
-tv_vector4 tv_vector4_sub(tv_vector4 v1, tv_vector4 v2);
+void tv_vector2_sub(tv_vector2 v1, tv_vector2 v2, tv_vector2* result);
+void tv_vector3_sub(tv_vector3 v1, tv_vector3 v2, tv_vector3* result);
+void tv_vector4_sub(tv_vector4 v1, tv_vector4 v2, tv_vector4* result);
+
+void tv_vector2_normalize(tv_vector2 v, tv_vector2* result);
+void tv_vector3_normalize(tv_vector3 v, tv_vector3* result);
+
+void tv_vector2_scale(tv_vector2 *v, tvfloat factor);
+void tv_vector3_scale(tv_vector3 *v, tvfloat factor);
+void tv_vector4_scale(tv_vector4 *v, tvfloat factor);
 
 tvfloat tv_vector2_dot(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_dot(tv_vector3 v1, tv_vector3 v2);
@@ -85,15 +91,8 @@ tvfloat tv_vector2_distance(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_distance(tv_vector3 v1, tv_vector3 v2);
 tvfloat tv_vector4_distance(tv_vector4 v1, tv_vector4 v2);
 
-tv_vector2 tv_vector2_normalize(tv_vector2 v);
-tv_vector3 tv_vector3_normalize(tv_vector3 v);
-
-tvfloat tv_vector2_mag(tv_vector2 v);
-tvfloat tv_vector3_mag(tv_vector3 v);
-
-tv_vector2 tv_vector2_scale(tv_vector2 v, tv_vector2 scale);
-tv_vector3 tv_vector3_scale(tv_vector3 v, tv_vector3 scale);
-tv_vector4 tv_vector4_scale(tv_vector4 v, tv_vector4 scale);
+tvfloat tv_vector2_mag(tv_vector2* v);
+tvfloat tv_vector3_mag(tv_vector3* v);
 
 /**
  * Get the unit direction vector from v1 to v2.
@@ -101,7 +100,7 @@ tv_vector4 tv_vector4_scale(tv_vector4 v, tv_vector4 scale);
  * @param v2 the "destination" vector.
  * @return a unit vector representing the direction of v1 to v2.
  */
-tv_vector3 tv_vector3_direction(tv_vector3 v1, tv_vector3 v2);
+void tv_vector3_direction(tv_vector3 v1, tv_vector3 v2, tv_vector3* result);
 
 /**
  * Linearly interpolates between the given vectors.

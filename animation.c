@@ -35,6 +35,17 @@ END_COMPONENT_NEW(tv_animation)
 COMPONENT_START(tv_animation)
 END_COMPONENT_START
 
+COMPONENT_DESTROY(tv_animation)
+	tv_animation_bone_key *curr, *tmp;
+	if(self->keyframes) {
+		utarray_free(self->keyframes);
+	}
+	HASH_ITER(hh, self->bone_name_table, curr, tmp) {
+		HASH_DEL(self->bone_name_table, curr); 
+		free(curr);
+	}
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(tv_animation)
 tv_animation_keyframe *keyframe_it;
 tvuint i;

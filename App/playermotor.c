@@ -12,6 +12,9 @@ COMPONENT_START(app_player_motor)
 	self->transform = (tv_transform*)tv_component_get(self_component, tv_transform_id());
 END_COMPONENT_START
 
+COMPONENT_DESTROY(app_player_motor)
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(app_player_motor)
 	if(tv_input_buttondown(self->move_right_button)) {
 		self_component->entity->transform.pos.x -= self->speed * tv_time_delta;

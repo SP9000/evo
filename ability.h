@@ -98,7 +98,10 @@ void app_unit_remove_ability(app_unit *unit, app_ability *ability);
  * @param ability the ability to set the user of.
  * @param unit the unit to set the given ability's user property to.
  */
+/*
 void app_ability_set_user(app_ability *ability, app_unit *unit);
+*/
+
 /**
  * Move the user of the given ability within targetting range of the ability.
  * @param ability the ability containing the unit to move and the target to 

@@ -42,8 +42,8 @@ extern "C" {
  * @param ry the y-rotation of the entity.
  * @param rz the z-rotation of the entity.
  */
-#define ENTITY(name, px, py, pz, sx, sy, sz, rx, ry, rz) \
-	tv_entity* name () { \
+#define ENTITY(entity_name, px, py, pz, sx, sy, sz, rx, ry, rz) \
+	tv_entity* entity_name () { \
 		static tv_entity* e = NULL; \
 		{ \
 		 if(e != NULL) { \
@@ -53,6 +53,7 @@ extern "C" {
 		 e->transform.pos.x = px ; e->transform.pos.y = py ; e->transform.pos.z = pz ; \
 		 e->transform.scale.x = sx ; e->transform.scale.y = sy ; e->transform.scale.z = sz ; \
 		 e->transform.rot.x = rx ; e->transform.rot.y = ry ; e->transform.rot.z = rz ; e->transform.rot.w = 0.0f; \
+		 e->name = #entity_name; \
 		} \
 	{
 /** 
@@ -62,14 +63,15 @@ extern "C" {
  * @param name the name of the prefab (the name of the function to call to
  *   produce an entity)
  */
-#define PREFAB(name) \
-	tv_entity* name () { \
+#define PREFAB(prefab_name) \
+	tv_entity* prefab_name () { \
 		tv_entity* e = NULL; \
 		{ \
 		 e = tv_entity_new(NULL); \
 		 e->transform.pos.x = 0 ; e->transform.pos.y = 0 ; e->transform.pos.z = 0 ; \
 		 e->transform.scale.x = 1 ; e->transform.scale.y = 1 ; e->transform.scale.z = 1 ; \
 		 e->transform.rot.x = 0 ; e->transform.rot.y = 0 ; e->transform.rot.z = 0 ; e->transform.rot.w = 0.0f; \
+		 e->name = #prefab_name; \
 		} \
 	{
 /**
@@ -108,6 +110,7 @@ typedef struct tv_entity {
     struct tv_entity  *parent;
     tv_array /*tv_entity**/ *children;
 	tv_array /*tv_component*/ *components;
+	tvchar* name;
 }tv_entity;
 
 /**

@@ -19,6 +19,8 @@ extern "C" {
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include "tv_types.h"
+#include "tv_macros.h"
 #include "tv_vector.h"
 
 #ifdef _WIN32
@@ -31,15 +33,15 @@ typedef struct TvMat4x4 {
 	tvfloat a3, b3, c3, d3;
 }TvMat4x4;
 
-void tv_mat4x4_push(TvMat4x4 mat);
-TvMat4x4 tv_mat4x4_pop();
+void tv_mat4x4_push(TvMat4x4* mat);
+void tv_mat4x4_pop(TvMat4x4* mat);
 
-void tv_mat4x4_load_identity(TvMat4x4 *mat);
-void tv_mat4x4_scale(TvMat4x4 *mat, float x, float y, float z);
-void tv_mat4x4_translate(TvMat4x4 *mat, float x, float y, float z);
-void tv_mat4x4_rotate(TvMat4x4 *mat, float angle, float x, float y, float z);
+void tv_mat4x4_load_identity(TvMat4x4* mat);
+void tv_mat4x4_scale(TvMat4x4* mat, float x, float y, float z);
+void tv_mat4x4_translate(TvMat4x4* mat, float x, float y, float z);
+void tv_mat4x4_rotate(TvMat4x4* mat, float angle, float x, float y, float z);
 
-tvfloat tv_mat4x4_det(TvMat4x4 mat);
+tvfloat tv_mat4x4_det(TvMat4x4* mat);
 tvbool tv_mat4x4_inverse(TvMat4x4 mat, TvMat4x4 *out);
 
 TvMat4x4 tv_mat4x4_multiply(TvMat4x4 mat1, TvMat4x4 mat2);

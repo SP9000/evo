@@ -4,19 +4,19 @@ void APP_SCENE_desert1()
 {
 	tv_entity *gride = grid();
 	
-	//tv_entity *f2 = fairy2();
+	tv_entity *f2 = fairy2();
 	tv_entity *test_text = text();
 	tv_entity *test_gui = gui();
-	tv_entity *my_terrain = terrain();
+	//tv_entity *my_terrain = terrain();
 	tv_entity *my_camera_controller = cc();
 	tv_entity *my_cursor = cursor();
 	tv_entity *ground = test_ground();
 	tv_entity *sp = prefab_moving_sphere();
 
 	tv_entity *f = fairy();
-	//tv_entity *spawnpt = spawn_pt();
-
-	//tv_entity *plane = test_plane();
+	tv_entity *spawnpt = spawn_pt();
+	tv_entity *plane = test_plane();
+	
 	//tv_entity_add_child(plane, test_gun());
 
 	main_cam->pos.x = 0.0f;

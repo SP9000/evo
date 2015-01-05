@@ -62,5 +62,8 @@ COMPONENT_START(app_grid)
 	tv_line_renderer_apply(self->line_renderer);
 END_COMPONENT_START
 
+COMPONENT_DESTROY(app_grid)
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(app_grid)
 END_COMPONENT_UPDATE

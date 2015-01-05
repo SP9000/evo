@@ -13,57 +13,65 @@ const tv_vector4 tv_vector4_forward = {0.0f, 0.0f, 1.0f, 1.0f};
 
 /*****************************************************************************/
 /* add */
-tv_vector2 tv_vector2_add(tv_vector2 v1, tv_vector2 v2)
+void tv_vector2_add(tv_vector2 v1, tv_vector2 v2, tv_vector2* result)
 {
-	tv_vector2 ret = {v1.x + v2.x, v1.y + v2.y};
-	return ret;
+	result->x = v1.x + v2.x;
+	result->y = v1.y + v2.y;
 }
-tv_vector3 tv_vector3_add(tv_vector3 v1, tv_vector3 v2)
+void tv_vector3_add(tv_vector3 v1, tv_vector3 v2, tv_vector3* result)
 {
-	tv_vector3 ret = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z};
-	return ret;
+	result->x = v1.x + v2.x;
+	result->y = v1.y + v2.y;
+	result->z = v1.z + v2.z;
 }
-tv_vector4 tv_vector4_add(tv_vector4 v1, tv_vector4 v2)
+void tv_vector4_add(tv_vector4 v1, tv_vector4 v2, tv_vector4* result)
 {
-	tv_vector4 ret = {v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w};
-	return ret;
+	result->x = v1.x + v2.x;
+	result->y = v1.y + v2.y;
+	result->z = v1.z + v2.z;
+	result->w = v1.w + v2.w;
 }
 
 /*****************************************************************************/
 /* subtract */
-tv_vector2 tv_vector2_sub(tv_vector2 v1, tv_vector2 v2)
+void tv_vector2_sub(tv_vector2 v1, tv_vector2 v2, tv_vector2* result) 
 {
-	tv_vector2 ret = {v1.x - v2.x, v1.y - v2.y};
-	return ret;
-
+	result->x = v1.x - v2.x;
+	result->y = v1.y - v2.y;
 }
-tv_vector3 tv_vector3_sub(tv_vector3 v1, tv_vector3 v2)
+void tv_vector3_sub(tv_vector3 v1, tv_vector3 v2, tv_vector3* result)
 {
-	tv_vector3 ret = {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z};
-	return ret;
+	result->x = v1.x - v2.x;
+	result->y = v1.y - v2.y;
+	result->z = v1.z - v2.z;
 }
-tv_vector4 tv_vector4_sub(tv_vector4 v1, tv_vector4 v2)
+void tv_vector4_sub(tv_vector4 v1, tv_vector4 v2, tv_vector4* result)
 {
-	tv_vector4 ret = {v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w};
-	return ret;
+	result->x = v1.x - v2.x;
+	result->y = v1.y - v2.y;
+	result->z = v1.z - v2.z;
+	result->w = v1.w - v2.w;
 }
 
 /*****************************************************************************/
 /* scale */
-tv_vector2 tv_vector2_scale(tv_vector2 v, tv_vector2 scale)
+void tv_vector2_scale(tv_vector2* v, tvfloat factor)
 {
-	tv_vector2 ret = {v.x*scale.x, v.y*scale.y};
-	return ret;
+	v->x *= factor;
+	v->y *= factor;
 }
-tv_vector3 tv_vector3_scale(tv_vector3 v, tv_vector3 scale)
+void tv_vector3_scale(tv_vector3* v, tvfloat factor)
 {
-	tv_vector3 ret = {v.x*scale.x, v.y*scale.y, v.z*scale.z};
-	return ret;
+	v->x *= factor;
+	v->y *= factor;
+	v->z *= factor;
 }
-tv_vector4 tv_vector4_scale(tv_vector4 v, tv_vector4 scale)
+void tv_vector4_scale(tv_vector4* v, tvfloat factor)
 {
-	tv_vector4 ret = {v.x*scale.x, v.y*scale.y, v.z*scale.z, v.w*scale.w};
-	return ret;
+	v->x *= factor;
+	v->y *= factor;
+	v->z *= factor;
+	v->w *= factor;
 }
 
 /*****************************************************************************/
@@ -83,28 +91,31 @@ tvfloat tv_vector4_dot(tv_vector4 v1, tv_vector4 v2)
 
 /*****************************************************************************/
 /* normalize */
-tv_vector2 tv_vector2_normalize(tv_vector2 v)
+void tv_vector2_normalize(tv_vector2 v, tv_vector2* result)
 {
-	tvfloat mag = tv_vector2_mag(v);
-	tv_vector2 ret = {v.x / mag, v.y / mag};
-	return ret;
+	tvfloat mag = tv_vector2_mag(&v);
+	assert(mag != 0.0f);
+	result->x = v.x / mag;
+	result->y = v.y / mag;
 }
-tv_vector3 tv_vector3_normalize(tv_vector3 v)
+void tv_vector3_normalize(tv_vector3 v, tv_vector3* result)
 {
-	tvfloat mag = tv_vector3_mag(v);
-	tv_vector3 ret = {v.x / mag, v.y / mag, v.z / mag};
-	return ret;
+	tvfloat mag = tv_vector3_mag(&v);
+	assert(mag != 0.0f);
+	result->x = v.x / mag;
+	result->y = v.y / mag;
+	result->z = v.z / mag;
 }
 
 /*****************************************************************************/
 /* magnitude */
-tvfloat tv_vector2_mag(tv_vector2 v)
+tvfloat tv_vector2_mag(tv_vector2* v)
 {
-	return (tvfloat)sqrt(v.x*v.x + v.y*v.y);
+	return (tvfloat)sqrt(v->x*v->x + v->y*v->y);
 }
-tvfloat tv_vector3_mag(tv_vector3 v)
+tvfloat tv_vector3_mag(tv_vector3* v)
 {
-	return (tvfloat)sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+	return (tvfloat)sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
 }
 
 /*****************************************************************************/
@@ -145,17 +156,13 @@ tv_vector4 tv_vector4_lerp(tv_vector4 v1, tv_vector4 v2, float t)
 
 /*****************************************************************************/
 /* direction */
-tv_vector3 tv_vector3_direction(tv_vector3 v1, tv_vector3 v2)
+void tv_vector3_direction(tv_vector3 v1, tv_vector3 v2, tv_vector3* result)
 {
-	tv_vector3 ret;
-
-	ret.x = v1.x - v2.x;
-	ret.y = v1.y - v2.y;
-	ret.z = v1.z - v2.z;
-	ret = tv_vector3_normalize(ret);
-	return ret;
+	result->x = v1.x - v2.x;
+	result->y = v1.y - v2.y;
+	result->z = v1.z - v2.z;
+	tv_vector3_normalize(*result, result);
 }
-
 
 tvbool tv_rect_contains(tv_rect r, tv_vector2 point)
 {

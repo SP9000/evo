@@ -101,14 +101,14 @@ static void render(tv_component *self)
 	glDisable(GL_DEPTH_TEST);
 
 	/* save the state of the modelview matrix and reset it */
-	tv_mat4x4_push(tv_camera_gui->modelview_mat);
+	tv_mat4x4_push(&tv_camera_gui->modelview_mat);
 	tv_mat4x4_load_identity(&tv_camera_gui->modelview_mat);
 	
 	/* render this widget and all its children */
 	render_children(self);
 
 	/* restore the modelview matrix */
-	tv_camera_gui->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&tv_camera_gui->modelview_mat);
 	glBindVertexArray(0);
 	glEnable(GL_DEPTH_TEST);	
 }

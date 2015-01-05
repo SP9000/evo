@@ -7,8 +7,7 @@ ADDCOMPONENT(tv_animation_renderer, renderer)
 ADDCOMPONENT(tv_animation, animation)
 ADDCOMPONENT(tv_material, material)
 ADDCOMPONENT(app_player_motor, pm)
-ADDCOMPONENT(app_unit, unit)
-	tv_entity *move = ability_move(e);
+	//tv_entity *move = ability_move(e);
 	tv_model *model = tv_model_new();
 	tv_animation_bone bone = {{3,0,0},{0.0f,0.0f,45.0f,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
 	tv_animation_bone bone2 = {{3,0,0},{0,0,0,0},model,material, TV_ANIMATION_BONE_END, TV_ANIMATION_BONE_END};
@@ -27,6 +26,5 @@ ADDCOMPONENT(app_unit, unit)
 	tv_animation_add_bone(animation, b2id, bone4);
 
 	pm->speed = 0.5f;
-	unit->current_stats.speed = 3;
 	//tv_entity_add_child(e, move);
 ENTITY_END

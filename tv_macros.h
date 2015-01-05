@@ -49,6 +49,7 @@
 #define COMPONENT_NEW(component_prefix, parent_prefix) \
 	static void start(tv_component *self); \
 	static void update(tv_component *self); \
+	static void destroy(tv_component *self); \
 	static tvuint tv_cid_ ## component_prefix = 0; \
 	tvuint component_prefix ## _id() { \
 		return tv_cid_ ## component_prefix; \
@@ -74,9 +75,13 @@
 		((tv_component*)self)->id = tv_cid_ ## component_prefix; \
 		((tv_component*)self)->Start = start; \
 		((tv_component*)self)->Update = update; \
-		((tv_component*)self)->Destroy = NULL; \
+		((tv_component*)self)->Destroy = destroy; \
 		tv_component_notify_add((tv_component*)self); \
 	}
+
+#define CDESTROY(component) (((tv_component*)component)->Destroy((tv_component*)component))
+#define CUPDATE(component) (((tv_component*)component)->Update((tv_component*)component))
+#define CSTART(component) (((tv_component*)component)->Start((tv_component*)component))
 
 /*****************************************************************************/
 /*Handler macros 														     */

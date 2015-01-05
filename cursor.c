@@ -19,6 +19,9 @@ COMPONENT_START(app_cursor)
 	tv_renderer_set_material((tv_renderer*)self->renderer, (tv_material*)tv_component_get(self_component, tv_material_id()));
 END_COMPONENT_START
 
+COMPONENT_DESTROY(app_cursor)
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(app_cursor)
 	tv_model_vertex vertex_format = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {4,4}};
 	
@@ -28,8 +31,9 @@ COMPONENT_UPDATE(app_cursor)
 		hits = tv_scene_raypick(tv_input_mouse_pos());
 		for(c = (TV_collider**)utarray_front(hits); c != NULL; c = (TV_collider**)utarray_next(hits, c)) {
 			tv_vector3 pos = ((tv_component*)*c)->transform->pos;
-			printf("* collision match  @ (%f, %f, %f)\n", pos.x, pos.y, pos.z);
+			printf("* entity <%s>  @ (%f, %f, %f)\n", ((tv_component*)*c)->entity->name, pos.x, pos.y, pos.z);
 		}
+		tv_free(hits);
 	}
 
 	/* mouse down */
@@ -39,7 +43,7 @@ COMPONENT_UPDATE(app_cursor)
 	}
 	/* mouse up */
 	else if(tv_input_buttonreleased(self->select_button)) {
-		tv_array *units;
+		/* tv_array *units; */
 		app_unit **u;
 
 		self->rect.x = self->start.x;
@@ -55,11 +59,12 @@ COMPONENT_UPDATE(app_cursor)
 			self->rect.y = tv_input_mouse_y_normalized();
 		}		
 		self->start.x = -1;
-		tv_model_free(self->model);
+		CDESTROY(self->model);
 		self->model = NULL;
 		tv_overlay_renderer_set_model(self->renderer, NULL);
 
 		/* get all units and find the ones that lie within the selection box */
+		/* TODO: unit being reworked
 		units = tv_component_get_all_of_type(app_unit_id());
 		if(units != NULL) {
 			for(u = (app_unit**)utarray_front(units); u != NULL; u = (app_unit**)utarray_next(units, u)) {
@@ -69,6 +74,7 @@ COMPONENT_UPDATE(app_cursor)
 				}
 			}
 		}
+		*/
 	}
 
 	if(self->start.x > 0) {
@@ -91,7 +97,7 @@ COMPONENT_UPDATE(app_cursor)
 		}
 
 		if(self->model) {
-			tv_model_free(self->model);
+			CDESTROY(self->model);
 		}
 		self->model = tv_modelgen_quad(rect_dims, vertex_format);
 		tv_overlay_renderer_set_model(self->renderer, self->model);

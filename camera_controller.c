@@ -33,8 +33,10 @@ COMPONENT_START(app_camera_controller)
 
 	self->zoom_in_button.type = TV_INPUT_MOUSE;
 	self->zoom_out_button.type = TV_INPUT_MOUSE;
-
 END_COMPONENT_START
+
+COMPONENT_DESTROY(app_camera_controller)
+END_COMPONENT_DESTROY
 
 COMPONENT_UPDATE(app_camera_controller)
 	/* if this is really out of date, input is probably not relevant */

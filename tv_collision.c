@@ -41,7 +41,7 @@ void tv_collision_register_collider(TV_collider* collider)
 
 void tv_collision_register_component(TvCollisionCollideFunc on_collision, tvuint id)
 {
-	OnCollideHash* entry = (OnCollideHash*)malloc(sizeof(OnCollideHash));
+	OnCollideHash* entry = (OnCollideHash*)tv_alloc(sizeof(OnCollideHash));
 	entry->cid = id;
 	entry->f = on_collision;
 	HASH_ADD_INT(registered_callbacks, cid, entry);
@@ -106,6 +106,9 @@ void tv_collision_detect()
     } 
     /* colliding now contains all pairs of colliders who's AABB's are 
      * overlapping...do more precise detection TODO */
+
+	/* clean up */
+	utarray_free(possibleCollisions);
 }
 
 void tv_entity_collide(tv_entity* e, tv_entity* other)
@@ -196,8 +199,8 @@ TV_physics_hit_info tv_physics_raycast(tv_vector3 src, tv_vector3 dir, tvfloat l
 	TV_physics_hit_info hit = {{TV_INF, TV_INF, TV_INF}, NULL};
 
 	/* create the line collider to perform the raycast */
-	s.x = s.y = s.z = len;
-	dst = tv_vector3_add(src, tv_vector3_scale(dir, s));
+	tv_vector3_scale(&dir, len);
+	tv_vector3_add(src, dir, &dst);
 
 	/* for now, we're just gonna brute force this. 
 	 * It would be easy to use some of the SAP junk in addition if speed is 

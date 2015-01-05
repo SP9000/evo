@@ -7,6 +7,9 @@ END_COMPONENT_NEW(APP_sine_move)
 COMPONENT_START(APP_sine_move)
 END_COMPONENT_START
 
+COMPONENT_DESTROY(APP_sine_move)
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(APP_sine_move)
 	tv_vector3 p;
 	tv_timer_update(self->timer);

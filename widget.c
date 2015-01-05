@@ -15,6 +15,16 @@ END_COMPONENT_START
 COMPONENT_UPDATE(tv_widget)
 END_COMPONENT_UPDATE
 
+COMPONENT_DESTROY(tv_widget)
+	if(self->model) {
+		CDESTROY(self->model);
+	}
+	if(self->material) {
+		(self->material);
+	}
+	utarray_free(self->children);
+END_COMPONENT_DESTROY
+
 void tv_widget_add_child(tv_widget *widget, tv_widget *child)
 {
 	assert(widget != NULL);

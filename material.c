@@ -77,6 +77,9 @@ END_COMPONENT_START
 COMPONENT_UPDATE(tv_material)
 END_COMPONENT_UPDATE
 
+COMPONENT_DESTROY(tv_material)
+END_COMPONENT_DESTROY
+
 void tv_material_add_ubo(tv_material *material, const tvchar* name)
 {
 	/* retrieve the binding point for the new UBO */

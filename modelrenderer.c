@@ -36,7 +36,7 @@ static void render(tv_component* self)
 	}
 	//tv_scene_to_screen_coordinates(test);
 
-	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
 	tv_mat4x4_load_identity(&main_cam->modelview_mat);
 	tv_mat4x4_scale(&main_cam->modelview_mat, self->entity->transform.scale.x, 
 		self->entity->transform.scale.y,
@@ -98,5 +98,5 @@ static void render(tv_component* self)
 
     glBindVertexArray(0);
 
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 }

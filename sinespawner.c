@@ -12,6 +12,9 @@ COMPONENT_START(APP_sine_spawner)
 	APP_spawner *s = (APP_spawner*)self;
 END_COMPONENT_START
 
+COMPONENT_DESTROY(APP_sine_spawner)
+END_COMPONENT_DESTROY
+
 COMPONENT_UPDATE(APP_sine_spawner)
 	APP_spawner *s = (APP_spawner*)self;
 	tv_entity *e;

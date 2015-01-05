@@ -67,14 +67,14 @@ static void render_r_(tv_animation_renderer* renderer, tvuint i)
 	tv_animation *animation = renderer->animation;
 	tv_component *self = (tv_component*)renderer;
 	
-	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_mat4x4_push(&main_cam->modelview_mat);
 	translate_by_bone_(renderer, i);
 	render_bone_(renderer, i);
 	/* foreach child */
 	if(animation->bones[i].next_child != TV_ANIMATION_BONE_END) {
 		render_r_(renderer, animation->bones[i].next_child);
 	}
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 
 	/* foreach sibling */
 	if(animation->bones[i].next_sibling != TV_ANIMATION_BONE_END) {
@@ -87,11 +87,14 @@ static void render_r_(tv_animation_renderer* renderer, tvuint i)
 static void render(tv_component* self)
 {
 	tv_animation_renderer *renderer = (tv_animation_renderer*)self;
-	tv_vector3 scale = tv_vector3_add(self->entity->transform.scale, main_cam->scale);
-	tv_vector3 pos = tv_vector3_add(self->entity->transform.pos, main_cam->pos);
-	tv_vector4 rot = tv_vector4_add(self->entity->transform.rot, main_cam->rot);
+	tv_vector3 scale, pos;
+	tv_vector4 rot; 
 	
-	tv_mat4x4_push(main_cam->modelview_mat);
+	tv_vector3_add(self->entity->transform.scale, main_cam->scale, &scale);
+	tv_vector3_add(self->entity->transform.pos, main_cam->pos, &pos);
+	tv_vector4_add(self->entity->transform.rot, main_cam->rot, &rot);
+
+	tv_mat4x4_push(&main_cam->modelview_mat);
 	tv_mat4x4_load_identity(&main_cam->modelview_mat);
 	tv_mat4x4_scale(&main_cam->modelview_mat, scale.x, scale.y, scale.z);
 	tv_mat4x4_translate(&main_cam->modelview_mat, pos.x, pos.y, pos.z);
@@ -100,6 +103,6 @@ static void render(tv_component* self)
 	tv_mat4x4_rotate(&main_cam->modelview_mat, rot.z, 0.0f, 0.0f, 1.0f);
 
 	render_r_(renderer, 0);
-	main_cam->modelview_mat = tv_mat4x4_pop();
+	tv_mat4x4_pop(&main_cam->modelview_mat);
 }
 	

@@ -1,5 +1,4 @@
 #include "ability.h"
-#include "unit.h"
 
 COMPONENT_NEW(app_ability, tv_component)
 	//self->thumbnail.renderer = tv_animation_renderer_new();
@@ -11,10 +10,15 @@ END_COMPONENT_START
 COMPONENT_UPDATE(app_ability)
 END_COMPONENT_UPDATE
 
+COMPONENT_DESTROY(app_ability)
+END_COMPONENT_DESTROY
+
+/*
 void app_ability_set_user(app_ability *ability, app_unit *unit)
 {
 	ability->user = unit;
 }
+*/
 
 tvbool app_ability_move_user_to_target_range(app_ability *ability)
 {
@@ -26,7 +30,7 @@ tvbool app_ability_move_user_to_target_range(app_ability *ability)
 		return FALSE;
 	}
 	/* get the direction and velocity to move toward the target at */
-	dir = tv_vector3_direction(ability->target.target, pos);
+	tv_vector3_direction(ability->target.target, pos, &dir);
 	speed = ability->user->current_stats.speed * tv_time_delta;
 
 	/* move the entity */
