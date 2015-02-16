@@ -8,7 +8,9 @@ void app_register()
 	app_cursor_register();
 	app_hud_register();
 
+	app_unit_register();
 	app_ability_register();
+	app_ability_move_register();
 
 	APP_mass_register();
 	APP_velocity_register();

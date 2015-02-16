@@ -27,6 +27,7 @@ extern "C" {
 #include "transform.h"
 #include "tv_message.h"
 
+
 /** 
  * Create an entity with the given name and set its transform.
  * To create the entity call the function <name>().  Subsequent calls to 
@@ -105,11 +106,16 @@ typedef struct tv_entity {
 	/* the ID of the collider component (0 if none) attached to the entity */
 	tvuint collide;
 
+	/* tags are 1 bit each, so tag names must be 0x01, 0x02, 0x04, 0x08, ... */
+	tvuint tags;
+
     tvuint numChildren;
     tvuint numComponents;
     struct tv_entity  *parent;
     tv_array /*tv_entity**/ *children;
 	tv_array /*tv_component*/ *components;
+
+	/* the name of the entity */
 	tvchar* name;
 }tv_entity;
 
@@ -175,6 +181,11 @@ void tv_entity_start(tv_entity* e);
 void tv_entity_update_all();
 
 /**
+ * Get all active entities with the specified tag(s).
+ */
+tv_array* tv_entity_get_all_with_tag(tvuint tag);
+
+/**
  * Instantiate a new entity identical to the given one.
  * @param e the entity to copy/create.
  */
@@ -192,6 +203,10 @@ void tv_entity_instantiate_at(tv_entity *e, tv_vector3 at);
  * A macro to retrieve and cast the desired component from an entity.
  */
 #define tv_entity_get(X, Y) ((Component_##Y *)Entity_GetComponent(X, CID_##Y))
+
+#define tv_entity_add_tag(entity, tag) (( entity )->tags |= ( tag ));
+#define tv_entity_remove_tag(entity, tag) (( entity )->tags &= ~( tag ));
+#define tv_entity_set_tags(entity, tags) (( entity )->tags = ( tags ));
 
 #ifdef __cplusplus
 }

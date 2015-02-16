@@ -4,6 +4,7 @@
 extern "C" {
 #endif
 
+
 /* TODO: */
 /** 
  * There's a lot of butchering of the convention to call attributes a collection
@@ -34,6 +35,9 @@ extern "C" {
 
 #include "tv_types.h"
 #include "tv_component.h"
+
+/* comment to disable Assimp model loading */
+#define TV_MODEL_USE_ASSIMP
 
 /* If this is uncommented, integer types are normalized and stored as floats */
 #define TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS 1
@@ -129,11 +133,18 @@ COMPONENT(tv_model, tv_component)
 ENDCOMPONENT(tv_model)
 
 /**
+ * Load a model from a file (the file-type is detected).
+ * @param model the model to load the file into - NULL if failed.
+ * @param filename the name of the file to load the model from.
+ */
+void tv_model_load(tv_model* model, tvchar* filename);
+
+/**
  * Loads a PLY model defined in the file of the given name.
  * @param model the model to load the file into.
  * @param file the file containing the data to load into the model.
  */
-void tv_model_load_ply(tv_model *model, tvchar* file);
+void tv_model_load_ply(tv_model* model, tvchar* file);
 /**
  * Once all the vertices and indices are set for the given model's data, this
  * function allows the model to be rendered.
@@ -173,6 +184,22 @@ void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_att
  */
 void tv_model_append_property(tv_model* model, tv_model_attribute *prop);
 
+/**
+ * Append a model to another model.
+ * In order for this to work, the two given models must have identical 
+ * attributes.
+ * @param model the model to append to.
+ * @param append the model to append to the given model.
+ */
+void tv_model_append_model(tv_model* model, tv_model* append);
+
+/** 
+ * Append the given vertices to the given model.
+ * Vertices given must be in the same format as the model's vertices.
+ * @param model the model to append vertices to.
+ * @param vertices the vertices to append.
+ */
+void tv_model_append_vertices(tv_model* model, tv_array* vertices);
 
 void tv_model_append_vertex(tv_model *model, GLvoid* data);
 void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data);
@@ -258,6 +285,12 @@ TvAABB tv_model_get_aabb(tv_model* model);
  * @param model the model to release all resources of.
  */
 void tv_model_free(tv_model* model);
+
+
+extern tv_model_vertex TV_MODEL_VERTEX_FORMAT_P;		/* position */
+extern tv_model_vertex TV_MODEL_VERTEX_FORMAT_PN;		/* position + normal */
+extern tv_model_vertex TV_MODEL_VERTEX_FORMAT_PC;		/* position + color */
+extern tv_model_vertex TV_MODEL_VERTEX_FORMAT_PNC;		/* position + normal + color */
 
 #ifdef __cplusplus
 }

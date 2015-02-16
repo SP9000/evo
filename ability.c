@@ -5,6 +5,7 @@ COMPONENT_NEW(app_ability, tv_component)
 END_COMPONENT_NEW(app_ability)
 
 COMPONENT_START(app_ability)
+	self->user = (app_unit*)tv_component_get(self_component, app_unit_id());
 END_COMPONENT_START
 
 COMPONENT_UPDATE(app_ability)
@@ -72,4 +73,10 @@ void app_ability_set_thumbnail(app_ability *ability, tv_model *model, tv_materia
 		};
 		tv_model_apply_scale(model, scale);
 	}
+}
+
+
+void app_unit_set_move_ability(app_unit* unit, app_ability* move_ability)
+{
+	unit->move_to = move_ability;
 }

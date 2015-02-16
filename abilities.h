@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #include "evo.h"
-#include "move.h"
+#include "app_ability_move.h"
 
 /**
  * Creates and initializes a move component 

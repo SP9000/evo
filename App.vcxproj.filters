@@ -97,6 +97,24 @@
     <Filter Include="Components\Motion">
       <UniqueIdentifier>{127b0f65-a2b4-459a-a972-4755e5076224}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Components\Units">
+      <UniqueIdentifier>{8d8f5759-f16f-42e1-ad1e-d51eec16218b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Units\Source Files">
+      <UniqueIdentifier>{024d0e3b-2c0e-4835-972b-dadb0ae0cd44}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Units\Header Files">
+      <UniqueIdentifier>{e7f63850-1af0-43c8-85b1-3b4fe7e349a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Abilities">
+      <UniqueIdentifier>{b42d8706-1ab4-4050-ade5-fd2780648087}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Abilities\Header Files">
+      <UniqueIdentifier>{f10e7c30-b9ec-4775-9bff-826982bc32a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Abilities\Source Files">
+      <UniqueIdentifier>{2aaaa0e0-67d5-43b4-b0e7-8dc9688d48fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="grid.h">
@@ -111,17 +129,8 @@
     <ClInclude Include="App\playermotor.h">
       <Filter>Components\Old\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="cursor.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="ability.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="hud.h">
       <Filter>Components\GUI\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="abilities.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="projectile.h">
       <Filter>Components\Projectiles\Header Files</Filter>
@@ -160,6 +169,22 @@
       <Filter>Components\Motion</Filter>
     </ClInclude>
     <ClInclude Include="App\app.h" />
+    <ClInclude Include="unit.h">
+      <Filter>Components\Units\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ability.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app_ability_move.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="abilities.h">
+      <Filter>Components\Abilities</Filter>
+    </ClInclude>
+    <ClInclude Include="cursor.h">
+      <Filter>Components\GUI\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="tags.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
@@ -177,17 +202,8 @@
     <ClCompile Include="App\playermotor.c">
       <Filter>Components\Old\Sources</Filter>
     </ClCompile>
-    <ClCompile Include="cursor.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="ability.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="hud.c">
       <Filter>Components\GUI\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="abilities.c">
-      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="projectile.c">
       <Filter>Components\Projectiles\Source Files</Filter>
@@ -261,6 +277,24 @@
     </ClCompile>
     <ClCompile Include="app_sine_move.c">
       <Filter>Components\Motion</Filter>
+    </ClCompile>
+    <ClCompile Include="unit.c">
+      <Filter>Components\Units\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ability.c">
+      <Filter>Components\Abilities\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="app_ability_move.c">
+      <Filter>Components\Abilities\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="abilities.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="cursor.c">
+      <Filter>Components\GUI\Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="app_unit.c">
+      <Filter>Components\Abilities\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

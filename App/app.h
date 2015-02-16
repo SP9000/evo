@@ -6,8 +6,12 @@ extern "C" {
 #endif
 
 #include "../evo.h"
-#include "entities.h"
 #include "../tv_client.h"
+#include "entities.h"
+#include "../tags.h"
+
+/*****************************************************************************/
+/* components */
 #include "playermotor.h"
 
 #include "../grid.h"
@@ -16,7 +20,7 @@ extern "C" {
 #include "../hud.h"
 
 #include "../ability.h"
-#include "../move.h"
+#include "../app_ability_move.h"
 
 #include "../abilities.h"
 
@@ -32,6 +36,7 @@ extern "C" {
 
 #include "../app_sine_move.h"
 
+/*****************************************************************************/
 void app_register();
 
 #ifdef __cplusplus

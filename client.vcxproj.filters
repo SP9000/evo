@@ -222,6 +222,9 @@
     <ClCompile Include="tv_gui.c">
       <Filter>Base\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="widget_slider.c">
+      <Filter>GUI\Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="textrenderer.h">
@@ -385,6 +388,9 @@
     </ClInclude>
     <ClInclude Include="tv_ai_pattern_direct.h">
       <Filter>Components\AI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="widget_slider.h">
+      <Filter>GUI\Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

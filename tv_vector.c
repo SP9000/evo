@@ -1,4 +1,5 @@
 #include "tv_vector.h"
+#include "tv_macros.h"
 
 UT_icd ut_vector2_icd = {sizeof(tv_vector2), NULL, NULL, NULL};
 UT_icd ut_vector3_icd = {sizeof(tv_vector3), NULL, NULL, NULL};
@@ -10,6 +11,24 @@ const tv_vector4 tv_vector4_zero = {0, 0, 0, 0};
 
 const tv_vector3 tv_vector3_forward = {0.0f, 0.0f, 1.0f};
 const tv_vector4 tv_vector4_forward = {0.0f, 0.0f, 1.0f, 1.0f};
+
+/*****************************************************************************/
+/* new */
+tv_vector2 tv_vector2_new(tvfloat x, tvfloat y)
+{
+	tv_vector2 ret = {x, y};
+	return ret;
+}
+tv_vector3  tv_vector3_new(tvfloat x, tvfloat y, tvfloat z)
+{
+	tv_vector3 ret = {x, y, z};
+	return ret;
+}
+tv_vector4 tv_vector4_new(tvfloat x, tvfloat y, tvfloat z, tvfloat w)
+{
+	tv_vector4 ret = {x, y, z, w};
+	return ret;
+}
 
 /*****************************************************************************/
 /* add */
@@ -94,14 +113,22 @@ tvfloat tv_vector4_dot(tv_vector4 v1, tv_vector4 v2)
 void tv_vector2_normalize(tv_vector2 v, tv_vector2* result)
 {
 	tvfloat mag = tv_vector2_mag(&v);
-	assert(mag != 0.0f);
+	/* assert(mag != 0.0f); */
+	if(mag == 0.0f) {
+		tv_warning("warning: attempted to normalize a vector with magnitude 0");
+		return;
+	}
 	result->x = v.x / mag;
 	result->y = v.y / mag;
 }
 void tv_vector3_normalize(tv_vector3 v, tv_vector3* result)
 {
 	tvfloat mag = tv_vector3_mag(&v);
-	assert(mag != 0.0f);
+	/* assert(mag != 0.0f); */
+	if(mag == 0.0f) {
+		tv_warning("warning: attempted to normalize a vector with magnitude 0");
+		return;
+	}
 	result->x = v.x / mag;
 	result->y = v.y / mag;
 	result->z = v.z / mag;
@@ -116,6 +143,23 @@ tvfloat tv_vector2_mag(tv_vector2* v)
 tvfloat tv_vector3_mag(tv_vector3* v)
 {
 	return (tvfloat)sqrt(v->x*v->x + v->y*v->y + v->z*v->z);
+}
+
+/*****************************************************************************/
+/* cross product */
+tvfloat tv_vector2_cross(tv_vector2* v1, tv_vector2* v2)
+{
+	return (v1->x * v2->y)  - (v1->y * v2->x);
+}
+void tv_vector3_cross(tv_vector3* v1, tv_vector3* v2, tv_vector3* result)
+{
+	result->x = (v1->y * v2->z) - (v1->z * v2->y);
+	result->y = (v1->z * v2->x) - (v1->x * v2->z);
+	result->z = (v1->x * v2->y) - (v1->y * v2->x);
+}
+void tv_vector4_cross(tv_vector4* v1, tv_vector4* v2, tv_vector4* result)
+{
+	/* TODO: */
 }
 
 /*****************************************************************************/

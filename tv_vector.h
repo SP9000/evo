@@ -68,29 +68,46 @@ extern const tv_vector4 tv_vector4_zero;
 extern const tv_vector3 tv_vector3_forward;
 extern const tv_vector4 tv_vector4_forward;
 
+/* new */
+tv_vector2 tv_vector2_new(tvfloat x, tvfloat y);
+tv_vector3 tv_vector3_new(tvfloat x, tvfloat y, tvfloat z);
+tv_vector4 tv_vector4_new(tvfloat x, tvfloat y, tvfloat z, tvfloat w);
+
+/* add */
 void tv_vector2_add(tv_vector2 v1, tv_vector2 v2, tv_vector2* result);
 void tv_vector3_add(tv_vector3 v1, tv_vector3 v2, tv_vector3* result);
 void tv_vector4_add(tv_vector4 v1, tv_vector4 v2, tv_vector4* result);
 
+/* sub */
 void tv_vector2_sub(tv_vector2 v1, tv_vector2 v2, tv_vector2* result);
 void tv_vector3_sub(tv_vector3 v1, tv_vector3 v2, tv_vector3* result);
 void tv_vector4_sub(tv_vector4 v1, tv_vector4 v2, tv_vector4* result);
 
+/* normalize */
 void tv_vector2_normalize(tv_vector2 v, tv_vector2* result);
 void tv_vector3_normalize(tv_vector3 v, tv_vector3* result);
 
+/* scale */
 void tv_vector2_scale(tv_vector2 *v, tvfloat factor);
 void tv_vector3_scale(tv_vector3 *v, tvfloat factor);
 void tv_vector4_scale(tv_vector4 *v, tvfloat factor);
 
+/* cross product */
+tvfloat tv_vector2_cross(tv_vector2* v1, tv_vector2* v2);
+void tv_vector3_cross(tv_vector3* v1, tv_vector3* v2, tv_vector3* result);
+void tv_vector4_cross(tv_vector4* v1, tv_vector4* v2, tv_vector4* result);
+
+/* dot-product */
 tvfloat tv_vector2_dot(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_dot(tv_vector3 v1, tv_vector3 v2);
 tvfloat tv_vector4_dot(tv_vector4 v1, tv_vector4 v2);
 
+/* distance */
 tvfloat tv_vector2_distance(tv_vector2 v1, tv_vector2 v2);
 tvfloat tv_vector3_distance(tv_vector3 v1, tv_vector3 v2);
 tvfloat tv_vector4_distance(tv_vector4 v1, tv_vector4 v2);
 
+/* magnitude */
 tvfloat tv_vector2_mag(tv_vector2* v);
 tvfloat tv_vector3_mag(tv_vector3* v);
 

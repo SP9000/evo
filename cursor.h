@@ -7,6 +7,7 @@ extern "C" {
 #include "evo.h"
 #include "ability.h"
 #include "hud.h"
+#include "tags.h"
 
 COMPONENT(app_cursor, tv_component)
 	tv_overlay_renderer *renderer;

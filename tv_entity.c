@@ -192,7 +192,6 @@ void tv_entity_update_all()
 		e != NULL;
 		e = (tv_entity**)utarray_next(entities, e)) {
 			tv_entity_update(*e);
-
 	}
 }
 
@@ -226,4 +225,37 @@ void tv_entity_instantiate_at(tv_entity *e, tv_vector3 at)
     }
 	/* if this entity has no parent, add it to the internal array of entities. */
 	tv_entity_start(inst);
+}
+
+void tv_entity_get_all_with_tag_r(tv_entity* e, tv_array* ret, tvuint tag)
+{
+	tv_entity **child;
+
+	if(e->tags & tag == tag) {
+		utarray_push_back(ret, e);
+	}
+	/* foreach child of the entity... */
+	for(child = (tv_entity**)utarray_front(e->children);
+		child != NULL;
+		child = (tv_entity**)utarray_next(e->children, child)) 
+	{
+		tv_entity_get_all_with_tag_r(*child, ret, tag);
+	}
+}
+
+tv_array* tv_entity_get_all_with_tag(tvuint tag)
+{
+	tv_entity **e;
+	tv_entity **child;
+	tv_array* ret;
+
+	utarray_new(ret, &ut_ptr_icd);
+	
+	/* recursively find all the tagged entities */
+    for(e = (tv_entity**)utarray_front(entities); 
+		e != NULL;
+		e = (tv_entity**)utarray_next(entities, e)) {
+			tv_entity_get_all_with_tag_r(*e, ret, tag);
+	}
+	return ret;
 }

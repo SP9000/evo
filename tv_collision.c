@@ -136,6 +136,39 @@ void tv_collision_update()
 
 }
 
+tv_vector3 tv_physics_check_ray_triangle(tv_vector3 p1, tv_vector3 p2, TV_collider *triangle)
+{
+}
+
+tv_vector3 tv_physics_check_ray_plane(tv_vector3 p1, tv_vector3 p2, TV_collider *plane)
+{
+	tvfloat w = plane->info.quad.w;
+	tvfloat h = plane->info.quad.h;
+
+	/* temporary triangle collider */
+	TV_collider t0;
+
+	/* TODO: apply transformations (rot/scale/trans) to the quad */
+	tv_vector3 v0 = tv_vector3_new(0.0f, 0.0f, 0.0f);
+	tv_vector3 v1 = tv_vector3_new(w, 0.0f, 0.0f);
+	tv_vector3 v2 = tv_vector3_new(w, h, 0.0f);
+	tv_vector3 v3 = tv_vector3_new(0.0f, h, 0.0f);
+
+	/* decompose plane into triangles and test those for intersection */
+	/* TODO: obviously this is far from the best way */
+	t0 = *plane;
+	t0.type = TV_COLLIDER_TRIANGLE;
+	t0.info.triangle.v0 = tv_vector3_new(0.0f, 0.0f, 0.0f);
+	t0.info.triangle.v1 = tv_vector3_new(w, 0.0f, 0.0f);
+	t0.info.triangle.v2 = tv_vector3_new(w, h, 0.0f);
+
+	return tv_physics_check_ray_triangle(p1, p2, &t0);
+	//TODO: check other half */
+	//t0.info.triangle.v1 = tv_vector3_new(w, h, 0.0f);
+	//t0.info.triangle.v2 = tv_vector3_new(w, h, 0.0f);
+	//return tv_physics_check_ray_triangle(p1, p2, &t0)
+}
+
 tv_vector3 tv_physics_check_ray_sphere(tv_vector3 p1, tv_vector3 p2, TV_collider *sphere)
 {
 	/* heavily inspired by:
@@ -219,6 +252,9 @@ TV_physics_hit_info tv_physics_raycast(tv_vector3 src, tv_vector3 dir, tvfloat l
 		case TV_COLLIDER_SPHERE:			
 			intersect = tv_physics_check_ray_sphere(src, dst, *c);
 			break;
+		case TV_COLLIDER_QUAD:
+			intersect = tv_physics_check_ray_plane(src, dst, *c);
+			break;
 		}
 		if(tv_vector3_distance(intersect, src) < closest_distance) {
 			hit.collider = *c;
@@ -232,12 +268,15 @@ tv_array* tv_collision_check(TV_collider* c)
 {
 	tv_array *matches;
 	TV_collider** it;
+	tv_collision collision;
 	
 	utarray_new(matches, &ut_ptr_icd);
 	/* check all collisions with the given collider */
 	for(it = (TV_collider**)utarray_front(colliders);  it != NULL; it = (TV_collider**)utarray_next(colliders, it)) {
-		if(tv_collider_check_collision(c, *it)) {
-			utarray_push_back(matches, it);
+		if(tv_collider_check_collision(c, *it, &collision)) {
+			tv_collision* col = (tv_collision*)tv_alloc(sizeof(tv_collision));
+			*col = collision;
+			utarray_push_back(matches, &col);
 		}
 	}
 	return matches;

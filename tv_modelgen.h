@@ -46,6 +46,7 @@ tv_model *tv_modelgen_tetrahedron(tv_vector3 dimensions, tv_model_vertex format)
  */
 tv_model *tv_modelgen_quad(tv_vector2 dimensions, tv_model_vertex format);
 
+
 #ifdef __cplusplus
 }
 #endif

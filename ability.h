@@ -83,6 +83,9 @@ COMPONENT(app_unit, tv_component)
 	app_unit_stats current_stats;
 	app_unit_status_condition conditions[APP_UNIT_MAX_STATUS_CONDITIONS];
 
+	/* every unit has a "move to" ability */
+	app_ability* move_to;
+
 	tvuint num_abilities;
 	app_ability abilities[APP_UNIT_MAX_ABILITIES];
 ENDCOMPONENT(app_unit)
@@ -92,6 +95,7 @@ void app_unit_apply_status(app_unit *unit, app_unit_stats *status);
 void app_unit_remove_status(app_unit *unit, app_unit_stats *status);
 void app_unit_add_ability(app_unit *unit, app_ability *ability);
 void app_unit_remove_ability(app_unit *unit, app_ability *ability);
+void app_unit_set_move_ability(app_unit* unit, app_ability* move_ability);
 /*****************************************************************************/
 /**
  * Set the user of the given ability to the given unit.

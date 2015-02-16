@@ -11,6 +11,10 @@
 	fprintf(stderr, "Warning: "); \
 	fprintf(stderr, __VA_ARGS__); \
 	fputc('\n', stderr);
+#define tv_info(...) \
+	fprintf(stdout, "Info: "); \
+	fprintf(stdout, __VA_ARGS__); \
+	fputc('\n', stdout);
 
 /*****************************************************************************/
 /*Component macros                                                           */
@@ -79,9 +83,44 @@
 		tv_component_notify_add((tv_component*)self); \
 	}
 
+/** 
+ * Macro to call the destroy method of the given component.
+ * Calls the "Destroy()" method.
+ * CDESTROY(apple) --> apple->Destroy()
+ * @param component the component to destroy.
+ */
 #define CDESTROY(component) (((tv_component*)component)->Destroy((tv_component*)component))
+
+/** 
+ * Macro to call the update method of the given component.
+ * Calls the "Update()" method.
+ * CUPDATE(apple) --> apple->Update()
+ * @param component the component to update.
+ */
 #define CUPDATE(component) (((tv_component*)component)->Update((tv_component*)component))
+
+/** 
+ * Macro to call the start method of the given component.
+ * Calls the "Start()" method. 
+ * CSTART(apple) --> apple->Start()
+ * @param component the component to start.
+ */
 #define CSTART(component) (((tv_component*)component)->Start((tv_component*)component))
+
+/** 
+ * Decalre a method for the given component.
+ * Use this macro both for the declaration of methods (prototypes) as well as 
+ * definitions (method bodies).
+ * declare a method:
+ *	void CMETHOD(a_component_type, a_method_name, int a, float b);
+ * define a method:
+ *	void CMETHOD(a_component_type, a_method_name, int a, float b) { ... }
+ * @param component_prefix the component that this method operates on.
+ * @param method_name the name of the method
+ * @param ... the arguments to the method.
+ */
+#define CMETHOD(component_prefix, method_name, ...) component_prefix ## _ ## method_name(component_prefix *self, __VA_ARGS__)
+
 
 /*****************************************************************************/
 /*Handler macros 														     */

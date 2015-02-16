@@ -2,6 +2,7 @@
 #include "ability.h"
 
 COMPONENT_NEW(app_cursor, tv_component)
+	utarray_new(self->selected_units, &ut_ptr_icd);
 END_COMPONENT_NEW(app_cursor)
 
 COMPONENT_START(app_cursor)
@@ -27,11 +28,19 @@ COMPONENT_UPDATE(app_cursor)
 	
 	if(tv_input_buttonpressed(self->move_button)) {
 		tv_array* hits;
-		TV_collider **c;
+		tv_collision **c;
 		hits = tv_scene_raypick(tv_input_mouse_pos());
-		for(c = (TV_collider**)utarray_front(hits); c != NULL; c = (TV_collider**)utarray_next(hits, c)) {
-			tv_vector3 pos = ((tv_component*)*c)->transform->pos;
-			printf("* entity <%s>  @ (%f, %f, %f)\n", ((tv_component*)*c)->entity->name, pos.x, pos.y, pos.z);
+		for(c = (tv_collision**)utarray_front(hits); c != NULL; c = (tv_collision**)utarray_next(hits, c)) {
+			if((*c)->col2->tags & APP_TAG_TERRAIN) {
+				app_ability_target target;
+				app_unit** u;
+				/* move all selected units to the selected point */
+				target.target = (*c)->location;
+				for(u = (app_unit**)utarray_front(self->selected_units); u != NULL; u = (app_unit**)utarray_next(self->selected_units, u)) {
+					(*u)->move_to->use((*u)->move_to, target);
+				}
+				//printf("* entity <%s>  @ (%f, %f, %f)\n", (*c)->col2->name, (*c)->location.x, (*c)->location.y, (*c)->location.z);
+			}
 		}
 		tv_free(hits);
 	}
@@ -43,7 +52,7 @@ COMPONENT_UPDATE(app_cursor)
 	}
 	/* mouse up */
 	else if(tv_input_buttonreleased(self->select_button)) {
-		/* tv_array *units; */
+		tv_array *units;
 		app_unit **u;
 
 		self->rect.x = self->start.x;
@@ -64,17 +73,16 @@ COMPONENT_UPDATE(app_cursor)
 		tv_overlay_renderer_set_model(self->renderer, NULL);
 
 		/* get all units and find the ones that lie within the selection box */
-		/* TODO: unit being reworked
 		units = tv_component_get_all_of_type(app_unit_id());
 		if(units != NULL) {
 			for(u = (app_unit**)utarray_front(units); u != NULL; u = (app_unit**)utarray_next(units, u)) {
 				tv_vector3 pos = ((tv_component*)*u)->transform->pos;
 				if(tv_rect_contains(self->rect, tv_scene_to_screen_coordinates(pos))) {
+					utarray_push_back(self->selected_units, u);
 					printf("YES\n");
 				}
 			}
 		}
-		*/
 	}
 
 	if(self->start.x > 0) {

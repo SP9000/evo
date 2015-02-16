@@ -29,10 +29,13 @@ extern "C" {
 /* Plane collider - the AABB's w and h dimensions represent the plane's */
 #define COLLIDER_PLANE 3
 
-typedef struct tagTvCollision {
+typedef struct {
+	/* the colliders involved in the collision */
     tv_entity* col1;
     tv_entity* col2;
-} TvCollision;
+	/* the (or one) location that the collision occurred at. */
+	tv_vector3 location;
+}tv_collision;
 
 typedef tvbool (*TvCollisionDetectFunc)(tv_entity*);
 typedef void (*TvCollisionCollideFunc)(tv_entity*);
@@ -89,10 +92,19 @@ void tv_entity_collide(tv_entity* e, tv_entity* other);
 /**
  * Check collision with all colliders that've been added and the given collider.
  * @param c the collider to test collision with.
- * @return an array of all the colliders that are colliding with the given 
+ * @return an array of all the collisions that occured.
  *    collider.
  */
 tv_array* tv_collision_check(TV_collider* c);
+
+
+/**
+ * Check for collision between the two colliders.
+ * @param c1 the first collider.
+ * @param c2 the second collider.
+ * @return TRUE if the colliders are overlapping, FALSE if not.
+ */
+tvbool tv_collider_check_collision(TV_collider *c1, TV_collider *c2, tv_collision* c);
 
 #ifdef __cpluplus
 }

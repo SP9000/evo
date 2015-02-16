@@ -8,13 +8,16 @@ extern "C" {
 #include "tv_component.h"
 #include "tv_math.h"
 
+
 /**
  * An enumeration of the types of colliders.
  */
 typedef enum {
 	TV_COLLIDER_BOX,
 	TV_COLLIDER_SPHERE,
-	TV_COLLIDER_LINE
+	TV_COLLIDER_LINE,
+	TV_COLLIDER_QUAD,
+	TV_COLLIDER_TRIANGLE
 }TV_collider_type;
 
 /**
@@ -41,12 +44,30 @@ typedef struct {
 }TV_collider_line_collider_info;
 
 /**
+ * A structure containing information needed to detect quad collision.
+ */
+typedef struct {
+	tvfloat w, h;
+}TV_collider_quad_collider_info;
+
+/**
+ * A structure containing information needed to detect triangle collision.
+ */
+typedef struct {
+	tv_vector3 v0;
+	tv_vector3 v1;
+	tv_vector3 v2;
+}TV_collider_triangle_collider_info;
+
+/**
  * A structure containing information needed to detect collider collision.
  */
 typedef union TV_collider_info {
 	TV_collider_box_collider_info box;
 	TV_collider_sphere_collider_info sphere;
 	TV_collider_line_collider_info line;
+	TV_collider_quad_collider_info quad;
+	TV_collider_triangle_collider_info triangle;
 }TV_collider_info;
 
 COMPONENT(TV_collider, tv_component)
@@ -73,20 +94,10 @@ typedef struct TV_collision_message {
 	TV_collider *into;
 }TV_collision_message;
 
-
 void tv_collider_sphere(TV_collider *col, tvfloat radius);
 void tv_collider_line(TV_collider *col, tv_vector3 start, tv_vector3 dir, tvfloat len);
-
-/**
- * Check for collision between the two colliders.
- * @param c1 the first collider.
- * @param c2 the second collider.
- * @return TRUE if the colliders are overlapping, FALSE if not.
- */
-tvbool tv_collider_check_collision(TV_collider *c1, TV_collider *c2);
-tvbool tv_collider_check_box_collision(TV_collider *box, TV_collider *c2);
-tvbool tv_collider_check_sphere_collision(TV_collider *sphere, TV_collider *c2);
-tvbool tv_collider_check_line_collision(TV_collider *line, TV_collider *c2);
+void tv_collider_triangle(TV_collider* col, tv_vector3 v0, tv_vector3 v1, tv_vector3 v2); 
+void tv_collider_quad(TV_collider* col, tv_vector2 dimensions);
 
 #ifdef __cplusplus
 }

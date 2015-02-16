@@ -3,6 +3,20 @@
 extern "C" {
 #endif
 
+#ifdef TV_MODEL_USE_ASSIMP
+#include <assimp\cimport.h>
+#include <assimp\scene.h>
+#include <assimp\postprocess.h>
+#endif
+
+
+/*****************************************************************************/
+/* vertex formats */
+tv_model_vertex TV_MODEL_VERTEX_FORMAT_P = {1, {TV_MODEL_PROPERTY_FLOAT}, {3}};
+tv_model_vertex TV_MODEL_VERTEX_FORMAT_PN = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {3, 3}};
+tv_model_vertex TV_MODEL_VERTEX_FORMAT_PC = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {3, 4}};
+tv_model_vertex TV_MODEL_VERTEX_FORMAT_PNC = {3, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {3, 3, 4}};
+
 /*****************************************************************************/
 /* a structure for holding the names and references of loaded models */
 typedef struct loaded_model {
@@ -11,6 +25,8 @@ typedef struct loaded_model {
 	TvHashHandle hh;
 } loaded_model;
 
+/*****************************************************************************/
+/* .PLY loading helper types */
 /* information pertaining to the content of a .PLY property */
 typedef struct ply_property {
 	tvint value;
@@ -51,22 +67,27 @@ typedef struct property_group {
 }property_group;
 
 /*****************************************************************************/
+/* .PLY loading helper functions */
 /* a helper function to read an element from a PLY file. TRUE=success */
 static tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name);
+
 /* a helper function to read a property from a PLY file. TRUE=success */
 tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element);
+
 /* helper functions to check if the property is one of several known types. */
 static tvbool property_is_position(tvchar *name);
 static tvbool property_is_normal(tvchar *name);
 static tvbool property_is_color(tvchar *name);
 static tvbool property_is_texco(tvchar *name);
 
+/*****************************************************************************/
 /* a table of models that have already been loaded. */
 static loaded_model* loaded_models = NULL;
 /* The ICD for a model's indices */
 UT_icd ut_index_icd = {sizeof(GLshort), 0, 0, 0};
 
 /*****************************************************************************/
+/* Helper functions */
 tvbool read_comment(tvchar *line)
 {
 	tvchar a[256];
@@ -251,6 +272,102 @@ COMPONENT_DESTROY(tv_model)
 	glDeleteBuffers(1, &self->vertex_vbo);
 	glDeleteVertexArrays(1, &self->vao);
 END_COMPONENT_DESTROY
+
+/*****************************************************************************/
+void tv_model_load(tv_model* model, tvchar* filename)
+{
+#ifdef TV_MODEL_USE_ASSIMP
+	const struct aiScene* asset; // = aiImportFile(filename, aiProcessPreset_TargetRealtime_MaxQuality);
+	tvuint i, j;
+
+	if(!asset) {
+		tv_error("failed to load model %s\n", filename);
+		model = NULL;
+		return;
+	}
+	if(asset->mNumMeshes <= 0) {
+		tv_warning("no meshes detected in model %s\n", filename);
+	}
+	if(asset->mNumMeshes > 1) {
+		tv_info("multiple meshes in model %s will be combined.\n", filename);
+	}
+	for(i = 0; i < asset->mMeshes; ++i) {
+		tvfloat v[5];	/* TODO: generalize - must be size of max # of vertex attributes */
+		struct aiMesh* m = asset->mMeshes[i];
+		tvuint vertex_size = 0;
+		tvuint vertex_num_properties = 1;
+		tv_model_attribute attr;
+		tvuint num_faces;
+
+		attr.data_type = TV_MODEL_PROPERTY_FLOAT;
+
+		/* position - all models contain position data */
+		attr.count = 3;
+		vertex_size += attr.count;
+		tv_model_append_property(model, &attr);
+
+		/* normals - TODO: */
+		if(1) {
+			attr.count = 3;
+			vertex_size += attr.count;
+			tv_model_append_property(model, &attr);
+			++vertex_num_properties;
+		}
+		/* color - TODO: not sure how to get # color channels with C API yet. */
+		if(1) {
+			attr.count = 4;
+			vertex_size += attr.count;
+			tv_model_append_property(model, &attr);
+			++vertex_num_properties;
+		}
+		/* texture coordinates - TODO: check if UV's exist */
+		if(0) {
+			attr.count = 2;
+			vertex_size += attr.count;
+			tv_model_append_property(model, &attr);
+			++vertex_num_properties;
+		}
+		/* TODO: assumes triangulation */
+		num_faces = 3 * m->mNumVertices;
+
+		/* set vertex format TODO: for all meshes being combined - make sure it's the same */
+		tv_model_vertex_format(model, vertex_num_properties, &attr);
+		/* copy all the vertices and vertex attributes to our model format */
+		for(j = 0; j < m->mNumVertices; ++j) {
+			tvuint offset = 0;
+			/* position - all models contain position data */
+			v[offset++] = m->mVertices[i].x;
+			v[offset++] = m->mVertices[i].y;
+			v[offset++] = m->mVertices[i].z;
+			
+			tv_model_append_property(model, &attr);
+			/* normals - TODO: */
+			if(1) {
+				v[offset++] = m->mNormals[i].x;
+				v[offset++] = m->mNormals[i].y;
+				v[offset++] = m->mNormals[i].z;
+			}
+			/* color - TODO: not sure how to get # color channels with C API yet. */
+			if(1) {
+				v[offset++] = m->mColors[i]->r;
+				v[offset++] = m->mColors[i]->g;
+				v[offset++] = m->mColors[i]->b;
+				v[offset++] = m->mColors[i]->a;
+			}
+			/* texture coordinates - TODO: check if UV's exist */
+			if(0) {
+				v[offset++] = m->mTextureCoords[i]->x;
+				v[offset++] = m->mTextureCoords[i]->y;
+			}
+			tv_model_append_vertex(model, &v);
+		}
+	}
+	model->primitive = GL_TRIANGLES;
+#else
+	tv_warning("Assimp not enabled - model will not be loaded.");
+#endif
+}
+
 /*****************************************************************************/
 void tv_model_load_ply(tv_model *model, tvchar* file)
 {
@@ -579,6 +696,7 @@ void tv_model_set_index(tv_model *model, tvuint index, tvuint new_index)
 void tv_model_append_vertex(tv_model *model, GLvoid* data)
 {
 	utarray_push_back(model->vertices, data);
+	model->num_vertices++;
 }
 
 void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data)
@@ -589,12 +707,14 @@ void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data)
 void tv_model_append_indices1(tv_model* model, tvuint i)
 {
 	utarray_push_back(model->indices, &i);
+	model->num_indices++;
 }
 
 void tv_model_append_indices2(tv_model* model, tvuint i0, tvuint i1)
 {
 	utarray_push_back(model->indices, &i0);
 	utarray_push_back(model->indices, &i1);
+	model->num_indices += 2;
 }
 
 void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2)
@@ -602,6 +722,7 @@ void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2)
 	utarray_push_back(model->indices, &i0);
 	utarray_push_back(model->indices, &i1);
 	utarray_push_back(model->indices, &i2);
+	model->num_indices += 3;
 }
 
 void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3)
@@ -610,6 +731,7 @@ void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, 
 	utarray_push_back(model->indices, &i1);
 	utarray_push_back(model->indices, &i2);
 	utarray_push_back(model->indices, &i3);
+	model->num_indices += 4;
 }
 
 void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices)
@@ -617,6 +739,48 @@ void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices)
 	tvuint i;
 	for(i = 0; i < count; ++i) {
 		utarray_push_back(model->indices, &indices[i]);
+	}
+	model->num_indices += count;
+}
+
+void tv_model_append_vertices(tv_model* model, tv_array* vertices)
+{
+	GLvoid **v;
+	for(v = (GLvoid**)utarray_front(vertices); v != NULL; v = (GLvoid**)utarray_next(vertices, v)) {
+		tv_model_append_vertex(model, *v);
+	}
+	model->num_vertices += utarray_len(vertices);
+}
+
+void tv_model_append_model(tv_model* model, tv_model* append)
+{
+	tvuint i;
+	GLshort* index;
+	tvuint offset;
+	/* do not append NULL models (or append TO NULL models) */
+	if(!model || !append) {
+		return;
+	}
+	/* make sure the two models share a vertex format */
+	if(model->num_properties == append->num_properties) {
+		/* check each vertex attribute */
+		for(i = 0; i < model->num_properties; ++i) {
+			if(!((model->vertex_attributes[i].count == append->vertex_attributes[i].count) &&
+				(model->vertex_attributes[i].data_type == append->vertex_attributes[i].data_type) &&
+				(model->vertex_attributes[i].offset == append->vertex_attributes[i].offset))) {
+					/* different vertex formats */
+					return;
+			}
+		}
+	}
+	/* models are compatible for appending */
+	offset = utarray_len(model->indices);
+	/* append vertices */
+	tv_model_append_vertices(model, append->vertices);
+	/* append indices - we must add an offset to each index before appending */
+	for(index = (GLshort*)utarray_front(append->indices); index != NULL; 
+		index = (GLshort*)utarray_next(append->indices, index)) {
+		tv_model_append_indices1(model, *index + offset);
 	}
 }
 
@@ -629,7 +793,6 @@ TvAABB tv_model_get_aabb(tv_model* model)
 	aabb.w = 0;
 	return aabb;
 }
-
 
 tvuint tv_model_get_property_size(tvuint data_type)
 {

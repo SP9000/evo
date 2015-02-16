@@ -1,0 +1,8 @@
+#ifndef LAYERS_H
+#define LAYERS_H
+
+#define APP_TAG_UNIT       0x00000001
+#define APP_TAG_TERRAIN    0x00000002
+#define APP_TAG_BACKGROUND 0x00000004
+
+#endif
