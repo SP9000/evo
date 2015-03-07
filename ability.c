@@ -1,4 +1,5 @@
 #include "ability.h"
+#include "hud.h"
 
 COMPONENT_NEW(app_ability, tv_component)
 	//self->thumbnail.renderer = tv_animation_renderer_new();

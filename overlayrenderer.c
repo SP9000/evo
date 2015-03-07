@@ -33,9 +33,11 @@ END_HANDLER_UPDATE
 static void render(tv_component *self)
 {
 	tv_overlay_renderer *renderer = (tv_overlay_renderer*)self;
+	tv_material* mat;
 
 	tv_vector3 pos; 
 	tv_vector3 scale; 
+	tvuint i;
 
 	if(renderer->model == NULL) {
 		return;
@@ -50,19 +52,14 @@ static void render(tv_component *self)
 	tv_mat4x4_scale(&tv_camera_gui->modelview_mat, scale.x, scale.y, scale.z);
 	tv_mat4x4_translate(&tv_camera_gui->modelview_mat, pos.x, pos.y, pos.z);
 
-	/* bind attribute array and draw */
+	/* render all passes of the bone */
+	mat = renderer->base.material;
+
+	/* bind the models' vertex attribute object. */
 	glBindVertexArray(renderer->model->vao);
-	/* use the model's material's shader */
-	glUseProgram(((tv_renderer*)renderer)->material->program);
-
-	/* set matrices */
-	/* TODO: should be GL_FALSE */
-	glUniformMatrix4fv(((tv_renderer*)renderer)->material->modelview_mat, 1, GL_FALSE, 
-		tv_mat4x4_to_array(&tv_camera_gui->modelview_mat));
-	glUniformMatrix4fv(((tv_renderer*)renderer)->material->projection_mat, 1, GL_FALSE, 
-		tv_mat4x4_to_array(&tv_camera_gui->projection_mat));
-
-	tv_draw_arrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
+	for(i = 0; i < mat->num_passes; ++i) {
+		tv_material_do_pass(mat, i, renderer->model);
+	}
 	glBindVertexArray(0);
 
 	tv_mat4x4_pop(&tv_camera_gui->modelview_mat);

@@ -36,7 +36,8 @@ int tv_draw_init()
     if(glewInit() == GLEW_OK) {
         printf("OpenGL extensions availiable\n");
         printf("Shader version %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        glClearColor(0.9f, 0.7f, 0.9f, 0.0f);
+        glClearColor(0.6f, 0.8f, 0.93f, 1.0f);
+		glClearDepth(1.0f);
     }
     /* Initialize legacy OpenGL for older hardware. */
     else {
@@ -44,6 +45,7 @@ int tv_draw_init()
         printf("But seriously, this is GOING to be a miserable failure\n");
         glEnable(GL_TEXTURE_2D);
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+		glClearDepth(1.0f);
         glViewport(0, 0, 640, 480);
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
@@ -206,15 +208,11 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect)
     main_cam->modelview_mat.b1 *= rect->h;
 
     /* use the model's material's shader */
-    glUseProgram(tex_mat->program);
+	tv_material_use_pass(tex_mat, 0);
 
-	glUniformMatrix4fv(tex_mat->modelview_mat, 1, GL_FALSE, 
-		tv_mat4x4_to_array(&main_cam->modelview_mat));
-	glUniformMatrix4fv(tex_mat->projection_mat, 1, GL_FALSE, 
-		tv_mat4x4_to_array(&main_cam->projection_mat));
-
+	/* TODO: this is ALL F##@$ed */
     /* bind the texture */
-    loc = glGetUniformLocation(tex_mat->program, "tex");
+    loc = glGetUniformLocation(tex_mat->passes[0]->program, "tex");
     glActiveTexture(GL_TEXTURE0 + 0);
     glUniform1i(loc, 0); 
     glBindTexture(GL_TEXTURE_2D, tex.id);

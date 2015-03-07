@@ -1,23 +1,38 @@
 #include "tv_texture.h"
 
+/****************************************************************************/
 /* a map of texture filenames to their texture handles to prevent reloading */
 static TvTexture* loaded_textures;
 
+/*****************************************************************************
+ * tv_texture_init
+ * Does nothing.
+*****************************************************************************/
 int tv_texture_init()
 {
     return 0;
 }
-
+/*****************************************************************************
+ * tv_texture_new
+ * Allocates memory for a new texture and returns a reference to it.
+*****************************************************************************/
 TvTexture *tv_texture_new()
 {
 	return (TvTexture*)tv_alloc(sizeof(TvTexture));
 }
-
+/*****************************************************************************
+ * tv_texture_quit
+ * Does nothing.
+*****************************************************************************/
 void tv_texture_quit()
 {
 	
 }
-
+/*****************************************************************************
+ * tv_texture_load_bmp
+ * Uses the SDL bitmap loading functionality to load a bitmap file and 
+ * convert it to an OpenGL texture.
+*****************************************************************************/
 TvTexture* tv_texture_load_bmp(tvchar* file)
 {
     int bpp;

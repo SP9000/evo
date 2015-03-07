@@ -7,13 +7,14 @@ extern "C" {
 
 #include "renderer.h"
 #include "tv_gui.h"
+#include "animation.h"
 
 HANDLER(tv_gui_renderer, tv_renderer)
 	const char *font;
 	float font_size;
 	tv_rect rect;
 	tv_string *text;
-	tv_model *model;
+	tv_animation *animation;
 	TvTexture *font_texture;
 	tv_widget *widget;
 ENDHANDLER(tv_gui_renderer)

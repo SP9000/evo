@@ -56,6 +56,7 @@ void tv_client_init()
         fprintf(stderr, "Error initializing SDL\n");
         exit(TV_ERROR_SDL_INIT_FAILED);
     }
+	SDL_WM_SetCaption("steppe", NULL);
 
     /* Initialize draw. */
     puts("Initializing draw");

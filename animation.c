@@ -11,6 +11,7 @@ COMPONENT_NEW(tv_animation, tv_component)
 	tvuint i;
 
 	utarray_new(self->keyframes, &tv_animation_keyframe_icd);
+	self->materials = NULL;
 	self->num_bones = 0;
 	self->num_root_bones = 0;
 	self->num_sequences = 0;
@@ -40,10 +41,14 @@ COMPONENT_DESTROY(tv_animation)
 	if(self->keyframes) {
 		utarray_free(self->keyframes);
 	}
-	HASH_ITER(hh, self->bone_name_table, curr, tmp) {
-		HASH_DEL(self->bone_name_table, curr); 
-		free(curr);
+	/*
+	if(self->bone_name_table != NULL) {
+		HASH_ITER(hh, self->bone_name_table, curr, tmp) {
+			HASH_DEL(self->bone_name_table, curr); 
+			free(curr);
+		}
 	}
+	*/
 END_COMPONENT_DESTROY
 
 COMPONENT_UPDATE(tv_animation)

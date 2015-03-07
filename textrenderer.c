@@ -44,6 +44,8 @@ static void render(tv_component *self)
 
 	GLint loc;
 
+/* TODO: needs to be reworked for new materials */
+#if 0
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 	tv_mat4x4_push(&main_cam->modelview_mat);
@@ -77,6 +79,7 @@ static void render(tv_component *self)
     glDisable(GL_BLEND);
     glBindTexture(GL_TEXTURE_2D, 0);
     glDisable(GL_TEXTURE_2D);
+#endif
 }
 
 void tv_text_renderer_set_text(tv_text_renderer *self, const tvchar *text)

@@ -1,15 +1,24 @@
 #include "tv_entity.h"
 
+/*****************************************************************************/
 static tv_array /*Entity* */ *entities;
 
+/*****************************************************************************/
 void tv_entity_update(tv_entity *e);
 
+/******************************************************************************
+ * tv_entity_init 
+ * Initializes the array of entities.
+******************************************************************************/
 int tv_entity_init()
 {
 	utarray_new(entities, &ut_ptr_icd);
 	return 0;
 }
-
+/******************************************************************************
+ * tv_entity_quit
+ * Destroys all the entities in the entity array and frees the array.
+******************************************************************************/
 void tv_entity_quit()
 {
 	tv_entity **e;
@@ -21,8 +30,13 @@ void tv_entity_quit()
 	{
 		tv_entity_destroy(*e);
 	}
+	utarray_free(entities);
 }
-
+/******************************************************************************
+ * tv_entity_new
+ * Creates a new entity and initializes its transform to the contents of the
+ * given transform.
+******************************************************************************/
 tv_entity* tv_entity_new(tv_transform *transform)
 {
     tv_entity* e = (tv_entity*)malloc(sizeof(tv_entity)); 
@@ -55,8 +69,12 @@ tv_entity* tv_entity_new(tv_transform *transform)
 	utarray_new(e->children, &ut_ptr_icd);
     return e;
 }
-
-/* TODO: prolly really broken */
+/******************************************************************************
+ * tv_entity_destroy
+ * Recursively frees all children of the given entity, all components attached
+ * to those children, this entities children, and this entity.
+ * TODO: prolly really broken 
+******************************************************************************/
 void tv_entity_destroy(tv_entity* e)
 {
 	tv_entity **child;
@@ -93,7 +111,10 @@ void tv_entity_destroy(tv_entity* e)
 	/* free the entity */
 	tv_free(e);
 }
-
+/******************************************************************************
+ * tv_entity_add_component
+ * Adds the given component pointer to the entity's component array.
+******************************************************************************/
 tv_component*  tv_entity_add_component(tv_entity* e, tv_component* c)
 {
 	c->entity = e;
@@ -102,7 +123,35 @@ tv_component*  tv_entity_add_component(tv_entity* e, tv_component* c)
 	/* TODO: check that no component of c's type exists. */
 	return c;
 }
+/******************************************************************************
+ * tv_entity_get_component
+ * Searches the entity's component array for a component known by the given
+ * ID.  Returns NULL if one is not found and the pointer to that component 
+ * if it is.
+******************************************************************************/
+tv_component* tv_entity_get_component(tv_entity* e, tvuint cid)
+{
+	tv_component **c;
+	if(e == NULL) {
+        return NULL;
+    }
+	/* iterate through all the components of the given entity looking for a 
+	 * component of the desired ID. */
+	for(c = (tv_component**)utarray_front(e->components); 
+		c != NULL; 
+		c = (tv_component**)utarray_next(e->components, c)) {
+		if(tv_component_inherits(*c, cid)) {
+            return *c;
+        }   
+    }
+	/* a component of the desired ID does not exist within the given entity. */
+    return NULL;
+}
 
+/******************************************************************************
+ * tv_entity_add_child
+ * Adds the given entity pointer to the parent entity's children array.
+******************************************************************************/
 void tv_entity_add_child(tv_entity* parent, tv_entity* child)
 {
 	tv_array *e = entities;
@@ -125,7 +174,10 @@ void tv_entity_add_child(tv_entity* parent, tv_entity* child)
 	child->parent = parent;
 	utarray_push_back(parent->children, &child);
 }
-
+/******************************************************************************
+ * tv_entity_start
+ * Calls each component attached to this entity's "start" method.
+******************************************************************************/
 void tv_entity_start(tv_entity* e)
 {
 	tv_component **c;
@@ -141,26 +193,10 @@ void tv_entity_start(tv_entity* e)
 		utarray_push_back(entities, &e);
 	}
 }
-
-tv_component* tv_entity_get_component(tv_entity* e, tvuint cid)
-{
-	tv_component **c;
-	if(e == NULL) {
-        return NULL;
-    }
-	/* iterate through all the components of the given entity looking for a 
-	 * component of the desired ID. */
-	for(c = (tv_component**)utarray_front(e->components); 
-		c != NULL; 
-		c = (tv_component**)utarray_next(e->components, c)) {
-		if(tv_component_inherits(*c, cid)) {
-            return *c;
-        }   
-    }
-	/* a component of the desired ID does not exist within the given entity. */
-    return NULL;
-}
-
+/******************************************************************************
+ * tv_entity_start
+ * Calls each component attached to this entity's "start" method.
+******************************************************************************/
 void tv_entity_update(tv_entity *e)
 {
 	tv_entity **child;
@@ -180,7 +216,11 @@ void tv_entity_update(tv_entity *e)
 		tv_entity_update(*child);				
 	}
 }
-
+/******************************************************************************
+ * tv_entity_update_all
+ * Updates all entities that have been created by recursively updating all
+ * entities in the internal entity array and their children.
+******************************************************************************/
 void tv_entity_update_all()
 {
 	tv_entity **e;
@@ -194,7 +234,10 @@ void tv_entity_update_all()
 			tv_entity_update(*e);
 	}
 }
-
+/******************************************************************************
+ * tv_entity_instantiate
+ * TODO:
+******************************************************************************/
 void tv_entity_instantiate(tv_entity *e)
 {
 	tv_component **c;
@@ -210,6 +253,10 @@ void tv_entity_instantiate(tv_entity *e)
 	/* if this entity has no parent, add it to the internal array of entities. */
 	tv_entity_start(inst);
 }
+/******************************************************************************
+ * tv_entity_instantiate_at
+ * TODO:
+******************************************************************************/
 void tv_entity_instantiate_at(tv_entity *e, tv_vector3 at)
 {
 	tv_component **c;
@@ -226,7 +273,12 @@ void tv_entity_instantiate_at(tv_entity *e, tv_vector3 at)
 	/* if this entity has no parent, add it to the internal array of entities. */
 	tv_entity_start(inst);
 }
-
+/******************************************************************************
+ * tv_entity_get_all_with_tag_r
+ * A recursive function called by tv_entity_get_all_with_tag.  Recursively 
+ * searches all children of the given entity for entities that have the given
+ * tag.
+******************************************************************************/
 void tv_entity_get_all_with_tag_r(tv_entity* e, tv_array* ret, tvuint tag)
 {
 	tv_entity **child;
@@ -242,7 +294,10 @@ void tv_entity_get_all_with_tag_r(tv_entity* e, tv_array* ret, tvuint tag)
 		tv_entity_get_all_with_tag_r(*child, ret, tag);
 	}
 }
-
+/******************************************************************************
+ * tv_entity_get_all_with_tag
+ * Calls tv_entity_get_all_with_tag_r to find all entities with the given tag.
+******************************************************************************/
 tv_array* tv_entity_get_all_with_tag(tvuint tag)
 {
 	tv_entity **e;

@@ -35,16 +35,22 @@ ENDCOMPONENT(app_cursor)
 
 /**
  * Add the given unit to the cursor's selection.
- * @param self the cursor to add the unit to the selection of.
  * @param unit the unit to add.
  */
-void app_cursor_select_unit(app_cursor *self, app_unit *unit);
+void METHOD(app_cursor, select_unit,
+	app_unit *unit);
 
 /** 
  * Deselect all the curor's selected units.
- * @param self the cursor to deselect all units from.
  */
-void app_cursor_deselect_all(app_cursor *self);
+void METHOD(app_cursor, deselect_all);
+			
+/**
+ * Set the HUD associated with the cursor.
+ * @param hud the HUD to set.
+ */
+void METHOD(app_cursor, set_hud,
+			 app_hud* hud); 
 
 #ifdef __cplusplus
 }

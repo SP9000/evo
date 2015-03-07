@@ -39,7 +39,7 @@ void tv_line_renderer_set_line_width(tv_line_renderer* self, tvuint line_width)
 
 void tv_line_renderer_clear(tv_line_renderer* self)
 {
-	CDESTROY(self->model);
+	DESTROY(self->model);
 	self->model = tv_model_new();
 	tv_model_vertex_format(self->model, 2, vertex_properties);
 }
@@ -67,6 +67,9 @@ END_HANDLER_UPDATE
 static void render(tv_component* self)
 {
 	tv_line_renderer *renderer = (tv_line_renderer*)self;
+	tv_material* mat;
+	tvuint i;
+
 	if(renderer->model == NULL) {
 		return;
 	}
@@ -86,14 +89,15 @@ static void render(tv_component* self)
 
     /* Bind the models' vertex attribute object. */
     glBindVertexArray(renderer->model->vao);
-    /* use the model's material's shader */
-    glUseProgram(renderer->base.material->program);
 
-    /* set matrices */
-	glUniformMatrix4fv(renderer->base.material->modelview_mat, 1, GL_FALSE, 
-            tv_mat4x4_to_array(&main_cam->modelview_mat));
-	glUniformMatrix4fv(renderer->base.material->projection_mat, 1, GL_FALSE, 
-			tv_mat4x4_to_array(&main_cam->projection_mat));
+	/* render all passes of the bone */
+	mat = renderer->base.material;
+
+	/* bind the models' vertex attribute object. */
+	glBindVertexArray(renderer->model->vao);
+	for(i = 0; i < mat->num_passes; ++i) {
+		tv_material_do_pass(mat, i, renderer->model);
+	}
 
 	glLineWidth((GLfloat)renderer->line_width);
     glBindVertexArray(renderer->model->vao);

@@ -6,20 +6,36 @@ typedef struct modelgen_vertex {
 	tv_vector4 color;
 }modelgen_vertex;
 
-/*****************************************************************************/
+/******************************************************************************
+ * write_header
+ * Writes a PLY file header for storing a PLY model.
+******************************************************************************/
 void write_header(FILE* fp)
 {
     fprintf(fp, "ply\n");
     fprintf(fp, "format ascii 1.0\n");
 }
+/******************************************************************************
+ * write_property
+ * writes a PLY property line using the given parameters. 
+******************************************************************************/
 void write_property(FILE* fp, char* type, char* name)
 {
     fprintf(fp, "property %s %s\n", type, name);
 }
+/******************************************************************************
+ * write_end_header
+ * writes the "end_header" line of a PLY file.
+******************************************************************************/
 void write_end_header(FILE* fp)
 {
     fprintf(fp, "end_header\n");
 }
+/******************************************************************************
+ * write_end_header
+ * writes an element line using the given parameters.
+ * TODO: this generates set properties (position and color)
+******************************************************************************/
 void write_element(FILE* fp, char* name, int size)
 {
     fprintf(fp, "element %s %d\n", name, size);
@@ -35,6 +51,10 @@ void write_element(FILE* fp, char* name, int size)
         write_property(fp, "float", "a");
     }
 }
+/******************************************************************************
+ * open_file
+ * Opens a file for writing (used to begin writing aa PLY file).
+******************************************************************************/
 FILE* open_file(char* dir, char* file)
 {
     FILE* fp;
@@ -47,12 +67,14 @@ FILE* open_file(char* dir, char* file)
     }
     return fp;
 }
-
-/*****************************************************************************/
+/******************************************************************************
+ * ModelGen_Charset()
+ * Generates a mesh based character set and writes each character to a PLY
+ * file.
+******************************************************************************/
 void ModelGen_Charset()
 {
-    int i;
-    int j;
+    tvuint i, j;
 
     /* # of lines in each character */
     int charSizes[] = {
@@ -137,8 +159,11 @@ void ModelGen_Charset()
         fclose(fp);
     }
 }
-
-/*****************************************************************************/
+/******************************************************************************
+ * ModelGen_GUI()
+ * Generates PLY files for various GUI elements (buttons, etc.)
+ * TODO: literally only does 'button'.
+******************************************************************************/
 void ModelGen_GUI()
 {
     FILE* fp;
@@ -156,7 +181,11 @@ void ModelGen_GUI()
     fprintf(fp, "4 %d %d %d %d", 0, 1, 2, 3);
     fclose(fp);
 }
-
+/******************************************************************************
+* tv_modelgen_quad
+* Generates a quadrilateral that has the specified vertex format.
+* TODO: no it doesn't, it generates position/color vertices only.
+******************************************************************************/
 tv_model *tv_modelgen_quad(tv_vector2 dimensions, tv_model_vertex format)
 {
 	tvfloat quad_vertices[] = {
@@ -191,7 +220,11 @@ tv_model *tv_modelgen_quad(tv_vector2 dimensions, tv_model_vertex format)
 	tv_model_optimize(model, TRUE, FALSE);
 	return model;
 }
-
+/******************************************************************************
+* tv_modelgen_tetrahedron
+* Procedurally creates a mesh of a tetrahedron with the given vertex format.
+* TODO: again, the vertex format generated is just pos/color.
+******************************************************************************/
 tv_model *tv_modelgen_tetrahedron(tv_vector3 dimensions, tv_model_vertex format)
 {
 	tvfloat cube_vertices[] = {

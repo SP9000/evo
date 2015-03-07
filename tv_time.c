@@ -1,14 +1,23 @@
 #include "tv_time.h"
 
-tvfloat tv_time_delta;
-static tvbool paused;
+tvfloat tv_time_delta;	/* the number of milliseconds since the last update */
+static tvbool paused;	/* if true, the delta time is not updated */
 
+/*******************************************************************************
+ * tv_time_init
+ * Initializes the delta time value.
+*******************************************************************************/
 int tv_time_init()
 {
     tv_time_delta = 0;
     return 0;
 }
-
+/*******************************************************************************
+ * tv_time_update
+ * Updates the engine time to time since the engine was invoked and updates the
+ * engine time delta to the difference of the current time and the time from
+ * the last time update.
+*******************************************************************************/
 void tv_time_update()
 {
 	static tvfloat last_update = 0;
@@ -17,7 +26,10 @@ void tv_time_update()
 	}
 	last_update = SDL_GetTicks()/1000.0f;
 }
-
+/*******************************************************************************
+ * tv_timer_update
+ * TODO:
+*******************************************************************************/
 tvuint tv_timer_update(tv_timer *timer)
 {
 	tvuint times_triggererd = 0;
@@ -42,7 +54,10 @@ tvuint tv_timer_update(tv_timer *timer)
 	}
 	return times_triggererd;
 }
-
+/*******************************************************************************
+ * tv_timer_new
+ * Allocates/initalizes a new timer.
+*******************************************************************************/
 tv_timer *tv_timer_new(tvfloat count_factor, tvuint max_rollovers, tvfloat reset_value)
 {
 	tv_timer *t = (tv_timer*)tv_alloc(sizeof(tv_timer));
@@ -57,18 +72,29 @@ tv_timer *tv_timer_new(tvfloat count_factor, tvuint max_rollovers, tvfloat reset
 	t->max_rollover = max_rollovers;
 	t->set = reset_value;
 }
-
+/*******************************************************************************
+ * tv_timer_reset
+ * Resets a timer to its reset value(?)
+ * TODO: currently resets timer to 0.
+*******************************************************************************/
 void tv_timer_reset(tv_timer *timer)
 {
 	timer->current = 0.0f;
 }
-
+/*******************************************************************************
+ * tv_time_pause
+ * Sets the paused flag so that the delta time is not updated.
+*******************************************************************************/
 void tv_time_pause()
 {
 	paused = TRUE;
 	tv_time_delta = 0;
 }
-
+/*******************************************************************************
+ * tv_time_unpause
+ * Clears the paused flag so- delta time will be updated each call to 
+ * tv_time_update.
+*******************************************************************************/
 void tv_time_unpause()
 {
 	paused = FALSE;

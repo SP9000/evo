@@ -2,78 +2,111 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+/******************************************************************************
+* Mesh Format:
+*   Vertices
+*     num_attributes
+*     attributes: [pos][color][normal]
+*        properties: [fff][ffff][fff]
+*   Indices
+******************************************************************************/
+/*****************************************************************************/
+/* includes */
 #ifdef TV_MODEL_USE_ASSIMP
 #include <assimp\cimport.h>
 #include <assimp\scene.h>
 #include <assimp\postprocess.h>
 #endif
 
-
 /*****************************************************************************/
-/* vertex formats */
+/* global data */
+/******************************************************************************
+* vertex formats 
+* These are common formats that may be used with tv_model_vertex_format to 
+* easily produce models with these formats programmatically. 
+******************************************************************************/
 tv_model_vertex TV_MODEL_VERTEX_FORMAT_P = {1, {TV_MODEL_PROPERTY_FLOAT}, {3}};
 tv_model_vertex TV_MODEL_VERTEX_FORMAT_PN = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {3, 3}};
 tv_model_vertex TV_MODEL_VERTEX_FORMAT_PC = {2, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {3, 4}};
 tv_model_vertex TV_MODEL_VERTEX_FORMAT_PNC = {3, {TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT, TV_MODEL_PROPERTY_FLOAT}, {3, 3, 4}};
 
 /*****************************************************************************/
-/* a structure for holding the names and references of loaded models */
+/* local types */
+/******************************************************************************
+* loaded_model
+* A structure for holding the names and references of loaded models 
+******************************************************************************/
 typedef struct loaded_model {
-	tv_model *model;
-	tvchar name[32];
-	TvHashHandle hh;
+	tv_model *model;  /**< a reference to an instance of the loaded model */
+	tvchar name[32];  /**< the name of the model */
+	TvHashHandle hh;  /**< a hash handle for making tables with this struct */
 } loaded_model;
 
 /*****************************************************************************/
 /* .PLY loading helper types */
-/* information pertaining to the content of a .PLY property */
-typedef struct ply_property {
-	tvint value;
-	tv_model_property_type type;
-	tvuint size;
-	/* if type is TV_MODEL_PROPERTY_LIST, this is the list of types */
-	tvuint type_list[32];
-	tvchar name[32];
-	UT_hash_handle hh;
-}ply_property;
-
-/* information pertaining to the content of a .PLY element */
-typedef struct ply_element {
-	tvint value;
-	ply_property *properties;
-	tvchar name[32];
-	UT_hash_handle hh;
-}ply_element;
-
-/* A structure for holding info about the PLY file */
-typedef struct ply_info {
-	ply_element *elements_table;
-}ply_info;
-
-/* An enumeration of the different groups of properties */
+/******************************************************************************
+* property_group_type
+* The types of common groups of properties.  These directly correspond to 
+* model attributes.
+******************************************************************************/
 typedef enum {
 	GROUP_POSITION,
 	GROUP_NORMAL,
 	GROUP_COLOR,
-	GROUP_TEXCO
+	GROUP_TEXCO,
+	GROUP_NONE
 }property_group_type;
-
-/* A structure that contains information about a property group */
+/******************************************************************************
+* ply_property
+* A .PLY property defines one component of a .PLY element.
+* In a .PLY property a property defines two things- its name, and its type.
+* The type (ushort, float, etc.) is used to determine how to store and 
+* handle the data.  The name is general but some special names may be 
+* recognized by the engine.
+*******************************************************************************/
+typedef struct ply_property {
+	tv_model_property_type type;  /**< the type of the property e.g. "float" */
+	property_group_type group;    /**< the group this property's belongs to */
+	tvuint size;                  /**< the size of the property in bytes */
+	tvuint type_list[32];   /**< if TV_MODEL_PROPERTY_LIST, the list of types */
+	tvchar name[32];        /**< the name of the property */
+}ply_property;
+static UT_icd ply_property_icd = {sizeof(ply_property), 0, 0, 0};
+/*******************************************************************************
+* ply_element
+* A .PLY element defines a per-vertex attribute composed of a number of PLY 
+* properties.
+* Some elements are required the engine.  One such example is "vertex", 
+* required by all meshes, which has 3 float properties.  
+* The elements that a mesh has determine which material interfaces may be used
+* to render the mesh.  In general you should try to produce models renderable
+* with the standard material interface.  
+*******************************************************************************/
+typedef struct ply_element {
+	tvuint count;         /**< the number of this element in the file */
+	tv_array *properties;  /**< array of properties associated with this element */
+	tvchar name[32];      /**< the name of the element */
+}ply_element;
+static UT_icd ply_element_icd = {sizeof(ply_element), 0, 0, 0};
+/******************************************************************************
+* ply
+* A structure representing the .ply file to be parsed into a mesh.
+******************************************************************************/
+typedef struct {
+	FILE* fp;			/**< a file pointer for the PLY file */
+	tvchar* line_buffer;  /**< a buffer containing the contents of the current line */
+}ply_file;
+/******************************************************************************
+* property_group
+* A structure that contains information about a property group 
+******************************************************************************/
 typedef struct property_group {
 	property_group_type type;
 	tvuint data_type;
 	tvuint count;
 }property_group;
-
 /*****************************************************************************/
 /* .PLY loading helper functions */
-/* a helper function to read an element from a PLY file. TRUE=success */
-static tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name);
-
-/* a helper function to read a property from a PLY file. TRUE=success */
-tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element);
-
 /* helper functions to check if the property is one of several known types. */
 static tvbool property_is_position(tvchar *name);
 static tvbool property_is_normal(tvchar *name);
@@ -88,6 +121,60 @@ UT_icd ut_index_icd = {sizeof(GLshort), 0, 0, 0};
 
 /*****************************************************************************/
 /* Helper functions */
+/******************************************************************************
+* ply_open 
+* opens the given PLY file.
+******************************************************************************/
+tvbool ply_open(ply_file* ply, const tvchar* filename)
+{
+	/* open the file and verify it is a .ply file */
+	ply->fp = fopen(filename, "r");
+	if(ply->fp == NULL) {
+		tv_warning("could not open %s\n", filename);
+		return FALSE;;
+	}
+	/* allocate a buffer for the contents of 1 line */
+	ply->line_buffer = (tvchar*)tv_alloc(sizeof(tvchar) * 4096);
+	return TRUE;
+}
+/******************************************************************************
+* ply_close
+* Closes the given PLY file and frees all resources associated with it.
+******************************************************************************/
+void ply_close(ply_file* ply)
+{
+	if(ply) {
+		if(ply->line_buffer) {
+			free(ply->line_buffer);
+		}
+	}
+}
+/******************************************************************************
+* ply_next
+* Move the ply file to the next line.  If the end of the file is found 
+* instead of a newline, the PLY file's resources are freed and FALSE will be
+* returned.  Upon successful relocation to a newline, TRUE is returned.
+******************************************************************************/
+tvbool ply_next(ply_file* ply) 
+{
+	if(fgets(ply->line_buffer, 4096, ply->fp) == NULL) {
+		return FALSE;
+	}
+	return TRUE;
+}
+/******************************************************************************
+* ply_curr
+* Returns the current line of text from the PLY file.
+******************************************************************************/
+tvchar* ply_curr(ply_file* ply) 
+{
+	return ply->line_buffer;
+}
+/******************************************************************************
+* read_comment
+* Reads the given line of text and returns TRUE if it is a comment, FALSE if
+* it is not
+******************************************************************************/
 tvbool read_comment(tvchar *line)
 {
 	tvchar a[256];
@@ -103,109 +190,209 @@ tvbool read_comment(tvchar *line)
 	}
 	return 0;
 }
-
-tvbool read_element(tvchar *line, ply_info *info, tvchar *element_name)
+/******************************************************************************
+* read_element
+* An element is defined as by the .PLY model format standard to be a group of
+* related properties.  A vertex is an element with 3 properties representing
+* the 3D coordinates of the vertex in space.
+******************************************************************************/
+ply_element* ply_read_element(tvchar* element)
 {
 	/* 3 buffers: "element", the element name, and the # of properties */
-	tvchar a[256];
-	tvchar b[256];
-	tvchar c[256];
+	tvchar a[256], b[256], c[256];
+	tvuint num_read = sscanf(element, "%s %s %s", a, b, c);
 
-	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
-	ply_element *el = (ply_element*)tv_alloc(sizeof(ply_element));
-
-	/* make sure the line we're on is an element */
-	if(strncmp(a, "element", 8) == 0) {
-		/* see that the element matches the expected formatting */
+	/* make sure the line we're on is an element (it should be if this function
+	* is called) */
+	if(strncmp(a, "element", sizeof("element")-1) == 0) {
+		ply_element* el;
+		/* check that the element matches the expected formatting */
 		if(num_read != 3) {
 			tv_warning("element %s has unrecognized formatting in declaration.\n", a);
+			return NULL;
 		}
+		/* The only elements recognized are "vertex" and "face" for now. */
 		if((strncmp(b, "vertex", 6) != 0) && (strncmp(b, "face", 4) != 0)) {
 			tv_warning("unrecognized element %s\n", a);
+			return NULL;
 		}
-		el->value = atoi(c);
+		/* create and fill the element to add to the element table */
+		el = (ply_element*)tv_alloc(sizeof(ply_element));
+		el->count = atoi(c);
+		utarray_new(el->properties, &ply_property_icd);
 		/* copy the element's name to the name buffer */
 		strncpy(el->name, b, 32);
-		/* copy the name of the read element for the caller */
-		strncpy(element_name, b, 32);
-		/* clear the element's property table */
-		el->properties = NULL;
-		/* add the element to the PLY info's elements table */
-		HASH_ADD_STR(info->elements_table, name, el);
-
-		/* successfully read an element */
-		return TRUE;
+		return el;
 	}
 	/* no element could be read */
+	return NULL;
+}
+/******************************************************************************
+* ply_property_type
+* Gets the size (in bytes) and the property type (float, uchar, etc.) of
+* the given property name.  Returns FALSE if name doesn't match a known type
+* of property else TRUE.
+******************************************************************************/
+tvbool ply_get_property_type(tvchar* name, tvuint /*out*/ *size, tv_model_property_type /*out*/ *type)
+{
+	*size = 0;
+	/* get the property type and use it to get the size of the property */
+	if(strncmp(name, "char", 4) == 0) {
+		*size = 1;
+		*type = TV_MODEL_PROPERTY_CHAR;
+	} else if(strncmp(name, "uchar", 5) == 0) {
+		*size = 1;
+		*type = TV_MODEL_PROPERTY_UCHAR;
+	} else if(strncmp(name, "short", 5) == 0) {
+		*size = 2;
+		*type = TV_MODEL_PROPERTY_SHORT;
+	} else if(strncmp(name, "ushort", 6) == 0) {
+		*size = 2;
+		*type = TV_MODEL_PROPERTY_USHORT;
+	} else if(strncmp(name, "int", 3) == 0) {
+		*size = 4;
+		*type = TV_MODEL_PROPERTY_INT;
+	} else if(strncmp(name, "uint", 4) == 0) {
+		*size = 4;
+		*type = TV_MODEL_PROPERTY_UINT;
+	} else if(strncmp(name, "float", 5) == 0) {
+		*size = 4;
+		*type = TV_MODEL_PROPERTY_FLOAT;
+	} else if(strncmp(name, "double", 6) == 0) {
+		*size = 8;
+		*type = TV_MODEL_PROPERTY_DOUBLE;
+	}
+	if((*size) > 0) {
+		return TRUE;
+	}
 	return FALSE;
 }
-
-tvbool read_property(tvchar *line, ply_info *info, tvchar *cur_element)
+/******************************************************************************
+* ply_get_property_group
+* Gets the group that the property belongs to (e.g. POSITION) if any. Returns
+* TRUE if the property belongs to a known group, else FALSE.
+******************************************************************************/
+tvbool ply_get_property_group(tvchar* name, property_group_type* group)
+{
+	*group = GROUP_NONE;
+	if(property_is_position(name)) {  /* position? */
+		*group = GROUP_POSITION;
+	} else if(property_is_normal(name)) { /* normal ? */
+		*group = GROUP_NORMAL;
+	} else if(property_is_color(name)) {  /* color? */
+		*group = GROUP_COLOR;
+	} else if(property_is_texco(name)) {  /* texco? */
+		*group = GROUP_TEXCO;
+	}
+	if(*group == GROUP_NONE) {
+		return FALSE;
+	}
+	return TRUE;
+}
+/******************************************************************************
+* ply_read_property
+* A property is defined by the .PLY model standard.  A properties defines the 
+* type and size of the storage used to represent some attribute (e.g. an 
+* x-coordinate is a FLOAT property)
+******************************************************************************/
+ply_property* ply_read_property(tvchar *line)
 {
 	/* 3 buffers: "property", property type, property name */
-	tvchar a[256];
-	tvchar b[256];
-	tvchar c[256];
-	
-	ply_element *el;
+	tvchar a[256], b[256], c[256];
 	ply_property *p = (ply_property*)tv_alloc(sizeof(ply_property));
 
 	/* read the property */
 	tvuint num_read = sscanf(line, "%s %s %s", a, b, c);
 
-	/* check that the line is a property */
+	/* check that the line is a property (should be) */
 	if(strncmp("property", a, 8) != 0) {
-		return FALSE;
+		free(p);
+		return NULL;
 	}
-	/* get the property type and use it to get the size of the property */
-	if(strncmp(b, "char", 4) == 0) {
-		p->size = 1;
-		p->type = TV_MODEL_PROPERTY_CHAR;
+	/* get the type of the property and verify it is a recognized type */
+	if(ply_get_property_type(b, &p->size, &p->type) == FALSE) {
+		tv_warning("property %s has unrecognized type", p->name, b);
+		free(p);
+		return NULL;
 	}
-	else if(strncmp(b, "uchar", 5) == 0) {
-		p->size = 1;
-		p->type = TV_MODEL_PROPERTY_UCHAR;
-	}
-	else if(strncmp(b, "short", 5) == 0) {
-		p->size = 2;
-		p->type = TV_MODEL_PROPERTY_SHORT;
-	}
-	else if(strncmp(b, "ushort", 6) == 0) {
-		p->size = 2;
-		p->type = TV_MODEL_PROPERTY_USHORT;
-	}
-	else if(strncmp(b, "int", 3) == 0) {
-		p->size = 4;
-		p->type = TV_MODEL_PROPERTY_INT;
-	}
-	else if(strncmp(b, "uint", 4) == 0) {
-		p->size = 4;
-		p->type = TV_MODEL_PROPERTY_UINT;
-	}
-	else if(strncmp(b, "float", 5) == 0) {
-		p->size = 4;
-		p->type = TV_MODEL_PROPERTY_FLOAT;
-	}
-	else if(strncmp(b, "double", 6) == 0) {
-		p->size = 8;
-		p->type = TV_MODEL_PROPERTY_DOUBLE;
+	/* get the group the property belongs to and verify it is recognized */
+	if(ply_get_property_group(c, &p->group) == FALSE) {
+		tv_warning("property %s does not belong to any know group", p->name);
+		free(p);
+		return NULL;
 	}
 	/* copy the name of the property to the property structure */
 	strncpy(p->name, c, 32);
-	
-	/* make sure an element is already defined, if so add this property to it*/
-	HASH_FIND_STR(info->elements_table, cur_element, el);
-	if(el) {
-		HASH_ADD_STR(el->properties, name, p);
-		return TRUE;
-	}
-	/* if there's no element defined already, quit */
-	else {
-		tv_warning("read property %s before any element was defined.\n", c);
-		return FALSE;
-	}
+	return p;
 }
+/******************************************************************************
+* ply_read_elements
+* Reads all the elements (and their properties) from the given ply file and
+* returns the array of elements that the file contained.
+* The ply_file points to the vertex lists after this call returns.  This 
+* fucntion also returns the number of vertices and indices specified according
+* to the vertex and face elements in the file.  These two particular elements
+* are important as they are integral to the functionality of the mesh.  They
+* also happen to generally be the ONLY elements in a model.
+******************************************************************************/
+tv_array* ply_read_elements(ply_file* ply, tvuint* /*out*/ num_vertices, tvuint* /*out*/ num_faces)
+{
+	tv_array* elements;
+	ply_element* el = NULL;
+	ply_property* prop = NULL;
+	tvbool header_found = FALSE;
+	tvbool ignore_properties = FALSE;	/* in the case of, faces for example, we don't care about properties */
 
+	utarray_new(elements, &ply_element_icd);
+
+
+	while(!header_found) {
+		tvchar* curr = ply_curr(ply);
+		/* check if the end of the header has been reached */
+		if(strncmp(curr, "end_header", sizeof("end_header")-1) == 0) {
+			header_found = TRUE;
+			break;
+		} else if(strncmp(curr, "comment", sizeof("comment")-1) == 0) {
+			/* comment- do nothing */
+		} else if(strncmp(curr, "element", sizeof("element")-1) == 0) {
+			/* read the element, until another is read all properties apply to
+			 * this element */
+			el = ply_read_element(curr);
+			if(el == NULL) {
+				tv_warning("failed to read element");
+				continue;
+			}
+			utarray_push_back(elements, el);
+			/* if we just read the vertex or face element, get the # of vertices/faces */
+			if(strncmp(el->name, "vertex", sizeof("vertex")-1) == 0) {
+				*num_vertices = el->count;
+				ignore_properties = FALSE;
+			} else if(strncmp(el->name, "face", sizeof("face")-1) == 0) {
+				*num_faces = el->count;
+				ignore_properties = TRUE;
+			}
+		} else if(strncmp(curr, "property", sizeof("property")-1) == 0) {
+			/* read 1 property (append it to the current element if found) */
+			if(!ignore_properties) {
+				prop = ply_read_property(curr);
+				if(prop != NULL) {
+					utarray_push_back(el->properties, prop);
+				}
+			}
+		}
+		ply_next(ply);
+	}
+	return elements;
+}
+/******************************************************************************
+* property_is_color
+* A convienience functon for checking if the name of a property appears to 
+* represent a per-vertex color attribute.  This allows properties like "r",
+* "g", and b to work as well as "red", "green", and "blue". 
+* Since properties are not grouped into a "color" section in the PLY foramt,
+* but rather given as single r, g, b, and (sometimes) alpha components, this
+* recognition allows them to be identified as related and stored as a vector4.
+******************************************************************************/
 tvbool property_is_color(tvchar *name) 
 {
 	/* does the given name match any recognized color name pattern? */
@@ -217,6 +404,11 @@ tvbool property_is_color(tvchar *name)
 	}
 	return FALSE;
 }
+/******************************************************************************
+* property_is_position
+* This convienience function recognizes common representations of vertex 
+* positions in order to allow more flexible matching with material interfaces.
+******************************************************************************/
 tvbool property_is_position(tvchar *name) 
 {
 	/* does the given name match any recognized position name pattern? */
@@ -227,6 +419,10 @@ tvbool property_is_position(tvchar *name)
 	}
 	return FALSE;
 }
+/******************************************************************************
+* property_is_normal
+* A convienience function for recognizing vertex normals.
+******************************************************************************/
 tvbool property_is_normal(tvchar *name) 
 {
 	/* does the given name match any recognized normal name pattern? */
@@ -237,6 +433,10 @@ tvbool property_is_normal(tvchar *name)
 	}
 	return FALSE;
 }
+/******************************************************************************
+* property_is_normal
+* A convienience function for recognizing vertex texture coordinates.
+******************************************************************************/
 tvbool property_is_texco(tvchar *name) 
 {
 	/* does the given name match any recognized texco name pattern? */
@@ -246,34 +446,234 @@ tvbool property_is_texco(tvchar *name)
 	}
 	return FALSE;
 }
-
-/*****************************************************************************/
-COMPONENT_NEW(tv_model, tv_component)
-  	self->vertices = NULL;
-	self->num_vertices = 0;
-	self->num_properties = 0;
-	self->vertex_size = 0;
-	utarray_new(self->indices, &ut_index_icd);
-END_COMPONENT_NEW(tv_model)
-
-COMPONENT_START(tv_model)
-END_COMPONENT_START
-
-COMPONENT_UPDATE(tv_model)
-END_COMPONENT_UPDATE
-COMPONENT_DESTROY(tv_model)
-	if(self->vertices) {
-		utarray_free(self->vertices);
+/*******************************************************************************
+* tv_model_find
+* Searches the table of loaded models for a model matching the given name.
+*******************************************************************************/
+tv_model* tv_model_find(tvchar* name) 
+{
+	loaded_model *lup;
+	/* if the model table isn't empty check if the model has already been 
+	loaded */
+	if(loaded_models != NULL) {
+		HASH_FIND_STR(loaded_models, name, lup);
+		if(lup) {
+			/*TODO: (deep) copy model from lup..I guess that'd be preferable? */
+			return lup->model;
+		}
 	}
-	if(self->indices) {
-		utarray_free(self->indices);
-	}
-	glDeleteBuffers(1, &self->index_vbo);
-	glDeleteBuffers(1, &self->vertex_vbo);
-	glDeleteVertexArrays(1, &self->vao);
-END_COMPONENT_DESTROY
+	return NULL;
+}
+/*******************************************************************************
+* tv_model_save
+* Saves the given model in the internal model hash table for future loading 
+* without having to reread the model file.
+*******************************************************************************/
+void tv_model_save(tvchar* name, tv_model* model)
+{
+	loaded_model* lup = (loaded_model*)tv_alloc(sizeof(loaded_model));
+	/* add the model to the hash table of loaded models for future loading */
+	strncpy(lup->name, name, 32);
+	lup->model = model;
+	HASH_ADD_STR(loaded_models, name, lup);
 
-/*****************************************************************************/
+}
+/*******************************************************************************
+* tv_model_get_properties
+* Given an element, finds and groups all the properties associated with that 
+* element into a property that can be used in the optimized mesh. 
+* For example: x, y, and z get grouped int a GROUP_POSITION where they are 
+* collectively treated as a 3D vector representing position.
+*******************************************************************************/
+void ply_get_vertex_properties(tv_model* model, tv_array* elements)
+{
+	ply_property* p;
+	ply_element* el;
+	tvint prev_group = -1;  /* the group of the last handled property */
+	tvuint cur_found = 0;	/* the number of a given related property found */
+
+	/* find the vertex element */
+	for(el = (ply_element*)utarray_front(elements); el != NULL; 
+		el = (ply_element*)utarray_next(elements, el)) {
+		if(strncmp("vertex", el->name, sizeof("vertex")-1) == 0) {
+			/* found the vertex element */
+			break;
+		}
+	}
+	/* if no vertex property was found, quit */
+	if(el == NULL) {
+		return;
+	}
+	model->num_vertices = el->count;
+	/* iterate over each vertex property */
+	for(p = (ply_property*)utarray_front(el->properties); p != NULL; 
+		p = (ply_property*)utarray_next(el->properties, p)) {
+		tvuint num_to_complete = 0;        /* # of properties needed for the current group */
+		tvint cur_group = p->group; 
+
+		/* get the # of related properties needed to complete the current group */
+		switch(cur_group) {
+		case GROUP_POSITION: num_to_complete = 2; break;
+		case GROUP_NORMAL: num_to_complete = 2; break;
+		case GROUP_COLOR: num_to_complete = 2; break;
+		case GROUP_TEXCO: num_to_complete = 1; break;
+		default: tv_warning("unrecognized group"); break;
+		}
+		if(cur_group == prev_group) {
+			cur_found++;
+		}
+		else {
+			cur_found = 1;
+		}
+		/* if the # of properties needed to complete the group was reached, 
+		* add the property to the model. */
+		if(cur_found == num_to_complete) {
+			/* build an attribute using the values from the property group */
+			tv_model_attribute attr;
+			attr.data_type = p->type;
+			attr.count	   = num_to_complete + 1;
+			tv_model_append_property(model, &attr);
+		}
+		prev_group = cur_group;
+		/* clean up - the property has been handled, we're done with it. */
+		/* TODO: */
+		//free(p);
+	}
+}
+/******************************************************************************
+* tv_model_get_attributes
+* Using the given elements, get the per-vertex attributes for the given model.
+******************************************************************************/
+ply_element* tv_model_get_attributes(tv_model* model, tv_array* elements)
+{
+	ply_element** el;
+	for(el = (ply_element**)utarray_front(elements); el != NULL; 
+		el = (ply_element**)utarray_next(elements, el)) {
+		//ply_get_properties(model, *el);
+	}
+	return NULL;
+}
+/******************************************************************************
+* ply_get_vertices
+* Given a ply file at the vertex list block of the file, read all the vertices
+* into the given model.
+******************************************************************************/
+void ply_get_vertices(ply_file* ply, tv_model* model)
+{
+	tvuint i, j, k;
+	/* allocate a vertex of the size of our vertices */
+	tvpointer my_vertex  =  (tvpointer)tv_alloc(model->vertex_size);
+	UT_icd my_vertex_icd = {0, NULL, NULL, NULL};
+
+	/* create an array ICD for the vertices we will be adding */
+	my_vertex_icd.sz = model->vertex_size;
+	utarray_new(model->vertices, &my_vertex_icd);
+
+	/* read all the vertices from the ply file */
+	for(i = 0; i < model->num_vertices; ++i) {
+		for(j = 0; j < model->num_properties; ++j) {
+			for(k = 0; k < model->vertex_attributes[j].count; ++k) {
+				tvchar* line_buffer = ply->line_buffer;
+
+				/* the address to write the data we read to.
+				* (base + property offset + property component offst).
+				* e.g. vertex_base + offset(position) + offset(position.x) */
+				tvbyte* property_loc = (tvbyte*)my_vertex + 
+					model->vertex_attributes[j].offset + 
+					tv_model_get_property_size(model->vertex_attributes[j].data_type)*k;
+
+				/* read a value from the PLY file */
+				fscanf(ply->fp, "%s", line_buffer);
+				switch(model->vertex_attributes[j].data_type) {
+/* if attributes are to be stored as floats, normalize them according to the 
+ * maximum value of their integer based storage */
+#ifdef TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS
+				case TV_MODEL_PROPERTY_CHAR:
+				case TV_MODEL_PROPERTY_UCHAR:
+					*(tvfloat*)property_loc = ((tvfloat)atof(line_buffer)) / 255.0f;
+					break;
+				case TV_MODEL_PROPERTY_SHORT:
+				case TV_MODEL_PROPERTY_USHORT:
+					*(tvfloat*)property_loc = ((tvfloat)atof(line_buffer)) / (tvfloat)0xffff;
+					break;
+				case TV_MODEL_PROPERTY_INT:
+				case TV_MODEL_PROPERTY_UINT:
+					*(tvfloat*)property_loc = ((tvfloat)atof(line_buffer)) / (tvfloat)0xffffffff;
+					break;
+/* if attributes are not to be stored as floats, copy them as is */
+#else
+				case TV_MODEL_PROPERTY_CHAR:
+				case TV_MODEL_PROPERTY_UCHAR:
+					*(((tvbyte*)(my_vertex)) + offset) = (tvbyte)atoi(line_buffer);
+					break;
+				case TV_MODEL_PROPERTY_SHORT:
+				case TV_MODEL_PROPERTY_USHORT:
+					*(((tvbyte*)(my_vertex)) + offset) = (tvword)atoi(line_buffer);
+					break;
+				case TV_MODEL_PROPERTY_INT:
+				case TV_MODEL_PROPERTY_UINT:
+					*(((tvbyte*)(my_vertex)) + offset) = (tvdword)atoi(line_buffer);
+					break;
+#endif
+/* in either case, floats and doubles are stored in a 4-byte float format */
+				case TV_MODEL_PROPERTY_FLOAT:
+					*(tvfloat*)property_loc = (tvfloat)atof(line_buffer);
+					break;
+				case TV_MODEL_PROPERTY_DOUBLE:
+					*(tvfloat*)property_loc = (tvfloat)atof(line_buffer);
+					break;
+				}
+			}
+		}
+		utarray_push_back(model->vertices, my_vertex);
+	}
+}
+/******************************************************************************
+ * ply_get_indices
+ * Reads all the indices from the file.  The given number of faces should 
+ * match the number of faces that get defined in the file.
+******************************************************************************/
+void ply_get_indices(ply_file* ply, tv_model* model, tvuint num_faces)
+{
+	tvuint i; 
+	for(i = 0; i < num_faces; ++i) {
+		tvuint face_buff[4];
+		tvint face_size = 0;
+
+		/* read the number of vertices in this face */
+		fscanf(ply->fp, "%d", &face_size);
+		if(feof(ply->fp)) {
+			return;
+		}
+		/* if the face is a quad, get the indices of the decomposed triangles */
+		if(face_size == 4) {
+			fscanf(ply->fp, "%d %d %d %d", &face_buff[0], &face_buff[1], &face_buff[2], &face_buff[3]);
+			utarray_push_back(model->indices, &face_buff[0]);
+			utarray_push_back(model->indices, &face_buff[1]);
+			utarray_push_back(model->indices, &face_buff[2]);
+			utarray_push_back(model->indices, &face_buff[2]);
+			utarray_push_back(model->indices, &face_buff[3]);
+			utarray_push_back(model->indices, &face_buff[0]);
+		}
+		/* if the face is a triangle, copy the indices */
+		else if(face_size == 3) {
+			fscanf(ply->fp, "%d %d %d", &face_buff[0], &face_buff[1], &face_buff[2]);
+			utarray_push_back(model->indices, &face_buff[0]);
+			utarray_push_back(model->indices, &face_buff[1]);
+			utarray_push_back(model->indices, &face_buff[2]);
+		}
+		/* no other vertex count currently supported */
+		else {
+			tv_warning("unrecognized number of vertices per face %d\n", face_size);
+		}
+	}
+}
+/******************************************************************************
+* tv_model_load
+* The implementation of this function may either use Assimp to load a model 
+* from one of many auto-detected filetypes or use the built-in loader for .ply
+* files.
+*****************************************************************************/
 void tv_model_load(tv_model* model, tvchar* filename)
 {
 #ifdef TV_MODEL_USE_ASSIMP
@@ -339,7 +739,7 @@ void tv_model_load(tv_model* model, tvchar* filename)
 			v[offset++] = m->mVertices[i].x;
 			v[offset++] = m->mVertices[i].y;
 			v[offset++] = m->mVertices[i].z;
-			
+
 			tv_model_append_property(model, &attr);
 			/* normals - TODO: */
 			if(1) {
@@ -368,238 +768,68 @@ void tv_model_load(tv_model* model, tvchar* filename)
 #endif
 }
 
-/*****************************************************************************/
+/******************************************************************************
+* tv_model_load_ply
+* This is the dependency free model loader for .ply files.  This is roughly
+* conformant with the .PLY specification.  Specifically it should work with
+* models exported by blender.
+* TODO: refactor (break into smaller pieces)
+*****************************************************************************/
 void tv_model_load_ply(tv_model *model, tvchar* file)
 {
-	loaded_model *lup;
+	ply_file ply;
+	tv_model* lup;
+	tv_array* elements;
+	tvuint num_vertices;  /* the number of vertices in the mesh */
+	tvuint num_faces;	  /* the number of faces in the mesh */
 
-	FILE *fp;
-	tvuint i, j, k;
-	tvchar line_buffer[1024];
-
-	tvuint num_faces;
-	tvuint num_vertices;
-	tvpointer my_vertex;
-	UT_icd my_vertex_icd = {0, NULL, NULL, NULL};
-
-	ply_info file_info;
-	ply_property *prop, *prop_tmp;
-	ply_element *element, *element_tmp;
-
-	/* if the model table isn't empty check if the model has already been 
-	loaded */
-	if(loaded_models != NULL) {
-		HASH_FIND_STR(loaded_models, file, lup);
-		if(lup) {
-			/*TODO: (deep) copy model from lup..I guess that'd be preferable? */
-			model = lup->model;
-			return;
-		}
-	}
-
-	/* open the file and verify it is a .ply file */
-	fp = fopen(file, "r");
-	if(fp == NULL) {
-		fprintf(stderr, "Error: could not open %s\n", file);
+	/* load the model from the model table if it is already loaded */
+	lup = tv_model_find(file);
+	if(lup) {
+		model = lup;
 		return;
 	}
-
-	file_info.elements_table = NULL;
-	model->vertex_size = 0;
-	
-	/* read the file header - alloc the buffers to store the model data */
-    while(!feof(fp)) {
-		tvchar element[256];
-
-		/* read a line from the file for parsing */
-		fgets(line_buffer, 1024, fp);
-		/* if we've reached the end of the header, we're done */
-	    if(strncmp(line_buffer, "end_header", 10) == 0) {
-			break;
-		}
-		/* comment? */
-		if(read_comment(line_buffer)) {
-			continue;
-		}
-		/* element? */
-		if(read_element(line_buffer, &file_info, element)) {
-			continue;
-		}
-		/* property? */
-		if(read_property(line_buffer, &file_info, element)) {
-			continue;
-		}
+	/* if caller gave no model reference, create a new model */
+	if(model == NULL) {
+		model = tv_model_new();
 	}
+	/* open the ply file */
+	if(!ply_open(&ply, file)) {
+		return;
+	}
+	/* read the elements from the file */
+	elements = ply_read_elements(&ply, &num_vertices, &num_faces);
+	model->num_vertices = num_vertices;
 
 	/* extract all the data we collected about the elements and properties of this
-	 * model. */
+	* model. */
 	model->num_properties = 0;
-	/* iterate over all the elements to construct the attribute format for the 
-	model */
-	HASH_ITER(hh, file_info.elements_table, element, element_tmp) {
-		if(strncmp("vertex", element->name, 6) == 0) {
-			tv_model_property_type prev_type = TV_MODEL_PROPERTY_NONE;
-			tvint cur_group = -1;
-			tvint prev_group = -1;
-			tvuint cur_found = 0;
-			num_vertices = element->value;
+	model->vertex_size = 0;
 
-			/* foreach property, add its info to the model. */
-			HASH_ITER(hh, element->properties, prop, prop_tmp) {
-				tv_model_attribute p = {prev_type, cur_found+1, 0};
-				/* position? */
-				if(property_is_position(prop->name)) {
-					cur_group = GROUP_POSITION;
-					if(cur_found == 2) {
-						tv_model_append_property(model, &p);
-					}
-				}
-				/* normal? */
-				else if(property_is_normal(prop->name)) {
-					cur_group = GROUP_NORMAL;
-					if(cur_found == 2) {
-						tv_model_append_property(model, &p);
-					}
-				}
-				/* color? */
-				else if(property_is_color(prop->name)) {
-					fprintf(stdout, "found color\n");
-					cur_group = GROUP_COLOR;
-					if(cur_found == 2) {
-						tv_model_append_property(model, &p);
-					}
-				}
-				/* texco? */
-				else if(property_is_texco(prop->name)) {
-					fprintf(stdout, "found texco\n");
-					cur_group = GROUP_TEXCO;
-					if(cur_found == 1) {
-						tv_model_append_property(model, &p);
-					}
-				}
-				/* unrecognized property type */
-				else {
-					tv_warning("Warning: unrecognized property type %s.\n", prop->name);
-				}
-
-				if(cur_found == 0 || cur_group == prev_group) {
-					++cur_found;
-				}
-				else {
-					cur_found = 1;
-				}
-				prev_type = prop->type;
-				prev_group = cur_group;
-
-				/* clean up */
-				HASH_DEL(element->properties, prop);
-				free(prop);
-			}
-		}
-		else if(strncmp("face", element->name, 4) == 0) {
-			num_faces = element->value;
-		}
-		/* clean up */
-		HASH_DEL(file_info.elements_table, element);
-		free(element);
-	}
-
-	/* allocate a vertex of the size of our vertices */
-	my_vertex =  (tvpointer)tv_alloc(model->vertex_size);
-	/* create an array ICD for the vertices we will be adding */
-	my_vertex_icd.sz =model->vertex_size;
-	utarray_new(model->vertices, &my_vertex_icd);
-
-	for(i = 0; i < num_vertices; ++i) {
-		for(j = 0; j < model->num_properties; ++j) {
-			for(k = 0; k < model->vertex_attributes[j].count; ++k) {
-				/* the address to write the data we read to.
-				 * (base + property offset + property component offst).
-				 * e.g. vertex_base + offset(position) + offset(position.x) */
-				tvbyte* property_loc = (tvbyte*)my_vertex + 
-					model->vertex_attributes[j].offset + 
-					tv_model_get_property_size(model->vertex_attributes[j].data_type)*k;
-
-				fscanf(fp, "%s", line_buffer);
-				switch(model->vertex_attributes[j].data_type) {
-	#ifdef TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS
-				case TV_MODEL_PROPERTY_CHAR:
-				case TV_MODEL_PROPERTY_UCHAR:
-					*(tvfloat*)property_loc = atof(line_buffer) / 255.0f;
-					break;
-				case TV_MODEL_PROPERTY_SHORT:
-				case TV_MODEL_PROPERTY_USHORT:
-					*(tvfloat*)property_loc = (tvfloat)atoi(line_buffer) / (tvfloat)0xffff;
-					break;
-				case TV_MODEL_PROPERTY_INT:
-				case TV_MODEL_PROPERTY_UINT:
-					*(tvfloat*)property_loc = (tvfloat)atoi(line_buffer) / (tvfloat)0xffffffff;
-					break;
-	#else
-				case TV_MODEL_PROPERTY_CHAR:
-				case TV_MODEL_PROPERTY_UCHAR:
-					*(((tvbyte*)(my_vertex)) + offset) = (tvbyte)atoi(line_buffer);
-					break;
-				case TV_MODEL_PROPERTY_SHORT:
-				case TV_MODEL_PROPERTY_USHORT:
-					*(((tvbyte*)(my_vertex)) + offset) = (tvword)atoi(line_buffer);
-					break;
-				case TV_MODEL_PROPERTY_INT:
-				case TV_MODEL_PROPERTY_UINT:
-					*(((tvbyte*)(my_vertex)) + offset) = (tvdword)atoi(line_buffer);
-					break;
-	#endif
-				case TV_MODEL_PROPERTY_FLOAT:
-					*(tvfloat*)property_loc = (tvfloat)atof(line_buffer);
-					break;
-				case TV_MODEL_PROPERTY_DOUBLE:
-					*(tvfloat*)property_loc = (tvdouble)atof(line_buffer);
-					break;
-				}
-			}
-		}
-		utarray_push_back(model->vertices, my_vertex);
-	}
-	for(i = 0; i < num_faces; ++i) {
-		tvuint face_buff[4];
-		tvint face_size = 0;
-
-		fgets(line_buffer, 1024, fp);
-		sscanf(line_buffer, "%d", &face_size);
-		if(face_size == 4) {
-			sscanf(line_buffer, "%d %d %d %d %d", &face_size, &face_buff[0], &face_buff[1], &face_buff[2], &face_buff[3]);
-			utarray_push_back(model->indices, &face_buff[0]);
-			utarray_push_back(model->indices, &face_buff[1]);
-			utarray_push_back(model->indices, &face_buff[2]);
-			utarray_push_back(model->indices, &face_buff[2]);
-			utarray_push_back(model->indices, &face_buff[3]);
-			utarray_push_back(model->indices, &face_buff[0]);
-		}
-		else if(face_size == 3) {
-			sscanf(line_buffer, "%d %d %d %d", &face_size, &face_buff[0], &face_buff[1], &face_buff[2]);
-			utarray_push_back(model->indices, &face_buff[0]);
-			utarray_push_back(model->indices, &face_buff[1]);
-			utarray_push_back(model->indices, &face_buff[2]);
-		}
-		else {
-			fprintf(stderr, "Warning: unrecognized # of vertices per face %d\n", face_size);
-		}
-	}
+	/* get the properties, vertices, and indices for the model */
+	ply_get_vertex_properties(model, elements);
+	ply_get_vertices(&ply, model);
+	ply_get_indices(&ply, model, num_faces);
+	/* the only rendering primitive is triangles, other types are decomposed */
 	model->primitive = GL_TRIANGLES;
 
-	lup = (loaded_model*)tv_alloc(sizeof(loaded_model));
-	strncpy(lup->name, file, 32);
-	lup->model = model;
-	HASH_ADD_STR(loaded_models, name, lup);
+	/* store the model for future lookup */
+	tv_model_save(file, model);
 
 	/* clean up */
-	free(my_vertex);
+	ply_close(&ply);
+	utarray_free(elements);
 }
 
+/******************************************************************************
+* tv_model_optimize
+* Optimize the mesh (generate an OpenGL VAO for the attributes and buffer
+* them.  This function calls tv_model_reoptimize to complete this task.
+******************************************************************************/
 void tv_model_optimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices)
 {
-    /* create a VAO for the model */
-    glGenVertexArrays(1, &model->vao);
+	/* create a VAO for the model */
+	glGenVertexArrays(1, &model->vao);
 
 	/* generate the per-vertex data buffer */
 	glGenBuffers(1, &model->vertex_vbo);
@@ -614,7 +844,12 @@ void tv_model_optimize(tv_model* model, tvbool optimize_vertices, tvbool optimiz
 	}
 	tv_model_reoptimize(model, optimize_vertices, optimize_indices);
 }
-
+/******************************************************************************
+* tv_model_reoptimize
+* Anytime a change to a mesh is made, the per-vertex attributes must be 
+* reuploaded to OpenGL for changes to take effect.  This function generates
+* buffers for the per-vertex attributes of a mesh and buffers them.
+******************************************************************************/
 void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices)
 {
 	tvuint i;
@@ -641,16 +876,21 @@ void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optim
 
 	/* set the attribute pointers for each per-vertex property */
 	for(i = 0, j = 0; i < model->num_properties; ++i) {
-	    glEnableVertexAttribArray(i);
+		glEnableVertexAttribArray(i);
 		glVertexAttribPointer((GLuint)i, model->vertex_attributes[i].count, GL_FLOAT, GL_FALSE, 
 			model->vertex_size,
 			(GLvoid*)j); /* TODO: use model->vertex_properties[i].offset? Not sure if I want to keep offset at all  */
 		j += model->vertex_attributes[i].count * tv_model_get_property_size(model->vertex_attributes[i].data_type);
-    }
-    /* Unbind. */
-    glBindVertexArray(0);
+	}
+	/* Unbind. */
+	glBindVertexArray(0);
 }
 
+/******************************************************************************
+* tv_model_vertex_format
+* Tell OpenGL the format of the data for the mesh to allow proper 
+* optimization of said mesh.
+******************************************************************************/
 void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_attribute *properties)
 {
 	tvuint i;
@@ -671,17 +911,20 @@ void tv_model_vertex_format(tv_model* model, tvuint num_properties, tv_model_att
 	my_vertex_icd.sz = model->vertex_size;
 	utarray_new(model->vertices, &my_vertex_icd);
 }
-
+/******************************************************************************
+* tv_model_append_property
+* Copies the property that is given to the next available spot in the model's
+* attribute array.
+******************************************************************************/
 void tv_model_append_property(tv_model* model, tv_model_attribute *prop)
 {
 	model->vertex_attributes[model->num_properties].data_type = prop->data_type;
 	model->vertex_attributes[model->num_properties].count = prop->count;
 	model->vertex_attributes[model->num_properties].offset = model->vertex_size;
-	
+
 	model->vertex_size += tv_model_get_property_size(prop->data_type) * prop->count;
 	model->num_properties++;
 }
-
 /*****************************************************************************/
 void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data)
 {
@@ -698,25 +941,21 @@ void tv_model_append_vertex(tv_model *model, GLvoid* data)
 	utarray_push_back(model->vertices, data);
 	model->num_vertices++;
 }
-
 void tv_model_insert_vertex(tv_model *model, tvuint index, GLvoid *data)
 {
 	utarray_insert(model->vertices, data, index);
 }
-
 void tv_model_append_indices1(tv_model* model, tvuint i)
 {
 	utarray_push_back(model->indices, &i);
 	model->num_indices++;
 }
-
 void tv_model_append_indices2(tv_model* model, tvuint i0, tvuint i1)
 {
 	utarray_push_back(model->indices, &i0);
 	utarray_push_back(model->indices, &i1);
 	model->num_indices += 2;
 }
-
 void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2)
 {
 	utarray_push_back(model->indices, &i0);
@@ -724,7 +963,6 @@ void tv_model_append_indices3(tv_model* model, tvuint i0, tvuint i1, tvuint i2)
 	utarray_push_back(model->indices, &i2);
 	model->num_indices += 3;
 }
-
 void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, tvuint i3)
 {
 	utarray_push_back(model->indices, &i0);
@@ -733,7 +971,6 @@ void tv_model_append_indices4(tv_model* model, tvuint i0, tvuint i1, tvuint i2, 
 	utarray_push_back(model->indices, &i3);
 	model->num_indices += 4;
 }
-
 void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices)
 {
 	tvuint i;
@@ -743,6 +980,11 @@ void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices)
 	model->num_indices += count;
 }
 
+/*******************************************************************************
+* tv_model_append_vertices
+* Appends the vertices from a model to the this model.  Remember that vertices
+* include both the position coordinates as well as all attributes (color, etc.)
+*******************************************************************************/
 void tv_model_append_vertices(tv_model* model, tv_array* vertices)
 {
 	GLvoid **v;
@@ -751,39 +993,49 @@ void tv_model_append_vertices(tv_model* model, tv_array* vertices)
 	}
 	model->num_vertices += utarray_len(vertices);
 }
-
-void tv_model_append_model(tv_model* model, tv_model* append)
+/******************************************************************************
+* tv_model_append_model
+* Concatenates one mesh to another.  This function verifies that the models
+* have matching per-vertex attributes and then adds each vertex from the 
+* "append" mesh to the self mesh.
+******************************************************************************/
+void METHOD(tv_model, append_model, tv_model* append)
 {
 	tvuint i;
 	GLshort* index;
 	tvuint offset;
 	/* do not append NULL models (or append TO NULL models) */
-	if(!model || !append) {
+	if(!self || !append) {
 		return;
 	}
 	/* make sure the two models share a vertex format */
-	if(model->num_properties == append->num_properties) {
+	if(self->num_properties == append->num_properties) {
 		/* check each vertex attribute */
-		for(i = 0; i < model->num_properties; ++i) {
-			if(!((model->vertex_attributes[i].count == append->vertex_attributes[i].count) &&
-				(model->vertex_attributes[i].data_type == append->vertex_attributes[i].data_type) &&
-				(model->vertex_attributes[i].offset == append->vertex_attributes[i].offset))) {
+		for(i = 0; i < self->num_properties; ++i) {
+			if(!((self->vertex_attributes[i].count == append->vertex_attributes[i].count) &&
+				(self->vertex_attributes[i].data_type == append->vertex_attributes[i].data_type) &&
+				(self->vertex_attributes[i].offset == append->vertex_attributes[i].offset))) {
 					/* different vertex formats */
 					return;
 			}
 		}
 	}
 	/* models are compatible for appending */
-	offset = utarray_len(model->indices);
+	offset = utarray_len(self->indices);
 	/* append vertices */
-	tv_model_append_vertices(model, append->vertices);
+	tv_model_append_vertices(self, append->vertices);
 	/* append indices - we must add an offset to each index before appending */
 	for(index = (GLshort*)utarray_front(append->indices); index != NULL; 
 		index = (GLshort*)utarray_next(append->indices, index)) {
-		tv_model_append_indices1(model, *index + offset);
+			tv_model_append_indices1(self, *index + offset);
 	}
 }
 
+/******************************************************************************
+* tv_model_get_aabb
+* Iterate over the mesh to find the bounds of the axis-aligned bounding box
+* for that mesh.
+******************************************************************************/
 TvAABB tv_model_get_aabb(tv_model* model)
 {
 	TvAABB aabb;
@@ -794,6 +1046,13 @@ TvAABB tv_model_get_aabb(tv_model* model)
 	return aabb;
 }
 
+/******************************************************************************
+* tv_model_get_property_size
+* Get the size of the PLY property in bytes.  If 
+* TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS is defined, then this function always
+* returns 4. Attributes should be properly converted to a GLfloat 
+* representation when converting from other types.
+******************************************************************************/
 tvuint tv_model_get_property_size(tvuint data_type)
 {
 #ifdef TV_MODEL_STORE_ATTRIBUTES_AS_FLOATS
@@ -813,11 +1072,18 @@ tvuint tv_model_get_property_size(tvuint data_type)
 	}
 #endif
 }
+/******************************************************************************
+* tv_model_get_attribute
+* Look up the attribute associated with the given index offset.
+******************************************************************************/
 tvpointer tv_model_get_attribute(tv_model* model, tvuint i, tvuint attribute)
 {
 	return (tvpointer)(utarray_eltptr(model->vertices, i) + model->vertex_attributes[attribute].offset);
 }
-
+/******************************************************************************
+* tv_model_apply_scale
+* Multiplies every vertex in the mesh by a vector. 
+******************************************************************************/
 void tv_model_apply_scale(tv_model *model, tv_vector3 scale)
 {
 	tvuint i;
@@ -826,13 +1092,13 @@ void tv_model_apply_scale(tv_model *model, tv_vector3 scale)
 		tv_vector3* v = (tv_vector3*)tv_model_get_attribute(model, i, MODEL_ATTRIBUTE_VERTEX);
 		assert(v != NULL);
 		v->x *= scale.x;
-		v->y *= scale.y; 
+		v->y *= scale.y;
 		v->z *= scale.z;
 	}
 }
 
 /*****************************************************************************/
-/* Getters and Setters														 */
+/* Getters and Setters */
 tv_array *tv_model_get_vertices(tv_model* model)
 {
 	return model->vertices;
@@ -865,6 +1131,41 @@ void tv_model_set_index_handle(tv_model *model, tvuint new_handle)
 {
 	model->index_vbo = new_handle;
 }
+
+/*****************************************************************************
+******************************** COMPONENT **********************************
+*****************************************************************************/
+COMPONENT_NEW(tv_model, tv_component)
+	self->vertices = NULL;
+self->num_vertices = 0;
+self->num_properties = 0;
+self->vertex_size = 0;
+utarray_new(self->indices, &ut_index_icd);
+END_COMPONENT_NEW(tv_model)
+/*****************************************************************************
+************************************ START **********************************
+*****************************************************************************/
+COMPONENT_START(tv_model)
+END_COMPONENT_START
+/*****************************************************************************
+*********************************** UPDATE **********************************
+*****************************************************************************/
+COMPONENT_UPDATE(tv_model)
+END_COMPONENT_UPDATE
+/*****************************************************************************
+********************************** DESTROY **********************************
+*****************************************************************************/
+COMPONENT_DESTROY(tv_model)
+if(self->vertices) {
+	utarray_free(self->vertices);
+}
+if(self->indices) {
+	utarray_free(self->indices);
+}
+glDeleteBuffers(1, &self->index_vbo);
+glDeleteBuffers(1, &self->vertex_vbo);
+glDeleteVertexArrays(1, &self->vao);
+END_COMPONENT_DESTROY
 
 #ifdef __cplusplus
 }

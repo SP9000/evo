@@ -31,6 +31,7 @@ ADDCOMPONENT(app_unit, unit)
 
 	e->tags = APP_TAG_UNIT;
 	app_unit_set_move_ability(unit, (app_ability*)ability_move);
-	//tv_entity_set_tags(e, APP_TAG_UNIT);
 	pm->speed = 0.5f;
+
+	app_unit_set_float_height(unit, 3.0f);
 ENTITY_END

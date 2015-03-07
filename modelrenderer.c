@@ -31,6 +31,9 @@ static void render(tv_component* self)
 	tv_vector3 test = {self->entity->transform.pos.x, self->entity->transform.pos.y, self->entity->transform.pos.z};
 	//tv_vector3 test = {-2.0f,0.0f,-7.0f};
 	tv_model_renderer *renderer = (tv_model_renderer*)self;
+	tv_material* mat;
+	tvuint i;
+
 	if(renderer->model == NULL) {
 		return;
 	}
@@ -47,16 +50,6 @@ static void render(tv_component* self)
 	tv_mat4x4_rotate(&main_cam->modelview_mat, -self->entity->transform.rot.y + main_cam->rot.y, 0.0f, 1.0f, 0.0f);
 	tv_mat4x4_rotate(&main_cam->modelview_mat, -self->entity->transform.rot.z + main_cam->rot.z, 0.0f, 0.0f, 1.0f);
 
-	/* Bind the models' vertex attribute object. */
-    glBindVertexArray(renderer->model->vao);
-    /* use the model's material's shader */
-    glUseProgram(renderer->base.material->program);
-
-    /* set matrices */
-	glUniformMatrix4fv(renderer->base.material->modelview_mat, 1, GL_FALSE, 
-            tv_mat4x4_to_array(&main_cam->modelview_mat));
-	glUniformMatrix4fv(renderer->base.material->projection_mat, 1, GL_FALSE, 
-            tv_mat4x4_to_array(&main_cam->projection_mat));
 
     /* bind any samplers (textures) the material uses */
     //if(self->material->texture.id != 0) {
@@ -71,6 +64,18 @@ static void render(tv_component* self)
 	
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(TRUE);
+
+	/* render all passes of the bone */
+	mat = renderer->base.material;
+
+	/* bind the models' vertex attribute object. */
+	glBindVertexArray(renderer->model->vao);
+	for(i = 0; i < mat->num_passes; ++i) {
+		tv_material_do_pass(mat, i, renderer->model);
+	}
 
 	/* if material is lit, set light uniforms (TODO: UBO?) */
 	/* TODO:
@@ -87,16 +92,6 @@ static void render(tv_component* self)
 		}
 	}
 	*/
-    glBindVertexArray(renderer->model->vao);
-	if(utarray_len(renderer->model->indices) > 0) {
-		tv_draw_elements(renderer->model->primitive, utarray_len(renderer->model->indices),
-			GL_UNSIGNED_SHORT, 0);
-	}
-	else {
-		tv_draw_arrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
-	}
-
     glBindVertexArray(0);
-
 	tv_mat4x4_pop(&main_cam->modelview_mat);
 }

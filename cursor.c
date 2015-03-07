@@ -8,7 +8,8 @@ END_COMPONENT_NEW(app_cursor)
 COMPONENT_START(app_cursor)
 	self->start.x = -1;
 	self->model = NULL;
-	self->renderer = (tv_overlay_renderer*)tv_component_get(self_component, tv_overlay_renderer_id());
+	//self->renderer = (tv_overlay_renderer*)tv_component_get(self_component, tv_overlay_renderer_id());
+	GET(renderer, tv_overlay_renderer);
 	
 	/* button assignments */
 	self->select_button.button = INPUT_MOUSEBUTTON_0;
@@ -37,7 +38,7 @@ COMPONENT_UPDATE(app_cursor)
 				/* move all selected units to the selected point */
 				target.target = (*c)->location;
 				for(u = (app_unit**)utarray_front(self->selected_units); u != NULL; u = (app_unit**)utarray_next(self->selected_units, u)) {
-					(*u)->move_to->use((*u)->move_to, target);
+					app_unit_move_to(*u, &target);
 				}
 				//printf("* entity <%s>  @ (%f, %f, %f)\n", (*c)->col2->name, (*c)->location.x, (*c)->location.y, (*c)->location.z);
 			}
@@ -68,7 +69,7 @@ COMPONENT_UPDATE(app_cursor)
 			self->rect.y = tv_input_mouse_y_normalized();
 		}		
 		self->start.x = -1;
-		CDESTROY(self->model);
+		DESTROY(self->model);
 		self->model = NULL;
 		tv_overlay_renderer_set_model(self->renderer, NULL);
 
@@ -78,6 +79,7 @@ COMPONENT_UPDATE(app_cursor)
 			for(u = (app_unit**)utarray_front(units); u != NULL; u = (app_unit**)utarray_next(units, u)) {
 				tv_vector3 pos = ((tv_component*)*u)->transform->pos;
 				if(tv_rect_contains(self->rect, tv_scene_to_screen_coordinates(pos))) {
+					app_hud_add_unit(self->hud, *u);
 					utarray_push_back(self->selected_units, u);
 					printf("YES\n");
 				}
@@ -105,10 +107,15 @@ COMPONENT_UPDATE(app_cursor)
 		}
 
 		if(self->model) {
-			CDESTROY(self->model);
+			DESTROY(self->model);
 		}
 		self->model = tv_modelgen_quad(rect_dims, vertex_format);
 		tv_overlay_renderer_set_model(self->renderer, self->model);
 	}
 
 END_COMPONENT_UPDATE
+
+void app_cursor_set_hud(app_cursor* self, app_hud* hud)
+{
+	self->hud = hud;
+}

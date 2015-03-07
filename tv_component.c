@@ -2,18 +2,25 @@
 #include "transform.h"
 #include "tv_entity.h"
 
+/*****************************************************************************/
 tvuint tv_cid_component = 0;
-
+/*****************************************************************************/
 UT_icd tv_component_handler_icd = {
 	sizeof(tv_component_handler), NULL, NULL, NULL
 };
-
+/******************************************************************************
+ * struct id_inheritance_hash_
+ * A hash entry that maps component ID's to their parent's ID's.
+ *****************************************************************************/
 typedef struct {
 	tvuint id;
 	tvuint parent_id;
 	UT_hash_handle hh;
 }id_inheritance_hash_;
-
+/******************************************************************************
+ * struct handler_id_info
+ * Contains information relevant to component handlers.  
+ *****************************************************************************/
 typedef struct {
 	/* the stage this ID was registered to. */
 	tvuint stage;
@@ -21,6 +28,7 @@ typedef struct {
 	tvuint stage_offset;
 }handler_id_info;
 
+/*****************************************************************************/
 /* the table of arrays representing the ID's that inherit from other ID's.  */
 static id_inheritance_hash_ *inheritance_table = NULL;
 
@@ -44,13 +52,23 @@ static tv_array *components[TV_COMPONENT_MAX_COMPONENTS];
 /* an array to the sizes of all components (and handlers) */
 static tvuint component_sizes[TV_COMPONENT_MAX_COMPONENTS];
 
+/*****************************************************************************/
 static void register_inheritance_(tvuint id, tvuint parent_id);
 
+
+/******************************************************************************
+ * tv_component_init
+ * Does nothing
+ *****************************************************************************/
 int tv_component_init()
 {
 	return 0;
 }
-
+/******************************************************************************
+ * tv_component_copy
+ * Copy one component and return that copy.  This is not a true deep copy, but 
+ * it does copy all non-allocated attributes of that component.
+ *****************************************************************************/
 tv_component *tv_component_copy(tv_component* c)
 {
 	tv_component *dst = (tv_component*)malloc(component_sizes[c->id]);
@@ -62,18 +80,29 @@ tv_component *tv_component_copy(tv_component* c)
 	}
 	return dst;
 }
-
+/******************************************************************************
+ * tv_component_notify_add
+ * TODO: what does that even mean?
+ *****************************************************************************/
 void tv_component_notify_add(tv_component* c) 
 {
 	utarray_push_back(components[c->id], &c);
 }
-
+/******************************************************************************
+ * tv_component_free
+ * Removes the component instance from the array designated for components of
+ * its type.
+ *****************************************************************************/
 void tv_component_free(tv_component *c)
 {
 	utarray_erase(components[c->id], utarray_eltidx(components[c->id], c), 1);
 	free(c);
 }
-
+/******************************************************************************
+ * tv_component_get
+ * Retrieves a sibling component of the given component from that component's
+ * entity.
+ *****************************************************************************/
 tv_component* tv_component_get(tv_component* self, tvuint id) 
 {
 	/* if transform is being requested, return the entity's transform. */
@@ -83,7 +112,11 @@ tv_component* tv_component_get(tv_component* self, tvuint id)
 	/* otherwise, get the requested component */
     return tv_entity_get_component(self->entity, id);
 }
-
+/******************************************************************************
+ * tv_component_inherits
+ * Through a table lookup determines if a component inherits the component 
+ * of a given ID.
+ *****************************************************************************/
 tvbool tv_component_inherits(tv_component* component, tvuint id)
 {
 	tvuint i = 0;
@@ -108,7 +141,10 @@ tvbool tv_component_inherits(tv_component* component, tvuint id)
 	} while(i != 0);
 	return 0;
 }
-
+/******************************************************************************
+ * tv_component_register_id
+ * TODO:
+ *****************************************************************************/
 void tv_component_register_id(tvuint *id, tvuint parent_id, tvuint size)
 {
 	*id = next_free_id;
@@ -117,7 +153,10 @@ void tv_component_register_id(tvuint *id, tvuint parent_id, tvuint size)
 	component_sizes[*id] = size;
 	next_free_id++;
 }
-
+/******************************************************************************
+ * tv_component_register_handler
+ * TODO:
+ *****************************************************************************/
 void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv_component*), tvuint stage, tvuint size)
 {
 	tv_component_handler handler;
@@ -145,15 +184,23 @@ void tv_component_register_handler(tvuint *id, tvuint parent_id, void (*func)(tv
 	handler_locations[*id].stage_offset = num_handlers[stage];
 	component_sizes[*id] = size;
 
-	++num_handlers[stage];
+	num_handlers[stage]++;
 }
-
+/******************************************************************************
+ * tv_component_register_to_handler
+ * Registers a component to the given handler ID by appending that component
+ * to the handler's array of components.
+ *****************************************************************************/
 void tv_component_register_to_handler(tvuint handler_id, tv_component *component)
 {
 	handler_id_info id_info = handler_locations[handler_id];
 	utarray_push_back(registered_components[id_info.stage][id_info.stage_offset], &component);
 }
-
+/******************************************************************************
+ * tv_component_update_pre_handlers
+ * TODO: pretty sure the concept of "pre" and "post" was done away with a long
+ * time ago. 
+ *****************************************************************************/
 void tv_component_update_pre_handlers()
 {
 	tv_component **c;
@@ -169,7 +216,7 @@ void tv_component_update_pre_handlers()
 		}
 	}
 }
-
+/* TODO: delete? */
 void tv_component_update_post_handlers()
 {
 	tv_component **c;
@@ -184,7 +231,12 @@ void tv_component_update_post_handlers()
 		}
 	}
 }
-
+/******************************************************************************
+ * register_inheritance_
+ * Registers a component ID as a child of another component ID.  This 
+ * inheritance is accomplished by a table where:
+ *		inheritance_tab[child_id] --> parent_id
+ *****************************************************************************/
 void register_inheritance_(tvuint id, tvuint parent_id)
 {
 	id_inheritance_hash_ *s = (id_inheritance_hash_*)tv_alloc(sizeof(id_inheritance_hash_));
@@ -192,7 +244,11 @@ void register_inheritance_(tvuint id, tvuint parent_id)
 	s->parent_id = parent_id;
 	HASH_ADD_INT(inheritance_table, id, s);
 }
-
+/******************************************************************************
+ * tv_component_get_all_of_type
+ * Returns the array of all components of the specified type.  This is done by
+ * a simple array lookup.
+ *****************************************************************************/
 tv_array *tv_component_get_all_of_type(tvuint id)
 {
 	return components[id];

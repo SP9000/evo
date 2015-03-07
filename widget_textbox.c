@@ -18,10 +18,13 @@ END_COMPONENT_UPDATE
 
 void tv_widget_textbox_set_text(tv_widget_textbox *textbox, tvchar *text)
 {
-	tv_model* m = ((tv_widget*)textbox)->model;
-	if(m) {
-		/* delete the old text model (if there is one) */
-		CDESTROY(m);
+	tv_animation* a = ((tv_widget*)textbox)->animation;
+	if(a) {
+		if(((tv_component*)a)->id != tv_animation_id()) {
+			return;
+		}
+		/* delete the old text animation (if there is one) */
+		DESTROY(a);
 	}
 	tv_widget_set_model((tv_widget*)textbox, tv_gui_model_text(text, 80, textbox->color));
 }

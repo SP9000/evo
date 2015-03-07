@@ -1,4 +1,5 @@
 #include "material.h"
+#include "tv_draw.h"
 
 /* IDs of loaded programs (materials) */
 static tv_material* loaded_materials;
@@ -67,8 +68,6 @@ const tvchar* base_geometry_shader_suffix =
 
 COMPONENT_NEW(tv_material, tv_component)
 	self->num_passes = 0;
-	self->num_ubos = 0;
-	self->lit = 1;
 END_COMPONENT_NEW(tv_material)
 
 COMPONENT_START(tv_material)
@@ -80,6 +79,7 @@ END_COMPONENT_UPDATE
 COMPONENT_DESTROY(tv_material)
 END_COMPONENT_DESTROY
 
+#if 0
 void tv_material_add_ubo(tv_material *material, const tvchar* name)
 {
 	/* retrieve the binding point for the new UBO */
@@ -111,6 +111,7 @@ void tv_material_set_ubo_attribute(tv_material *material, const tvchar* block, v
 	glBindBuffer(GL_UNIFORM_BUFFER, id);
 	glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
 }
+#endif
 
 GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 {
@@ -125,7 +126,7 @@ GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 	glGetShaderiv(s, GL_COMPILE_STATUS, &success);
 	glGetShaderiv(s, GL_INFO_LOG_LENGTH, &len);
 	if(len > 0) {
-		log = (char*)malloc(sizeof(GLchar) * len);
+		log = (char*)tv_alloc(sizeof(GLchar) * len);
 		glGetShaderInfoLog(s, len, &len, log);
 		puts(log);
 		free(log);
@@ -172,7 +173,7 @@ GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 	glLinkProgram(program);
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
 	if(len > 0) {
-		log = (char*)malloc(sizeof(GLchar) * len);
+		log = (char*)tv_alloc(sizeof(GLchar) * len);
 		glGetProgramInfoLog(program, len, &len, log);
 		puts(log);
 		free(log);
@@ -188,36 +189,188 @@ GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
 
 tvint tv_material_get_uniform(tv_material *material, tvchar *name)
 {
-	return glGetUniformLocation(material->program, name);
+	/* TODO: obviously this is a horrible hack.
+	 * this function shouldn't exist anyway */
+	return glGetUniformLocation(material->passes[0]->program, name);
+}
+
+/*****************************************************************************/
+/* local functions */
+tv_material_program tv_material_compile_shaders(tvchar* vert_file, tvchar* frag_file, tvchar* geom_file)
+{
+	tv_material_program program;
+	TvMaterialShader* lup;
+	GLuint v, f, g;
+	tvchar* buffer;
+
+	/* get/compile shaders - start with the vertex shader */
+	HASH_FIND_PTR(loaded_vertex_shaders, vert_file, lup);
+	if(lup == NULL) {
+		/* no, load it */
+		UtilReadFile(vert_file, &buffer);
+		v = tv_material_compile_shader(buffer, GL_VERTEX_SHADER);
+		/* insert into hash tables */
+		lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
+		lup->name = vert_file;
+		lup->id = v;
+		HASH_ADD_PTR(loaded_vertex_shaders, name, lup);
+		free(buffer);
+	}
+	else {
+		/* yes, use saved ID */
+		v = (GLuint)(lup->id);
+	}
+
+	/* get/compile fragment shader */
+	HASH_FIND_PTR(loaded_fragment_shaders, frag_file, lup);
+	if(lup == NULL) {
+		UtilReadFile(frag_file, &buffer);
+		f = tv_material_compile_shader(buffer, GL_FRAGMENT_SHADER);
+		lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
+		lup->name = frag_file;
+		lup->id = f;
+		HASH_ADD_PTR(loaded_fragment_shaders, name, lup);
+		free(buffer);
+	}
+	else {
+		f = (GLuint)(lup->id);
+	}
+
+	/* geometry shader is optional */
+	g = 0;
+	if(geom_file != NULL) {
+		/* get/compile geometry shader */
+		HASH_FIND_PTR(loaded_geometry_shaders, geom_file, lup);
+		if(lup == NULL) {
+			UtilReadFile(geom_file, &buffer);
+			g = tv_material_compile_shader(buffer, GL_GEOMETRY_SHADER);
+			lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
+			lup->name = geom_file;
+			lup->id = g;
+			HASH_ADD_PTR(loaded_geometry_shaders, name, lup);
+			free(buffer);
+		}
+		else {
+			g = (GLuint)(lup->id);
+		}
+	}
+	program.fragment = f;
+	program.vertex = v;
+	program.geometry = g;
+	return program;
+}
+
+/**
+ * Parse the shaders from the given JSON node and return it.
+ */
+tv_material_program tv_material_load_shaders(cJSON* json) 
+{
+	char* vert_file = NULL;
+	char* frag_file = NULL;
+	char* geom_file = NULL;
+
+	/* get shaders */
+	do {
+		if(strncmp(json->string, "vert", 4) == 0) {
+			vert_file = json->valuestring;
+		}
+		else if(strncmp(json->string, "frag", 4) == 0) {
+			frag_file = json->valuestring;
+		}
+		else if(strncmp(json->string, "geom", 4) == 0) {
+			geom_file = json->valuestring;
+		}
+		json = json->next;
+	}while(json != NULL);
+	return tv_material_compile_shaders(vert_file, frag_file, geom_file);
+}
+
+/**
+ * Parse the attributes from the given JSON node and return them.
+ */
+tvchar** tv_material_load_attributes(cJSON* json, tvuint* /* OUT */ num)
+{
+	tvuint i, num_attributes = 0;
+	tvchar** attributes;
+
+	/* get attributes */
+	num_attributes = cJSON_GetArraySize(json);
+	attributes = (char**)tv_alloc(num_attributes * sizeof(char*));
+
+	for(i = 0; i < num_attributes; ++i) {
+		cJSON* attr = cJSON_GetArrayItem(json, i);
+		/* allocate room for the attribute name */
+		attributes[i] = (char*)tv_alloc((strlen(attr->valuestring)+1) * 
+			sizeof(char));
+		/* copy the name of the attribute */
+		strncpy(attributes[i], attr->valuestring, 
+			strlen(attr->valuestring)+1);
+	}
+	*num = num_attributes;
+	return attributes;
+}
+
+/**
+ * Parse one pass from the given JSON node and return it.
+ */
+tv_material_pass* tv_material_load_pass(cJSON* json) 
+{
+	tv_material_program shaders;
+	tvchar** attributes;
+	tvuint num_attributes = 0;
+	tv_material_pass* pass = NULL;
+
+	/* check if the pass has already been loaded */
+	//tv_material_pass* pass = tv
+	if(pass == NULL) {
+		pass = (tv_material_pass*)tv_alloc(sizeof(tv_material_pass));
+	}
+
+	/* load the pass */
+	do {
+		if(strncmp(json->string, "shaders", 7) == 0) {
+			/* load the shaders */
+			shaders = tv_material_load_shaders(json->child);
+		}
+		else if(strncmp(json->string, "attributes", 10) == 0) {
+			/* load the attributes */
+			attributes = tv_material_load_attributes(json, &num_attributes);
+		}
+		json = json->next;
+	} while(json != NULL);
+
+	/* compile the shader program and get the camera uniforms for it. */
+	pass->program = tv_material_compile_program(shaders.vertex, shaders.fragment, shaders.geometry, attributes, num_attributes);
+	pass->attributes = attributes;
+	pass->num_attributes = num_attributes;
+	tv_material_get_uniforms(pass->program, &pass->modelview_mat, &pass->projection_mat);
+
+	/* add the pass to the pass table and return it */
+	return pass;
 }
 
 void tv_material_load(tv_material *mat, const char* file)
 {       
-	TvMaterialShader* lup;
-	GLuint v;
-	GLuint f;
-	GLuint g;
-	int i;
-
-	int nAttributes;
-	char** attributes;
-	char* text;
-	char* buffer;
-	char* vertFile = NULL;
-	char* fragFile = NULL;
-	char* geomFile = NULL;
-
+	tvchar* text;
 	cJSON* root = NULL;
 	cJSON* json = NULL;
 	tv_material *lup_mat = NULL;
 
+	/* check if the material is already loaded, if it is copy it and return. */
 	HASH_FIND_PTR(loaded_materials, file, lup_mat);
 	if(lup_mat) {
-		mat->program = lup_mat->program;
-		mat->name = lup_mat->name;
-		mat->projection_mat = lup_mat->projection_mat;
-		mat->modelview_mat = lup_mat->modelview_mat;
+		/* TOOD: will only work if materials are never deleted */
+		mat = lup_mat;
+		return;
 	}
+	/* if no material was given, create a new material */
+	if(mat == NULL) {
+		mat = tv_material_new();
+	}
+
+	mat->num_passes = 0;
+
+	/* material is not loaded, load file and parse it */
 	UtilReadFile(file, &text);
 	root = cJSON_Parse(text);
 
@@ -233,109 +386,79 @@ void tv_material_load(tv_material *mat, const char* file)
 	if(strncmp(root->string, "material", 8) != 0) {
 		tv_warning("unrecognized JSON object name %s"
 			" for material\n", root->string); 
-		return;
 	}
-	/* get all material information */
 	else {
+		/* read the material file */
 		root = root->child;
 		while(root != NULL) {
-			json = root;
-			/* get the first child object of the material */
-			if(strncmp(json->string, "shaders", 7) == 0) {
-				/* get shaders */
-				json = json->child;
-				do {
-					if(strncmp(json->string, "vert", 4) == 0) {
-						vertFile = json->valuestring;
-					}
-					else if(strncmp(json->string, "frag", 4) == 0) {
-						fragFile = json->valuestring;
-					}
-					else if(strncmp(json->string, "geom", 4) == 0) {
-						geomFile = json->valuestring;
-					}
-					json = json->next;
-				}while(json != NULL);
-			}
-			else if(strncmp(json->string, "attributes", 10) == 0) {
-				/* get attributes */
-				nAttributes = cJSON_GetArraySize(json);
-				attributes = (char**)malloc(nAttributes * sizeof(char*));
-				for(i = 0; i < nAttributes; ++i) {
-					cJSON* attr = cJSON_GetArrayItem(json, i);
-					attributes[i] = (char*)malloc((strlen(attr->valuestring)+1) * 
-						sizeof(char));
-					strncpy(attributes[i], attr->valuestring, 
-						strlen(attr->valuestring)+1);
+			if(strncmp(root->string, "passes", sizeof("passes")) == 0) {
+				/* read all the material's passes */
+				for(json = root->child; json != NULL; json = json->next) {
+					tv_material_pass* pass = tv_material_load_pass(json->child);
+					tv_material_add_pass(mat, pass);
 				}
 			}
+			/* unrecognized node - print warning */
+			else {
+				tv_warning("Unrecognized JSON object name %s "
+					"for material\n", root->string);
+			}
+			/* move to the next JSON object */
 			root = root->next;
 		}
+		/* add the material to the table of loaded materials to prevent reloading */
+		mat->name = (tvchar*)file;
+		HASH_ADD_PTR(loaded_materials, name, mat);
 	}
+	/* cleanup */
+	free(text);
 	cJSON_Delete(root);
 	cJSON_Delete(json);
+}
 
-	/* get/compile shaders - start with the vertex shader */
-	HASH_FIND_PTR(loaded_vertex_shaders, vertFile, lup);
-	if(lup == NULL) {
-		/* no, load it */
-		UtilReadFile(vertFile, &buffer);
-		v = tv_material_compile_shader(buffer, GL_VERTEX_SHADER);
-		/* insert into hash tables */
-		lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
-		lup->name = vertFile;
-		lup->id = v;
-		HASH_ADD_PTR(loaded_vertex_shaders, name, lup);
-		free(buffer);
+void METHOD(tv_material, add_pass, tv_material_pass *pass)
+{
+	if(self->num_passes >= TV_MATERIAL_MAX_PASSES) {
+		tv_warning("maximum number of material passes exceeded.");
+		return;
 	}
+	self->passes[self->num_passes] = pass;
+	++self->num_passes;
+}
+
+void METHOD(tv_material, use_pass, tvuint pass_idx)
+{
+	tv_material_pass* pass;
+	/* make sure pass index is valid */
+	if(self->num_passes <= pass_idx) {
+		return;
+	}
+
+	pass = self->passes[pass_idx];
+	/* use the shader program */
+	glUseProgram(pass->program);
+
+	/* update camera if needed */
+	glUniformMatrix4fv(pass->modelview_mat, 1, GL_FALSE, 
+		tv_mat4x4_to_array(&main_cam->modelview_mat));
+	glUniformMatrix4fv(pass->projection_mat, 1, GL_FALSE, 
+		tv_mat4x4_to_array(&main_cam->projection_mat));
+	/* TODO: update all uniforms */
+}
+
+void METHOD(tv_material, do_pass, tvuint pass_index, tv_model* model) 
+{
+	tv_material_use_pass(self, pass_index);
+	glBindVertexArray(model->vao);
+	/* render arrays if there are no indices */
+	if(utarray_len(model->indices) > 0) {
+		tv_draw_elements(model->primitive, utarray_len(model->indices),
+			GL_UNSIGNED_SHORT, 0);
+	}
+	/* if there are indices, render elements */
 	else {
-		/* yes, use saved ID */
-		v = (GLuint)(lup->id);
+		tv_draw_arrays(model->primitive, 0, utarray_len(model->vertices));
 	}
-
-	/* get/compile fragment shader */
-	HASH_FIND_PTR(loaded_fragment_shaders, file, lup);
-	if(lup == NULL) {
-		UtilReadFile(fragFile, &buffer);
-		f = tv_material_compile_shader(buffer, GL_FRAGMENT_SHADER);
-		lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
-		lup->name = vertFile;
-		lup->id = f;
-		HASH_ADD_PTR(loaded_fragment_shaders, name, lup);
-		free(buffer);
-	}
-	else {
-		f = (GLuint)(lup->id);
-	}
-
-	/* geometry shader is optional */
-	if(geomFile == NULL) {
-		g = 0;
-	}
-	else {
-		/* get/compile geometry shader */
-		HASH_FIND_PTR(loaded_geometry_shaders, file, lup);
-		if(lup == NULL) {
-			UtilReadFile(geomFile, &buffer);
-			g = tv_material_compile_shader(buffer, GL_GEOMETRY_SHADER);
-			lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
-			lup->name = geomFile;
-			lup->id = g;
-			HASH_ADD_PTR(loaded_geometry_shaders, name, lup);
-			free(buffer);
-		}
-		else {
-			g = (GLuint)(lup->id);
-		}
-	}
-
-	/* compile the shader program */
-	mat->name = (tvchar*)file;
-	mat->program = tv_material_compile_program(v, f, g, attributes, nAttributes);
-
-	tv_material_get_uniforms(mat->program, &mat->modelview_mat, &mat->projection_mat);
-
-	HASH_ADD_PTR(loaded_materials, name, mat);
 }
 
 #if 0

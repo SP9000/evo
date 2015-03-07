@@ -9,9 +9,10 @@ ADDCOMPONENT(tv_widget, base_widget)
 ADDCOMPONENT(tv_widget_stats, stats)
 ADDCOMPONENT(app_hud, hud)
 ADDCOMPONENT(APP_story_point, sp)
-//ADDCOMPONENT(tv_widget_frame, frame)
+ADDCOMPONENT(tv_widget_frame, frame)
 tv_material_load(material, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\line.mat");
 tv_widget_textbox_set_text_color((tv_widget_textbox*)stats, text_color);
+tv_gui_renderer_set_base_widget(renderer, base_widget);
 tv_widget_add_child(base_widget, (tv_widget*)hud);
 tv_widget_add_child(base_widget, (tv_widget*)stats);
 tv_widget_add_child(base_widget, (tv_widget*)sp);

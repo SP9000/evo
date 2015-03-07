@@ -7,7 +7,7 @@ extern "C" {
 #include "widget_textbox.h"
 #include "tv_stats.h"
 
-COMPONENT(tv_widget_stats, tv_widget)
+COMPONENT(tv_widget_stats, tv_widget_textbox)
 ENDCOMPONENT(tv_widget_stats)
 
 #ifdef __cplusplus

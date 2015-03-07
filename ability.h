@@ -5,7 +5,6 @@ extern "C" {
 #endif
 
 #include "evo.h"
-#include "hud.h"
 
 #define APP_ABILITY_MAX_TARGETS 32
 #define APP_UNIT_MAX_STATUS_CONDITIONS 16
@@ -83,6 +82,9 @@ COMPONENT(app_unit, tv_component)
 	app_unit_stats current_stats;
 	app_unit_status_condition conditions[APP_UNIT_MAX_STATUS_CONDITIONS];
 
+	/* the offset above the center of the unit that this unit "floats" */
+	tvfloat float_height;
+
 	/* every unit has a "move to" ability */
 	app_ability* move_to;
 
@@ -96,6 +98,8 @@ void app_unit_remove_status(app_unit *unit, app_unit_stats *status);
 void app_unit_add_ability(app_unit *unit, app_ability *ability);
 void app_unit_remove_ability(app_unit *unit, app_ability *ability);
 void app_unit_set_move_ability(app_unit* unit, app_ability* move_ability);
+void app_unit_move_to(app_unit* unit, app_ability_target* target);
+void METHOD(app_unit, set_float_height, tvfloat height);
 /*****************************************************************************/
 /**
  * Set the user of the given ability to the given unit.

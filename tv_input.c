@@ -1,19 +1,23 @@
 #include "tv_input.h"
 #include "tv_draw.h"	//for screen width and height
 
+/*****************************************************************************/
 static tv_input_button_state keyboard_state[TV_INPUT_KEYBOARD_MAX_BUTTONS];
 static tv_input_button_state mouse_button_states[TV_INPUT_MOUSE_MAX_BUTTONS];
 static tv_input_button_state joypad_button_states[TV_INPUT_JOYPAD_MAX_BUTTONS];
 static int mouseX;
 static int mouseY;
-
 static TvInputDevice device;
 
+/******************************************************************************
+ * tv_input_init
+ * Opens joysticks if possible and otherwise prepares the engine for accepting
+ * input.
+ * TODO: load settings from file 
+ *****************************************************************************/
 int tv_input_init()
 {
 	tvuint i;
-
-    /* TODO: load settings from file */
     device.joy = SDL_JoystickOpen(0);
     if(device.joy == NULL) {
         puts("No joysticks found");
@@ -32,12 +36,18 @@ int tv_input_init()
 	}
     return 0;
 }
-
+/******************************************************************************
+ * tv_input_quit
+ * Closes any open joysticks.
+ *****************************************************************************/
 void tv_input_quit()
 {
     SDL_JoystickClose(device.joy);
 }
-
+/******************************************************************************
+ * tv_input_update
+ * Polls any input devices that are configured to be used.
+ *****************************************************************************/
 void tv_input_update()
 {
 	tvuint i;
@@ -69,37 +79,61 @@ void tv_input_update()
 	}
 }
 
+/******************************************************************************
+ * tv_input_keydown
+ * TODO:
+ *****************************************************************************/
 int tv_input_keydown(SDLKey key)
 {
-    //return keyboard_state[key];
+    /* return keyboard_state[key]; */
 	return 0;
 }
-
+/******************************************************************************
+ * tv_input_mouse_pos
+ * returns the last read mouse coordinates.
+ *****************************************************************************/
 tv_vector2 tv_input_mouse_pos()
 {
 	tv_vector2 ret = {(tvfloat)mouseX, (tvfloat)mouseY};
 	return ret;
 }
+/******************************************************************************
+ * tv_input_mouse_x
+ * returns the last read mouse x-coordinate.
+ *****************************************************************************/
 int tv_input_mouse_x()
 {
     return mouseX;
 }
-
+/******************************************************************************
+ * tv_input_mouse_y
+ * returns the last read mouse y-coordinate.
+ *****************************************************************************/
 int tv_input_mouse_y()
 {
     return mouseY;
 }
-
+/******************************************************************************
+ * tv_input_mouse_y
+ * returns the last read mouse y-coordinate in the range [0-1]
+ *****************************************************************************/
 tvfloat tv_input_mouse_y_normalized()
 {
 	return (tvfloat)mouseY / (tvfloat)tv_draw_screen_dim().y;
 }
-
+/******************************************************************************
+ * tv_input_mouse_y
+ * returns the last read mouse x-coordinate in the range [0-1]
+ *****************************************************************************/
 tvfloat tv_input_mouse_x_normalized()
 {
 	return (tvfloat)mouseX / (tvfloat)tv_draw_screen_dim().x;
 }
-
+/******************************************************************************
+ * tv_input_buttondown
+ * Returns the state of the given button as last polled- TRUE=down.
+ * Down means that the button was up, but is now down.
+ *****************************************************************************/
 tvbool tv_input_buttondown(tv_input_button button)
 {
 	if(button.type == TV_INPUT_KEYBOARD) {
@@ -119,7 +153,11 @@ tvbool tv_input_buttondown(tv_input_button button)
 	}
 	return FALSE;
 }
-
+/******************************************************************************
+ * tv_input_buttonpressed
+ * Returns the state of the given button as last polled- TRUE=pressed.
+ * Pressed means the button is down (it is not concerned with any past state).
+ *****************************************************************************/
 tvbool tv_input_buttonpressed(tv_input_button button)
 {
 	if(button.type == TV_INPUT_JOYPAD) {
@@ -139,7 +177,11 @@ tvbool tv_input_buttonpressed(tv_input_button button)
 	}
 	return FALSE;
 }
-
+/******************************************************************************
+ * tv_input_buttonreleased
+ * Returns the state of the given button as last polled- TRUE=released.
+ * Released means the button is now up, but was down last frame. 
+ *****************************************************************************/
 tvbool tv_input_buttonreleased(tv_input_button button)
 {
 	if(button.type == TV_INPUT_JOYPAD) {
@@ -159,7 +201,11 @@ tvbool tv_input_buttonreleased(tv_input_button button)
 	}
 	return FALSE;
 }
-
+/******************************************************************************
+ * tv_input_buttonreleased
+ * Returns the state of the given button as last polled- TRUE=up.
+ * Up means the button is not pressed (regardless of past state).
+ *****************************************************************************/
 tvbool tv_input_buttonup(tv_input_button button)
 {
 	if(button.type == TV_INPUT_JOYPAD) {
@@ -179,8 +225,10 @@ tvbool tv_input_buttonup(tv_input_button button)
 	}
 	return FALSE;
 }
-
-
+/******************************************************************************
+ * tv_input_register_button_event
+ * TODO:
+ *****************************************************************************/
 void tv_input_register_button_event(tv_input_device_type type, tvuint id, tvbool pressed)
 {
 	switch(type) {

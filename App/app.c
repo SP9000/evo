@@ -2,8 +2,6 @@
 
 void app_update() 
 {
-	tv_vector3 v = fairy2()->transform.pos;
-	tv_vector4 v2 = {1.0, v.x, v.y, 1.0f};
 }
 
 void test()

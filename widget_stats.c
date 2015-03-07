@@ -1,6 +1,6 @@
 #include "widget_stats.h"
 
-COMPONENT_NEW(tv_widget_stats, tv_widget)
+COMPONENT_NEW(tv_widget_stats, tv_widget_textbox)
 	tv_widget_textbox_init((tv_widget_textbox*)self);
 END_COMPONENT_NEW(tv_widget_stats)
 

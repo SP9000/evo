@@ -64,8 +64,12 @@ static hud_vertex ability_rects[16] = {
 };
 	
 COMPONENT_NEW(app_hud, tv_widget)
+	tvuint i;
 	tv_widget *w = (tv_widget*)self;
 	tv_widget_init((tv_widget*)self);
+	for(i = 0; i < APP_HUD_UNIT_SLOTS; ++i) {
+		self->unit_widgets[i] = NULL;
+	}
 END_COMPONENT_NEW(app_hud)
 
 COMPONENT_START(app_hud)
@@ -73,7 +77,7 @@ COMPONENT_START(app_hud)
 	hud_vertex v;
 	tvuint i, j;
 	tv_widget *c;
-	tv_model  *ability_thumb_models[4];
+	tv_model *ability_thumb_models[4];
 	tv_widget *ability_thumb_widgets[4];
 	tv_model *model = tv_model_new();
 
@@ -101,6 +105,14 @@ COMPONENT_START(app_hud)
 		tv_widget_add_child(w, ability_thumb_widgets[i]);
 	}
 
+	/* add the widgets for the units */
+	for(i = 0; i < APP_HUD_UNIT_SLOTS; ++i) {
+		self->unit_widgets[i] = tv_widget_new();
+		self->unit_widgets[i]->scale = tv_vector3_new(0.05f, 0.05f, 0.05f);
+		self->unit_widgets[i]->pos = tv_vector3_new(i*0.2f + 0.2f, 0.85f, 0.0f);
+		tv_widget_add_child(w, self->unit_widgets[i]);
+	}
+
 	model->primitive = GL_TRIANGLES;
 	tv_model_optimize(model, TRUE, FALSE);
 	tv_widget_set_model(w, model);
@@ -111,3 +123,26 @@ END_COMPONENT_DESTROY
 
 COMPONENT_UPDATE(app_hud)
 END_COMPONENT_UPDATE
+
+void app_hud_set_unit(app_hud* hud, app_unit* unit, tvuint slot)
+{
+	tv_widget_set_animation(hud->unit_widgets[slot], unit->animation);
+}
+void app_hud_add_unit(app_hud* hud, app_unit* unit)
+{
+	tvuint i; 
+	/* make sure unit is not already selected */
+	for(i = 0; i < APP_HUD_UNIT_SLOTS; ++i) {
+		if(hud->units[i] == unit) {
+			return;
+		}
+	}
+	/* add to next available slot (if there is one) */
+	for(i = 0; i < APP_HUD_UNIT_SLOTS; ++i) {
+		if(hud->unit_widgets[i]->animation == NULL) {
+			app_hud_set_unit(hud, unit, i);
+			hud->units[i] = unit;
+			break;
+		}
+	}
+}

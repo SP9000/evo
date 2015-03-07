@@ -4,12 +4,42 @@
 extern "C" {
 #endif
 
+/******************************************************************************
+Material
+Materials have to main "sections". 
+The first is the shader programs.
+Each material has a number of "passes".  Each "pass" has one vertex, one
+fragment, and (optionally) one geometry shader associated with it.
+Passes are executed in the order they are added to the material unless 
+explicity reordered. 
+Each pass also contains a list of uniforms and/or uniform buffers required by 
+their associated shaders.  
+The list of uniforms is stored and maintained by the material. For all passes
+to function properly, it is important that all the uniforms and uniform buffers 
+that the pass requires are added to the material prior to rendering.
+A typical material creation flow looks like this:
+1. create material
+2. load pass_0
+	2a. load pass_0 uniforms
+3. load pass_1
+	3a. load pass_1 uniforms 
+4. done
+etc.
+******************************************************************************/
+
+/*****************************************************************************/
+/* Includes */
 #include "tv_component.h"
 #include "tv_types.h"
 #include "tv_alloc.h"
 #include "cJSON.h"
 #include "tv_util.h"
+#include "tv_macros.h"
+#include "tv_matrix.h"
+#include "model.h"
 
+/*****************************************************************************/
+/* Constant Definitions */
 #define TV_MATERIAL_BUFFER_BINDING_POINT 1
 /* the maximum # of uniform blocks per material */
 #define TV_MATERIAL_MAX_UBOS 8
@@ -42,6 +72,8 @@ typedef struct tv_material_effect_interface_element {
 	tvchar name[32];
 }tv_material_effect_interface_element;
 
+/*****************************************************************************/
+/* Types */
 /** 
  * The material effect interface defines the way that effects can connect to
  * each other. 
@@ -78,33 +110,6 @@ typedef struct {
 	tvchar name[31];
 }TV_material_uniform_block;
 
-COMPONENT(tv_material, tv_component) 
-	/* this material's name */
-	tvchar* name;
-
-	/* the shader program for this material */
-	GLuint program;
-
-	/* the passes run when rendering with this material. */
-	struct tv_material *passes;
-	const tvchar pass_name[TV_MATERIAL_MAX_PASSES][31];
-	tvuint num_passes;
-
-	/* the (shared) uniform blocks for this material */
-	GLuint *ubos;
-	const tvchar ubo_names[TV_MATERIAL_MAX_UBOS][31];
-	tvuint num_ubos;
-
-	/* the matrices for this material TODO: use shared UBO */
-	GLuint modelview_mat;
-	GLuint projection_mat;
-
-	/* if TRUE, this model needs access to the scene's lighting information */
-	tvbool lit;
-
-	TvHashHandle hh;
-ENDCOMPONENT(tv_material)
-
 /**
  * A hashable structure containing information about a shader program.
  */
@@ -115,11 +120,64 @@ typedef struct tagMaterialShader {
 }TvMaterialShader;
 
 /**
+ * A structure containing the individual shaders belonging to a shader program.
+ */
+typedef struct {
+	tvuint vertex;
+	tvuint fragment;
+	tvuint geometry;
+}tv_material_program;
+
+/**
+ * The structure for a material pass.
+ */
+typedef struct {
+	/* the name of the pass */
+	tvchar* name;
+	/* the shader program for the pass */
+	GLuint program;
+	/* the matrices for the pass TODO: use shared UBO */
+	GLuint modelview_mat;
+	GLuint projection_mat;
+
+	/* the attributes (uniforms) of the pass */
+	const tvchar** attributes;
+	tvuint num_attributes;
+
+	/* the (shared) uniform blocks for this pass */
+	const tvchar ubo_names[TV_MATERIAL_MAX_UBOS][31];
+	GLuint *ubos;
+	tvuint num_ubos;
+
+	/* if TRUE, this pass needs access to the scene's lighting information */
+	tvbool lit;
+
+	/* a hash handle so redundant passes are not loaded. */
+	TvHashHandle hh;
+}tv_material_pass;
+
+/*****************************************************************************/
+/* Component */
+COMPONENT(tv_material, tv_component) 
+	/* the name of the material */
+	tvchar* name;
+
+	tvuint num_passes;
+	/* the passes run when rendering with this material. */
+	tv_material_pass* passes[TV_MATERIAL_MAX_PASSES];
+
+	/* a hash handle so redundant materials are not loaded. */
+	TvHashHandle hh;
+ENDCOMPONENT(tv_material)
+
+
+/*****************************************************************************/
+/* Methods */
+/**
  * Loads a material from the given file.
- * @param material the material to load with the data supplied by the file.
  * @param file the filename of the file containg the material data.
  */
-void tv_material_load(tv_material *material, const char* file);
+void METHOD(tv_material, load, const char* file);
 
 /**
  * Compile a shader program.
@@ -129,81 +187,90 @@ void tv_material_load(tv_material *material, const char* file);
  * @param num_attributes the number of attributes for the given shader.
  * @return the handle of the compiled shader program.
  */
-GLuint tv_material_compile_program(GLuint vert_shader, GLuint frag_shader,
+GLuint METHOD(tv_material, compile_program, GLuint vert_shader, GLuint frag_shader,
 								   GLuint geom_shader, tvchar **attributes, 
 								   tvuint num_attributes);
 /**
- * Retrieve the handle of a uniform of the given name from the given material.
- * @param material the material to acquire the unifrom from.
+ * Retrieve the handle of a uniform of the given name from the material.
  * @param name the name of the uniform.
  * @return the handle of the uniform.
  */
-tvint tv_material_get_uniform(tv_material *material, tvchar *name);
+tvint METHOD(tv_material, get_uniform, tvchar *name);
 
 /**
- * Retrieve the handle of a uniform block in the given material.
- * @param material the material to acquire the unifrom from.
+ * Retrieve the handle of a uniform block in the material.
  * @param name the name of the uniform block.
  * @return the handle of the uniform block.
  */
-tvint tv_material_get_uniform_block(tv_material *material, const tvchar *name);
-
-void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* projection);
+tvint METHOD(tv_material, get_uniform_block, const tvchar *name);
 
 /**
- * Set a uniform buffer attribute for the given material.
+ * Set a uniform buffer attribute for the material.
  * @param material the material to set the attribute of.
  * @param ubo the name of the UBO data to buffer.
  * @param data the attribute data for the uniform block.
  * @param size the size of the data to buffer.
  */
-void tv_material_set_ubo_attribute(tv_material *material, const tvchar* block, void *data, tvuint size);
+void METHOD(tv_material, set_ubo_attribute, tv_material *material, const tvchar* block, void *data, tvuint size);
+
+/** 
+ * Adds a pass to the material.
+ * @param material the material to add the pass to.
+ * @param pass the material that will be used to render this pass.
+ */
+void METHOD(tv_material, add_pass, tv_material_pass *pass);
+
+/**
+ * Sets the OpenGL rendering up for rendering with the specified pass.
+ * This function does the glUseProgram and the binding/updating of any uniforms
+ * associated with the pass.
+ * @param pass_number the index of the pass to begin using.
+ */
+void METHOD(tv_material, use_pass, tvuint pass);
+
+/** 
+ * Render the currently bound vertex attribute array with the given pass.
+ * @param pass_index the index of the pass to render with.
+ * @param model the model to render.
+ */
+void METHOD(tv_material, do_pass, tvuint pass_index, tv_model* model);
 
 #if 0
 /** 
- * Adds a pass to the given material.
- * The pass is inserted at the given location in the material's pass array.
+ * Appends a pass to the material.
  * @param material the material to add the pass to.
- * @param index the index to insert the pass at.
  * @param pass the material that will be used to render this pass.
  */
-void tv_material_add_pass(tv_material *material, tvint index, tv_material *pass);
+void METHOD(tv_material, append_pass, tv_material *pass);
 /** 
- * Appends a pass to the given material.
+ * Prepends a pass to the material.
  * @param material the material to add the pass to.
  * @param pass the material that will be used to render this pass.
  */
-void tv_material_append_pass(tv_material *material, tv_material *pass);
-/** 
- * Prepends a pass to the given material.
- * @param material the material to add the pass to.
- * @param pass the material that will be used to render this pass.
- */
-void tv_material_prepend_pass(tv_material *material, tv_material *pass);
+void METHOD(tv_material, prepend_pass, tv_material *pass);
 /**
- * Removes the given pass' material from the given material.
+ * Removes the given pass from the material.
  * @param material the material to remove the pass from.
  * @param pass the pass to remove.
  */
-void tv_material_remove_pass(tv_material *material, tv_material *pass);
+void METHOD(tv_material, remove_pass, tv_material *pass);
 
 /** 
- * Sets a parameter for the given material.
- * This is used to set a uniform variable for the given material's shader
+ * Sets a parameter for the material.
+ * This is used to set a uniform variable for the material's shader
  * program.
- * @param material the material to set the parameter of.
  * @param param_name the name of the parameter to set.
  * @param data_size the size of the data to set.
  * @param data the data to set the parameter to.
  */
-void tv_material_set_param(tv_material *material, const tvchar *param_name, size_t data_size, tvpointer data);
+void METHOD(tv_material, set_param, const tvchar *param_name, size_t data_size, tvpointer data);
 
 /**
  * Loads a material effect from the file given by the filename.
  * @param filename the name of the file containing the effect information.
  * @return a reference to the newly created/loaded effect.
  */
-tv_material_effect* tv_material_effect_load(tvchar *filename);
+tv_material_effect* METHOD(tv_material, effect_load, tvchar *filename);
 /** 
  * Connects effect2 to effect1 using their defined interfaces.
  * If the interfaces of effect1 and effect2 do not match up, the effects are
@@ -212,7 +279,7 @@ tv_material_effect* tv_material_effect_load(tvchar *filename);
  * @param effect1 the effect to connect to effect2 (via OUT parameters).
  * @param effect2 the effect that receives effect1's input (via IN parameters).
  */
-void tv_material_effect_connect(tv_material *material, tv_material_effect *effect1, tv_material_effect *effect2);
+void METHOD(tv_material, effect_connect, tv_material_effect *effect1, tv_material_effect *effect2);
 
 /**
  * Optimize the material after all desired altercations have been made to it.
@@ -221,8 +288,18 @@ void tv_material_effect_connect(tv_material *material, tv_material_effect *effec
  * effects may be added or removed from the material without re-optimizing.
  * @param material the material to optimize.
  */
-void tv_material_optimize(tv_material *material);
+void METHOD(tv_material_optimize);
 #endif
+
+/*****************************************************************************/
+/* Non-method functions */
+/**
+ * Get the camera uniforms associated with a given OpneGL program.
+ * @param program the program to get the camera unifroms of.
+ * @param modelview the modelview matrix uniform for the given program.
+ * @param projection the projection matrix uniform for the given program.
+ */
+void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* projection);
 
 #ifdef __cplusplus
 }

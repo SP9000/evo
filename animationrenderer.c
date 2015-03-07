@@ -36,28 +36,27 @@ static void translate_by_bone_(tv_animation_renderer* renderer, tvuint bone_id)
 	tv_mat4x4_rotate(&main_cam->modelview_mat, rot.y, 0.0f, 1.0f, 0.0f);
 	tv_mat4x4_rotate(&main_cam->modelview_mat, rot.z, 0.0f, 0.0f, 1.0f);
 }
+
+/**
+ * Render the given bone from the animation.
+ */
 static void render_bone_(tv_animation_renderer* renderer, tvuint bone_id)
 {
 	tv_animation* animation = renderer->animation;
-	/* Bind the models' vertex attribute object. */
-	glBindVertexArray(animation->bones[bone_id].model->vao);
-	/* use the model's material's shader */
-	glUseProgram(animation->bones[bone_id].material->program);
-	/* set matrices */
-	glUniformMatrix4fv(animation->bones[bone_id].material->modelview_mat, 1, GL_FALSE, 
-			tv_mat4x4_to_array(&main_cam->modelview_mat));
-	glUniformMatrix4fv(animation->bones[bone_id].material->projection_mat, 1, GL_FALSE, 
-			tv_mat4x4_to_array(&main_cam->projection_mat));
+	tvuint i;
 
+	/* TODO: delete */
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
+	glDepthFunc(GL_LEQUAL);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(TRUE);
 
-	if(utarray_len(animation->bones[bone_id].model->indices) > 0) {
-		tv_draw_elements(animation->bones[bone_id].model->primitive, utarray_len(animation->bones[bone_id].model->indices),
-			GL_UNSIGNED_SHORT, 0);
-	}
-	else {
-		tv_draw_arrays(animation->bones[bone_id].model->primitive, 0, utarray_len(animation->bones[bone_id].model->vertices));
+	/* bind the models' vertex attribute object. */
+	glBindVertexArray(animation->bones[bone_id].model->vao);
+	/* render all passes of the bone */
+	for(i = 0; i < animation->bones[bone_id].material->num_passes; ++i) {
+		tv_material_do_pass(animation->bones[bone_id].material, i, animation->bones[bone_id].model);
 	}
 }
 
