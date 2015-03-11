@@ -34,7 +34,7 @@
  * @param component_prefix the component to define the "start" method for.
  */
 #define COMPONENT_START(component_prefix) \
-	static void start(tv_component *self_component) { \
+	static void component_prefix ## _start(tv_component *self_component) { \
 		component_prefix *self = (component_prefix*)self_component;
 /** 
  * Concludes a start definition for a component.
@@ -47,7 +47,7 @@
  * @param component_prefix the component to define the "update" method for.
  */
 #define COMPONENT_UPDATE(component_prefix) \
-	static void update(tv_component *self_component) { \
+	static void component_prefix ## _update(tv_component *self_component) { \
 		component_prefix *self = (component_prefix*)self_component;
 /** 
  * Concludes an update definition for a component.
@@ -60,7 +60,7 @@
  * @param component_prefix the component to define the "destroy" method for.
  */
 #define COMPONENT_DESTROY(component_prefix) \
-	static void destroy(tv_component *self_component) { \
+	static void component_prefix ## _destroy(tv_component *self_component) { \
 		component_prefix *self = (component_prefix*)self_component;
 /** 
  * Concludes a destroy definition for a component.
@@ -77,9 +77,9 @@
  *  component.
  */
 #define COMPONENT_NEW(component_prefix, parent_prefix) \
-	static void start(tv_component *self); \
-	static void update(tv_component *self); \
-	static void destroy(tv_component *self); \
+	static void component_prefix ##_start(tv_component *self); \
+	static void component_prefix ## _update(tv_component *self); \
+	static void component_prefix ## _destroy(tv_component *self); \
 	static tvuint tv_cid_ ## component_prefix = 0; \
 	tvuint component_prefix ## _id() { \
 		return tv_cid_ ## component_prefix; \
@@ -105,9 +105,9 @@
 #define END_COMPONENT_NEW(component_prefix) \
 		((tv_component*)self)->entity = NULL; \
 		((tv_component*)self)->id = tv_cid_ ## component_prefix; \
-		((tv_component*)self)->Start = start; \
-		((tv_component*)self)->Update = update; \
-		((tv_component*)self)->Destroy = destroy; \
+		((tv_component*)self)->Start = component_prefix ## _start; \
+		((tv_component*)self)->Update = component_prefix ## _update; \
+		((tv_component*)self)->Destroy = component_prefix ## _destroy; \
 		tv_component_notify_add((tv_component*)self); \
 	}
 /** 
@@ -275,6 +275,5 @@
 		((tv_component*)self)->Destroy = NULL; \
 		return self; \
 	}
-
 
 #endif

@@ -4,9 +4,9 @@ void APP_SCENE_desert1()
 {
 	tv_entity *gride = grid();
 	tv_entity *test_text = text();
-	//tv_entity *test_gui = gui();
+	tv_entity *test_gui = gui();
 	//tv_entity *my_terrain = terrain();
-	//tv_entity *my_cursor = cursor();
+	tv_entity *my_cursor = cursor();
 	tv_entity *sp = prefab_moving_sphere();
 
 	tv_entity *spawnpt = spawn_pt();

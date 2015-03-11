@@ -7,6 +7,8 @@ static tv_material* loaded_materials;
 static TvMaterialShader* loaded_fragment_shaders;
 static TvMaterialShader* loaded_vertex_shaders;
 static TvMaterialShader* loaded_geometry_shaders;
+static TvMaterialShader* loaded_tesselation_control_shaders;
+static TvMaterialShader* loaded_tesselation_evaluation_shaders;
 
 static void tv_material_init_uniform_buffer_(tv_material *material);
 static GLuint tv_material_compile_shader(const GLchar* shader, GLuint type);
@@ -113,7 +115,7 @@ void tv_material_set_ubo_attribute(tv_material *material, const tvchar* block, v
 }
 #endif
 
-GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
+GLuint compile_gl_shader(const GLchar* shader, GLuint type)
 {
 	GLuint s;
 	GLsizei len;
@@ -128,22 +130,19 @@ GLuint tv_material_compile_shader(const GLchar* shader, GLuint type)
 	if(len > 0) {
 		log = (char*)tv_alloc(sizeof(GLchar) * len);
 		glGetShaderInfoLog(s, len, &len, log);
-		puts(log);
+		tv_info(log);
 		free(log);
 	}
 	if(success == GL_FALSE) {
-		if(type == GL_VERTEX_SHADER) {
-			fprintf(stderr, "Error: vertex shader was not compiled successfully.\n");
+		tvchar* type_string;
+		switch(type) {
+		case GL_VERTEX_SHADER: type_string = "vertex"; break;
+		case GL_FRAGMENT_SHADER: type_string = "fragment"; break;
+		case GL_TESS_CONTROL_SHADER: type_string = "tesselation control"; break;
+		case GL_TESS_EVALUATION_SHADER: type_string = "tesselation evaluation"; break;
+		default: type_string = "unknown"; break; 
 		}
-		else if(type == GL_FRAGMENT_SHADER) {
-			fprintf(stderr, "Error: fragment shader was not compiled successfully.\n");
-		}
-		else if(type == GL_GEOMETRY_SHADER) {
-			fprintf(stderr, "Error: geometry shader was not compiled successfully.\n");
-		}
-		else {
-			fprintf(stderr, "Error: shader was not compiled successfully.\n");
-		}
+		tv_error("<%s> shader was not compiled successfully.", type_string);
 		return 0;
 	}
 	return s;
@@ -196,67 +195,73 @@ tvint tv_material_get_uniform(tv_material *material, tvchar *name)
 
 /*****************************************************************************/
 /* local functions */
+/******************************************************************************
+ tv_material_compile_shader
+ Compiles the given shader (first looking to see if the shader already has 
+ been loaded by checking the appropriate "loaded_XXX_shaders" table. 
+ *****************************************************************************/
+GLuint tv_material_compile_shader(tvchar* file, tvuint type)
+{
+	TvMaterialShader* lup;
+	tvchar* buffer;
+	TvMaterialShader* shader_table;
+	GLuint shader_handle;
+
+	/* look up the shader - has it been loaded already? */
+	HASH_FIND_PTR(loaded_vertex_shaders, file, lup);
+	switch(type) {
+	case GL_VERTEX_SHADER: shader_table = loaded_fragment_shaders;  break;
+	case GL_FRAGMENT_SHADER: shader_table = loaded_vertex_shaders; break;
+	case GL_GEOMETRY_SHADER: shader_table = loaded_geometry_shaders; break;
+	case GL_TESS_CONTROL_SHADER: shader_table = loaded_tesselation_control_shaders; break; 
+	case GL_TESS_EVALUATION_SHADER: shader_table = loaded_tesselation_evaluation_shaders; break;
+	default: tv_warning("unrecognized shader type"); return;
+	}
+	/* look up the shader */
+	HASH_FIND_PTR(shader_table, file, lup); 
+	/* if the shader has already been loaded, return it's handle. */
+	if(lup) {
+		return (GLuint)lup->id;
+	}
+	/* shader has NOT been loaded, let's load it */
+	UtilReadFile(file, &buffer);
+	shader_handle = compile_gl_shader(buffer, type);
+	lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
+	lup->name = file;
+	lup->id = shader_handle;
+	HASH_ADD_PTR(shader_table, name, lup);
+	free(buffer);
+	return (GLuint)shader_handle;
+}
 tv_material_program tv_material_compile_shaders(tvchar* vert_file, tvchar* frag_file, tvchar* geom_file)
 {
 	tv_material_program program;
 	TvMaterialShader* lup;
-	GLuint v, f, g;
 	tvchar* buffer;
+	GLuint v, f, g, tc, te;	/* vertex, fragment, geometry, tess control, tess eval */
 
 	/* get/compile shaders - start with the vertex shader */
-	HASH_FIND_PTR(loaded_vertex_shaders, vert_file, lup);
-	if(lup == NULL) {
-		/* no, load it */
-		UtilReadFile(vert_file, &buffer);
-		v = tv_material_compile_shader(buffer, GL_VERTEX_SHADER);
-		/* insert into hash tables */
-		lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
-		lup->name = vert_file;
-		lup->id = v;
-		HASH_ADD_PTR(loaded_vertex_shaders, name, lup);
-		free(buffer);
+	v = tv_material_compile_shader(vert_file, GL_VERTEX_SHADER);
+	f = tv_material_compile_shader(frag_file, GL_FRAGMENT_SHADER);
+	if(geom_file) {
+		g = tv_material_compile_shader(geom_file, GL_FRAGMENT_SHADER);
 	}
 	else {
-		/* yes, use saved ID */
-		v = (GLuint)(lup->id);
+		g = 0;
 	}
+	/*
+	tc = tv_material_compile_shader(tess_control_file, GL_TESS_CONTROL_SHADER);
+	te = tv_material_compile_shader(tess_eval_file, GL_TESS_EVALUATION_SHADER);
+	*/
 
-	/* get/compile fragment shader */
-	HASH_FIND_PTR(loaded_fragment_shaders, frag_file, lup);
-	if(lup == NULL) {
-		UtilReadFile(frag_file, &buffer);
-		f = tv_material_compile_shader(buffer, GL_FRAGMENT_SHADER);
-		lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
-		lup->name = frag_file;
-		lup->id = f;
-		HASH_ADD_PTR(loaded_fragment_shaders, name, lup);
-		free(buffer);
-	}
-	else {
-		f = (GLuint)(lup->id);
-	}
-
-	/* geometry shader is optional */
-	g = 0;
-	if(geom_file != NULL) {
-		/* get/compile geometry shader */
-		HASH_FIND_PTR(loaded_geometry_shaders, geom_file, lup);
-		if(lup == NULL) {
-			UtilReadFile(geom_file, &buffer);
-			g = tv_material_compile_shader(buffer, GL_GEOMETRY_SHADER);
-			lup = (TvMaterialShader*)tv_alloc(sizeof(TvMaterialShader));
-			lup->name = geom_file;
-			lup->id = g;
-			HASH_ADD_PTR(loaded_geometry_shaders, name, lup);
-			free(buffer);
-		}
-		else {
-			g = (GLuint)(lup->id);
-		}
-	}
 	program.fragment = f;
 	program.vertex = v;
 	program.geometry = g;
+	/*
+	program.tess_control = te;
+	program.tess_eval = te;
+	*/
+
 	return program;
 }
 
@@ -265,23 +270,29 @@ tv_material_program tv_material_compile_shaders(tvchar* vert_file, tvchar* frag_
  */
 tv_material_program tv_material_load_shaders(cJSON* json) 
 {
-	char* vert_file = NULL;
-	char* frag_file = NULL;
-	char* geom_file = NULL;
+	tvchar* vert_file = NULL;
+	tvchar* frag_file = NULL;
+	tvchar* geom_file = NULL;
+	tvchar* tess_eval_file = NULL;
+	tvchar* tess_control_file = NULL;
 
 	/* get shaders */
 	do {
 		if(strncmp(json->string, "vert", 4) == 0) {
 			vert_file = json->valuestring;
-		}
-		else if(strncmp(json->string, "frag", 4) == 0) {
+		} else if(strncmp(json->string, "frag", 4) == 0) {
 			frag_file = json->valuestring;
-		}
-		else if(strncmp(json->string, "geom", 4) == 0) {
+		} else if(strncmp(json->string, "geom", 4) == 0) {
 			geom_file = json->valuestring;
+		} else if(strncmp(json->string, "tess_eval", sizeof("tess_eval")) == 0) {
+			tess_eval_file = json->valuestring;
+		} else if(strncmp(json->string, "tess_control", sizeof("tess_control")) == 0) {
+			tess_control_file = json->valuestring;
 		}
 		json = json->next;
 	}while(json != NULL);
+
+	/* TODO: add parameters for tesselation shaders */
 	return tv_material_compile_shaders(vert_file, frag_file, geom_file);
 }
 
@@ -415,7 +426,10 @@ void tv_material_load(tv_material *mat, const char* file)
 	cJSON_Delete(root);
 	cJSON_Delete(json);
 }
-
+/*******************************************************************************
+ * add_pass
+ * Appends the given pass to the material's pass array. 
+ ******************************************************************************/
 void METHOD(tv_material, add_pass, tv_material_pass *pass)
 {
 	if(self->num_passes >= TV_MATERIAL_MAX_PASSES) {
@@ -425,7 +439,11 @@ void METHOD(tv_material, add_pass, tv_material_pass *pass)
 	self->passes[self->num_passes] = pass;
 	++self->num_passes;
 }
-
+/*******************************************************************************
+ * use_pass
+ * Sets the pass at the given index from the material's pass array as the 
+ * active pass.
+ ******************************************************************************/
 void METHOD(tv_material, use_pass, tvuint pass_idx)
 {
 	tv_material_pass* pass;
@@ -433,7 +451,6 @@ void METHOD(tv_material, use_pass, tvuint pass_idx)
 	if(self->num_passes <= pass_idx) {
 		return;
 	}
-
 	pass = self->passes[pass_idx];
 	/* use the shader program */
 	glUseProgram(pass->program);
@@ -445,7 +462,11 @@ void METHOD(tv_material, use_pass, tvuint pass_idx)
 		tv_mat4x4_to_array(&main_cam->projection_mat));
 	/* TODO: update all uniforms */
 }
-
+/*******************************************************************************
+ * do_pass
+ * Draws the given mesh with this material by making the necessary OpenGL
+ * calls. 
+ ******************************************************************************/
 void METHOD(tv_material, do_pass, tvuint pass_index, tv_model* model) 
 {
 	tv_material_use_pass(self, pass_index);
@@ -460,6 +481,47 @@ void METHOD(tv_material, do_pass, tvuint pass_index, tv_model* model)
 		tv_draw_arrays(model->primitive, 0, utarray_len(model->vertices));
 	}
 }
+/*******************************************************************************
+ * use_pass_gui
+ * Same as use_pass but updates the material matrix uniforms to the GUI camera.
+ ******************************************************************************/
+void METHOD(tv_material, use_pass_gui, tvuint pass_idx)
+{
+	tv_material_pass* pass;
+	/* make sure pass index is valid */
+	if(self->num_passes <= pass_idx) {
+		return;
+	}
+	pass = self->passes[pass_idx];
+	/* use the shader program */
+	glUseProgram(pass->program);
+
+	/* update camera if needed */
+	glUniformMatrix4fv(pass->modelview_mat, 1, GL_FALSE, 
+		tv_mat4x4_to_array(&tv_camera_gui->modelview_mat));
+	glUniformMatrix4fv(pass->projection_mat, 1, GL_FALSE, 
+		tv_mat4x4_to_array(&tv_camera_gui->projection_mat));
+	/* TODO: update all uniforms */
+}
+/*******************************************************************************
+ * do_pass_gui
+ * Same as do_pass but updates the material matrix uniforms to the GUI camera.
+ ******************************************************************************/
+void METHOD(tv_material, do_pass_gui, tvuint pass_index, tv_model* model) 
+{
+	tv_material_use_pass_gui(self, pass_index);
+	glBindVertexArray(model->vao);
+	/* render arrays if there are no indices */
+	if(utarray_len(model->indices) > 0) {
+		tv_draw_elements(model->primitive, utarray_len(model->indices),
+			GL_UNSIGNED_SHORT, 0);
+	}
+	/* if there are indices, render elements */
+	else {
+		tv_draw_arrays(model->primitive, 0, utarray_len(model->vertices));
+	}
+}
+
 
 #if 0
 void tv_material_optimize(tv_material *material)

@@ -58,7 +58,7 @@ static void render(tv_component *self)
 	/* bind the models' vertex attribute object. */
 	glBindVertexArray(renderer->model->vao);
 	for(i = 0; i < mat->num_passes; ++i) {
-		tv_material_do_pass(mat, i, renderer->model);
+		tv_material_do_pass_gui(mat, i, renderer->model);
 	}
 	glBindVertexArray(0);
 

@@ -126,6 +126,8 @@ typedef struct {
 	tvuint vertex;
 	tvuint fragment;
 	tvuint geometry;
+	tvuint tess_control;
+	tvuint tess_eval;
 }tv_material_program;
 
 /**
@@ -227,6 +229,7 @@ void METHOD(tv_material, add_pass, tv_material_pass *pass);
  * @param pass_number the index of the pass to begin using.
  */
 void METHOD(tv_material, use_pass, tvuint pass);
+void METHOD(tv_material, use_pass_gui, tvuint pass_idx);
 
 /** 
  * Render the currently bound vertex attribute array with the given pass.
@@ -234,6 +237,7 @@ void METHOD(tv_material, use_pass, tvuint pass);
  * @param model the model to render.
  */
 void METHOD(tv_material, do_pass, tvuint pass_index, tv_model* model);
+void METHOD(tv_material, do_pass_gui, tvuint pass_index, tv_model* model);
 
 #if 0
 /** 

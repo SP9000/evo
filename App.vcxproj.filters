@@ -185,6 +185,9 @@
       <Filter>Components\GUI\Headers</Filter>
     </ClInclude>
     <ClInclude Include="tags.h" />
+    <ClInclude Include="app_terrain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\app.c">
@@ -295,6 +298,9 @@
     </ClCompile>
     <ClCompile Include="app_unit.c">
       <Filter>Components\Abilities\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="app_terrain.c">
+      <Filter>Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

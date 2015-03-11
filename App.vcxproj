@@ -19,6 +19,7 @@
     <ClInclude Include="app_entities.h" />
     <ClInclude Include="app_scenes.h" />
     <ClInclude Include="app_sine_move.h" />
+    <ClInclude Include="app_terrain.h" />
     <ClInclude Include="camera_controller.h" />
     <ClInclude Include="cursor.h" />
     <ClInclude Include="app_prefabs.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="App\playermotor.c" />
     <ClCompile Include="app_ability_move.c" />
     <ClCompile Include="app_sine_move.c" />
+    <ClCompile Include="app_terrain.c" />
     <ClCompile Include="app_unit.c" />
     <ClCompile Include="camera_controller.c" />
     <ClCompile Include="cursor.c" />
