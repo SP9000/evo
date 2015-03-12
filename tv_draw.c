@@ -302,11 +302,20 @@ void tv_draw_arrays(GLenum mode, GLint first, GLsizei count)
 	tv_stats_notify_primitives_rendered(count);
 	glDrawArrays(mode, first, count);
 }
+void tv_draw_elements_instanced(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei primcount)
+{
+	tv_stats_notify_primitives_rendered(count * primcount);
+	glDrawElementsInstanced(mode, count, type, indices, primcount);
+}
+void tv_draw_arrays_instanced(GLenum mode, GLint first, GLsizei count, GLsizei primcount)
+{
+	tv_stats_notify_primitives_rendered(count * primcount);
+	glDrawArraysInstanced(mode, first, count, primcount);
+}
 void tv_delete_buffers(GLsizei n, const GLuint * buffers)
 {
 	glDeleteBuffers(n, buffers);
 }
-
 /*****************************************************************************/
 /* Accessors */
 tv_vector2 tv_draw_screen_dim()
@@ -314,4 +323,3 @@ tv_vector2 tv_draw_screen_dim()
 	tv_vector2 ret = {screen->w, screen->h};
 	return ret;
 }
-

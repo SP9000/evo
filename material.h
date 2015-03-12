@@ -237,6 +237,7 @@ void METHOD(tv_material, use_pass_gui, tvuint pass_idx);
  * @param model the model to render.
  */
 void METHOD(tv_material, do_pass, tvuint pass_index, tv_model* model);
+void METHOD(tv_material, do_pass_instanced, tvuint pass_index, tv_model* model, tvuint count);
 void METHOD(tv_material, do_pass_gui, tvuint pass_index, tv_model* model);
 
 #if 0

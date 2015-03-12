@@ -1,7 +1,5 @@
 #include "modelrenderer.h"
 
-static void set_model(tv_model_renderer *self, tv_model *model);
-
 void tv_model_renderer_set_model(tv_model_renderer *self, tv_model *model)
 {
 	self->model = model;
@@ -31,7 +29,9 @@ static void render(tv_component* self)
 	tv_vector3 test = {self->entity->transform.pos.x, self->entity->transform.pos.y, self->entity->transform.pos.z};
 	//tv_vector3 test = {-2.0f,0.0f,-7.0f};
 	tv_model_renderer *renderer = (tv_model_renderer*)self;
-	tv_material* mat;
+	tv_material* default_mat;
+	tv_material** mat;
+	tv_model** mesh;
 	tvuint i;
 
 	if(renderer->model == NULL) {
@@ -68,13 +68,35 @@ static void render(tv_component* self)
 	glEnable(GL_DEPTH_TEST);
 	glDepthMask(TRUE);
 
-	/* render all passes of the bone */
-	mat = renderer->base.material;
+	default_mat = renderer->base.material;
+	assert(default_mat);
 
-	/* bind the models' vertex attribute object. */
+	/* render each pass of the primary mesh's material */
 	glBindVertexArray(renderer->model->vao);
-	for(i = 0; i < mat->num_passes; ++i) {
-		tv_material_do_pass(mat, i, renderer->model);
+	for(i = 0; i < default_mat->num_passes; ++i) {
+		tv_material_do_pass(default_mat, i, renderer->model);
+	}
+	/* if this mesh has submeshes, render them. */
+	if(utarray_len(renderer->model->submeshes) > 0) {
+		/* render the submeshs bind the models' vertex attribute object. */
+		for(mesh = (tv_model**)utarray_front(renderer->model->submeshes),
+			mat = (tv_material**)utarray_front(renderer->base.materials); 
+			mesh != NULL;
+			mesh = (tv_model**)utarray_next(renderer->model->submeshes, mesh)) {
+				if(mat == NULL) {
+					/* no material exists, use default material */
+					*mat = renderer->base.material;
+				}
+				/* render each pass of the submesh's material */
+				glBindVertexArray((*mesh)->vao);
+				for(i = 0; i < (*mat)->num_passes; ++i) {
+					tv_material_do_pass(*mat, i, *mesh);
+				}
+				/* get the next material in the material array */
+				if(mat != NULL) {
+					mat = (tv_material**)utarray_next(renderer->base.materials, mat);
+				} 
+		}
 	}
 
 	/* if material is lit, set light uniforms (TODO: UBO?) */

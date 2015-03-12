@@ -128,21 +128,16 @@ COMPONENT(tv_model, tv_component)
 	GLuint num_vertices;
 	GLuint num_indices;
 
-	/* the per vertex attributes this model uses */
-	tv_array *vertices;
-	/* the indices for each face in the model. */
-	tv_array /*GLshort*/ *indices;
+	tv_array *vertices;	/**< the per vertex attributes this model uses */
+	tv_array *indices;	/**< the (GLshort) indices for each face in the model. */
+	tvuint vertex_size; /**< the size of each vertex (with all its attributes) for this model. */
 	
-	/* the size of each vertex (with all its attributes) for this model. */
-	tvuint vertex_size;
-	
-	/* the ID of the per-vertex attribute VBO. */
-	tv_model_vbo_handle vertex_vbo;
-	/* the ID of the index VBO. */
-	tv_model_vbo_handle index_vbo;
+	tv_model_vbo_handle vertex_vbo;	/**< the ID of the per-vertex attribute VBO. */
+	tv_model_vbo_handle index_vbo;	/**< the ID of the index VBO. */
 
 	tvuint num_properties;
 	tv_model_attribute vertex_attributes[TV_MODEL_MAX_PROPERTIES];
+	tv_array* submeshes;	/**< the submeshes of this mesh. */
 ENDCOMPONENT(tv_model)
 
 /**
@@ -192,6 +187,12 @@ void METHOD(tv_model, append_property, tv_model_attribute *prop);
  * @param append the model to append to the given model.
  */
 void METHOD(tv_model, append_model, tv_model* append);
+
+/**
+ * Add the given mesh to this one.  This is useful for rendering multiple
+ * meshes in the same entity.
+ */
+void METHOD(tv_model, add_submesh, tv_model* mesh);
 
 /** 
  * Append the given vertices to a model.
@@ -267,6 +268,7 @@ TvAABB METHOD(tv_model, get_aabb);
  * Free the resources of this model.
  */
 void METHOD(tv_model, free);
+
 
 /*****************************************************************************/
 /* Non-method Functions */

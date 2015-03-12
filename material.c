@@ -246,6 +246,7 @@ tv_material_program tv_material_compile_shaders(tvchar* vert_file, tvchar* frag_
 	if(geom_file) {
 		g = tv_material_compile_shader(geom_file, GL_FRAGMENT_SHADER);
 	}
+	/*-------optional shaders */
 	else {
 		g = 0;
 	}
@@ -261,7 +262,6 @@ tv_material_program tv_material_compile_shaders(tvchar* vert_file, tvchar* frag_
 	program.tess_control = te;
 	program.tess_eval = te;
 	*/
-
 	return program;
 }
 
@@ -462,6 +462,7 @@ void METHOD(tv_material, use_pass, tvuint pass_idx)
 		tv_mat4x4_to_array(&main_cam->projection_mat));
 	/* TODO: update all uniforms */
 }
+
 /*******************************************************************************
  * do_pass
  * Draws the given mesh with this material by making the necessary OpenGL
@@ -521,7 +522,25 @@ void METHOD(tv_material, do_pass_gui, tvuint pass_index, tv_model* model)
 		tv_draw_arrays(model->primitive, 0, utarray_len(model->vertices));
 	}
 }
-
+/*******************************************************************************
+ * do_pass_instanced
+ * Same as do_pass, but draws multiple instances of the model (the # of the
+ * count given)
+ ******************************************************************************/
+void METHOD(tv_material, do_pass_instanced, tvuint pass_index, tv_model* model, tvuint count)
+{
+	tv_material_use_pass(self, pass_index);
+	glBindVertexArray(model->vao);
+	/* render arrays if there are no indices */
+	if(utarray_len(model->indices) > 0) {
+		tv_draw_elements_instanced(model->primitive, utarray_len(model->indices),
+			GL_UNSIGNED_SHORT, 0, count);
+	}
+	/* if there are indices, render elements */
+	else {
+		tv_draw_arrays_instanced(model->primitive, 0, utarray_len(model->vertices), count);
+	}
+}
 
 #if 0
 void tv_material_optimize(tv_material *material)
@@ -597,7 +616,6 @@ void tv_material_optimize(tv_material *material)
 	material->program = tv_material_compile_program(vert_shader, frag_shader,
 								   geom_shader, tvchar **attributes, 
 								   num_attributes);
-
 }
 #endif
 

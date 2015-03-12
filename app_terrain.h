@@ -2,6 +2,26 @@
 #define APP_TERRAIN_H
 
 #include "evo.h"
+/*******************************************************************************
+ * notes:
+ *	Because each terrain rendering component may use its own 
+ *  material/mesh/renderer - they must be held in separate entities. The 
+ *  recommended design of this heirarchy is:
+ *  Entity<Terrain>
+ *	  Entity<SoilRenderer>
+ *    Entity<SkyRenderer>
+ *    Entity<DetailsRenderer>
+ *    Entity<BackgroundRenderer>
+ *    ...
+ *  The base entity (holding the terrain component) is what all the children
+ *  reference in order to get the data they are visualizing.
+ *
+ *  You may have as many of these renderers as you like- they are not strictly
+ *  part of the terrain system.  Instead, they take data from various fields
+ *  of terrain components (Soil, Flora, Sky, etc.) and generate visuals based
+ *  upon them.
+ * 
+*******************************************************************************/
 
 /*******************************************************************************
  Climate
@@ -105,5 +125,14 @@ COMPONENT(terrain_Sky, tv_component)
   tv_material* material;  /**< the material used to render the ground. */
 ENDCOMPONENT(terrain_Sky)
 void METHOD(terrain_Ground, generate, tvuint numSamples, tvfloat sampleUnit);
+/*******************************************************************************
+ Ground Details (visualizer) 
+*******************************************************************************/
+COMPONENT(terrain_ground_details, tv_component)
+	tv_array* meshes;	/**< a mesh generated based on soil properties */
+	terrain_Soil* soil;	/**< the soil to base the details off of. */
+ENDCOMPONENT(terrain_ground_details)
+void METHOD(terrain_ground_details, generate, tvuint lod);
+
 
 #endif

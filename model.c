@@ -1030,7 +1030,14 @@ void METHOD(tv_model, append_model, tv_model* append)
 			tv_model_append_indices1(self, *index + offset);
 	}
 }
-
+/******************************************************************************
+* add_submesh
+* Appends the given mesh to this mesh's submesh array.
+******************************************************************************/
+void METHOD(tv_model, add_submesh, tv_model* mesh)
+{
+	utarray_push_back(self->submeshes, mesh);
+}
 /******************************************************************************
 * tv_model_get_aabb
 * Iterate over the mesh to find the bounds of the axis-aligned bounding box
@@ -1137,10 +1144,11 @@ void tv_model_set_index_handle(tv_model *model, tvuint new_handle)
 *****************************************************************************/
 COMPONENT_NEW(tv_model, tv_component)
 	self->vertices = NULL;
-self->num_vertices = 0;
-self->num_properties = 0;
-self->vertex_size = 0;
-utarray_new(self->indices, &ut_index_icd);
+	self->num_vertices = 0;
+	self->num_properties = 0;
+	self->vertex_size = 0;
+	utarray_new(self->indices, &ut_index_icd);
+	utarray_new(self->submeshes, &ut_ptr_icd);
 END_COMPONENT_NEW(tv_model)
 /*****************************************************************************
 ************************************ START **********************************

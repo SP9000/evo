@@ -127,6 +127,8 @@ void tv_draw_texture(TvTexture tex, tv_rect* rect);
  */
 void tv_draw_elements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices);
 void tv_draw_arrays(GLenum mode, GLint first, GLsizei count);
+void tv_draw_elements_instanced(GLenum mode, GLsizei count, GLenum type, const void* indices, GLsizei primcount);
+void tv_draw_arrays_instanced(GLenum mode, GLint first, GLsizei count, GLsizei primcount);
 void tv_delete_buffers(GLsizei n, const GLuint * buffers);
 
 

@@ -121,7 +121,19 @@ void METHOD(terrain_Ground, generate_mesh, terrain_Ground* new_soil)
 	SoilSample **ss;
 	tvfloat x_pos;	/* the x-coordinate that the running mesh generator is at */
 	tvfloat x_step = 1.0f;
+	/* the vertex format for the ground */
+	tv_model_attribute ground_vertex_properties[] = {
+		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};
 
+	/* if mesh already exists, destroy it before creating a new one. */
+	if(self->mesh) {
+		DESTROY(self->mesh);
+	}
+	/* create the new mesh */
+	self->mesh = tv_model_new();
+
+	/* place the vertices for the new mesh */
 	for(x_pos = 0.0f, ss = (SoilSample**)utarray_front(self->soil->samples); 
 		ss != NULL;
 		x_pos += x_step, ss = (SoilSample**)utarray_next(self->soil->samples, ss))  {
@@ -142,7 +154,7 @@ void METHOD(terrain_Ground, generate_mesh, terrain_Ground* new_soil)
 #################################Sky############################################
 ##############################################################################*/
 COMPONENT_NEW(terrain_Sky, tv_component)
-ENDCOMPONENT(terrain_Sky)
+END_COMPONENT_NEW(terrain_Sky)
 
 COMPONENT_START(terrain_Sky)
 END_COMPONENT_START
@@ -152,3 +164,57 @@ END_COMPONENT_UPDATE
 
 COMPONENT_DESTROY(terrain_Sky)
 END_COMPONENT_DESTROY
+
+/*##############################################################################
+##############################Ground Details####################################
+##############################################################################*/
+COMPONENT_NEW(terrain_ground_details, tv_component)
+	tv_model* mesh;	/**< a mesh generated based on soil properties */
+	terrain_Soil* soil;	/**< the soil to base the details off of. */
+END_COMPONENT_NEW(terrain_ground_details)
+
+COMPONENT_START(terrain_ground_details)
+END_COMPONENT_START
+
+COMPONENT_UPDATE(terrain_ground_details)
+END_COMPONENT_UPDATE
+
+COMPONENT_DESTROY(terrain_ground_details)
+END_COMPONENT_DESTROY
+
+void METHOD(terrain_ground_details, generate, tvuint lod)
+{
+	SoilSample **ss;
+	tvfloat x_pos;	/* the x-coordinate that the running mesh generator is at */
+	tvfloat x_step = 1.0f;
+	/* the vertex format for the ground */
+	tv_model_attribute ground_vertex_properties[] = {
+		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
+		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};
+
+	/* if mesh already exists, destroy it before creating a new one. */
+#if 0
+	if(self->mesh) {
+		DESTROY(self->mesh);
+	}
+	/* create the new mesh */
+	self->mesh = tv_model_new();
+
+	/* place the vertices for the new mesh */
+	for(x_pos = 0.0f, ss = (SoilSample**)utarray_front(self->soil->samples); 
+		ss != NULL;
+		x_pos += x_step, ss = (SoilSample**)utarray_next(self->soil->samples, ss))  {
+			SoilSample* s = (*ss);
+			switch(s->type) {
+			case TERRAIN_SOILTYPE_RICH:
+				break;
+			case TERRAIN_SOILTYPE_ROCKY:
+				break;
+			case TERRAIN_SOILTYPE_SAND:
+				break;
+			default:
+				break;
+			}
+	}
+#endif
+}
