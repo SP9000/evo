@@ -667,6 +667,7 @@ void ply_get_indices(ply_file* ply, tv_model* model, tvuint num_faces)
 			tv_warning("unrecognized number of vertices per face %d\n", face_size);
 		}
 	}
+	model->num_indices = utarray_len(model->indices);
 }
 /******************************************************************************
 * tv_model_load
@@ -852,8 +853,7 @@ void tv_model_optimize(tv_model* model, tvbool optimize_vertices, tvbool optimiz
 ******************************************************************************/
 void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optimize_indices)
 {
-	tvuint i;
-	tvuint j;
+	tvuint i, j;
 	glBindVertexArray(model->vao);
 
 	/* optimize vertices */
@@ -873,7 +873,6 @@ void tv_model_reoptimize(tv_model* model, tvbool optimize_vertices, tvbool optim
 				GL_STATIC_DRAW);
 		}
 	}
-
 	/* set the attribute pointers for each per-vertex property */
 	for(i = 0, j = 0; i < model->num_properties; ++i) {
 		glEnableVertexAttribArray(i);
@@ -930,7 +929,6 @@ void tv_model_set_vertex(tv_model *model, tvuint index, GLvoid *data)
 {
 	/* TODO */
 }
-
 void tv_model_set_index(tv_model *model, tvuint index, tvuint new_index)
 {
 	*utarray_eltptr(model->indices, index) = new_index;
@@ -987,11 +985,34 @@ void tv_model_append_indices(tv_model* model, tvuint count, tvuint* indices)
 *******************************************************************************/
 void tv_model_append_vertices(tv_model* model, tv_array* vertices)
 {
-	GLvoid **v;
-	for(v = (GLvoid**)utarray_front(vertices); v != NULL; v = (GLvoid**)utarray_next(vertices, v)) {
-		tv_model_append_vertex(model, *v);
+	GLvoid *v;
+	for(v = (GLvoid*)utarray_front(vertices); v != NULL; v = (GLvoid*)utarray_next(vertices, v)) {
+		tv_model_append_vertex(model, v);
 	}
-	model->num_vertices += utarray_len(vertices);
+}
+
+/******************************************************************************
+* do_attributes_match
+* Checks if the two models match (have all the same per-vertex attributes )
+******************************************************************************/
+tvbool METHOD(tv_model, attributes_match, tv_model* other)
+{
+	tvuint i;
+	if(self->num_properties != other->num_properties) {
+		/* different # of properties */
+		return FALSE;
+	}
+	/* check each vertex attribute */
+	for(i = 0; i < self->num_properties; ++i) {
+		if(!((self->vertex_attributes[i].count == other->vertex_attributes[i].count) &&
+			(self->vertex_attributes[i].data_type == other->vertex_attributes[i].data_type) &&
+			(self->vertex_attributes[i].offset == other->vertex_attributes[i].offset))) {
+				/* different attribute types */
+				return FALSE;
+		}
+	}
+	/* the two models have identical attributes */
+	return TRUE;
 }
 /******************************************************************************
 * tv_model_append_model
@@ -1001,27 +1022,19 @@ void tv_model_append_vertices(tv_model* model, tv_array* vertices)
 ******************************************************************************/
 void METHOD(tv_model, append_model, tv_model* append)
 {
-	tvuint i;
 	GLshort* index;
-	tvuint offset;
+	GLshort offset;
+
 	/* do not append NULL models (or append TO NULL models) */
 	if(!self || !append) {
 		return;
 	}
-	/* make sure the two models share a vertex format */
-	if(self->num_properties == append->num_properties) {
-		/* check each vertex attribute */
-		for(i = 0; i < self->num_properties; ++i) {
-			if(!((self->vertex_attributes[i].count == append->vertex_attributes[i].count) &&
-				(self->vertex_attributes[i].data_type == append->vertex_attributes[i].data_type) &&
-				(self->vertex_attributes[i].offset == append->vertex_attributes[i].offset))) {
-					/* different vertex formats */
-					return;
-			}
-		}
+	/* verify that the two models have matching attributes */
+	if(!tv_model_attributes_match(self, append)) {
+		return;
 	}
-	/* models are compatible for appending */
-	offset = utarray_len(self->indices);
+	/* models are compatible for appending- get the index offset */
+	offset = (GLshort)utarray_len(self->vertices);
 	/* append vertices */
 	tv_model_append_vertices(self, append->vertices);
 	/* append indices - we must add an offset to each index before appending */
@@ -1030,6 +1043,7 @@ void METHOD(tv_model, append_model, tv_model* append)
 			tv_model_append_indices1(self, *index + offset);
 	}
 }
+
 /******************************************************************************
 * add_submesh
 * Appends the given mesh to this mesh's submesh array.
@@ -1037,6 +1051,33 @@ void METHOD(tv_model, append_model, tv_model* append)
 void METHOD(tv_model, add_submesh, tv_model* mesh)
 {
 	utarray_push_back(self->submeshes, mesh);
+}
+/******************************************************************************
+* set_submesh
+* Sets the mesh at the given index in the array (reallocating the array if
+* necessary before doing so).
+******************************************************************************/
+void METHOD(tv_model, set_submesh, tvuint index, tv_model* mesh)
+{
+	tvuint len = utarray_len(self->submeshes);
+	if(len <= index) {
+		/* reserve space for this index and some arbitrary additional extras */
+		utarray_reserve(self->submeshes, len + 2);
+	}
+	/* insert the mesh at the specified index */
+	utarray_insert(self->submeshes, mesh, index);
+}
+/******************************************************************************
+* get_submesh
+* Look up the given submesh index in the mesh.
+******************************************************************************/
+tv_model* METHOD(tv_model, get_submesh, tvuint index)
+{
+	tvuint len = utarray_len(self->submeshes);
+	if(len <= index) {
+		return NULL;
+	}
+	return *((tv_model**)utarray_eltptr(self->submeshes, index));
 }
 /******************************************************************************
 * tv_model_get_aabb
@@ -1101,6 +1142,67 @@ void tv_model_apply_scale(tv_model *model, tv_vector3 scale)
 		v->x *= scale.x;
 		v->y *= scale.y;
 		v->z *= scale.z;
+	}
+}
+/*******************************************************************************
+ * tv_model_apply_translate
+ * Adds the given vector offset to all vertices in the mesh.
+ ******************************************************************************/
+void tv_model_apply_translate(tv_model *model, tv_vector3 offset, tvuint attribute)
+{
+	tvuint i;
+	for(i = 0; i < model->num_vertices; ++i) {
+		tv_vector3* v = (tv_vector3*)tv_model_get_attribute(model, i, attribute);
+		assert(v != NULL);
+		v->x += offset.x;
+		v->y += offset.y;
+		v->z += offset.z;
+	}
+}
+/*******************************************************************************
+ * print
+ ******************************************************************************/
+void print_attribute(tv_model* mesh, tvuint attr_id, tvuint vertex)
+{
+	tvuint i;
+	tvchar line[256];
+	tv_model_attribute attr = mesh->vertex_attributes[attr_id];
+	/* get the data that this vertex contains for the specified attribute */
+	tvpointer data = tv_model_get_attribute(mesh, vertex, attr_id);
+
+	/* print the index of the attribute being printed */
+	printf(" [%d]: <", attr_id);
+	for(i = 0; i < attr.count; ++i) {
+		switch(attr.data_type) {
+		/* TODO: currently only FLOAT is supported as a type */
+		case TV_MODEL_PROPERTY_FLOAT:
+			printf("%f,", ((tvfloat*)data)[i]);
+			break;
+		case TV_MODEL_PROPERTY_UCHAR:
+			printf("%f,", ((tvfloat*)data)[i]);
+			break;
+		default:
+			printf("unknown type");
+		}
+	}
+	printf(">\n");
+}
+void METHOD(tv_model, print)
+{
+	GLvoid* v;
+	tvuint i;
+
+	tv_info("vertices");
+
+	for(v = (GLvoid*)utarray_front(self->vertices); v != NULL; 
+		v = (GLvoid*)utarray_next(self->vertices, v)) {
+		/* get the current vertex # that we're on */
+		tvuint j = utarray_eltidx(self->vertices, v);
+		printf("vertex %d\n", j);
+		/* print each attribute for the current vertex */
+		for(i = 0; i < self->num_properties; ++i) {
+			print_attribute(self, i, j);
+		}
 	}
 }
 

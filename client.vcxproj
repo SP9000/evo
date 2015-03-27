@@ -86,11 +86,12 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ai_behavior.c" />
     <ClCompile Include="animation.c" />
     <ClCompile Include="animationrenderer.c" />
     <ClCompile Include="camera.c" />
     <ClCompile Include="cJSON.c" />
-    <ClCompile Include="tv_ai_pattern.c" />
+    <ClCompile Include="tv_ai_behavior_astar.c" />
     <ClCompile Include="tv_ai_pattern_direct.c" />
     <ClCompile Include="tv_client.c" />
     <ClCompile Include="tv_client_packet.c" />
@@ -133,12 +134,13 @@
     <ClCompile Include="widget_textbox.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ai_behavior.h" />
+    <ClInclude Include="ai_behavior_astar.h" />
     <ClInclude Include="animation.h" />
     <ClInclude Include="animationrenderer.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cJSON.h" />
-    <ClInclude Include="tv_ai_pattern.h" />
-    <ClInclude Include="tv_ai_pattern_direct.h" />
+    <ClInclude Include="tv_ai_behavior_direct.h" />
     <ClInclude Include="tv_client.h" />
     <ClInclude Include="tv_client_packet.h" />
     <ClInclude Include="tv_collider.h" />

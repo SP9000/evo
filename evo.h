@@ -18,4 +18,8 @@
 #include "renderer.h"
 #include "animationrenderer.h"
 
+#include "ai_behavior.h"
+#include "tv_ai_behavior_direct.h"
+
+
 #endif

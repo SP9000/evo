@@ -50,6 +50,8 @@ void tv_client_init()
 	tv_widget_frame_register();
 	tv_widget_textbox_register();
 	tv_widget_stats_register();
+	tv_ai_behavior_register();
+	tv_ai_behavior_direct_register();
 
     /* Initialize SDL. */
     if(SDL_Init(SDL_INIT_EVERYTHING) != 0) {

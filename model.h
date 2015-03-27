@@ -4,7 +4,6 @@
 extern "C" {
 #endif
 
-
 /* TODO: */
 /** 
  * There's a lot of butchering of the convention to call attributes a collection
@@ -137,6 +136,8 @@ COMPONENT(tv_model, tv_component)
 
 	tvuint num_properties;
 	tv_model_attribute vertex_attributes[TV_MODEL_MAX_PROPERTIES];
+	/* ONLY the this mesh should have this array- it should be NULL for all meshes in this 
+	 * submesh array */
 	tv_array* submeshes;	/**< the submeshes of this mesh. */
 ENDCOMPONENT(tv_model)
 
@@ -180,6 +181,13 @@ void METHOD(tv_model, vertex_format, tvuint num_properties, tv_model_attribute *
  * @param prop the information about the property to append.
  */
 void METHOD(tv_model, append_property, tv_model_attribute *prop);
+
+/**
+ * Check if the per-vertex attributes of the two models match.
+ * @param other the model to compare with this model.
+ * @return TRUE if the two models have "compatible" vertex formats */
+tvbool METHOD(tv_model, attributes_match, tv_model* other);
+
 /**
  * Append a model to another model.
  * In order for this to work, the two given models must have identical 
@@ -188,11 +196,37 @@ void METHOD(tv_model, append_property, tv_model_attribute *prop);
  */
 void METHOD(tv_model, append_model, tv_model* append);
 
+/** 
+ * Does the same as append_model, but adds the given offset to every position
+ * attribute prior to the append.
+ * @param append the model to append to this model.
+ * @param offset the offset to add to all vertices of the append model.
+ * @see append_model
+ */
+void METHOD(tv_model, append_model_at, tv_model* append, tv_vector3 offset);
+
 /**
  * Add the given mesh to this one.  This is useful for rendering multiple
  * meshes in the same entity.
+ * @param mesh the mesh to add.
  */
 void METHOD(tv_model, add_submesh, tv_model* mesh);
+
+/**
+ * Sets the submesh at the given index to the given mesh. 
+ * If there is no submesh at that index, allocates enough space in the submesh
+ * buffer to contain the given index.
+ * @param index the index to set the mesh of.
+ * @param mesh the mesh to set the mesh at that index to.
+ */
+void METHOD(tv_model, set_submesh, tvuint index, tv_model* mesh);
+
+/**
+ * Gets the submesh of the given mesh at the given index.
+ * @param index the index to get the submesh of.
+ * @return NULL if no submesh exists at the given index or the address of the submesh.
+ */
+tv_model* METHOD(tv_model, get_submesh, tvuint index);
 
 /** 
  * Append the given vertices to a model.
@@ -260,6 +294,13 @@ void METHOD(tv_model, set_index_handle, tvuint new_handle);
  */
 void METHOD(tv_model, apply_scale, tv_vector3 scale);
 /**
+ * Apply the given translation to this model's vertices.
+ * @param offset the offset to add to all the vertices.
+ * @param attribute the ID of the attribute to apply the translate to (often
+ *	 0 for POSITION).
+ */
+void tv_model_apply_translate(tv_model *model, tv_vector3 offset, tvuint attribute);
+/**
  * Get the axis-aligned bounding box for this model.
  * @return the AABB of the model.
  */
@@ -268,6 +309,11 @@ TvAABB METHOD(tv_model, get_aabb);
  * Free the resources of this model.
  */
 void METHOD(tv_model, free);
+
+/**
+ * A debug function that prints the model's vertices.
+ */
+void METHOD(tv_model, print);
 
 
 /*****************************************************************************/

@@ -15,12 +15,41 @@ END_COMPONENT_UPDATE
 COMPONENT_DESTROY(app_ability)
 END_COMPONENT_DESTROY
 
-/*
 void app_ability_set_user(app_ability *ability, app_unit *unit)
 {
 	ability->user = unit;
 }
-*/
+void app_ability_use_on(app_ability* self, app_ability_target target)
+{
+	self->use(self, target);
+}
+void app_ability_use(app_ability* self)
+{
+	self->use(self, self->target);
+}
+tvbool app_ability_is_in_range(app_ability* ability, app_ability_target target)
+{
+	/* if target is one or more units, check if the ability is in range of any */
+	if(target.targeted_units != NULL) {
+		app_unit** u;
+		for(u = (app_unit**)utarray_front(target.targeted_units); u != NULL; u = (app_unit**)utarray_next(target.targeted_units, u)) {
+			tv_component* c = *u;
+			if(tv_vector3_distance(((tv_component*)(ability->user))->transform->pos, c->transform->pos) <= ability->range) {
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+	/* target is point, just check if it's in range */
+	return (tv_vector3_distance(((tv_component*)(ability->user))->transform->pos, target.target) <= ability->range);
+}
+
+tvbool app_ability_unit_is_in_range(app_ability* ability, app_unit* u) 
+{
+	return (tv_vector3_distance(((tv_component*)(ability->user))->transform->pos,
+		((tv_component*)ability->user)->transform->pos)	<= 
+		ability->range);
+}
 
 tvbool app_ability_move_user_to_target_range(app_ability *ability)
 {
@@ -61,6 +90,7 @@ void app_ability_set_target(app_ability *ability, tvfloat x, tvfloat y, tvfloat 
 	ability->target.target.y = y;
 	ability->target.target.z = z;
 }
+
 void app_ability_set_thumbnail(app_ability *ability, tv_model *model, tv_material *material, tvbool scale)
 {
 	tv_animation_set_root(ability->thumbnail.animation, model, material);
@@ -76,8 +106,3 @@ void app_ability_set_thumbnail(app_ability *ability, tv_model *model, tv_materia
 	}
 }
 
-
-void app_unit_set_move_ability(app_unit* unit, app_ability* move_ability)
-{
-	unit->move_to = move_ability;
-}

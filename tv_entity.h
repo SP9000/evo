@@ -144,6 +144,13 @@ tv_entity* tv_entity_new(tv_transform *transform);
  */
 void tv_entity_destroy(tv_entity* e);
 
+/** 
+ * Sets the position of the entity to the given position.
+ * @param e the entity to set the position of.
+ * @param pos the position to place the entity at.
+ */
+void tv_entity_setpos(tv_entity* e, tv_vector3 pos);
+
 /**
  * Add the given component to the given entity.
  * @param e the entity to add the component to.

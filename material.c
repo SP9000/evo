@@ -627,3 +627,4 @@ void tv_material_get_uniforms(GLuint program, GLuint* modelview, GLuint* project
 	printf("%d\n", glGetError());
 	printf("%d %d", *modelview, *projection);
 }
+

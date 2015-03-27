@@ -216,6 +216,14 @@ void tv_input_quit();
  */
 void tv_input_update();
 
+
+/**
+ * Creates a button that has the given input-type and button ID 
+ * @param type the type of the button, e.g. TV_INPUT_KEYBOARD
+ * @param button the button e.g. TV_INPUT_EQUALS
+ */
+tv_input_button tv_input_button_new(tv_input_device_type type, tvuint button);
+
 /**
  * Checks if the given button (key or joypad) is pressed.
  * @return 1 if the button is pressed, 0 if it is not.

@@ -76,10 +76,12 @@ static void render_bone_(tv_gui_renderer* renderer, tvuint bone_id)
 	/* use the renderer's material if bone has none */
 	if(mat == NULL) {
 		mat = ((tv_renderer*)renderer)->material;
+		/* base material had BETTER not be NULL. */
+		assert(mat != NULL);
 	}
 	/* Bind the models' vertex attribute object. */
 	glBindVertexArray(animation->bones[bone_id].model->vao);
-	/* render all passes of the bone */
+	/* render all material passes for the bone */
 	for(i = 0; i < mat->num_passes; ++i) {
 		tv_material_do_pass_gui(mat, i, animation->bones[bone_id].model);
 	}

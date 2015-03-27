@@ -314,3 +314,12 @@ tv_array* tv_entity_get_all_with_tag(tvuint tag)
 	}
 	return ret;
 }
+/******************************************************************************
+ * tv_entity_setpos
+ * Sets the position member of the entity's transform to the given vector.
+******************************************************************************/
+void tv_entity_setpos(tv_entity* e, tv_vector3 pos)
+{
+	e->transform.pos = pos;
+}
+

@@ -34,6 +34,8 @@ extern "C" {
 #include "tv_time.h"
 #include "tv_gui.h"
 #include "tv_stats.h"
+#include "ai_behavior.h"
+#include "tv_ai_behavior_direct.h"
 
 /**
  * Set a function to be called every frame.

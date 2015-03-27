@@ -99,9 +99,10 @@ static void render(tv_component* self)
 		tv_material_do_pass(mat, i, renderer->model);
 	}
 
+	/* changed to use model's primitive and thus TODO: WHAT IS EVEN THE POINT!?  */
 	glLineWidth((GLfloat)renderer->line_width);
     glBindVertexArray(renderer->model->vao);
-	tv_draw_arrays(GL_LINES, 0, utarray_len(renderer->model->vertices));
+	tv_draw_arrays(renderer->model->primitive, 0, utarray_len(renderer->model->vertices));
     glBindVertexArray(0);
 
 	tv_mat4x4_pop(&main_cam->modelview_mat);

@@ -22,6 +22,10 @@ HANDLER_START(tv_model_renderer)
 END_HANDLER_START
 
 HANDLER_UPDATE(tv_model_renderer)
+	/* if this renderer has no model yet, check if one has been added */
+	if(self->model == NULL) {
+		GET(model, tv_model);
+	}
 END_HANDLER_UPDATE
 
 static void render(tv_component* self)
@@ -49,7 +53,6 @@ static void render(tv_component* self)
 	tv_mat4x4_rotate(&main_cam->modelview_mat, -self->entity->transform.rot.x + main_cam->rot.x, 1.0f, 0.0f, 0.0f);
 	tv_mat4x4_rotate(&main_cam->modelview_mat, -self->entity->transform.rot.y + main_cam->rot.y, 0.0f, 1.0f, 0.0f);
 	tv_mat4x4_rotate(&main_cam->modelview_mat, -self->entity->transform.rot.z + main_cam->rot.z, 0.0f, 0.0f, 1.0f);
-
 
     /* bind any samplers (textures) the material uses */
     //if(self->material->texture.id != 0) {
@@ -98,7 +101,6 @@ static void render(tv_component* self)
 				} 
 		}
 	}
-
 	/* if material is lit, set light uniforms (TODO: UBO?) */
 	/* TODO:
 	if(renderer->base.material->lit) {

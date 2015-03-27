@@ -23,4 +23,8 @@ void app_register()
 	APP_story_point_register();
 
 	APP_sine_move_register();
+
+	terrain_Soil_register();
+	terrain_Ground_register();
+	terrain_ground_details_register();
 }

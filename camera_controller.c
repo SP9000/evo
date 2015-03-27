@@ -15,24 +15,18 @@ COMPONENT_NEW(app_camera_controller, tv_component)
 END_COMPONENT_NEW(app_camera_controller)
 
 COMPONENT_START(app_camera_controller)
-	self->move_right_button.button = INPUT_KEY_RIGHT;
-	self->move_left_button.button = INPUT_KEY_LEFT;
-	self->move_up_button.button = INPUT_KEY_UP;
-	self->move_down_button.button = INPUT_KEY_DOWN;
-	self->zoom_in_button.button = TV_INPUT_MOUSE_WHEELUP;
-	self->zoom_out_button.button = TV_INPUT_MOUSE_WHEELDOWN;
-	self->rotate_down_button.button = INPUT_KEY_PAGEDOWN;
-	self->rotate_up_button.button = INPUT_KEY_PAGEUP;
+	self->move_right_button = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_RIGHT);
+	self->move_left_button = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_LEFT);
+	self->move_up_button = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_UP);
+	self->move_down_button = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_DOWN);
 
-	self->move_right_button.type = TV_INPUT_KEYBOARD;
-	self->move_left_button.type = TV_INPUT_KEYBOARD;
-	self->move_up_button.type = TV_INPUT_KEYBOARD;
-	self->move_down_button.type = TV_INPUT_KEYBOARD;
-	self->rotate_down_button.type = TV_INPUT_KEYBOARD;
-	self->rotate_up_button.type = TV_INPUT_KEYBOARD;
+	self->rotate_down_button = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_PAGEDOWN);
+	self->rotate_up_button = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_PAGEUP);
 
-	self->zoom_in_button.type = TV_INPUT_MOUSE;
-	self->zoom_out_button.type = TV_INPUT_MOUSE;
+	self->zoom_in_button = tv_input_button_new(TV_INPUT_MOUSE, TV_INPUT_MOUSE_WHEELUP);
+	self->zoom_out_button = tv_input_button_new(TV_INPUT_MOUSE, TV_INPUT_MOUSE_WHEELDOWN);
+	self->zoom_in_button2 = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_PLUS);
+	self->zoom_out_button2 = tv_input_button_new(TV_INPUT_KEYBOARD, INPUT_KEY_MINUS);
 END_COMPONENT_START
 
 COMPONENT_DESTROY(app_camera_controller)
@@ -68,13 +62,15 @@ COMPONENT_UPDATE(app_camera_controller)
 		}
 	}
 	/* zoom in */
-	if(tv_input_buttonpressed(self->zoom_in_button)) {
+	if(tv_input_buttonpressed(self->zoom_in_button) || 
+		(tv_input_buttondown(self->zoom_in_button2))) {
 		if(main_cam->pos.z < self->zoom_limits.x) {
 			main_cam->pos.z += self->zoom_speed * tv_time_delta;
 		}
 	}
 	/* zoom out */
-	if(tv_input_buttonpressed(self->zoom_out_button)) {
+	if(tv_input_buttonpressed(self->zoom_out_button) ||
+		(tv_input_buttondown(self->zoom_out_button2))) {
 		if(main_cam->pos.z > self->zoom_limits.y) {
 			main_cam->pos.z -= self->zoom_speed * tv_time_delta;
 		}

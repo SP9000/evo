@@ -129,10 +129,13 @@ void METHOD(terrain_Ground, generate, tvuint numSamples, tvfloat sampleUnit);
  Ground Details (visualizer) 
 *******************************************************************************/
 COMPONENT(terrain_ground_details, tv_component)
-	tv_array* meshes;	/**< a mesh generated based on soil properties */
+	tv_model* mesh;		/**< a mesh generated based on soil properties */
 	terrain_Soil* soil;	/**< the soil to base the details off of. */
+	tv_model* grass_blade;	/**< the (basic) mesh to use for the grass */
+	tvuint ubo_id;		/**< the uniform handle for the details UBO */
 ENDCOMPONENT(terrain_ground_details)
 void METHOD(terrain_ground_details, generate, tvuint lod);
+void METHOD(terrain_ground_details, set_grass_mesh, tv_model* mesh);
 
 
 #endif

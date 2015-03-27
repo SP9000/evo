@@ -16,7 +16,6 @@ END_COMPONENT_DESTROY
 
 void METHOD(terrain_Climate, generate, tvuint numSamples)
 {
-
 }
 void METHOD(terrain_Climate, updateSample, tvuint numSamples)
 {
@@ -98,6 +97,7 @@ END_COMPONENT_DESTROY
  * The vertex used in the generated ground meshes. 
  */ 
 typedef struct {
+	tv_vector3 pos;
 	tv_vector4 color;
 }tv_ground_vertex;
 
@@ -110,7 +110,6 @@ typedef struct {
  ******************************************************************************/
 void METHOD(terrain_Ground, set_soil, terrain_Ground* new_soil)
 {
-
 }
 /*******************************************************************************
  * generate_mesh
@@ -122,9 +121,7 @@ void METHOD(terrain_Ground, generate_mesh, terrain_Ground* new_soil)
 	tvfloat x_pos;	/* the x-coordinate that the running mesh generator is at */
 	tvfloat x_step = 1.0f;
 	/* the vertex format for the ground */
-	tv_model_attribute ground_vertex_properties[] = {
-		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
-		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};
+	tv_model_vertex ground_vertex_properties = TV_MODEL_VERTEX_FORMAT_PC;
 
 	/* if mesh already exists, destroy it before creating a new one. */
 	if(self->mesh) {
@@ -132,6 +129,8 @@ void METHOD(terrain_Ground, generate_mesh, terrain_Ground* new_soil)
 	}
 	/* create the new mesh */
 	self->mesh = tv_model_new();
+	//TODO:
+	//tv_model_vertex_format(self->mesh, 2, TV_MODEL_VERTEX_FORMAT_PC);
 
 	/* place the vertices for the new mesh */
 	for(x_pos = 0.0f, ss = (SoilSample**)utarray_front(self->soil->samples); 
@@ -165,15 +164,27 @@ END_COMPONENT_UPDATE
 COMPONENT_DESTROY(terrain_Sky)
 END_COMPONENT_DESTROY
 
+void METHOD(terrain_Sky, generate, terrain_Climate* climate) 
+{
+	tvuint i;
+	/* generate the sky model based upon the climate information */
+}
+
 /*##############################################################################
 ##############################Ground Details####################################
 ##############################################################################*/
+const tvuint GRASS_SUBMESH = 0;	/* the submesh index of the grass details */
+const tvuint ROCKS_SUBMESH = 1;	/* the submesh index of the grass details */
 COMPONENT_NEW(terrain_ground_details, tv_component)
-	tv_model* mesh;	/**< a mesh generated based on soil properties */
-	terrain_Soil* soil;	/**< the soil to base the details off of. */
+	self->mesh = NULL;
+	self->grass_blade = NULL;
 END_COMPONENT_NEW(terrain_ground_details)
 
 COMPONENT_START(terrain_ground_details)
+	/* get the mesh */
+	GET(mesh, tv_model);
+	/* generate the mesh(es) */
+	CALL(terrain_ground_details, generate, 0);
 END_COMPONENT_START
 
 COMPONENT_UPDATE(terrain_ground_details)
@@ -181,6 +192,81 @@ END_COMPONENT_UPDATE
 
 COMPONENT_DESTROY(terrain_ground_details)
 END_COMPONENT_DESTROY
+
+/*******************************************************************************
+ * create_grass_mesh
+ * Creates a grass details mesh based upon the given ground.
+ ******************************************************************************/
+ void create_grass_mesh(terrain_ground_details* gd)
+{
+	tvfloat x, z;
+	terrain_Soil* soil = gd->soil;
+	const tvfloat GRASS_MESH_WIDTH = 20.0f;	/* the width of the mesh to generate */
+	const tvfloat GRASS_MESH_HEIGHT = 1.0f;	/* the height of the mesh to generate */
+	const tvfloat GRASS_MESH_X_DENSITY = 1.00f;	/* the ~units between blades of grass in the x-plane. */
+	const tvfloat GRASS_MESH_Z_DENSITY = 2.00f;	/* the ~units between blades of grass in the z-plane. */
+
+	tv_model *grass_model;
+	SoilSample *s_left, *s_right;
+
+	/* load the grass model */
+	//tv_model_load_ply(grass_model, "grass.ply");
+
+	/* TODO: delete - this temporary workaround allows model appending */
+	tv_model_load_ply(gd->mesh, "C:\\Users\\Bryce\\Documents\\GitHub\\evo\\StdAssets\\Models\\quad.ply");
+	grass_model = gd->grass_blade;
+
+	/* set the L and R soil samples to base the generation off */
+	/* TODO:
+	s_left = (SoilSample*)utarray_front(soil->samples);
+	s_right = (SoilSample*)utarray_next(soil->samples, s_left);
+	*/
+
+	/* generate a large mesh of a TON of blades of grass- the mesh must be 
+	 * large enough to fill the screen, but it should not be much larger (for
+	 * the sake of avoiding unecessary culling work for GL) */
+	for(x = 0.0f; x < GRASS_MESH_WIDTH; x += GRASS_MESH_X_DENSITY) {
+		for(z = 0.0f; z < GRASS_MESH_HEIGHT; z += GRASS_MESH_Z_DENSITY) {
+			/* get the coordinates for the grass' x and z coordinates */
+			tv_vector3 offset;
+			tvfloat grass_x = x; ///+ (rand() % 100) * GRASS_MESH_X_DENSITY;
+			tvfloat grass_z = z; // + (rand() % 100) * GRASS_MESH_Z_DENSITY;
+			offset.x = grass_x;
+			offset.y = 0.0f;
+			offset.z = grass_z;
+			/* TODO: adjust the vertex-colors a bit */
+
+			/* apply the offset-translation to the grass model */
+			tv_model_apply_translate(grass_model, offset, 0);
+
+			/* add a blade of grass to the model. */
+			tv_model_append_model(gd->mesh, grass_model);
+
+			/* revert the translation */
+			offset.x = -offset.x;
+			offset.z = -offset.z;
+			tv_model_apply_translate(grass_model, offset, 0);
+			/* move to the next sample */
+			/* TODO:
+			s_left = s_right;
+			s_right = (SoilSample*)utarray_next(soil->samples, s_right);
+			*/
+
+			/* if we've reached the last sample, we're screwed. TODO: */
+			/* TODO: 
+			if(s_right == NULL) {
+				break;
+			}
+			*/
+		}
+	}
+	tv_model_optimize(gd->mesh, TRUE, TRUE);
+}
+
+void METHOD(terrain_ground_details, set_grass_mesh, tv_model* mesh)
+{
+	self->grass_blade = mesh;
+}
 
 void METHOD(terrain_ground_details, generate, tvuint lod)
 {
@@ -192,13 +278,17 @@ void METHOD(terrain_ground_details, generate, tvuint lod)
 		{TV_MODEL_PROPERTY_FLOAT, 4, 0},
 		{TV_MODEL_PROPERTY_FLOAT, 4, 4*sizeof(tvfloat)}};
 
+	/* create the grass mesh */
+	create_grass_mesh(self);
+
+	/* create the rock mesh */
+	//TODO:
+
 	/* if mesh already exists, destroy it before creating a new one. */
 #if 0
 	if(self->mesh) {
 		DESTROY(self->mesh);
 	}
-	/* create the new mesh */
-	self->mesh = tv_model_new();
 
 	/* place the vertices for the new mesh */
 	for(x_pos = 0.0f, ss = (SoilSample**)utarray_front(self->soil->samples); 

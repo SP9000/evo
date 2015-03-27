@@ -31,9 +31,6 @@
     <Filter Include="Components\GUI\Headers">
       <UniqueIdentifier>{bd05bde7-bfb9-448b-a11b-4e6eb9ab1e7c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\GUI\Sources">
-      <UniqueIdentifier>{f4038e50-18ca-4ae5-936d-f7de6cf3efee}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Resource Files\Beings">
       <UniqueIdentifier>{059b62eb-a419-4316-a886-5fb82e06536c}</UniqueIdentifier>
     </Filter>
@@ -100,9 +97,6 @@
     <Filter Include="Components\Units">
       <UniqueIdentifier>{8d8f5759-f16f-42e1-ad1e-d51eec16218b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Units\Source Files">
-      <UniqueIdentifier>{024d0e3b-2c0e-4835-972b-dadb0ae0cd44}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Components\Units\Header Files">
       <UniqueIdentifier>{e7f63850-1af0-43c8-85b1-3b4fe7e349a9}</UniqueIdentifier>
     </Filter>
@@ -112,8 +106,14 @@
     <Filter Include="Components\Abilities\Header Files">
       <UniqueIdentifier>{f10e7c30-b9ec-4775-9bff-826982bc32a3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Abilities\Source Files">
-      <UniqueIdentifier>{2aaaa0e0-67d5-43b4-b0e7-8dc9688d48fe}</UniqueIdentifier>
+    <Filter Include="Prefabs\Baddies">
+      <UniqueIdentifier>{9da0b74a-016c-49c5-a60d-cde52fec7b4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\AI">
+      <UniqueIdentifier>{77c5a171-0b0b-47d0-a071-88de37ff36c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\AI\Header Files">
+      <UniqueIdentifier>{23576341-7f18-4c51-837e-007f9923bd98}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -178,15 +178,21 @@
     <ClInclude Include="app_ability_move.h">
       <Filter>Components\Abilities\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="abilities.h">
-      <Filter>Components\Abilities</Filter>
-    </ClInclude>
     <ClInclude Include="cursor.h">
       <Filter>Components\GUI\Headers</Filter>
     </ClInclude>
     <ClInclude Include="tags.h" />
     <ClInclude Include="app_terrain.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="abilities.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app_ability_whack.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="app_prefabs_baddies.h">
+      <Filter>Prefabs</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -204,9 +210,6 @@
     </ClCompile>
     <ClCompile Include="App\playermotor.c">
       <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="hud.c">
-      <Filter>Components\GUI\Sources</Filter>
     </ClCompile>
     <ClCompile Include="projectile.c">
       <Filter>Components\Projectiles\Source Files</Filter>
@@ -271,9 +274,6 @@
     <ClCompile Include="prefab_fairy.c">
       <Filter>Prefabs</Filter>
     </ClCompile>
-    <ClCompile Include="story_point.c">
-      <Filter>Components\GUI\Sources</Filter>
-    </ClCompile>
     <ClCompile Include="appregister.c" />
     <ClCompile Include="prefab_moving_sphere.c">
       <Filter>Prefabs</Filter>
@@ -281,26 +281,38 @@
     <ClCompile Include="app_sine_move.c">
       <Filter>Components\Motion</Filter>
     </ClCompile>
-    <ClCompile Include="unit.c">
-      <Filter>Components\Units\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ability.c">
-      <Filter>Components\Abilities\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="app_ability_move.c">
-      <Filter>Components\Abilities\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="abilities.c">
       <Filter>Components\Abilities</Filter>
     </ClCompile>
-    <ClCompile Include="cursor.c">
-      <Filter>Components\GUI\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="app_unit.c">
-      <Filter>Components\Abilities\Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="app_terrain.c">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ability.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="app_ability_move.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="app_unit.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="cursor.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="hud.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="story_point.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="app_ability_whack.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="app_prefabs_baddie_doomsphere.c">
+      <Filter>Prefabs\Baddies</Filter>
+    </ClCompile>
+    <ClCompile Include="unit.c">
+      <Filter>Components\Units</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -321,6 +333,15 @@
     </None>
     <None Include="cursor.mat">
       <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="grass.frag">
+      <Filter>Resource Files\Materials\Fragment Shaders</Filter>
+    </None>
+    <None Include="grass.vert">
+      <Filter>Resource Files\Materials\Vertex Shaders</Filter>
+    </None>
+    <None Include="grass.mat">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -43,6 +43,8 @@ etc.
 #define TV_MATERIAL_BUFFER_BINDING_POINT 1
 /* the maximum # of uniform blocks per material */
 #define TV_MATERIAL_MAX_UBOS 8
+/* the maximum # of uniforms that a material may have */
+#define TV_MATERIAL_MAX_UNIFORMS 8
 /* the maximum # of passes that a material can have */
 #define TV_MATERIAL_MAX_PASSES 4
 /* the maximum # of attributes in each uniform block */
@@ -91,6 +93,16 @@ typedef struct tv_material_effect {
 	tvchar name[32];
 }tv_material_effect;
 #endif
+
+/**
+ * A structure containing information about an OpenGL uniform.
+ */ 
+typedef struct {
+	GLenum type; /**< the type of the uniform variable */
+	GLint size;	/**< the size of the uniform variable */
+	tvchar name[31];	/**< the name of the uniform variable. */
+	GLuint id;	/**< the OpenGL handle of this uniform. */
+}tv_material_uniform;
 
 /**
  * A structure containing information about an OpenGL uniform-buffer block.
@@ -146,14 +158,15 @@ typedef struct {
 	const tvchar** attributes;
 	tvuint num_attributes;
 
+	/* the uniform variables this material uses. */
+	tv_material_uniform uniforms[TV_MATERIAL_MAX_UNIFORMS];
+	tvuint num_uniforms;
 	/* the (shared) uniform blocks for this pass */
-	const tvchar ubo_names[TV_MATERIAL_MAX_UBOS][31];
-	GLuint *ubos;
+	TV_material_uniform_block ubos[TV_MATERIAL_MAX_UBOS];
 	tvuint num_ubos;
 
 	/* if TRUE, this pass needs access to the scene's lighting information */
 	tvbool lit;
-
 	/* a hash handle so redundant passes are not loaded. */
 	TvHashHandle hh;
 }tv_material_pass;
@@ -197,14 +210,14 @@ GLuint METHOD(tv_material, compile_program, GLuint vert_shader, GLuint frag_shad
  * @param name the name of the uniform.
  * @return the handle of the uniform.
  */
-tvint METHOD(tv_material, get_uniform, tvchar *name);
+tvint METHOD(tv_material, get_uniform, tvchar* name);
 
 /**
  * Retrieve the handle of a uniform block in the material.
  * @param name the name of the uniform block.
  * @return the handle of the uniform block.
  */
-tvint METHOD(tv_material, get_uniform_block, const tvchar *name);
+tvint METHOD(tv_material, get_uniform_block, const tvchar* name);
 
 /**
  * Set a uniform buffer attribute for the material.

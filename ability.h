@@ -10,7 +10,18 @@ extern "C" {
 #define APP_UNIT_MAX_STATUS_CONDITIONS 16
 #define APP_UNIT_MAX_ABILITIES 10
 
-/*****************************************************************************/
+/* the allegiances that a unit may have (1 bit each) */
+#define APP_UNIT_ALLEGIANCE_NONE 0x00000000
+#define APP_UNIT_ALLEGIANCE_PLAYER		(1 << 0)
+#define APP_UNIT_ALLEGIANCE_SWAMPLORD	(1 << 1) 
+#define APP_UNIT_ALLEGIANCE_DOOMSPHERE	(1 << 2)
+
+/* alliances that a unit may be loyal to (convienience OR'ing of allegiances) */
+#define APP_UNIT_ALLIANCE_NONE 0x00000000
+#define APP_UNIT_ALLIANCE_PLAYER_ONLY (APP_UNIT_ALLEGIANCE_PLAYER)
+#define APP_UNIT_ALLIANCE_DOOMSWAMP	  (APP_UNIT_ALLEGIANCE_SWAMPLORD | APP_UNIT_ALLEGIANCE_DOOMSPHERE)
+
+/******************************************************************************/
 /**
  * An enumeration of possible targeting methods.
  */
@@ -38,9 +49,32 @@ typedef struct app_ability_thumbnail {
 }app_ability_thumbnail;
 
 /**
+ * The types of damage that may be dealt by an ability.
+ */
+typedef enum {
+	APP_ABILITY_DAMAGE_TYPE_PHYSICAL,
+	APP_ABILITY_DAMAGE_TYPE_MAGICKAL
+}app_ability_damage_type;
+
+/**
+ * A structure containing information about damage that is dealt by an ability.
+ */
+typedef struct app_ability_damage {
+	app_ability_damage_type type;	/**< the type of the damage */
+	tvfloat amount;					/**< the base amount of the damage */
+}app_ability_damage;
+
+/**
  * The ability component.
  */
 COMPONENT(app_ability, tv_component)
+	/* the animation of this ability's user */
+	tv_animation* animation;
+	/* the animation loop to play when this ability is used */
+	tvuint animation_use_loop;
+	/* the delay from beginning to play the animation to the ability's effect */
+	tvfloat cast_time;
+
 	/* the unit that this ability is attached to */
 	struct app_unit *user;
 	/* the range at which this ability can be used on a target */
@@ -88,6 +122,11 @@ COMPONENT(app_unit, tv_component)
 	/* every unit has a "move to" ability */
 	app_ability* move_to;
 
+	/* a flag register of up to 32 units this unit has allegiance to. */
+	tvuint ally_allegiances;
+	/* a flag register of up to 32 units this unit is hostile toward. */
+	tvuint enemy_allegiances;
+
 	tvuint num_abilities;
 	app_ability abilities[APP_UNIT_MAX_ABILITIES];
 ENDCOMPONENT(app_unit)
@@ -106,9 +145,27 @@ void METHOD(app_unit, set_float_height, tvfloat height);
  * @param ability the ability to set the user of.
  * @param unit the unit to set the given ability's user property to.
  */
-/*
 void app_ability_set_user(app_ability *ability, app_unit *unit);
-*/
+
+/**
+ * Use the given ability.
+ */
+void app_ability_use(app_ability* ability);
+
+/**
+ * Checks if the given target is within the "use" range of the given ability.
+ * @param ability the ability to test.
+ * @param target the target to determine if is in range.
+ * @return TRUE if the ability is in range, FALSE if not.
+ */
+tvbool app_ability_target_is_in_range(app_ability* ability, app_ability_target target);
+/**
+ * Checks if the given unit is within the "use" range of the given ability.
+ * @param ability the ability to test.
+ * @param target the target to determine if is in range.
+ * @return TRUE if the ability is in range, FALSE if not.
+ */
+tvbool app_ability_unit_is_in_range(app_ability* ability, app_unit* unit);
 
 /**
  * Move the user of the given ability within targetting range of the ability.
@@ -135,6 +192,28 @@ void app_ability_set_target(app_ability *ability, tvfloat x, tvfloat y, tvfloat 
  *  thumbnail region.
  */
 void app_ability_set_thumbnail(app_ability *ability, tv_model *model, tv_material *material, tvbool scale);
+
+/** 
+ * Deal the given damage to the given unit.
+ * @param unit the unit to take the damage.
+ * @param damage the damage the unit is to take. 
+ */
+void app_unit_take_damage(app_unit* unit, app_ability_damage damage);
+
+/**
+ * Sets the allegiances of the given unit.
+ * @param unit the unit to set the allegiances of.
+ * @param allegiances the allegiances this unit is friendly toward.
+ */
+void app_unit_set_allied_allegiances(app_unit* unit, tvuint allegiances);
+void app_unit_set_enemy_allegiances(app_unit* unit, tvuint allegiances);
+
+void app_unit_add_allied_allegiances(app_unit* unit, tvuint allegiances);
+void app_unit_remove_allied_allegiances(app_unit* unit, tvuint allegiances);
+
+void app_unit_add_enemy_allegiances(app_unit* unit, tvuint allegiances);
+void app_unit_remove_enemy_allegiances(app_unit* unit, tvuint allegiances);
+
 #ifdef __cplusplus
 }
 #endif

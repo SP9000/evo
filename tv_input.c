@@ -78,7 +78,15 @@ void tv_input_update()
 		}	
 	}
 }
-
+/******************************************************************************
+ * tv_input_button_new
+ * Create and return a button structure with the given parameter attributes.
+ *****************************************************************************/
+tv_input_button tv_input_button_new(tv_input_device_type type, tvuint button)
+{
+	tv_input_button b = {type, button};
+	return b;
+}
 /******************************************************************************
  * tv_input_keydown
  * TODO:

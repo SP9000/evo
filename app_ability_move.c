@@ -7,7 +7,7 @@ COMPONENT_NEW(app_ability_move, app_ability)
 	app_ability* ability = (app_ability*)self;
 
 	app_ability_init((app_ability*)self);
-	ability->use = use; 
+	ability->use = use;
 	ability->range = 0.0f;
 END_COMPONENT_NEW(app_ability_move)
 

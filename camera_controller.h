@@ -23,6 +23,8 @@ COMPONENT(app_camera_controller, tv_component)
 	tv_input_button move_down_button;
 	tv_input_button zoom_in_button;
 	tv_input_button zoom_out_button;
+	tv_input_button zoom_in_button2;
+	tv_input_button zoom_out_button2;
 	tv_input_button rotate_down_button;
 	tv_input_button rotate_up_button;
 ENDCOMPONENT(app_camera_controller)

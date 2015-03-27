@@ -8,6 +8,7 @@ extern "C" {
 
 tv_entity *fairy_prefab();
 tv_entity *prefab_moving_sphere();
+tv_entity *prefab_doomsphere();
 
 #ifdef __cplusplus
 }

@@ -36,6 +36,9 @@ extern "C" {
 
 #include "../app_sine_move.h"
 
+#include "../app_terrain.h"
+
+
 /*****************************************************************************/
 void app_register();
 

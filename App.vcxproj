@@ -16,7 +16,9 @@
     <ClInclude Include="App\app.h" />
     <ClInclude Include="App\playermotor.h" />
     <ClInclude Include="app_ability_move.h" />
+    <ClInclude Include="app_ability_whack.h" />
     <ClInclude Include="app_entities.h" />
+    <ClInclude Include="app_prefabs_baddies.h" />
     <ClInclude Include="app_scenes.h" />
     <ClInclude Include="app_sine_move.h" />
     <ClInclude Include="app_terrain.h" />
@@ -44,6 +46,8 @@
     <ClCompile Include="App\app.c" />
     <ClCompile Include="App\playermotor.c" />
     <ClCompile Include="app_ability_move.c" />
+    <ClCompile Include="app_ability_whack.c" />
+    <ClCompile Include="app_prefabs_baddie_doomsphere.c" />
     <ClCompile Include="app_sine_move.c" />
     <ClCompile Include="app_terrain.c" />
     <ClCompile Include="app_unit.c" />
@@ -81,6 +85,9 @@
     <None Include="cursor.frag" />
     <None Include="cursor.mat" />
     <None Include="cursor.vert" />
+    <None Include="grass.frag" />
+    <None Include="grass.mat" />
+    <None Include="grass.vert" />
     <None Include="terrain.frag" />
     <None Include="terrain.mat" />
     <None Include="terrain.vert" />
