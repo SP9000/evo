@@ -11,89 +11,104 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="abilities.h" />
-    <ClInclude Include="ability.h" />
-    <ClInclude Include="App\app.h" />
-    <ClInclude Include="App\playermotor.h" />
-    <ClInclude Include="app_ability_move.h" />
-    <ClInclude Include="app_ability_whack.h" />
-    <ClInclude Include="app_entities.h" />
-    <ClInclude Include="app_prefabs_baddies.h" />
-    <ClInclude Include="app_scenes.h" />
-    <ClInclude Include="app_sine_move.h" />
-    <ClInclude Include="app_terrain.h" />
-    <ClInclude Include="camera_controller.h" />
-    <ClInclude Include="cursor.h" />
-    <ClInclude Include="app_prefabs.h" />
-    <ClInclude Include="grid.h" />
-    <ClInclude Include="gun.h" />
-    <ClInclude Include="hud.h" />
-    <ClInclude Include="laser.h" />
-    <ClInclude Include="tags.h" />
-    <ClInclude Include="projectile.h" />
-    <ClInclude Include="sinespawner.h" />
-    <ClInclude Include="spawner.h" />
-    <ClInclude Include="story_point.h" />
-    <ClInclude Include="terrain.h" />
-    <ClInclude Include="mass.h" />
-    <ClInclude Include="unit.h" />
-    <ClInclude Include="velocity.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="abilities.c" />
-    <ClCompile Include="ability.c" />
-    <ClCompile Include="appregister.c" />
     <ClCompile Include="App\app.c" />
-    <ClCompile Include="App\playermotor.c" />
-    <ClCompile Include="app_ability_move.c" />
-    <ClCompile Include="app_ability_whack.c" />
-    <ClCompile Include="app_prefabs_baddie_doomsphere.c" />
-    <ClCompile Include="app_sine_move.c" />
-    <ClCompile Include="app_terrain.c" />
-    <ClCompile Include="app_unit.c" />
-    <ClCompile Include="camera_controller.c" />
-    <ClCompile Include="cursor.c" />
-    <ClCompile Include="desert1.c" />
-    <ClCompile Include="entity_camera_controller.c" />
-    <ClCompile Include="entity_cursor.c" />
-    <ClCompile Include="entity_fairy2.c" />
-    <ClCompile Include="entity_grid.c" />
-    <ClCompile Include="entity_ground.c" />
-    <ClCompile Include="entity_main_gui.c" />
-    <ClCompile Include="entity_spawn_pt1.c" />
-    <ClCompile Include="entity_terrain.c" />
-    <ClCompile Include="entity_test_gun.c" />
-    <ClCompile Include="entity_test_plane.c" />
-    <ClCompile Include="entity_text.c" />
-    <ClCompile Include="fairy.c" />
-    <ClCompile Include="grid.c" />
-    <ClCompile Include="gun.c" />
-    <ClCompile Include="hud.c" />
-    <ClCompile Include="laser.c" />
-    <ClCompile Include="prefab_fairy.c" />
-    <ClCompile Include="prefab_moving_sphere.c" />
-    <ClCompile Include="projectile.c" />
-    <ClCompile Include="sinespawner.c" />
-    <ClCompile Include="spawner.c" />
-    <ClCompile Include="story_point.c" />
-    <ClCompile Include="terrain.c" />
-    <ClCompile Include="mass.c" />
-    <ClCompile Include="unit.c" />
-    <ClCompile Include="velocity.c" />
+    <ClCompile Include="App\appregister.c" />
+    <ClCompile Include="App\Components\Abilities\abilities.c" />
+    <ClCompile Include="App\Components\Abilities\ability.c" />
+    <ClCompile Include="App\Components\Abilities\app_ability_move.c" />
+    <ClCompile Include="App\Components\Abilities\app_ability_whack.c" />
+    <ClCompile Include="App\Components\Abilities\melee.c" />
+    <ClCompile Include="App\Components\Abilities\move.c" />
+    <ClCompile Include="App\Components\GUI\cursor.c" />
+    <ClCompile Include="App\Components\GUI\hud.c" />
+    <ClCompile Include="App\Components\Misc\app_sine_move.c" />
+    <ClCompile Include="App\Components\Misc\camera_controller.c" />
+    <ClCompile Include="App\Components\Misc\grid.c" />
+    <ClCompile Include="App\Components\Misc\gun.c" />
+    <ClCompile Include="App\Components\Misc\jet_engine.c" />
+    <ClCompile Include="App\Components\Misc\laser.c" />
+    <ClCompile Include="App\Components\Misc\mass.c" />
+    <ClCompile Include="App\Components\Misc\playermotor.c" />
+    <ClCompile Include="App\Components\Misc\projectile.c" />
+    <ClCompile Include="App\Components\Misc\sinespawner.c" />
+    <ClCompile Include="App\Components\Misc\spawner.c" />
+    <ClCompile Include="App\Components\Misc\story_point.c" />
+    <ClCompile Include="App\Components\Misc\velocity.c" />
+    <ClCompile Include="App\Components\Terrain\app_terrain.c" />
+    <ClCompile Include="App\Components\Terrain\terrain.c" />
+    <ClCompile Include="App\Components\Units\app_unit.c" />
+    <ClCompile Include="App\Entities\entity_camera_controller.c" />
+    <ClCompile Include="App\Entities\entity_cursor.c" />
+    <ClCompile Include="App\Entities\entity_fairy2.c" />
+    <ClCompile Include="App\Entities\entity_grid.c" />
+    <ClCompile Include="App\Entities\entity_ground.c" />
+    <ClCompile Include="App\Entities\entity_main_gui.c" />
+    <ClCompile Include="App\Entities\entity_spawn_pt1.c" />
+    <ClCompile Include="App\Entities\entity_terrain.c" />
+    <ClCompile Include="App\Entities\entity_test_gun.c" />
+    <ClCompile Include="App\Entities\entity_test_plane.c" />
+    <ClCompile Include="App\Entities\entity_text.c" />
+    <ClCompile Include="App\Entities\fairy.c" />
+    <ClCompile Include="App\Prefabs\app_prefabs_baddie_doomsphere.c" />
+    <ClCompile Include="App\Prefabs\prefab_fairy.c" />
+    <ClCompile Include="App\Prefabs\prefab_moving_sphere.c" />
+    <ClCompile Include="App\Scenes\desert1.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cursor.frag" />
-    <None Include="cursor.mat" />
-    <None Include="cursor.vert" />
-    <None Include="grass.frag" />
-    <None Include="grass.mat" />
-    <None Include="grass.vert" />
-    <None Include="terrain.frag" />
-    <None Include="terrain.mat" />
-    <None Include="terrain.vert" />
+    <ClInclude Include="App\app.h" />
+    <ClInclude Include="App\appcomponents.h" />
+    <ClInclude Include="App\app_entities.h" />
+    <ClInclude Include="App\app_prefabs.h" />
+    <ClInclude Include="App\app_resources.h" />
+    <ClInclude Include="App\app_scenes.h" />
+    <ClInclude Include="App\Components\Abilities\abilities.h" />
+    <ClInclude Include="App\Components\Abilities\ability.h" />
+    <ClInclude Include="App\Components\Abilities\app_ability_move.h" />
+    <ClInclude Include="App\Components\Abilities\app_ability_whack.h" />
+    <ClInclude Include="App\Components\Abilities\melee.h" />
+    <ClInclude Include="App\Components\Abilities\move.h" />
+    <ClInclude Include="App\Components\GUI\cursor.h" />
+    <ClInclude Include="App\Components\GUI\hud.h" />
+    <ClInclude Include="App\Components\Misc\app_sine_move.h" />
+    <ClInclude Include="App\Components\Misc\camera_controller.h" />
+    <ClInclude Include="App\Components\Misc\grid.h" />
+    <ClInclude Include="App\Components\Misc\gun.h" />
+    <ClInclude Include="App\Components\Misc\jet_engine.h" />
+    <ClInclude Include="App\Components\Misc\laser.h" />
+    <ClInclude Include="App\Components\Misc\mass.h" />
+    <ClInclude Include="App\Components\Misc\playermotor.h" />
+    <ClInclude Include="App\Components\Misc\projectile.h" />
+    <ClInclude Include="App\Components\Misc\sinespawner.h" />
+    <ClInclude Include="App\Components\Misc\spawner.h" />
+    <ClInclude Include="App\Components\Misc\story_point.h" />
+    <ClInclude Include="App\Components\Misc\velocity.h" />
+    <ClInclude Include="App\Components\Terrain\app_terrain.h" />
+    <ClInclude Include="App\Components\Terrain\terrain.h" />
+    <ClInclude Include="App\Components\Terrain\terrain_profile.h" />
+    <ClInclude Include="App\Prefabs\app_prefabs_baddies.h" />
+    <ClInclude Include="App\tags.h" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="camel.xml" />
+    <None Include="App\Materials\cursor.mat" />
+    <None Include="App\Materials\grass.mat" />
+    <None Include="App\Materials\line.mat" />
+    <None Include="App\Materials\Shaders\Frag\cursor.frag" />
+    <None Include="App\Materials\Shaders\Frag\grass.frag" />
+    <None Include="App\Materials\Shaders\Frag\gui.frag" />
+    <None Include="App\Materials\Shaders\Frag\terrain.frag" />
+    <None Include="App\Materials\Shaders\Frag\test.frag" />
+    <None Include="App\Materials\Shaders\Frag\tex.frag" />
+    <None Include="App\Materials\Shaders\Vert\cursor.vert" />
+    <None Include="App\Materials\Shaders\Vert\grass.vert" />
+    <None Include="App\Materials\Shaders\Vert\gui.vert" />
+    <None Include="App\Materials\Shaders\Vert\line.vert" />
+    <None Include="App\Materials\Shaders\Vert\skeletal_anim.vert" />
+    <None Include="App\Materials\Shaders\Vert\terrain.vert" />
+    <None Include="App\Materials\Shaders\Vert\test.vert" />
+    <None Include="App\Materials\Shaders\Vert\tex.vert" />
+    <None Include="App\Materials\terrain.mat" />
+    <None Include="App\Materials\test.mat" />
+    <None Include="App\Materials\tex.mat" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{73E6E4EE-CA24-4C40-873A-8BBA49BD1652}</ProjectGuid>
@@ -125,9 +140,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>C:\Dev\lib32;C:\SDL\lib\x86;C:\glew\lib;C:\glib\lib;C:\enet;C:\Users\Bryce\Documents\GitHub\evo\Debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\App\Prefabs;$(ProjectDir)\App\Entities;$(ProjectDir)\App\Components\Scenes;$(ProjectDir)\App\Components\;$(ProjectDir)\Engine\Components\AI;$(ProjectDir)\Engine\Components\Base;$(ProjectDir)\Engine\Components\Colliders;$(ProjectDir)\Engine\Components\Renderers;$(ProjectDir)\Engine\Components\GUI;$(ProjectDir)\App;$(ProjectDir)\Engine;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LibraryPath>C:\Dev\lib32;C:\SDL\lib\x86;C:\glew\lib;C:\glib\lib;C:\enet;C:\Users\Bryce\Documents\GitHub\evo\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\App\Prefabs;$(ProjectDir)\App\Entities;$(ProjectDir)\App\Components\Scenes;$(ProjectDir)\App\Components\;$(ProjectDir)\Engine\Components\AI;$(ProjectDir)\Engine\Components\Base;$(ProjectDir)\Engine\Components\Colliders;$(ProjectDir)\Engine\Components\Renderers;$(ProjectDir)\Engine\Components\GUI;$(ProjectDir)\App;$(ProjectDir)\Engine;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -1,0 +1,16 @@
+{
+    "material": {
+		"passes": {
+			"pass0": {	
+				"shaders": {
+					"vert": "App\\Materials\\Shaders\\Vert\\grass.vert",
+					"frag": "App\\Materials\\Shaders\\Frag\\grass.frag"
+				},
+				"attributes": [
+					"in_Position",
+					"in_Color"
+				]
+			}
+		}
+    }
+}

@@ -1,0 +1,54 @@
+﻿Build started 3/30/2015 8:17:23 PM.
+     1>Project "C:\Users\Bryce\Documents\GitHub\evo\App.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /IC:\Dev\include /IC:\enet\include /IC:\glib\include /IC:\SDL\include /IC:\glew\include /ZI /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt App\Prefabs\prefab_fairy.c
+         prefab_fairy.c
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Bryce\Documents\GitHub\evo\Debug\App.exe" /INCREMENTAL /NOLOGO client.lib SDLmain.lib SDL.lib glew32.lib enet.lib ws2_32.lib winmm.lib "glib-2.0.lib" opengl32.lib glu32.lib assimp.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Bryce\Documents\GitHub\evo\Debug\App.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Bryce\Documents\GitHub\evo\Debug\App.lib" /MACHINE:X86 Debug\app.obj
+         Debug\appregister.obj
+         Debug\abilities.obj
+         Debug\ability.obj
+         Debug\app_ability_move.obj
+         Debug\app_ability_whack.obj
+         Debug\melee.obj
+         Debug\move.obj
+         Debug\cursor.obj
+         Debug\hud.obj
+         Debug\app_sine_move.obj
+         Debug\camera_controller.obj
+         Debug\grid.obj
+         Debug\gun.obj
+         Debug\jet_engine.obj
+         Debug\laser.obj
+         Debug\mass.obj
+         Debug\playermotor.obj
+         Debug\projectile.obj
+         Debug\sinespawner.obj
+         Debug\spawner.obj
+         Debug\story_point.obj
+         Debug\velocity.obj
+         Debug\app_terrain.obj
+         Debug\terrain.obj
+         Debug\app_unit.obj
+         Debug\entity_camera_controller.obj
+         Debug\entity_cursor.obj
+         Debug\entity_fairy2.obj
+         Debug\entity_grid.obj
+         Debug\entity_ground.obj
+         Debug\entity_main_gui.obj
+         Debug\entity_spawn_pt1.obj
+         Debug\entity_terrain.obj
+         Debug\entity_test_gun.obj
+         Debug\entity_test_plane.obj
+         Debug\entity_text.obj
+         Debug\fairy.obj
+         Debug\app_prefabs_baddie_doomsphere.obj
+         Debug\prefab_fairy.obj
+         Debug\prefab_moving_sphere.obj
+         Debug\desert1.obj
+         App.vcxproj -> C:\Users\Bryce\Documents\GitHub\evo\Debug\App.exe
+     1>Done Building Project "C:\Users\Bryce\Documents\GitHub\evo\App.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.50

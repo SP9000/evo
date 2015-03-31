@@ -1,0 +1,71 @@
+﻿Build started 3/30/2015 8:00:29 PM.
+     1>Project "C:\Users\Bryce\Documents\GitHub\evo\client.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /IC:\Dev\include /IC:\enet\include /IC:\glew\include /IC:\SDL\include /ZI /nologo /W3 /WX- /Od /Oy- /D _CRT_SECURE_NO_DEPRECATE /D _CRT_NONSTDC_NO_DEPRECATE /D _MBCS /Gm /EHsc /RTC1 /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt Engine\Components\Base\model.c
+         model.c
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(497): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(510): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(551): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(695): warning C4047: '<' : 'tvuint' differs in levels of indirection from 'aiMesh **const '
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(990): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(1043): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(1129): warning C4028: formal parameter 3 different from declaration
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(1169): warning C4101: 'line' : unreferenced local variable
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(1199): warning C4018: '>' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\engine\components\base\model.c(684): warning C4700: uninitialized local variable 'asset' used
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"C:\Users\Bryce\Documents\GitHub\evo\Debug\client.lib" assimp.lib /NOLOGO Debug\ai_behavior.obj
+         Debug\animation.obj
+         Debug\animationrenderer.obj
+         Debug\camera.obj
+         Debug\cJSON.obj
+         Debug\tv_ai_behavior_astar.obj
+         Debug\tv_ai_pattern_direct.obj
+         Debug\material.obj
+         Debug\model.obj
+         Debug\tv_collider.obj
+         Debug\widget.obj
+         Debug\widgetmodels.obj
+         Debug\widget_frame.obj
+         Debug\widget_slider.obj
+         Debug\widget_stats.obj
+         Debug\widget_textbox.obj
+         Debug\widget_textedit.obj
+         Debug\guirenderer.obj
+         Debug\instancerenderer.obj
+         Debug\linerenderer.obj
+         Debug\modelrenderer.obj
+         Debug\overlayrenderer.obj
+         Debug\renderer.obj
+         Debug\textrenderer.obj
+         Debug\transform.obj
+         Debug\tv_alloc.obj
+         Debug\tv_client.obj
+         Debug\tv_client_packet.obj
+         Debug\tv_collision.obj
+         Debug\tv_component.obj
+         Debug\tv_draw.obj
+         Debug\tv_entity.obj
+         Debug\tv_gui.obj
+         Debug\tv_input.obj
+         Debug\tv_light.obj
+         Debug\tv_matrix.obj
+         Debug\tv_message.obj
+         Debug\tv_modelgen.obj
+         Debug\tv_physics.obj
+         Debug\tv_scene.obj
+         Debug\tv_stats.obj
+         Debug\tv_texture.obj
+         Debug\tv_time.obj
+         Debug\tv_tree.obj
+         Debug\tv_types.obj
+         Debug\tv_util.obj
+         Debug\tv_vector.obj
+     1>transform.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+     1>widget_textedit.obj : warning LNK4221: This object file does not define any previously undefined public symbols, so it will not be used by any link operation that consumes this library
+         client.vcxproj -> C:\Users\Bryce\Documents\GitHub\evo\Debug\client.lib
+     1>Done Building Project "C:\Users\Bryce\Documents\GitHub\evo\client.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.82

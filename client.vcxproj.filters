@@ -1,437 +1,363 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Standard Assets">
-      <UniqueIdentifier>{3ac3ac9f-0851-40b2-a7ad-979f84ecefe1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Vertex Shaders">
-      <UniqueIdentifier>{d77266c2-a161-4919-a6b9-bd502e6088d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Fragment Shaders">
-      <UniqueIdentifier>{980daf94-3288-4a40-9597-490abff9c12f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Materials">
-      <UniqueIdentifier>{e9b569bd-d913-43ca-857d-cf3dc145bff1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Material Effects">
-      <UniqueIdentifier>{ee4cbd39-1091-4e9b-9e12-98cb3b68ba0f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data Structures">
-      <UniqueIdentifier>{56131739-08a2-4678-bd43-22ca43a51019}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data Structures\Header Files">
-      <UniqueIdentifier>{dbc3fd4c-cfb6-4942-931d-d358c7acf4aa}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data Structures\Source Files">
-      <UniqueIdentifier>{f935d01f-c2c1-459f-8af1-3af32bd329c8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components">
-      <UniqueIdentifier>{a97f06ea-15a3-407a-8f5d-d12dab9569dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Base">
-      <UniqueIdentifier>{b4949aba-4b5f-4707-9a8a-f00b47f3447c}</UniqueIdentifier>
+      <UniqueIdentifier>{fa3cabba-632f-4880-85f7-85810c7b4a05}</UniqueIdentifier>
     </Filter>
     <Filter Include="Base\Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <UniqueIdentifier>{8c9f3b89-cc17-4f45-9ede-d48eb15352f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Base\Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Components\Base Components">
-      <UniqueIdentifier>{e6c1dc88-bab1-487f-9473-9cb1028f0aa1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Base Components\Source Files">
-      <UniqueIdentifier>{35c2fbc7-013e-4d05-a405-64f79aa15e0e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Base Components\Header Files">
-      <UniqueIdentifier>{fcc81a9c-3d99-42a0-9966-2f92d74e117c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Colliders">
-      <UniqueIdentifier>{4ff86073-60b9-4f7b-ad12-49feef8c0f5a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Colliders\Source Files">
-      <UniqueIdentifier>{7154e789-7084-4f53-9916-a86d47ff10d9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Colliders\Header Files">
-      <UniqueIdentifier>{0fd6669a-7a01-454f-a5f0-4dd94efc1629}</UniqueIdentifier>
+    <Filter Include="Components">
+      <UniqueIdentifier>{a2e45165-2ccf-4269-9cbb-92ec218db935}</UniqueIdentifier>
     </Filter>
     <Filter Include="Components\AI">
-      <UniqueIdentifier>{16e07321-fdd6-493e-999c-013bedd792b2}</UniqueIdentifier>
+      <UniqueIdentifier>{3e8cd364-ac2e-45d4-bc95-baef30ec71d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Base">
+      <UniqueIdentifier>{625c4fd5-2a30-4471-b06b-b8e5ea6f9f71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Collision">
+      <UniqueIdentifier>{81c80825-4c24-4560-9ff8-fe20ebf9146c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\GUI">
+      <UniqueIdentifier>{b94c9e9e-667d-4a64-898c-df8bc4d9db28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Render">
+      <UniqueIdentifier>{e85bd341-6225-4739-aef3-5ef7113c036e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Components\AI\Header Files">
-      <UniqueIdentifier>{e1dfad41-2d42-4ed4-b195-95ecc8e9db2f}</UniqueIdentifier>
+      <UniqueIdentifier>{4f081c4a-19ac-40d7-a09a-3d5973f3c692}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI">
-      <UniqueIdentifier>{caaf7991-4b93-45ab-9af9-64d16297b8b0}</UniqueIdentifier>
+    <Filter Include="Components\Base\Header Files">
+      <UniqueIdentifier>{f0fd26ac-ba65-417b-868e-7fff1b0f7a1a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Header Files">
-      <UniqueIdentifier>{dbaf964e-205d-410e-b7da-869128ca2fa3}</UniqueIdentifier>
+    <Filter Include="Components\Collision\Header Files">
+      <UniqueIdentifier>{e6d2344c-c1ea-40fd-91b6-3f158f8c7e6d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Source Files">
-      <UniqueIdentifier>{6d03d67a-0e3a-4d30-be36-be80e52b988e}</UniqueIdentifier>
+    <Filter Include="Components\GUI\Header Files">
+      <UniqueIdentifier>{c1cfbed7-702e-4313-99c8-b62fd7966fa7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Renderers">
-      <UniqueIdentifier>{112a2195-1bc1-4551-9d3e-677eebeb64eb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderers\Header Files">
-      <UniqueIdentifier>{bc9fa69c-a399-4ba4-99f6-ba74ce02654e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Renderers\Source Files">
-      <UniqueIdentifier>{841a4636-66fc-48ce-b6ba-2e6c92491823}</UniqueIdentifier>
+    <Filter Include="Components\Render\Header FIles">
+      <UniqueIdentifier>{d739a7e0-22b6-4474-83bf-0f7748b9114c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="modelrenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\transform.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="textrenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_alloc.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="renderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_client.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="linerenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_client_packet.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="instancerenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_collision.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="guirenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_component.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="overlayrenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_draw.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="animationrenderer.c">
-      <Filter>Renderers\Source Files</Filter>
+    <ClCompile Include="Engine\tv_entity.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_tree.c">
-      <Filter>Data Structures\Source Files</Filter>
+    <ClCompile Include="Engine\tv_gui.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="animation.c">
-      <Filter>Components\Base Components\Source Files</Filter>
+    <ClCompile Include="Engine\tv_input.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="camera.c">
-      <Filter>Components\Base Components\Source Files</Filter>
+    <ClCompile Include="Engine\tv_light.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="material.c">
-      <Filter>Components\Base Components\Source Files</Filter>
+    <ClCompile Include="Engine\tv_matrix.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="model.c">
-      <Filter>Components\Base Components\Source Files</Filter>
+    <ClCompile Include="Engine\tv_message.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="transform.c">
-      <Filter>Components\Base Components\Source Files</Filter>
+    <ClCompile Include="Engine\tv_modelgen.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_light.c">
-      <Filter>Components\Base Components\Source Files</Filter>
+    <ClCompile Include="Engine\tv_physics.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="cJSON.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\tv_scene.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_alloc.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\tv_stats.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_stats.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\tv_texture.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_vector.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\tv_time.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="widget.c">
-      <Filter>GUI\Source Files</Filter>
+    <ClCompile Include="Engine\tv_tree.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="widget_frame.c">
-      <Filter>GUI\Source Files</Filter>
+    <ClCompile Include="Engine\tv_types.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="widget_stats.c">
-      <Filter>GUI\Source Files</Filter>
+    <ClCompile Include="Engine\tv_util.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="widget_textbox.c">
-      <Filter>GUI\Source Files</Filter>
+    <ClCompile Include="Engine\tv_vector.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="widgetmodels.c">
-      <Filter>GUI\Source Files</Filter>
+    <ClCompile Include="Engine\ai_behavior.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_draw.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\animation.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_entity.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\animationrenderer.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_input.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\camera.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_matrix.c">
-      <Filter>Base\Source Files</Filter>
+    <ClCompile Include="Engine\cJSON.c">
+      <Filter>Base</Filter>
     </ClCompile>
-    <ClCompile Include="tv_modelgen.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_scene.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_texture.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_time.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_types.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_util.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_component.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_collision.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_client_packet.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_client.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_physics.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_collider.c">
-      <Filter>Components\Colliders\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_message.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_gui.c">
-      <Filter>Base\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="widget_slider.c">
-      <Filter>GUI\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="tv_ai_pattern_direct.c">
+    <ClCompile Include="Engine\Components\AI\tv_ai_behavior_astar.c">
       <Filter>Components\AI</Filter>
     </ClCompile>
-    <ClCompile Include="ai_behavior.c">
+    <ClCompile Include="Engine\Components\AI\tv_ai_pattern_direct.c">
       <Filter>Components\AI</Filter>
     </ClCompile>
-    <ClCompile Include="tv_ai_behavior_astar.c">
-      <Filter>Components\AI</Filter>
+    <ClCompile Include="Engine\Components\Base\material.c">
+      <Filter>Components\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Base\model.c">
+      <Filter>Components\Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Colliders\tv_collider.c">
+      <Filter>Components\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widget_slider.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widget_stats.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widget_textbox.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widget_textedit.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widgetmodels.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widget.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\GUI\widget_frame.c">
+      <Filter>Components\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\linerenderer.c">
+      <Filter>Components\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\modelrenderer.c">
+      <Filter>Components\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\overlayrenderer.c">
+      <Filter>Components\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\renderer.c">
+      <Filter>Components\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\textrenderer.c">
+      <Filter>Components\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\guirenderer.c">
+      <Filter>Components\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Components\Renderers\instancerenderer.c">
+      <Filter>Components\Render</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="textrenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="modelrenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="renderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="linerenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="instancerenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="guirenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="overlayrenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="animationrenderer.h">
-      <Filter>Renderers\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_list.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_array.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_hash.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_string.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_tree.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="animation.h">
-      <Filter>Components\Base Components\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Components\Base Components\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="material.h">
-      <Filter>Components\Base Components\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="model.h">
-      <Filter>Components\Base Components\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="transform.h">
-      <Filter>Components\Base Components\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_light.h">
-      <Filter>Components\Base Components\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cJSON.h">
+    <ClInclude Include="Engine\tv_client.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="evo.h">
+    <ClInclude Include="Engine\tv_client_packet.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_alloc.h">
+    <ClInclude Include="Engine\tv_collision.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_message.h">
+    <ClInclude Include="Engine\tv_component.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_stats.h">
+    <ClInclude Include="Engine\tv_draw.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_vector.h">
+    <ClInclude Include="Engine\tv_entity.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_queue.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_stack.h">
-      <Filter>Data Structures\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="widgetmodels.h">
-      <Filter>GUI\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="widget.h">
-      <Filter>GUI\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="widget_frame.h">
-      <Filter>GUI\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="widget_stats.h">
-      <Filter>GUI\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="widget_textbox.h">
-      <Filter>GUI\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_client.h">
+    <ClInclude Include="Engine\tv_gui.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_component.h">
+    <ClInclude Include="Engine\tv_hash.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_draw.h">
+    <ClInclude Include="Engine\tv_input.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_collision.h">
+    <ClInclude Include="Engine\tv_light.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_entity.h">
+    <ClInclude Include="Engine\tv_list.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_gui.h">
+    <ClInclude Include="Engine\tv_macros.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_input.h">
+    <ClInclude Include="Engine\tv_math.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_macros.h">
+    <ClInclude Include="Engine\tv_matrix.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_matrix.h">
+    <ClInclude Include="Engine\tv_message.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_modelgen.h">
+    <ClInclude Include="Engine\tv_modelgen.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_platform.h">
+    <ClInclude Include="Engine\tv_physics.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_scene.h">
+    <ClInclude Include="Engine\tv_platform.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_texture.h">
+    <ClInclude Include="Engine\tv_queue.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_time.h">
+    <ClInclude Include="Engine\tv_scene.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_types.h">
+    <ClInclude Include="Engine\tv_stack.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_util.h">
+    <ClInclude Include="Engine\tv_stats.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_client_packet.h">
+    <ClInclude Include="Engine\tv_string.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_physics.h">
+    <ClInclude Include="Engine\tv_texture.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_collider.h">
-      <Filter>Components\Colliders\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="tv_math.h">
+    <ClInclude Include="Engine\tv_time.h">
       <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="widget_slider.h">
-      <Filter>GUI\Header Files</Filter>
+    <ClInclude Include="Engine\tv_tree.h">
+      <Filter>Base\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ai_behavior.h">
+    <ClInclude Include="Engine\tv_types.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\tv_util.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\tv_vector.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\ai_behavior.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\ai_behavior_astar.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\animation.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\animationrenderer.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\camera.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\cJSON.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\evo.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\transform.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\tv_alloc.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\tv_array.h">
+      <Filter>Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\AI\tv_ai_behavior_direct.h">
       <Filter>Components\AI\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tv_ai_behavior_direct.h">
+    <ClInclude Include="Engine\Components\AI\ai_behavior.h">
       <Filter>Components\AI\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ai_behavior_astar.h">
-      <Filter>Components\AI\Header Files</Filter>
+    <ClInclude Include="Engine\Components\Base\material.h">
+      <Filter>Components\Base\Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="gui.vert">
-      <Filter>Resource Files\Vertex Shaders</Filter>
-    </None>
-    <None Include="test.vert">
-      <Filter>Resource Files\Vertex Shaders</Filter>
-    </None>
-    <None Include="tex.vert">
-      <Filter>Resource Files\Vertex Shaders</Filter>
-    </None>
-    <None Include="gui.frag">
-      <Filter>Resource Files\Fragment Shaders</Filter>
-    </None>
-    <None Include="test.frag">
-      <Filter>Resource Files\Fragment Shaders</Filter>
-    </None>
-    <None Include="tex.frag">
-      <Filter>Resource Files\Fragment Shaders</Filter>
-    </None>
-    <None Include="skeletal_anim.vert">
-      <Filter>Resource Files\Vertex Shaders</Filter>
-    </None>
-    <None Include="test.mat">
-      <Filter>Resource Files\Materials</Filter>
-    </None>
-    <None Include="diffuse_lit.mat">
-      <Filter>Resource Files\Materials</Filter>
-    </None>
-    <None Include="diffuse.fxi">
-      <Filter>Resource Files\Material Effects</Filter>
-    </None>
-    <None Include="line.vert">
-      <Filter>Resource Files\Vertex Shaders</Filter>
-    </None>
-    <None Include="line.mat">
-      <Filter>Resource Files\Materials</Filter>
-    </None>
+    <ClInclude Include="Engine\Components\Base\model.h">
+      <Filter>Components\Base\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Colliders\tv_collider.h">
+      <Filter>Components\Collision\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widget.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widget_frame.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widget_slider.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widget_stats.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widget_textbox.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widget_textedit.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\GUI\widgetmodels.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\guirenderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\instancerenderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\linerenderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\modelrenderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\overlayrenderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\renderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Components\Renderers\textrenderer.h">
+      <Filter>Components\Render\Header FIles</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

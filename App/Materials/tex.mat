@@ -1,0 +1,13 @@
+{
+    "material": {
+        "shaders": {
+            "vert": "App\\Materials\\Shaders\\Vert\\tex.vert",
+            "frag": "App\\Materials\\Shaders\\Frag\\tex.frag"
+        },
+        "attributes": [
+            "in_Position",
+            "in_Color"
+        ]
+    }
+}
+

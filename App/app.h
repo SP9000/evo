@@ -5,38 +5,35 @@
 extern "C" {
 #endif
 
-#include "../evo.h"
-#include "../tv_client.h"
+#include "evo.h"
+#include "tv_client.h"
 #include "entities.h"
-#include "../tags.h"
+#include "tags.h"
 
 /*****************************************************************************/
 /* components */
-#include "playermotor.h"
+#include "Misc/playermotor.h"
 
-#include "../grid.h"
-#include "../camera_controller.h"
-#include "../cursor.h"
-#include "../hud.h"
+#include "Misc/grid.h"
+#include "Misc/camera_controller.h"
+#include "GUI/cursor.h"
+#include "GUI/hud.h"
 
-#include "../ability.h"
-#include "../app_ability_move.h"
+#include "Abilities/ability.h"
+#include "Abilities/app_ability_move.h"
+#include "Abilities/abilities.h"
 
-#include "../abilities.h"
+#include "Misc/projectile.h"
+#include "Misc/laser.h"
+#include "Misc/gun.h"
+#include "Misc/mass.h"
+#include "Misc/velocity.h"
+#include "Misc/spawner.h"
+#include "Misc/sinespawner.h"
+#include "Misc/story_point.h"
+#include "Misc/app_sine_move.h"
 
-#include "../projectile.h"
-#include "../laser.h"
-#include "../gun.h"
-#include "../mass.h"
-#include "../velocity.h"
-
-#include "../spawner.h"
-#include "../sinespawner.h"
-#include "../story_point.h"
-
-#include "../app_sine_move.h"
-
-#include "../app_terrain.h"
+#include "Terrain/app_terrain.h"
 
 
 /*****************************************************************************/

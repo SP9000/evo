@@ -1,0 +1,22 @@
+ply
+format ascii 1.0
+comment Created by Blender 2.65 (sub 0) - www.blender.org, source file: 'move.blend'
+element vertex 7
+property float x
+property float y
+property float z
+property float nx
+property float ny
+property float nz
+element face 2
+property list uchar uint vertex_indices
+end_header
+0.217457 -0.712584 0.000000 -0.000000 -0.000000 -1.000000
+0.217457 0.701630 0.000000 -0.000000 -0.000000 -1.000000
+0.924564 -0.005477 0.000000 -0.000000 -0.000000 -1.000000
+-0.750000 0.250000 0.000000 0.000000 0.000000 -1.000000
+0.220195 0.250000 0.000000 0.000000 0.000000 -1.000000
+0.220195 -0.250000 0.000000 0.000000 0.000000 -1.000000
+-0.750000 -0.250000 0.000000 0.000000 0.000000 -1.000000
+3 0 1 2
+4 3 4 5 6

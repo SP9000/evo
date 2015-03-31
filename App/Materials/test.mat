@@ -1,0 +1,17 @@
+{
+    "material": {
+		"passes": {
+			"pass0": {	
+				"shaders": {
+					"vert": "App\\Materials\\Shaders\\Vert\\test.vert",
+					"frag": "App\\Materials\\Shaders\\Frag\\test.frag"
+				},
+				"attributes": [
+					"in_Position",
+					"in_Color"
+				]
+			}
+		}
+    }
+}
+

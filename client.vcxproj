@@ -10,6 +10,115 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Engine\ai_behavior.c" />
+    <ClCompile Include="Engine\animation.c" />
+    <ClCompile Include="Engine\animationrenderer.c" />
+    <ClCompile Include="Engine\camera.c" />
+    <ClCompile Include="Engine\cJSON.c" />
+    <ClCompile Include="Engine\Components\AI\tv_ai_behavior_astar.c" />
+    <ClCompile Include="Engine\Components\AI\tv_ai_pattern_direct.c" />
+    <ClCompile Include="Engine\Components\Base\material.c" />
+    <ClCompile Include="Engine\Components\Base\model.c" />
+    <ClCompile Include="Engine\Components\Colliders\tv_collider.c" />
+    <ClCompile Include="Engine\Components\GUI\widget.c" />
+    <ClCompile Include="Engine\Components\GUI\widgetmodels.c" />
+    <ClCompile Include="Engine\Components\GUI\widget_frame.c" />
+    <ClCompile Include="Engine\Components\GUI\widget_slider.c" />
+    <ClCompile Include="Engine\Components\GUI\widget_stats.c" />
+    <ClCompile Include="Engine\Components\GUI\widget_textbox.c" />
+    <ClCompile Include="Engine\Components\GUI\widget_textedit.c" />
+    <ClCompile Include="Engine\Components\Renderers\guirenderer.c" />
+    <ClCompile Include="Engine\Components\Renderers\instancerenderer.c" />
+    <ClCompile Include="Engine\Components\Renderers\linerenderer.c" />
+    <ClCompile Include="Engine\Components\Renderers\modelrenderer.c" />
+    <ClCompile Include="Engine\Components\Renderers\overlayrenderer.c" />
+    <ClCompile Include="Engine\Components\Renderers\renderer.c" />
+    <ClCompile Include="Engine\Components\Renderers\textrenderer.c" />
+    <ClCompile Include="Engine\transform.c" />
+    <ClCompile Include="Engine\tv_alloc.c" />
+    <ClCompile Include="Engine\tv_client.c" />
+    <ClCompile Include="Engine\tv_client_packet.c" />
+    <ClCompile Include="Engine\tv_collision.c" />
+    <ClCompile Include="Engine\tv_component.c" />
+    <ClCompile Include="Engine\tv_draw.c" />
+    <ClCompile Include="Engine\tv_entity.c" />
+    <ClCompile Include="Engine\tv_gui.c" />
+    <ClCompile Include="Engine\tv_input.c" />
+    <ClCompile Include="Engine\tv_light.c" />
+    <ClCompile Include="Engine\tv_matrix.c" />
+    <ClCompile Include="Engine\tv_message.c" />
+    <ClCompile Include="Engine\tv_modelgen.c" />
+    <ClCompile Include="Engine\tv_physics.c" />
+    <ClCompile Include="Engine\tv_scene.c" />
+    <ClCompile Include="Engine\tv_stats.c" />
+    <ClCompile Include="Engine\tv_texture.c" />
+    <ClCompile Include="Engine\tv_time.c" />
+    <ClCompile Include="Engine\tv_tree.c" />
+    <ClCompile Include="Engine\tv_types.c" />
+    <ClCompile Include="Engine\tv_util.c" />
+    <ClCompile Include="Engine\tv_vector.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\ai_behavior.h" />
+    <ClInclude Include="Engine\ai_behavior_astar.h" />
+    <ClInclude Include="Engine\animation.h" />
+    <ClInclude Include="Engine\animationrenderer.h" />
+    <ClInclude Include="Engine\camera.h" />
+    <ClInclude Include="Engine\cJSON.h" />
+    <ClInclude Include="Engine\Components\AI\ai_behavior.h" />
+    <ClInclude Include="Engine\Components\AI\tv_ai_behavior_direct.h" />
+    <ClInclude Include="Engine\Components\Base\material.h" />
+    <ClInclude Include="Engine\Components\Base\model.h" />
+    <ClInclude Include="Engine\Components\Colliders\tv_collider.h" />
+    <ClInclude Include="Engine\Components\GUI\widget.h" />
+    <ClInclude Include="Engine\Components\GUI\widgetmodels.h" />
+    <ClInclude Include="Engine\Components\GUI\widget_frame.h" />
+    <ClInclude Include="Engine\Components\GUI\widget_slider.h" />
+    <ClInclude Include="Engine\Components\GUI\widget_stats.h" />
+    <ClInclude Include="Engine\Components\GUI\widget_textbox.h" />
+    <ClInclude Include="Engine\Components\GUI\widget_textedit.h" />
+    <ClInclude Include="Engine\Components\Renderers\guirenderer.h" />
+    <ClInclude Include="Engine\Components\Renderers\instancerenderer.h" />
+    <ClInclude Include="Engine\Components\Renderers\linerenderer.h" />
+    <ClInclude Include="Engine\Components\Renderers\modelrenderer.h" />
+    <ClInclude Include="Engine\Components\Renderers\overlayrenderer.h" />
+    <ClInclude Include="Engine\Components\Renderers\renderer.h" />
+    <ClInclude Include="Engine\Components\Renderers\textrenderer.h" />
+    <ClInclude Include="Engine\evo.h" />
+    <ClInclude Include="Engine\transform.h" />
+    <ClInclude Include="Engine\tv_alloc.h" />
+    <ClInclude Include="Engine\tv_array.h" />
+    <ClInclude Include="Engine\tv_client.h" />
+    <ClInclude Include="Engine\tv_client_packet.h" />
+    <ClInclude Include="Engine\tv_collision.h" />
+    <ClInclude Include="Engine\tv_component.h" />
+    <ClInclude Include="Engine\tv_draw.h" />
+    <ClInclude Include="Engine\tv_entity.h" />
+    <ClInclude Include="Engine\tv_gui.h" />
+    <ClInclude Include="Engine\tv_hash.h" />
+    <ClInclude Include="Engine\tv_input.h" />
+    <ClInclude Include="Engine\tv_light.h" />
+    <ClInclude Include="Engine\tv_list.h" />
+    <ClInclude Include="Engine\tv_macros.h" />
+    <ClInclude Include="Engine\tv_math.h" />
+    <ClInclude Include="Engine\tv_matrix.h" />
+    <ClInclude Include="Engine\tv_message.h" />
+    <ClInclude Include="Engine\tv_modelgen.h" />
+    <ClInclude Include="Engine\tv_physics.h" />
+    <ClInclude Include="Engine\tv_platform.h" />
+    <ClInclude Include="Engine\tv_queue.h" />
+    <ClInclude Include="Engine\tv_scene.h" />
+    <ClInclude Include="Engine\tv_stack.h" />
+    <ClInclude Include="Engine\tv_stats.h" />
+    <ClInclude Include="Engine\tv_string.h" />
+    <ClInclude Include="Engine\tv_texture.h" />
+    <ClInclude Include="Engine\tv_time.h" />
+    <ClInclude Include="Engine\tv_tree.h" />
+    <ClInclude Include="Engine\tv_types.h" />
+    <ClInclude Include="Engine\tv_util.h" />
+    <ClInclude Include="Engine\tv_vector.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5584220A-6F80-465D-AB30-952E7D28373E}</ProjectGuid>
     <RootNamespace>evo</RootNamespace>
@@ -41,10 +150,10 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LibraryPath>C:\Dev\lib32;C:\enet\lib;C:\glew\lib\Release\Win32;C:\SDL\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Engine\Components\GUI;$(ProjectDir)\Engine\Components\Renderers;$(ProjectDir)\Engine\Components\Colliders;$(ProjectDir)\Engine\Components\Base;$(ProjectDir)\Engine\Components\AI;$(ProjectDir)\Engine\Components\Renderers;$(ProjectDir)\Engine\Components\GUI;$(ProjectDir)\Engine\Components\Colliders;$(ProjectDir)\Engine\Components\Base;$(ProjectDir)\Engine\Components\AI;$(ProjectDir)\Engine;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\Engine\Components\GUI;$(ProjectDir)\Engine\Components\Renderers;$(ProjectDir)\Engine\Components\Colliders;$(ProjectDir)\Engine\Components\Base;$(ProjectDir)\Engine\Components\AI;$(IncludePath)</IncludePath>
     <LibraryPath>C:\Dev\lib32;C:\enet\lib;C:\glew\lib\Release\Win32;C:\SDL\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -85,126 +194,6 @@
       <AdditionalDependencies>assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="ai_behavior.c" />
-    <ClCompile Include="animation.c" />
-    <ClCompile Include="animationrenderer.c" />
-    <ClCompile Include="camera.c" />
-    <ClCompile Include="cJSON.c" />
-    <ClCompile Include="tv_ai_behavior_astar.c" />
-    <ClCompile Include="tv_ai_pattern_direct.c" />
-    <ClCompile Include="tv_client.c" />
-    <ClCompile Include="tv_client_packet.c" />
-    <ClCompile Include="tv_collider.c" />
-    <ClCompile Include="tv_collision.c" />
-    <ClCompile Include="tv_component.c" />
-    <ClCompile Include="tv_draw.c" />
-    <ClCompile Include="tv_entity.c" />
-    <ClCompile Include="guirenderer.c" />
-    <ClCompile Include="tv_gui.c" />
-    <ClCompile Include="tv_input.c" />
-    <ClCompile Include="instancerenderer.c" />
-    <ClCompile Include="linerenderer.c" />
-    <ClCompile Include="material.c" />
-    <ClCompile Include="tv_matrix.c" />
-    <ClCompile Include="model.c" />
-    <ClCompile Include="tv_message.c" />
-    <ClCompile Include="tv_modelgen.c" />
-    <ClCompile Include="modelrenderer.c" />
-    <ClCompile Include="overlayrenderer.c" />
-    <ClCompile Include="renderer.c" />
-    <ClCompile Include="tv_physics.c" />
-    <ClCompile Include="tv_scene.c" />
-    <ClCompile Include="textrenderer.c" />
-    <ClCompile Include="tv_texture.c" />
-    <ClCompile Include="tv_time.c" />
-    <ClCompile Include="transform.c" />
-    <ClCompile Include="tv_alloc.c" />
-    <ClCompile Include="tv_light.c" />
-    <ClCompile Include="tv_stats.c" />
-    <ClCompile Include="tv_tree.c" />
-    <ClCompile Include="tv_vector.c" />
-    <ClCompile Include="tv_types.c" />
-    <ClCompile Include="tv_util.c" />
-    <ClCompile Include="widget.c" />
-    <ClCompile Include="widgetmodels.c" />
-    <ClCompile Include="widget_frame.c" />
-    <ClCompile Include="widget_slider.c" />
-    <ClCompile Include="widget_stats.c" />
-    <ClCompile Include="widget_textbox.c" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ai_behavior.h" />
-    <ClInclude Include="ai_behavior_astar.h" />
-    <ClInclude Include="animation.h" />
-    <ClInclude Include="animationrenderer.h" />
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="cJSON.h" />
-    <ClInclude Include="tv_ai_behavior_direct.h" />
-    <ClInclude Include="tv_client.h" />
-    <ClInclude Include="tv_client_packet.h" />
-    <ClInclude Include="tv_collider.h" />
-    <ClInclude Include="tv_collision.h" />
-    <ClInclude Include="tv_component.h" />
-    <ClInclude Include="tv_draw.h" />
-    <ClInclude Include="tv_entity.h" />
-    <ClInclude Include="evo.h" />
-    <ClInclude Include="tv_gui.h" />
-    <ClInclude Include="tv_macros.h" />
-    <ClInclude Include="overlayrenderer.h" />
-    <ClInclude Include="tv_math.h" />
-    <ClInclude Include="tv_physics.h" />
-    <ClInclude Include="tv_platform.h" />
-    <ClInclude Include="tv_light.h" />
-    <ClInclude Include="tv_queue.h" />
-    <ClInclude Include="tv_stack.h" />
-    <ClInclude Include="tv_stats.h" />
-    <ClInclude Include="tv_tree.h" />
-    <ClInclude Include="widgetmodels.h" />
-    <ClInclude Include="guirenderer.h" />
-    <ClInclude Include="tv_input.h" />
-    <ClInclude Include="instancerenderer.h" />
-    <ClInclude Include="linerenderer.h" />
-    <ClInclude Include="material.h" />
-    <ClInclude Include="tv_matrix.h" />
-    <ClInclude Include="model.h" />
-    <ClInclude Include="tv_modelgen.h" />
-    <ClInclude Include="modelrenderer.h" />
-    <ClInclude Include="renderer.h" />
-    <ClInclude Include="tv_scene.h" />
-    <ClInclude Include="textrenderer.h" />
-    <ClInclude Include="tv_texture.h" />
-    <ClInclude Include="tv_time.h" />
-    <ClInclude Include="transform.h" />
-    <ClInclude Include="tv_alloc.h" />
-    <ClInclude Include="tv_array.h" />
-    <ClInclude Include="tv_hash.h" />
-    <ClInclude Include="tv_list.h" />
-    <ClInclude Include="tv_message.h" />
-    <ClInclude Include="tv_string.h" />
-    <ClInclude Include="tv_vector.h" />
-    <ClInclude Include="tv_types.h" />
-    <ClInclude Include="tv_util.h" />
-    <ClInclude Include="widget.h" />
-    <ClInclude Include="widget_frame.h" />
-    <ClInclude Include="widget_slider.h" />
-    <ClInclude Include="widget_stats.h" />
-    <ClInclude Include="widget_textbox.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="diffuse.fxi" />
-    <None Include="diffuse_lit.mat" />
-    <None Include="gui.frag" />
-    <None Include="gui.vert" />
-    <None Include="line.mat" />
-    <None Include="line.vert" />
-    <None Include="skeletal_anim.vert" />
-    <None Include="test.frag" />
-    <None Include="test.mat" />
-    <None Include="test.vert" />
-    <None Include="tex.frag" />
-    <None Include="tex.vert" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

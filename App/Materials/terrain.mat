@@ -1,0 +1,14 @@
+{
+    "material": {
+        "shaders": {
+            "vert": "App\\Materials\\Vert\\terrain.vert",
+            "frag": "App\\Materials\\Frag\\terrain.frag"
+        },
+        "attributes": [
+            "in_Position",
+            "in_Color",
+			"iin_Flags"
+        ]
+    }
+}
+

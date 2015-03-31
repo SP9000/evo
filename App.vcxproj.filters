@@ -1,352 +1,335 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Components">
-      <UniqueIdentifier>{05eeaa64-da89-4f2a-8b2f-d87f24d9ef5c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Materials">
-      <UniqueIdentifier>{281ff5a7-c646-4f1d-b246-9834859caf61}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Materials\Fragment Shaders">
-      <UniqueIdentifier>{7cea2c2d-f8ec-4584-9f24-fa00af8ec9f8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Materials\Vertex Shaders">
-      <UniqueIdentifier>{f9047d8d-4621-4039-926e-2abe509907b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\GUI">
-      <UniqueIdentifier>{19931f86-39bf-4d11-9ed7-9b8cd64dbc63}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\GUI\Headers">
-      <UniqueIdentifier>{bd05bde7-bfb9-448b-a11b-4e6eb9ab1e7c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Resource Files\Beings">
-      <UniqueIdentifier>{059b62eb-a419-4316-a886-5fb82e06536c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Projectiles">
-      <UniqueIdentifier>{5a981e8e-0ca7-47b3-a8a7-cadc60e919c3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Projectiles\Source Files">
-      <UniqueIdentifier>{79885cff-fa6a-4af9-85b4-a887f3b843b5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Projectiles\Header Files">
-      <UniqueIdentifier>{d37e0363-d5b8-4f3d-8bb1-463e20623def}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Old">
-      <UniqueIdentifier>{2d74104a-6487-4cf9-9d64-a32a7a4c880c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Old\Headers">
-      <UniqueIdentifier>{e1793271-ebcf-4d89-98ed-42b3c389f2fb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Old\Sources">
-      <UniqueIdentifier>{43998528-c118-46a2-9707-f1e9965cdf20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Misc">
-      <UniqueIdentifier>{cb274d39-2788-49c4-a170-5db74c6e7b80}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Misc\Header Files">
-      <UniqueIdentifier>{e85dbd46-046c-4ca2-b0ea-e318edcb274d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Misc\Source Files">
-      <UniqueIdentifier>{72989725-6a20-4df0-91a0-4696580147c2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Guns">
-      <UniqueIdentifier>{1b7f4a57-f939-479c-8dab-62eb792fede3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Guns\Source Files">
-      <UniqueIdentifier>{2fb5c4a4-65fa-424f-9da7-5044e1fc8caf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Guns\Header Files">
-      <UniqueIdentifier>{7357cf65-5cf0-4abe-ac32-a2c7ab394254}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Spawners">
-      <UniqueIdentifier>{2a2463eb-b0b9-4d69-b94b-696a7015b08a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Spawners\Source Files">
-      <UniqueIdentifier>{ba6d6b40-711a-431b-998e-3918ea5c4c08}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Components\Spawners\Header Files">
-      <UniqueIdentifier>{becc7cba-6108-4ade-9027-460b77fef9ae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scenes">
-      <UniqueIdentifier>{83af2e34-0810-4801-859e-d6109b916bae}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Entities">
-      <UniqueIdentifier>{2b61a58a-d4c0-4119-8c32-c74839fedd10}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Entities\test">
-      <UniqueIdentifier>{1086edbc-91c4-45f9-b753-4573f1fe09c5}</UniqueIdentifier>
+      <UniqueIdentifier>{95af193b-fb8e-445b-988a-ed6cab8253cc}</UniqueIdentifier>
     </Filter>
     <Filter Include="Prefabs">
-      <UniqueIdentifier>{3553e4c7-bfee-457f-990f-71b9e4b5402f}</UniqueIdentifier>
+      <UniqueIdentifier>{36a35068-9a95-4d38-af33-785d00728632}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Motion">
-      <UniqueIdentifier>{127b0f65-a2b4-459a-a972-4755e5076224}</UniqueIdentifier>
+    <Filter Include="Scenes">
+      <UniqueIdentifier>{2353d932-105a-4767-a22d-9616249b91fb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Units">
-      <UniqueIdentifier>{8d8f5759-f16f-42e1-ad1e-d51eec16218b}</UniqueIdentifier>
+    <Filter Include="Entities">
+      <UniqueIdentifier>{fd054aa3-762e-4264-bf4a-5c8e46c0fe93}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\Units\Header Files">
-      <UniqueIdentifier>{e7f63850-1af0-43c8-85b1-3b4fe7e349a9}</UniqueIdentifier>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{5f8cf32f-a39a-4fb5-938e-ed723a98ca0e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Components\Abilities">
-      <UniqueIdentifier>{b42d8706-1ab4-4050-ade5-fd2780648087}</UniqueIdentifier>
+      <UniqueIdentifier>{c984f0ad-4ee9-41f2-809d-f523316cc5bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\GUI">
+      <UniqueIdentifier>{c668d7a5-295c-4721-825c-8b06d941a03c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Misc">
+      <UniqueIdentifier>{55c28874-6ffb-4912-805e-ed2dc249cf18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Units">
+      <UniqueIdentifier>{f65e5dbc-3f14-4ff4-b5cc-0bba5b7fce99}</UniqueIdentifier>
     </Filter>
     <Filter Include="Components\Abilities\Header Files">
-      <UniqueIdentifier>{f10e7c30-b9ec-4775-9bff-826982bc32a3}</UniqueIdentifier>
+      <UniqueIdentifier>{a72749e2-0c45-45a6-b14e-9f465e08fd99}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Prefabs\Baddies">
-      <UniqueIdentifier>{9da0b74a-016c-49c5-a60d-cde52fec7b4d}</UniqueIdentifier>
+    <Filter Include="Components\GUI\Header Files">
+      <UniqueIdentifier>{8f022ff2-04dc-4883-9349-92d366e7c781}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\AI">
-      <UniqueIdentifier>{77c5a171-0b0b-47d0-a071-88de37ff36c1}</UniqueIdentifier>
+    <Filter Include="Components\Misc\Header Files">
+      <UniqueIdentifier>{faf856c8-c278-4fde-9851-67332ae2b3d5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Components\AI\Header Files">
-      <UniqueIdentifier>{23576341-7f18-4c51-837e-007f9923bd98}</UniqueIdentifier>
+    <Filter Include="Components\Units\Header Files">
+      <UniqueIdentifier>{43486240-ea08-4178-a074-de216bb3d6eb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Terrain">
+      <UniqueIdentifier>{ae353f6c-d07e-4e32-b4b2-8bc8bb98d68b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components\Terrain\Header Files">
+      <UniqueIdentifier>{68b5c1ea-2c78-41c7-b945-d639d51e3e62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Materials">
+      <UniqueIdentifier>{26713429-b097-409e-be46-ff338dc9892a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders">
+      <UniqueIdentifier>{1dd6addd-ffad-42fa-80c9-28c214e3936b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\Frag">
+      <UniqueIdentifier>{dc0d0961-1590-4d90-b9c9-4b4a500b5999}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\Geom">
+      <UniqueIdentifier>{8126c095-e387-45d4-86b5-fdbe09ef2d77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Shaders\Vert">
+      <UniqueIdentifier>{bbaaa3b2-72e6-46f1-b4d6-fc00cf6bf53c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="grid.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="terrain.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="camera_controller.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="App\playermotor.h">
-      <Filter>Components\Old\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="hud.h">
-      <Filter>Components\GUI\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="projectile.h">
-      <Filter>Components\Projectiles\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="laser.h">
-      <Filter>Components\Projectiles\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="mass.h">
-      <Filter>Components\Misc\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="velocity.h">
-      <Filter>Components\Misc\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gun.h">
-      <Filter>Components\Guns\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="spawner.h">
-      <Filter>Components\Spawners\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="sinespawner.h">
-      <Filter>Components\Spawners\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="story_point.h">
-      <Filter>Components\GUI\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="app_scenes.h">
-      <Filter>Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="app_entities.h">
-      <Filter>Entities</Filter>
-    </ClInclude>
-    <ClInclude Include="app_prefabs.h">
-      <Filter>Prefabs</Filter>
-    </ClInclude>
-    <ClInclude Include="app_sine_move.h">
-      <Filter>Components\Motion</Filter>
-    </ClInclude>
-    <ClInclude Include="App\app.h" />
-    <ClInclude Include="unit.h">
-      <Filter>Components\Units\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ability.h">
-      <Filter>Components\Abilities\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="app_ability_move.h">
-      <Filter>Components\Abilities\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cursor.h">
-      <Filter>Components\GUI\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="tags.h" />
-    <ClInclude Include="app_terrain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="abilities.h">
-      <Filter>Components\Abilities\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="app_ability_whack.h">
-      <Filter>Components\Abilities\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="app_prefabs_baddies.h">
-      <Filter>Prefabs</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="App\app.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="camera_controller.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="grid.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="terrain.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="App\playermotor.c">
-      <Filter>Components\Old\Sources</Filter>
-    </ClCompile>
-    <ClCompile Include="projectile.c">
-      <Filter>Components\Projectiles\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="mass.c">
-      <Filter>Components\Misc\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="velocity.c">
-      <Filter>Components\Misc\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="laser.c">
-      <Filter>Components\Projectiles\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gun.c">
-      <Filter>Components\Guns\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="spawner.c">
-      <Filter>Components\Spawners\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="sinespawner.c">
-      <Filter>Components\Spawners\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="desert1.c">
-      <Filter>Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="fairy.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_grid.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_fairy2.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_camera_controller.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_main_gui.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_text.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_terrain.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_ground.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_spawn_pt1.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_test_gun.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_test_plane.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="entity_cursor.c">
-      <Filter>Entities\test</Filter>
-    </ClCompile>
-    <ClCompile Include="prefab_fairy.c">
-      <Filter>Prefabs</Filter>
-    </ClCompile>
-    <ClCompile Include="appregister.c" />
-    <ClCompile Include="prefab_moving_sphere.c">
-      <Filter>Prefabs</Filter>
-    </ClCompile>
-    <ClCompile Include="app_sine_move.c">
-      <Filter>Components\Motion</Filter>
-    </ClCompile>
-    <ClCompile Include="abilities.c">
+    <ClCompile Include="App\Components\Abilities\app_ability_whack.c">
       <Filter>Components\Abilities</Filter>
     </ClCompile>
-    <ClCompile Include="app_terrain.c">
-      <Filter>Components</Filter>
-    </ClCompile>
-    <ClCompile Include="ability.c">
+    <ClCompile Include="App\Components\Abilities\melee.c">
       <Filter>Components\Abilities</Filter>
     </ClCompile>
-    <ClCompile Include="app_ability_move.c">
+    <ClCompile Include="App\Components\Abilities\move.c">
       <Filter>Components\Abilities</Filter>
     </ClCompile>
-    <ClCompile Include="app_unit.c">
+    <ClCompile Include="App\Components\Abilities\abilities.c">
       <Filter>Components\Abilities</Filter>
     </ClCompile>
-    <ClCompile Include="cursor.c">
+    <ClCompile Include="App\Components\Abilities\ability.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Abilities\app_ability_move.c">
+      <Filter>Components\Abilities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\GUI\cursor.c">
       <Filter>Components\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="hud.c">
+    <ClCompile Include="App\Components\GUI\hud.c">
       <Filter>Components\GUI</Filter>
     </ClCompile>
-    <ClCompile Include="story_point.c">
-      <Filter>Components\GUI</Filter>
+    <ClCompile Include="App\Components\Misc\grid.c">
+      <Filter>Components\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="app_ability_whack.c">
-      <Filter>Components\Abilities</Filter>
+    <ClCompile Include="App\Components\Misc\gun.c">
+      <Filter>Components\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="app_prefabs_baddie_doomsphere.c">
-      <Filter>Prefabs\Baddies</Filter>
+    <ClCompile Include="App\Components\Misc\jet_engine.c">
+      <Filter>Components\Misc</Filter>
     </ClCompile>
-    <ClCompile Include="unit.c">
+    <ClCompile Include="App\Components\Misc\laser.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\mass.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\playermotor.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\projectile.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\sinespawner.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\spawner.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\story_point.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\velocity.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\app_sine_move.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Misc\camera_controller.c">
+      <Filter>Components\Misc</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Terrain\app_terrain.c">
+      <Filter>Components\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Terrain\terrain.c">
+      <Filter>Components\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Components\Units\app_unit.c">
       <Filter>Components\Units</Filter>
     </ClCompile>
+    <ClCompile Include="App\Entities\entity_ground.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_main_gui.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_spawn_pt1.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_terrain.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_test_gun.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_test_plane.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_text.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\fairy.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_camera_controller.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_cursor.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_fairy2.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Entities\entity_grid.c">
+      <Filter>Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Prefabs\prefab_fairy.c">
+      <Filter>Prefabs</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Prefabs\prefab_moving_sphere.c">
+      <Filter>Prefabs</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Prefabs\app_prefabs_baddie_doomsphere.c">
+      <Filter>Prefabs</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Scenes\desert1.c">
+      <Filter>Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="App\appregister.c" />
+    <ClCompile Include="App\app.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="terrain.mat">
-      <Filter>Resource Files\Materials</Filter>
-    </None>
-    <None Include="terrain.vert">
-      <Filter>Resource Files\Materials\Vertex Shaders</Filter>
-    </None>
-    <None Include="terrain.frag">
-      <Filter>Resource Files\Materials\Fragment Shaders</Filter>
-    </None>
-    <None Include="cursor.vert">
-      <Filter>Resource Files\Materials\Vertex Shaders</Filter>
-    </None>
-    <None Include="cursor.frag">
-      <Filter>Resource Files\Materials\Fragment Shaders</Filter>
-    </None>
-    <None Include="cursor.mat">
-      <Filter>Resource Files\Materials</Filter>
-    </None>
-    <None Include="grass.frag">
-      <Filter>Resource Files\Materials\Fragment Shaders</Filter>
-    </None>
-    <None Include="grass.vert">
-      <Filter>Resource Files\Materials\Vertex Shaders</Filter>
-    </None>
-    <None Include="grass.mat">
-      <Filter>Resource Files</Filter>
-    </None>
+    <ClInclude Include="App\Components\Abilities\abilities.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Abilities\ability.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Abilities\app_ability_move.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Abilities\app_ability_whack.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Abilities\melee.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Abilities\move.h">
+      <Filter>Components\Abilities\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\GUI\cursor.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\GUI\hud.h">
+      <Filter>Components\GUI\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\grid.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\gun.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\jet_engine.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\laser.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\mass.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\playermotor.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\projectile.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\sinespawner.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\spawner.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\story_point.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\velocity.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\app_sine_move.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Misc\camera_controller.h">
+      <Filter>Components\Misc\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Terrain\app_terrain.h">
+      <Filter>Components\Terrain\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Terrain\terrain.h">
+      <Filter>Components\Terrain\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Components\Terrain\terrain_profile.h">
+      <Filter>Components\Terrain\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Prefabs\app_prefabs_baddies.h">
+      <Filter>Prefabs</Filter>
+    </ClInclude>
+    <ClInclude Include="App\app.h" />
+    <ClInclude Include="App\app_entities.h" />
+    <ClInclude Include="App\app_prefabs.h" />
+    <ClInclude Include="App\app_scenes.h" />
+    <ClInclude Include="App\appcomponents.h" />
+    <ClInclude Include="App\tags.h" />
+    <ClInclude Include="App\app_resources.h" />
   </ItemGroup>
   <ItemGroup>
-    <Xml Include="camel.xml">
-      <Filter>Resource Files\Beings</Filter>
-    </Xml>
+    <None Include="App\Materials\cursor.mat">
+      <Filter>Assets\Materials</Filter>
+    </None>
+    <None Include="App\Materials\grass.mat">
+      <Filter>Assets\Materials</Filter>
+    </None>
+    <None Include="App\Materials\line.mat">
+      <Filter>Assets\Materials</Filter>
+    </None>
+    <None Include="App\Materials\terrain.mat">
+      <Filter>Assets\Materials</Filter>
+    </None>
+    <None Include="App\Materials\test.mat">
+      <Filter>Assets\Materials</Filter>
+    </None>
+    <None Include="App\Materials\tex.mat">
+      <Filter>Assets\Materials</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Frag\terrain.frag">
+      <Filter>Assets\Shaders\Frag</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Frag\test.frag">
+      <Filter>Assets\Shaders\Frag</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Frag\tex.frag">
+      <Filter>Assets\Shaders\Frag</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Frag\cursor.frag">
+      <Filter>Assets\Shaders\Frag</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Frag\grass.frag">
+      <Filter>Assets\Shaders\Frag</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Frag\gui.frag">
+      <Filter>Assets\Shaders\Frag</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\skeletal_anim.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\terrain.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\test.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\tex.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\cursor.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\grass.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\gui.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
+    <None Include="App\Materials\Shaders\Vert\line.vert">
+      <Filter>Assets\Shaders\Vert</Filter>
+    </None>
   </ItemGroup>
 </Project>

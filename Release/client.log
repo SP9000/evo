@@ -1,0 +1,69 @@
+﻿Build started 5/25/2014 11:57:05 PM.
+     1>Project "C:\Users\Bryce\Documents\GitHub\evo\client.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /IC:\enet\include /IC:\glew\include /IC:\SDL\include /Zi /nologo /W3 /WX- /O2 /Oi /Oy- /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc110.pdb" /Gd /TC /analyze- /errorReport:prompt modelrenderer.c scene.c
+         modelrenderer.c
+     1>c:\users\bryce\documents\github\evo\tv_array.h(221): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _strdup. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(241) : see declaration of 'strdup'
+     1>c:\users\bryce\documents\github\evo\tv_string.h(127): warning C4996: 'vsnprintf': This function or variable may be unsafe. Consider using vsnprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(340) : see declaration of 'vsnprintf'
+     1>c:\users\bryce\documents\github\evo\tv_string.h(166): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(174): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(208): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(323): warning C4018: '>=' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(369): warning C4018: '>=' : signed/unsigned mismatch
+     1>modelrenderer.c(31): warning C4101: 'i' : unreferenced local variable
+         scene.c
+     1>c:\users\bryce\documents\github\evo\tv_array.h(221): warning C4996: 'strdup': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _strdup. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\string.h(241) : see declaration of 'strdup'
+     1>c:\users\bryce\documents\github\evo\tv_string.h(127): warning C4996: 'vsnprintf': This function or variable may be unsafe. Consider using vsnprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\include\stdio.h(340) : see declaration of 'vsnprintf'
+     1>c:\users\bryce\documents\github\evo\tv_string.h(166): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(174): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(208): warning C4018: '<' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(323): warning C4018: '>=' : signed/unsigned mismatch
+     1>c:\users\bryce\documents\github\evo\tv_string.h(369): warning C4018: '>=' : signed/unsigned mismatch
+     1>scene.c(81): warning C4101: 'closest' : unreferenced local variable
+       Lib:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\Lib.exe /OUT:"C:\Users\Bryce\Documents\GitHub\evo\Release\client.lib" /NOLOGO /LTCG Release\animation.obj
+         Release\camera.obj
+         Release\cJSON.obj
+         Release\client.obj
+         Release\client_packet.obj
+         Release\collision.obj
+         Release\component.obj
+         Release\draw.obj
+         Release\entity.obj
+         Release\guirenderer.obj
+         Release\input.obj
+         Release\instancerenderer.obj
+         Release\linerenderer.obj
+         Release\material.obj
+         Release\matrix.obj
+         Release\model.obj
+         Release\modelgen.obj
+         Release\modelrenderer.obj
+         Release\overlayrenderer.obj
+         Release\renderer.obj
+         Release\scene.obj
+         Release\textrenderer.obj
+         Release\texture.obj
+         Release\timer.obj
+         Release\transform.obj
+         Release\tv_alloc.obj
+         Release\tv_light.obj
+         Release\tv_stats.obj
+         Release\tv_vector.obj
+         Release\types.obj
+         Release\util.obj
+         Release\widget.obj
+         Release\widgetmodels.obj
+         Release\widget_frame.obj
+         Release\widget_stats.obj
+         Release\widget_textbox.obj
+         client.vcxproj -> C:\Users\Bryce\Documents\GitHub\evo\Release\client.lib
+     1>Done Building Project "C:\Users\Bryce\Documents\GitHub\evo\client.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.81
